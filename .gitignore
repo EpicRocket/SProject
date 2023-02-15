@@ -306,5 +306,5 @@ Client/SProject/Plugins/*/Intermediate/*
 # Cache files for the editor to use
 Client/SProject/DerivedDataCache/*
 
-# # Add content folders
-# !Client/SProject/Content
+# Add content folders
+!Client/SProject/Content/*
