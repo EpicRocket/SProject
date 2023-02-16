@@ -1,14 +1,3 @@
-
-# Explcitly ignore Mac DS_Store files, regardless of where they are
-.DS_Store
-
-# Ignore VS / VS Code settings directory
-.vs
-.vscode
-
-# Ignore CLion directory
-.idea/
-
 # Annoying windows files
 [Dd]esktop.ini
 
@@ -268,7 +257,7 @@ Client/Engine/Extras/ThirdPartyNotUE/SDKs/HostLinux/**
 # Ignore test json data files in NeuralNetworkInterface
 /Client/Engine/Plugins/Experimental/NNI/Source/ThirdParty/Deps/json/**
 
-## Ignore Engine setup files
+# Ignore Engine setup files
 Client/Engine/Content/
 Client/Engine/Binaries/
 Client/Engine/Build/
@@ -281,3 +270,16 @@ Client/Engine/Platforms/
 Client/Templates/
 Client/FeaturePacks/
 Client/Samples/
+
+# Ignore SProject Binaries
+/Client/SProject/Binaries/
+
+# Explcitly ignore Mac DS_Store files, regardless of where they are
+.DS_Store
+
+# Ignore VS / VS Code settings directory
+.vs
+.vscode
+
+# Ignore CLion directory
+.idea/
