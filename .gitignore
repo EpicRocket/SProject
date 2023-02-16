@@ -1,132 +1,146 @@
 
-# Unreal Engine .gitignore file
+# Explcitly ignore Mac DS_Store files, regardless of where they are
+.DS_Store
+
+# Ignore VS / VS Code settings directory
+.vs
+.vscode
+
+# Ignore CLion directory
+.idea/
+
+# Annoying windows files
+[Dd]esktop.ini
+
+
+## Unreal Engine .gitignore file
 
 # Ignore all files by default, but scan all directories
 Client/*
 !Client/*/
 
 # C/C++ source files
-!Client/*.c
-!Client/*.cc
-!Client/*.cpp
-!Client/*.cpp.template
-!Client/*.h
-!Client/*.h.template
-!Client/*.hpp
-!Client/*.inl
-!Client/*.inc
-!Client/*.m
-!Client/*.mm
-!Client/*.rc
-!Client/*.rc2
-!Client/*.def
-!Client/*.exp
-!Client/*.manifest
+!Client/**/*.c
+!Client/**/*.cc
+!Client/**/*.cpp
+!Client/**/*.cpp.template
+!Client/**/*.h
+!Client/**/*.h.template
+!Client/**/*.hpp
+!Client/**/*.inl
+!Client/**/*.inc
+!Client/**/*.m
+!Client/**/*.mm
+!Client/**/*.rc
+!Client/**/*.rc2
+!Client/**/*.def
+!Client/**/*.exp
+!Client/**/*.manifest
 
 # ISPC files
-!Client/*.ispc
-!Client/*.isph
+!Client/**/*.ispc
+!Client/**/*.isph
 
 # Re-ignore vs host manifest
-Client/*.vshost.exe.manifest
+Client/**/*.vshost.exe.manifest
 
-# Java source files
-!Client/*.java
-!Client/*.java.template
+# # Java source files
+!Client/**/*.java
+!Client/**/*.java.template
 
 # C# source files
-!Client/*.cs
-!Client/*.cs.template
-!Client/*.aspx
-!Client/*.resx
+!Client/**/*.cs
+!Client/**/*.cs.template
+!Client/**/*.aspx
+!Client/**/*.resx
 
 # Shader formats
-!Client/*.usf
-!Client/*.ush
-!Client/*.hlsl
-!Client/*.glsl
+!Client/**/*.usf
+!Client/**/*.ush
+!Client/**/*.hlsl
+!Client/**/*.glsl
 
 # Text files
-!Client/*.txt
-!Client/*.md
+!Client/**/*.txt
+!Client/**/*.md
 
 # Swift files
-Client/*.swift
+Client/**/*.swift
 
 # Script files
-!Client/*.bat
-!Client/*.sh
-!Client/*.pl
-!Client/*.py
-!Client/*.ps1
-!Client/*.js
-!Client/*.ts
-!Client/*.tsx
-!Client/*.command
+!Client/**/*.bat
+!Client/**/*.sh
+!Client/**/*.pl
+!Client/**/*.py
+!Client/**/*.ps1
+!Client/**/*.js
+!Client/**/*.ts
+!Client/**/*.tsx
+!Client/**/*.command
 
 # Other configuration and markup files
-!Client/*.ini
-!Client/*.json
-!Client/*.tps
-!Client/*.xml
-!Client/*.xaml
-!Client/*.uproject
-!Client/*.uplugin
-!Client/*.html
-!Client/*.html.template
-!Client/*.css
-!Client/*.udn
-!Client/*.config
-!Client/*.version
-!Client/.git*
-!Client/.editorconfig
-!Client/.plist
-!Client/*.uprojectdirs
+!Client/**/*.ini
+!Client/**/*.json
+!Client/**/*.tps
+!Client/**/*.xml
+!Client/**/*.xaml
+!Client/**/*.uproject
+!Client/**/*.uplugin
+!Client/**/*.html
+!Client/**/*.html.template
+!Client/**/*.css
+!Client/**/*.udn
+!Client/**/*.config
+!Client/**/*.version
+!Client/**/.git*
+!Client/**/.editorconfig
+!Client/**/.plist
+!Client/**/*.uprojectdirs
 
 # Projects and makefiles
-!Client/*.cmake
-!Client/*.mk
-!Client/*.dsp
-!Client/*.dsw
-!Client/*.csproj
-!Client/*.vcproj
-!Client/*.vcxproj
-!Client/*.vcxproj.filters
-!Client/*.sln
-!Client/*.xcodeproj
-!Client/*.xcconfig
-!Client/*.vsprops
-!Client/*.snippet
-!Client/Makefile
-!Client/Makefile.*
-!Client/Settings.settings
+!Client/**/*.cmake
+!Client/**/*.mk
+!Client/**/*.dsp
+!Client/**/*.dsw
+!Client/**/*.csproj
+!Client/**/*.vcproj
+!Client/**/*.vcxproj
+!Client/**/*.vcxproj.filters
+!Client/**/*.sln
+!Client/**/*.xcodeproj
+!Client/**/*.xcconfig
+!Client/**/*.vsprops
+!Client/**/*.snippet
+!Client/**/Makefile
+!Client/**/Makefile.*
+!Client/**/Settings.settings
 
 # Specific names
-!Client/README
-!Client/AUTHORS
-!Client/LICENSE
-!Client/FAQ
-!Client/VERSION
-!Client/ChangeLog
+!Client/**/README
+!Client/**/AUTHORS
+!Client/**/LICENSE
+!Client/**/FAQ
+!Client/**/VERSION
+!Client/**/ChangeLog
 
 # Ignore Unix backup files
-Client/*~
+Client/**/*~
 
 # Exceptions
-/Client/*.sln
-/Client/*.xcodeproj
-/Client/Makefile
-/Client/CMakeLists.txt
-/Client/cmake-build-debug
-Client/*.target.xml
-Client/*.dll.config
-Client/*.exe.config
-Client/*.exe.manifest
-/Client/.kdev4/
-/Client/UE4CodeCompletionFolders.txt
-/Client/UE4CodeLitePreProcessor.txt
-/Client/UE5CodeCompletionFolders.txt
-/Client/UE5CodeLitePreProcessor.txt
+/Client/**/*.sln
+/Client/**/*.xcodeproj
+/Client/**/Makefile
+/Client/**/CMakeLists.txt
+/Client/**/cmake-build-debug
+Client/**/*.target.xml
+Client/**/*.dll.config
+Client/**/*.exe.config
+Client/**/*.exe.manifest
+/Client/**/.kdev4/
+/Client/**/UE4CodeCompletionFolders.txt
+/Client/**/UE4CodeLitePreProcessor.txt
+/Client/**/UE5CodeCompletionFolders.txt
+/Client/**/UE5CodeLitePreProcessor.txt
 
 
 # Add exceptions for Mac Mono binaries needed to run GitDependencies.exe.
@@ -223,7 +237,7 @@ Client/Engine/Binaries/Android/packageInfo.txt
 enc_temp_folder/
 
 # Ignore content folders
-# Client/**/Content/
+!Client/SProject/Content/
 
 # Ignore DDC
 /Client/Engine/DerivedDataCache/**
@@ -242,21 +256,8 @@ Client/**/Saved/
 /Client/Engine/Binaries/DotNET/SwarmAgent.DeveloperOptions.xml
 /Client/Engine/Binaries/DotNET/SwarmAgent.Options.xml
 
-# Explcitly ignore Mac DS_Store files, regardless of where they are
-.DS_Store
-
-# Ignore VS / VS Code settings directory
-.vs
-.vscode
-
-# Ignore CLion directory
-.idea/
-
 # Ignore Rider directories
 /Client/Engine/Plugins/Developer/RiderLink
-
-# Annoying windows files
-[Dd]esktop.ini
 
 # Ignore the headers and cpp files in the clang toolchain on Linux
 Client/Engine/Extras/ThirdPartyNotUE/SDKs/HostLinux/**
@@ -266,3 +267,17 @@ Client/Engine/Extras/ThirdPartyNotUE/SDKs/HostLinux/**
 
 # Ignore test json data files in NeuralNetworkInterface
 /Client/Engine/Plugins/Experimental/NNI/Source/ThirdParty/Deps/json/**
+
+## Ignore Engine setup files
+Client/Engine/Content/
+Client/Engine/Binaries/
+Client/Engine/Build/
+Client/Engine/Config/
+Client/Engine/Documentation/
+Client/Engine/Extras/
+Client/Engine/Plugins/
+Client/Engine/Source/
+Client/Engine/Platforms/
+Client/Templates/
+Client/FeaturePacks/
+Client/Samples/
