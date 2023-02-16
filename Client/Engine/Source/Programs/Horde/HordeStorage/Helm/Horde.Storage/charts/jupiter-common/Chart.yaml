@@ -1,0 +1,7 @@
+apiVersion: v2
+name: jupiter-common
+description: A Helm library chart containing shared definitions for Jupiter services
+
+type: library
+
+version: 0.1.0

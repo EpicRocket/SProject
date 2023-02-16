@@ -1,0 +1,7 @@
+apiVersion: v2
+name: callisto
+description: A Helm chart for Kubernetes deploying Callisto
+
+type: application
+
+version: 0.1.0

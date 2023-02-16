@@ -1,0 +1,74 @@
+{{- if .Values.worker.enabled -}}
+{{- $baseSettings := include "jupiter.applicationSettings" . | fromYaml -}}
+{{- $baseOverrides := include "storage.settings" . | fromYaml -}}
+{{- $overrides := include "storage.worker-settings" . | fromYaml -}}
+{{- $newDict := merge $baseOverrides $baseSettings -}}
+{{- $newDict2 := mergeOverwrite $newDict $overrides -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "common.names.fullname" . }}-worker
+  labels: {{- include "common.labels.standard" . | nindent 4 }}
+data:
+  appsettings.Local.yaml: |
+{{ $newDict2 | toYaml | indent 4 }} 
+{{- end -}}
+
+{{- define "storage.worker-settings" -}}
+{{- $serviceBaseName := .Release.Name | lower -}}
+{{- $config := .Values.worker.config | default dict -}}
+{{- $replication := $config.Replication | default dict -}}
+Horde_Storage:
+  LeaderElectionImplementation: "Kubernetes"
+  EnableLastAccessTracking: {{ default "false" $config.EnableLastAccessTracking }}
+
+{{ if $config.StorageImplementations }}
+  StorageImplementations:
+{{ range $config.StorageImplementations }}
+  - {{ . }}
+{{- end -}}
+{{ else }}
+{{- fail "You have to specify a set of StorageImplementations to use in Horde.Storage"}}
+{{- end }}
+
+Replication:
+  Enabled: {{ default "false" $replication.Enabled }}
+  CurrentSite: {{ required "SiteName (global.siteName) has has to be specified and should be globally unique" .Values.global.siteName }}
+  StateRoot: {{ printf "%s/Replication" .Values.replication.persistence.mountPath }}
+{{ with $replication.Replicators }}
+  Replicators:
+{{ range . }}
+  - ReplicatorName: {{ required "ReplicatorName must be specified for a replicator" .ReplicatorName }}
+    NamespaceToReplicate: {{ required "Namespace must be specified for a replicator" .Namespace }}
+    ConnectionString: {{ required "replication remote connection string has to be specified" .ConnectionString }}
+    Version: {{ default "V1"  .Version }} 
+    MaxParallelReplications: {{ default 128  .MaxParallelReplications }} 
+    SkipSnapshot: {{ default true  .SkipSnapshot }}
+{{- end -}}
+{{- end }}
+
+Cache.Db:
+  Enable: false
+
+{{- if $config.ConsistencyCheck }}
+ConsistencyCheck: 
+{{ $config.ConsistencyCheck | toYaml | nindent 2 }}
+{{- end }}
+
+{{- if $config.GC }}
+GC: 
+{{ $config.GC | toYaml | nindent 2 }}
+{{- end }}
+
+{{- if $config.Snapshot }}
+Snapshot: 
+{{ $config.Snapshot | toYaml | nindent 2 }}
+{{- end }}
+
+
+{{- if $config.Serilog }}
+Serilog: 
+{{ $config.Serilog | toYaml | nindent 2 }}
+{{- end }}
+
+{{ end }}

@@ -1,0 +1,171 @@
+{{- $baseSettings := include "jupiter.applicationSettings" . | fromYaml -}}
+{{- $overrides := include "storage.settings" . | fromYaml -}}
+{{- $newDict := merge $overrides $baseSettings -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "common.names.fullname" . }}
+  labels: {{- include "common.labels.standard" . | nindent 4 }}
+data:
+  appsettings.Local.yaml: |
+{{ $newDict | toYaml | indent 4 }} 
+
+{{- define "storage.settings" -}}
+{{- $serviceBaseName := .Release.Name | lower -}}
+{{- $config := .Values.config | default dict -}}
+{{- $replication := $config.Replication | default dict -}}
+Horde_Storage:
+{{ if .Values.worker.enabled }}
+  # if using the workers we do not attempt to participate in the leader election as a normal deployment
+  LeaderElectionImplementation: "Static"
+{{ else }}
+  LeaderElectionImplementation: "Kubernetes"
+{{ end }}
+  UseNewDDCEndpoints: {{ default "false" $config.UseNewDDCEndpoints }}
+
+  ReferencesDbImplementation:  {{ default "Memory" $config.ReferencesDbImplementation }}
+  ReplicationLogWriterImplementation:  {{ default "Memory" $config.ReplicationLogWriterImplementation }}
+  ContentIdStoreImplementation :  {{ default "Memory" $config.ContentIdStoreImplementation }}
+  BlobIndexImplementation :  {{ default "Memory" $config.BlobIndexImplementation }}
+  TransactionLogWriterImplementation: {{ default "Memory" $config.TransactionLogWriterImplementation }}
+
+  {{- with $config.NamespacesThatUseBlobIndexForExistsCheck }}
+  NamespacesThatUseBlobIndexForExistsCheck: 
+    {{- toYaml . | nindent 2 }}
+  {{- end }}
+
+  EnableLastAccessTracking: {{ default "true" $config.EnableLastAccessTracking }}
+  DisableLegacyAPI:  {{ default "false" $config.DisableLegacyAPI }}
+
+{{ if $config.StorageImplementations }}
+  StorageImplementations:
+{{ range $config.StorageImplementations }}
+  - {{ . }}
+{{- end -}}
+{{ else }}
+{{- fail "You have to specify a set of StorageImplementations to use in Horde.Storage"}}
+{{- end }}
+
+{{- if and (.Values.global.cloudProvider) (eq .Values.global.cloudProvider "Azure") }}
+{{ include "storage.settings.azure" . | nindent 2  }}
+{{- else if and (.Values.global.cloudProvider) (eq .Values.global.cloudProvider "AWS") }}
+{{ include "storage.settings.aws" . | nindent 2 }}
+{{- else -}}
+{{- fail "You have to specify a cloud provider as global.cloudProvider"}}
+{{- end }}
+
+{{- if $config.Jupiter }}
+Jupiter: 
+{{ $config.Jupiter | toYaml | nindent 2 }}
+{{- end }}
+
+Callisto:
+  ConnectionString: "http://{{$serviceBaseName}}-callisto:80"
+
+Replication:
+  Enabled: {{ default "false" $replication.Enabled }}
+  CurrentSite: {{ required "SiteName (global.siteName) has has to be specified and should be globally unique" .Values.global.siteName }}
+  StateRoot: {{ printf "%s/Replication" .Values.replication.persistence.mountPath }}
+{{ with $replication.Replicators }}
+  Replicators:
+{{ range . }}
+  - ReplicatorName: {{ required "ReplicatorName must be specified for a replicator" .ReplicatorName }}
+    NamespaceToReplicate: {{ required "Namespace must be specified for a replicator" .Namespace }}
+    ConnectionString: {{ required "replication remote connection string has to be specified" .ConnectionString }}
+    Version: {{ default "V1"  .Version }} 
+    MaxParallelReplications: {{ default 64  .MaxParallelReplications }}
+    SkipSnapshot: {{ default true  .SkipSnapshot }}
+{{- end -}}
+{{- end }}
+
+{{- if $config.ConsistencyCheck }}
+ConsistencyCheck: 
+{{ $config.ConsistencyCheck | toYaml | nindent 2 }}
+{{- end }}
+
+{{- if $config.GC }}
+GC: 
+{{ $config.GC | toYaml | nindent 2 }}
+{{- end }}
+
+Cache.Db:
+  Enable: {{ $config.DbCache.Enable }}
+  EnableSlidingExpiry: {{ $config.DbCache.SlidingExpiry.Enable }}
+  SlidingExpirationMinutes: {{ $config.DbCache.SlidingExpiry.SlidingExpirationMinutes }}
+
+FileSystem:
+  RootDir:  {{ printf "%s/Blobs" .Values.persistence.mountPath }}
+  MaxSizeBytes: {{ $config.Filesystem.MaxSizeBytes }}
+  TriggerThresholdPercentage: {{ $config.Filesystem.TriggerThresholdPercentage }}
+  TargetThresholdPercentage: {{ $config.Filesystem.TargetThresholdPercentage }}
+
+{{- if $config.Scylla }}
+Scylla: 
+{{ $config.Scylla | toYaml | nindent 2 }}
+{{- end }}
+
+{{- if $config.Serilog }}
+Serilog: 
+{{ $config.Serilog | toYaml | nindent 2 }}
+{{- end }}
+
+{{- if and (.Values.global.cloudProvider) (eq .Values.global.cloudProvider "Azure") }}
+{{ include "cloud.settings.azure" . }}
+{{- else if and (.Values.global.cloudProvider) (eq .Values.global.cloudProvider "AWS") }}
+{{ include "cloud.settings.aws" . }}
+{{- else -}}
+{{- fail "You have to specify a cloud provider as global.cloudProvider"}}
+{{- end }}
+
+{{ end }}
+
+
+{{- define "storage.settings.azure" -}}
+RefDbImplementation: "Cosmos"
+TreeStoreImplementation: "Memory" # no azure compatible tree store implemented yet
+TreeRootStoreImplementation: "Memory"
+{{ end }}
+
+{{- define "cloud.settings.azure" -}}
+{{- $config := .Values.config -}}
+{{- $mongo := default dict $config.Mongo -}}
+{{- $azure := default dict $config.Azure -}}
+Mongo:
+  ConnectionString: {{ required "You have to specify a connection string for the mongo database" $mongo.ConnectionString}}
+  RequireTls12: "true"
+
+Azure:
+  ConnectionString: {{ required "Blob Storage connection string has to be specified" $azure.ConnectionString }}
+{{ end }}
+
+{{- define "storage.settings.aws" -}}
+RefDbImplementation: "DynamoDb"
+
+TreeStoreImplementation: "DynamoDb"
+TreeRootStoreImplementation: "DynamoDb"
+{{ end }}
+
+{{- define "cloud.settings.aws" -}}
+{{- $config := .Values.config -}}
+{{- $dynamodb := default dict $config.DynamoDb -}}
+{{- $s3 := default dict $config.S3 -}}
+DynamoDb:
+  ConnectionString: "AWS"
+  CreateTablesOnDemand: {{ required "You need to set if tables are created by Horde.Storage on demand or assumed to already exist" $dynamodb.CreateTablesOnDemand }}
+  DaxEndpoint: {{ $dynamodb.DaxEndpoint }}
+
+S3:
+  ConnectionString: "AWS"
+  BucketName: {{ required "The name of the S3 bucket to use has to be specified" $s3.BucketName }}
+  CreateBucketIfMissing: {{ required "You must set if a missing bucket should be created, set to false if you manage this yourself" $s3.CreateBucketIfMissing }}
+  SetBucketPolicies: {{ required "You must set if a bucket policies should be set by Horde.Storage, set to false if you manage this yourself" $s3.SetBucketPolicies }}
+
+  UseBlobIndexForExistsCheck: {{ default false $s3.UseBlobIndexForExistsCheck }}
+
+  {{- with $s3.NamespacesThatUseBlobIndexForExistsCheck }}
+  NamespacesThatUseBlobIndexForExistsCheck: 
+    {{- toYaml . | nindent 2 }}
+  {{- end }}
+
+{{ end }}
+

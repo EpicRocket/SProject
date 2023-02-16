@@ -1,0 +1,39 @@
+apiVersion: v2
+name: horde-storage-umbrella
+description: A Helm umbrella chart for Horde.Storage with some dependencies
+
+type: application
+
+version: 0.1.0
+
+icon: https://devtools-misc.s3.amazonaws.com/ue4logo.png
+home: http://unrealengine.com
+
+maintainers:
+  - name: Joakim Lindqvist
+    email: joakim.lindqvist@epicgames.com
+  - name: UE-DevTools
+    email: ue-devtools@epicgames.com
+
+dependencies:
+
+- name: jupiter-common
+  version: 0.1.0 
+  type: library
+
+- name: horde-storage
+  version: 0.1.0
+  tags:
+    - horde.storage
+
+- name: callisto
+  version: 0.1.0
+  tags:
+    - callisto
+
+- name: common
+  type: library
+  repository: https://charts.bitnami.com/bitnami
+  tags:
+    - bitnami-common
+  version: 1.x.x

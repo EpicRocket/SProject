@@ -1,0 +1,22 @@
+{{- $persistence := default dict .Values.persistence -}}
+{{ if $persistence.volume }}
+apiVersion: v1
+kind: PersistentVolume
+{{ with $persistence.volume  -}}
+metadata:
+  name: {{ .name }}
+spec:
+  capacity:
+    storage: {{ .size | quote }}
+  volumeMode: {{ .volumeMode }}
+  accessModes:
+  {{- range .accessModes }}
+  - {{ . | quote }}
+  {{- end }}
+  persistentVolumeReclaimPolicy: {{ .reclaimPolicy }}
+  {{- if .csi }}
+  csi: {{ toYaml .csi | nindent 4 }}
+  {{- end -}}
+  {{- include "common.storage.class" (dict "persistence" . "global" $.Values.global) | nindent 2 }}
+{{ end }}
+{{ end }}

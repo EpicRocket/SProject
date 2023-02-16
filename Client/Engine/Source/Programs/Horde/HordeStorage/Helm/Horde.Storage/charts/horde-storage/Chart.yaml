@@ -1,0 +1,7 @@
+apiVersion: v2
+name: horde-storage
+description: A Helm chart for Kubernetes deploying Horde.Storage
+
+type: application
+
+version: 0.1.0

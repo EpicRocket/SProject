@@ -1,0 +1,194 @@
+version: '1.0'
+
+services:
+  name: services_for_integration_tests
+  composition:
+    mongo:
+      image: mongo
+      ports:
+      - 27017
+      environment:
+        MONGO_INITDB_ROOT_USERNAME: admin
+        MONGO_INITDB_ROOT_PASSWORD: abc123
+    azure-blob-storage:
+      image: mcr.microsoft.com/azure-blob-storage
+      ports:
+      - 11002
+      environment:
+      - "LOCAL_STORAGE_ACCOUNT_NAME=blobaccount"
+      - "LOCAL_STORAGE_ACCOUNT_KEY=iU6uTvlF1ysppmft+NO5lAD0E3hwrAORr5Rb5xcBWUgEz/OicrSkFxwZYMNK5XL29/wXZKGOoOVSW040nAOfPg=="
+
+    dynamo:
+      image: amazon/dynamodb-local
+      ports:
+      - 8000
+    minio:
+      image: minio/minio
+      command: "minio server server"
+      ports:
+      - 9000
+      environment:
+      - "MINIO_ACCESS_KEY=FSYPTVCPKC2IV5D1U8RE"
+      - "MINIO_SECRET_KEY=WaUf4Zq+J6YMlvbCVvTRkQJIPc7DvZwTm5UP0tPJ"
+    scylla:
+      image: scylladb/scylla
+      command: "--smp 1"
+      ports:
+      - 9042
+stages:
+  - Sync
+  - Build
+  - Docker
+  - Deploy
+
+steps:
+  main_clone:
+    stage: Sync
+    type: git-clone
+    repo: "https://github.ol.epicgames.net/DevTools/Jupiter"
+    revision: '${{CF_REVISION}}'
+    title: Git Sync
+    git: github
+
+  set_release_version:
+    stage: Sync
+    title: Set Release Version
+    image: alpine:latest
+    commands:
+      - cf_export RELEASE_VERSION=dev-${{CF_BUILD_ID}}
+      
+  Build:
+    stage: Build
+    scale:
+      Build_Cs:
+        title: Build C#
+        image: mcr.microsoft.com/dotnet/sdk:6.0
+        commands:
+        - dotnet build
+  Test:
+    stage: Build
+    image: mcr.microsoft.com/dotnet/sdk:6.0
+    scale:
+      Callisto_Unit:
+        commands:
+        - dotnet test Callisto/Tests/CallisoUnitTests/CallisoUnitTests.csproj
+      Callisto_Functional:
+        commands:
+        - dotnet test Callisto/Tests/CallisoFunctionalTests/CallisoFunctionalTests.csproj
+      HordeStorage_UnitTests:
+        commands:
+        - dotnet test Horde.Storage/Tests/UnitTests/Horde.Storage.Tests.Unit.csproj
+      HordeStorage_Functional:
+        commands:
+        - dotnet test Horde.Storage/Tests/Functional/Horde.Storage.Tests.Functional.csproj
+        environment:
+        - "Azure__ConnectionString=DefaultEndpointsProtocol=https;BlobEndpoint=http://azure-blob-storage:11002/blobaccount;AccountName=blobaccount;AccountKey=iU6uTvlF1ysppmft+NO5lAD0E3hwrAORr5Rb5xcBWUgEz/OicrSkFxwZYMNK5XL29/wXZKGOoOVSW040nAOfPg=="
+        - "S3__ConnectionString=http://minio:9000"
+        # Set the access keys to the keys used by minio 
+        - "AWSCredentials__AwsAccessKey=FSYPTVCPKC2IV5D1U8RE"
+        - "AWSCredentials__AwsSecretKey=WaUf4Zq+J6YMlvbCVvTRkQJIPc7DvZwTm5UP0tPJ"
+        - "Mongo__ConnectionString=mongodb://admin:abc123@mongo"
+        - "DynamoDb__ConnectionString=http://dynamo:8000"
+        services:
+        - minio
+        - azure-blob-storage       
+        - mongo
+        - dynamo
+
+  Docker:
+    stage: Docker
+    type: build
+    tags:
+    - "${{RELEASE_VERSION}}"
+    - "latest"
+    registry: devtools-ecr
+
+    scale:
+      Horde_Storage_Docker_Internal:
+        title: Horde.Storage
+        dockerfile: dockerfile
+        image_name: horde_storage
+        build_arguments:
+          - "Project=Horde.Storage"
+
+      Callisto_Docker_Internal:
+        title: Callisto
+        image_name: callisto
+        dockerfile: dockerfile
+        build_arguments:
+          - "Project=Callisto"
+
+  Helm_Deploy:
+    title: Push Helm Charter to registry
+    stage: Docker
+    type: helm
+    arguments:
+      helm_version: 3.5.2
+      action: "push"
+      chart_name: "/codefresh/volume/Jupiter/Helm/Horde.Storage"
+      kube_context: "devtools-dev"
+      release_name: "horde-storage-dev"
+      cmd_ps: " --version=${{RELEASE_VERSION}} "
+  
+  InstallToDevCluster:
+    stage: Deploy
+    type: helm
+    title: Install To Dev Cluster
+    arguments:
+      kube_context: devtools-dev
+      release_name: horde-storage-dev
+      namespace: horde-storage
+      helm_version: 3.5.2
+      #chart_name: jupiter
+      # Install directly from git to workaround issue with the pushed chart not being available (reported to codefresh)
+      chart_name: "/codefresh/volume/Jupiter/Helm/Horde.Storage"
+      chart_version: "${{RELEASE_VERSION}}"
+      custom_values:
+        - global.OverrideAppVersion=${{RELEASE_VERSION}}
+      custom_value_files:
+        - /codefresh/volume/Jupiter/NotForLicensees/epic-values.yaml
+
+    env:
+      name: Dev
+      endpoints:
+      - name: jupiter
+        url: https://jupiter.devtools-dev.epicgames.com
+      type: helm-release
+      change: '${{CF_COMMIT_MESSAGE}}'
+      filters:
+      - cluster: devtools-dev
+        releaseName: horde-storage-dev
+    when:
+      condition:
+        all:
+          executeForMasterBranch: "'${{CF_BRANCH}}' == 'master'"
+          
+  SendToSlack:
+    stage: Deploy
+    type: slack-notifier
+    title: Slack Notification
+    arguments:
+      SLACK_HOOK_URL: https://hooks.slack.com/services/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
+      SLACK_TEXT: "${{CF_COMMIT_MESSAGE}}"
+      SLACK_ATTACHMENTS: >        
+        [{	
+          "fallback": "Horde.Storage Dev Deployment updated",
+          "color": "good",
+          "author_name": "Horde.Storage Deployed",
+          "author_link": "https://jupiter.devtools.epicgames.com", 
+          "author_icon": "https://cloudposse.com/wp-content/uploads/sites/29/2018/02/small-cute-robot-square.png",
+          "thumb_url": "https://devtools-misc.s3.amazonaws.com/ue4logo.png", 
+          "fields": [{
+            "title": "Environment",
+            "value": "Dev",
+            "short": true
+          },{
+            "title": "Version",
+            "value": "${{RELEASE_VERSION}}",
+            "short": true
+          }]
+        }]
+    when:
+      condition:
+        all:
+          executeForMasterBranch: "'${{CF_BRANCH}}' == 'master'"

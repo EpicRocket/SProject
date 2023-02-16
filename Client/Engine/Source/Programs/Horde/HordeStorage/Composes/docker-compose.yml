@@ -1,0 +1,75 @@
+version: '3'
+services:
+  loadbalancer:
+    build:
+      context: .
+      dockerfile: nginx_dockerfile
+    ports:
+    - "80:8080" 
+    networks:
+    - network_jupiter
+
+    depends_on: 
+      - horde_storage
+      - callisto
+  horde_storage:
+    build:
+      context: "../../../../"
+      dockerfile: Programs/Horde/HordeStorage/dockerfile
+      args:
+        Project: Horde.Storage
+    ports:
+    - "57003:57003" 
+    networks:
+    - network_jupiter
+    environment:
+    - Callisto__ConnectionString=http://callisto:80
+    - Jupiter__CurrentSite=docker-compose
+    - Serilog__MinimumLevel__Default=Debug
+    - CORECLR_ENABLE_PROFILING=0
+    - Auth__Method=Disabled
+    - Replication__CurrentSite=docker-compose
+    - Replication__StateRoot=/replication
+    - Scylla__ContactPoints__0=scylla
+    volumes:
+    - replication-volume:/replication
+    links:
+    - callisto
+    - scylla
+    labels:
+      com.datadoghq.ad.logs: '[{"source":"csharp", "service": "horde-storage"}]'
+  callisto:
+    build:
+      context: "../../../../"
+      dockerfile: Programs/Horde/HordeStorage/dockerfile
+      args:
+        Project: Callisto
+    environment:
+    - Jupiter__CurrentSite=docker-compose
+    - CORECLR_ENABLE_PROFILING=0
+    - Serilog__MinimumLevel__Default=Debug
+    - Auth__Enabled=false
+    volumes:
+    - callisto-volume:/callisto
+    networks:
+    - network_jupiter
+    labels:
+      com.datadoghq.ad.logs: '[{"source":"csharp", "service": "callisto"}]'
+  scylla:
+    logging:
+      driver: none
+    image: scylladb/scylla
+    command: --smp=1 --developer-mode 1
+    volumes:
+    - scylla-volume-1:/var/lib/scylla
+    networks:
+    - network_jupiter
+volumes:
+  callisto-volume:
+
+  replication-volume:
+  
+  scylla-volume-1:
+networks:
+  network_jupiter:
+    driver: bridge

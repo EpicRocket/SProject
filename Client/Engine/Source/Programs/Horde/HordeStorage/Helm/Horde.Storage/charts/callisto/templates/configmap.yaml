@@ -1,0 +1,19 @@
+{{- $baseSettings := include "jupiter.applicationSettings" . | fromYaml -}}
+{{- $overrides := include "callisto.settings" . | fromYaml -}}
+{{- $newDict := merge $overrides $baseSettings -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "common.names.fullname" . }}
+  labels: {{- include "common.labels.standard" . | nindent 4 }}
+data:
+  appsettings.Local.yaml: |
+{{ $newDict | toYaml | indent 4 }} 
+
+
+{{- define "callisto.settings" -}}
+{{- $config := .Values.config -}}
+{{- $globals := .Values.global -}}
+Callisto:
+  VerifySerialization: {{ default "false" $config.VerifySerialization }}
+{{ end }}

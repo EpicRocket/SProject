@@ -1,0 +1,191 @@
+version: '1.0'
+
+stages:
+  - Sync
+  - Build
+  - Deploy
+  
+steps:
+  main_clone:
+    type: git-clone
+    stage: Sync
+    repo: "https://github.ol.epicgames.net/DevTools/Jupiter"
+    revision: ${{CF_RELEASE_TAG}}
+    git: github
+    
+  set_release_version:
+    stage: Sync
+    description: Set Release Version
+    image: alpine:latest
+    commands:
+    - cf_export RELEASE_VERSION=${{CF_RELEASE_TAG}}
+    
+  verify_app_version:
+    stage: Sync
+    description: Verify App Version
+    image: mikefarah/yq
+    commands:
+    -  "yq e '.version' /codefresh/volume/Jupiter/version.yaml | grep -q ${{CF_RELEASE_TAG}} && ( echo 'Same Version' && exit 0 ) || (echo 'Extracted Version is not the same as the release tag. Make sure to bump version in version.yaml!' >&2 && exit 1)"
+    -  "cat changelog.md | grep -q ${{CF_RELEASE_TAG}} && ( echo 'Version found' && exit 0 ) || (echo 'No changelog section found for release ${{CF_RELEASE_TAG}}' >&2 && exit 1)"
+       
+  Docker:
+    stage: Build
+    type: build
+    tags:
+    - "${{RELEASE_VERSION}}"
+    - "latest"
+    
+    registry: devtools-ecr
+    
+    scale:
+      Horde_Storage_Docker_Internal:
+        title: Horde.Storage
+        dockerfile: dockerfile
+        image_name: horde_storage
+        build_arguments:
+          - "Project=Horde.Storage"
+
+      Callisto_Docker_Internal:
+        title: Callisto
+        image_name: callisto
+        dockerfile: dockerfile
+        build_arguments:
+          - "Project=Callisto"
+
+  Helm_Deploy:
+     title: Push Helm Charter to registry
+     stage: Build
+     type: helm
+     working_dir: "/codefresh/volume/Jupiter"
+     arguments:
+       helm_version: 3.5.2
+       action: "push"
+       chart_name: "/codefresh/volume/Jupiter/Helm/Horde.Storage"
+       kube_context: "devtools-dev" # not used
+       release_name: "horde-storage" # not used
+       cmd_ps: --version="${{RELEASE_VERSION}}" # we version both the chart and the docker images to the same version
+       
+  InstallToUseCluster:
+    stage: Deploy
+    type: helm
+    arguments:
+      kube_context: prod-us-east-1-2021_2
+      chart_name: horde-storage-umbrella
+      chart_version: ${{RELEASE_VERSION}}
+      release_name: horde-storage
+      namespace: horde-storage
+      helm_version: 3.5.2
+      custom_value_files:
+        - /codefresh/volume/Jupiter/NotForLicensees/epic-values-prod-base.yaml
+        - /codefresh/volume/Jupiter/NotForLicensees/epic-values-prod-use.yaml
+    env:
+      name: Prod-Use
+      endpoints:
+      - name: jupiter
+        url: https://use.jupiter.devtools.epicgames.com
+      type: helm-release
+      change: 'Version ${{RELEASE_VERSION}}'
+      filters:
+      - cluster: prod-us-east-1-2021_2
+        releaseName: horde-storage
+
+  InstallToEucCluster:
+    stage: Deploy
+    type: helm
+    arguments:
+      kube_context: prod-eu-central-1-2021_2
+      chart_name: horde-storage-umbrella
+      release_name: horde-storage
+      namespace: horde-storage
+      helm_version: 3.5.2
+      chart_version: ${{RELEASE_VERSION}}
+      custom_value_files:
+        - /codefresh/volume/Jupiter/NotForLicensees/epic-values-prod-base.yaml
+        - /codefresh/volume/Jupiter/NotForLicensees/epic-values-prod-euc.yaml
+    env:
+      name: Prod-Euc
+      endpoints:
+      - name: jupiter
+        url: https://euc.jupiter.devtools.epicgames.com
+      type: helm-release
+      change: 'Version ${{RELEASE_VERSION}}'
+      filters:
+      - cluster: prod-eu-central-1-2021_2
+        releaseName: horde-storage
+
+  InstallToUswCluster:
+    stage: Deploy
+    type: helm
+    arguments:
+      kube_context: prod-us-west-2-2012_2
+      chart_name: horde-storage-umbrella
+      release_name: horde-storage
+      namespace: horde-storage
+      helm_version: 3.5.2
+      chart_version: ${{RELEASE_VERSION}}
+      custom_value_files:
+        - /codefresh/volume/Jupiter/NotForLicensees/epic-values-prod-base.yaml
+        - /codefresh/volume/Jupiter/NotForLicensees/epic-values-prod-usw.yaml
+    env:
+      name: Prod-Usw
+      endpoints:
+      - name: jupiter
+        url: https://usw.jupiter.devtools.epicgames.com
+      type: helm-release
+      change: 'Version ${{RELEASE_VERSION}}'
+      filters:
+      - cluster: prod-us-west-2-2012_2
+        releaseName: horde-storage
+
+  InstallToApseCluster:
+    stage: Deploy
+    type: helm
+    arguments:
+      kube_context: prod-ap-southeast-2-2021_2
+      chart_name: horde-storage-umbrella
+      release_name: horde-storage
+      namespace: horde-storage
+      helm_version: 3.5.2
+      chart_version: ${{RELEASE_VERSION}}
+      custom_value_files:
+        - /codefresh/volume/Jupiter/NotForLicensees/epic-values-prod-base.yaml
+        - /codefresh/volume/Jupiter/NotForLicensees/epic-values-prod-apse.yaml
+    env:
+      name: Prod-Apse
+      endpoints:
+      - name: jupiter
+        url: https://apse.jupiter.devtools.epicgames.com
+      type: helm-release
+      change: 'Version ${{RELEASE_VERSION}}'
+      filters:
+      - cluster: prod-ap-southeast-2-2021_2
+        releaseName: horde-storage
+
+
+  SendToSlack:
+    stage: Deploy
+    type: slack-notifier
+    title: Slack Notification
+    arguments:
+      SLACK_HOOK_URL: https://hooks.slack.com/services/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
+      SLACK_TEXT: ""
+      SLACK_ATTACHMENTS: >        
+        [{	
+          "fallback": "Deployed ${{RELEASE_VERSION}} Production",
+          "color": "good",
+          "author_name": "Horde.Storage Deployed",
+          "author_link": "https://jupiter.devtools.epicgames.com", 
+          "author_icon": "https://cloudposse.com/wp-content/uploads/sites/29/2018/02/small-cute-robot-square.png",
+          "thumb_url": "https://devtools-misc.s3.amazonaws.com/ue4logo.png", 
+          "fields": [{
+            "title": "Environment",
+            "value": "Production",
+            "short": true
+          },{
+            "title": "Version",
+            "value": "${{RELEASE_VERSION}}",
+            "short": true
+          }]
+        }]
+        
+        

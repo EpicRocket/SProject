@@ -1,0 +1,41 @@
+version: '3'
+services:
+  horde_storage:
+    environment:
+    - Horde_Storage__RefDbImplementation=mongo
+    - Mongo__ConnectionString=mongodb://root:mongo_root_passwd@mongo
+    - Horde_Storage__storageImplementation=azure
+    - Azure__ConnectionString=DefaultEndpointsProtocol=https;BlobEndpoint=http://azure_storage:11002/blobaccount;AccountName=blobaccount;AccountKey=iU6uTvlF1ysppmft+NO5lAD0E3hwrAORr5Rb5xcBWUgEz/OicrSkFxwZYMNK5XL29/wXZKGOoOVSW040nAOfPg==
+    
+    network:
+    - network_mongo
+    - network_azure_storage
+  mongo:
+    image: mongo
+    logging:
+      driver: none
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: mongo_root_passwd
+    networks:
+    - network_mongo
+  azure_storage:
+    image: "mcr.microsoft.com/azure-blob-storage"
+    logging:
+      driver: none
+    environment:
+    - "LOCAL_STORAGE_ACCOUNT_NAME=blobaccount"
+    - "LOCAL_STORAGE_ACCOUNT_KEY=iU6uTvlF1ysppmft+NO5lAD0E3hwrAORr5Rb5xcBWUgEz/OicrSkFxwZYMNK5XL29/wXZKGOoOVSW040nAOfPg=="
+    volumes:
+    - blob-volume:/data
+    networks:
+    - network_azure_storage
+volumes:
+  blob-volume:
+
+networks:
+  network_mongo:
+    driver: bridge
+  network_azure_storage:
+    driver: bridge

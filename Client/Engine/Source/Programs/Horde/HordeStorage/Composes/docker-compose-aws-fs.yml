@@ -1,0 +1,36 @@
+version: '3'
+services:
+  europa:
+    environment:
+    - Europa__RefDbImplementation=dynamodb
+    - Europa__TreeStoreImplementation=dynamodb
+    - Europa__TreeRootStoreImplementation=dynamodb
+    - Europa__storageImplementation=FileSystem
+
+    - DynamoDb__ConnectionString=http://dynamo:8000
+    - DynamoDB__AutoscaleCapacity=false
+
+    - AWSCredentials__AwsAccessKey=FSYPTVCPKC2IV5D1U8RE
+    - AWSCredentials__AwsSecretKey=WaUf4Zq+J6YMlvbCVvTRkQJIPc7DvZwTm5UP0tPJ
+
+    - AWS_ACCESS_KEY_ID=FSYPTVCPKC2IV5D1U8RE
+    - AWS_SECRET_ACCESS_KEY=WaUf4Zq+J6YMlvbCVvTRkQJIPc7DvZwTm5UP0tPJ
+
+    - Filesystem__RootDir=/data
+    networks  :
+    - network_dynamo
+    volumes:
+    - europa-fs-volume:/data
+  dynamo:
+    image: amazon/dynamodb-local
+    #logging:
+    #  driver: none
+    restart: always
+    networks:
+    - network_dynamo
+volumes:
+  europa-fs-volume:
+
+networks:
+  network_dynamo:
+    driver: bridge
