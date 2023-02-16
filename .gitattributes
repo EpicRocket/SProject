@@ -28,3 +28,6 @@
 
 *.docx   diff=astextplain
 *.DOCX   diff=astextplain
+
+# lfs files
+# Client/SProject/Content/*.uasset filter=lfs diff=lfs merge=lfs -text
