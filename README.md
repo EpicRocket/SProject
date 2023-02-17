@@ -64,8 +64,6 @@ Visual Studio Code를 설치 하셨다면 위 그림과 같은 콤보 박스 옵
 <img src="./Resources\visualstudiologo.png" width="200px" height="200px" title="git_logo" alt="git_logo"></img>
 ## [Visual Studio(Community 버전 설치)](https://visualstudio.microsoft.com/ko/thank-you-downloading-visual-studio/?sku=Community&channel=Release&version=VS2022&source=VSLandingPage&cid=2030&passive=false)
 
-<br/><br/>
-
 <img src="./Resources\iDUkeFFiOo.png" title="git_logo" alt="git_logo"></img>
 ```
 빨간 박스는 모두 체크해주세요.
