@@ -32,11 +32,12 @@ Localization Automation using CL 24024253
 
 ## [Git(설치)](https://git-scm.com/download/win)
 
-![git_install_step_1](/Resources\Git-2.39.2-64-bit.tmp_lM2JTvTslx.png)
+<img src="./Resources\Git-2.39.2-64-bit.tmp_lM2JTvTslx.png" title="git_logo" alt="git_logo"></img>
 ```
 Git에 대해 잘 모를 경우 설치 옵션으로 모두 체크 바랍니다.
 ```
-![git_install_step_2](/Resources\Git-2.39.2-64-bit.tmp_tsS2ORnw4O.png)
+
+<img src="./Resources\Git-2.39.2-64-bit.tmp_tsS2ORnw4O.png" title="git_logo" alt="git_logo"></img>
 ```
 Visual Studio Code를 설치 하셨다면 위 그림과 같은 콤보 박스 옵션을 선택해 주세요.
 ```
@@ -46,14 +47,15 @@ Visual Studio Code를 설치 하셨다면 위 그림과 같은 콤보 박스 옵
 > GUI가 있는 편이 좋습니다.
 
 ### [Git Extensions](https://github.com/gitextensions/gitextensions/releases/)
-![git_extensions_preview](/Resources\GitExtensions_Jp5voCAT0b.png)
+<img src="./Resources\GitExtensions_Jp5voCAT0b.png" title="git_logo" alt="git_logo"></img>
 
 ### [Source Tree](https://www.sourcetreeapp.com/enterprise)
-![source_tree_preview](/Resources\image2018-6-7_15-46-10.png)
+<img src="./Resources\image2018-6-7_15-46-10.png" title="git_logo" alt="git_logo"></img>
 
 ### [Git Desktop]()
 [Document](https://docs.github.com/ko/desktop/installing-and-configuring-github-desktop/installing-and-authenticating-to-github-desktop/setting-up-github-desktop)
-![git_desktop_preview](/Resources\github-desktop-screenshot-windows.png)
+
+<img src="./Resources\github-desktop-screenshot-windows.png" title="git_logo" alt="git_logo"></img>
 
 ### [그외 GUI 툴](https://git-scm.com/downloads/guis)
 
