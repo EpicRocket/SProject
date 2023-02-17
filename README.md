@@ -66,8 +66,7 @@ Visual Studio Code를 설치 하셨다면 위 그림과 같은 콤보 박스 옵
 
 <br/><br/>
 
-
-![source_tree_preview](/Resources\iDUkeFFiOo.png)
+<img src="./Resources\iDUkeFFiOo.png" title="git_logo" alt="git_logo"></img>
 ```
 빨간 박스는 모두 체크해주세요.
 ```
