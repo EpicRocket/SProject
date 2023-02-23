@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "HordeServer": {
-      "commandName": "Project",
-      "commandLineArgs": ""
-    }
-  }
-}

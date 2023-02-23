@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "oidc_token": {
-      "commandName": "Project",
-      "commandLineArgs": "--OutFile=results.json"
-    }
-  }
-}
