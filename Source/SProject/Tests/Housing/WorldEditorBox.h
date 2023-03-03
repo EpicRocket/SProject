@@ -22,6 +22,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = Utility)
 	FVector WorldToBoxPosition(FVector LocalPosition);
 
+	/** 해당 좌표가 WorldEditorBox내에 포함 되는지 확인합니다. */
+	UFUNCTION(BlueprintPure, Category = Utility)
+	bool IsInWorld(FVector WorldPosition) const;
+
 protected:
 	
 	// AActor interface
@@ -32,6 +36,10 @@ private:
 
 	
 	
+public:
+
+	static FName RootName;
+	static FName WorldEditorComponentName;
 
 protected:
 

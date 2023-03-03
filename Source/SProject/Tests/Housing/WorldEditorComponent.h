@@ -43,6 +43,9 @@ public:
 		return GridSize;
 	}
 
+	UFUNCTION(BlueprintPure)
+	bool IsInWorld(FVector WorldPosition) const;
+
 public:
 
 #if WITH_EDITORONLY_DATA
@@ -65,6 +68,8 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Draw, BlueprintGetter = GetExtent)
 	FVector Extent{ 1000.0F, 1000.0F, 1000.0F };
+
+	FBox Box;
 
 	TObjectPtr<FWorldEditorOctree> Octree;
 };

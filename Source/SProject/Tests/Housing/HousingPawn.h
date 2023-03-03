@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -26,9 +24,15 @@ public:
 
 	void AddMovementAxis(FVector Axis);
 
+public:
+
+	static FName RootName;
+	static FName UserSceneComponentName;
+	static FName HousingMovementComponentName;
+
 protected:
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Field)
 	TObjectPtr<class AWorldEditorBox> MyWorldEditorBox;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement)
@@ -38,6 +42,10 @@ protected:
 	bool bFreedom = true;
 
 private:
+
+	/** 유저가 실제 느끼는 좌표계를 가진 컴포넌트 */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Transformation, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<USceneComponent> UserSceneComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UPawnMovementComponent> HousingMovementComponent;
