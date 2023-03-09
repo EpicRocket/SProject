@@ -30,6 +30,6 @@ protected:
 	UPROPERTY()
 	EEnvironmentPropType EnvironmentPropType;
 
-
+	TObjectPtr<class AWorldEditorBox> WorldEditorBox;
 
 };

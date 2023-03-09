@@ -3,6 +3,9 @@
 #if WITH_EDITOR
 
 #include "Kismet/KismetSystemLibrary.h"
+#include "Kismet/GameplayStatics.h"
+
+#include "WorldEditorBox.h"
 
 #endif
 
@@ -12,6 +15,8 @@ FName AEnvironmentProp::RootName = TEXT("RootComponent");
 AEnvironmentProp::AEnvironmentProp()
 {
 	RootComponent = CreateDefaultSubobject<USceneComponent>(RootName);
+
+	WorldEditorBox = nullptr;
 
 	//! Default Settgins
 	PrimaryActorTick.TickGroup = TG_PrePhysics;
@@ -33,7 +38,18 @@ void AEnvironmentProp::TickActor(float DeltaTime, enum ELevelTick TickType, FAct
 {
 	Super::TickActor(DeltaTime, TickType, ThisTickFunction);
 
+	if (nullptr == WorldEditorBox)
+	{
+		WorldEditorBox = Cast<AWorldEditorBox>(UGameplayStatics::GetActorOfClass(GetWorld(), AWorldEditorBox::StaticClass()));
+	}
 	
+	if (nullptr == WorldEditorBox)
+	{
+		return;
+	}
+
+
+
 }
 
 #endif
