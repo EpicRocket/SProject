@@ -52,49 +52,57 @@ void AHousingPawn::AddMovementAxis(FVector Axis)
 		return;
 	}
 
-	FVector Result{ 0.0F, 0.0F, 0.0F };
-
-	if (Axis.Y > 0)
-	{
-		Result = UserSceneComponent->GetForwardVector();
-	}
-	else if (Axis.Y < 0)
-	{
-		Result = -UserSceneComponent->GetForwardVector();
-	}
-
-	if (Axis.X > 0)
-	{
-		Result += UserSceneComponent->GetRightVector();
-	}
-	else if (Axis.X < 0)
-	{
-		Result -= UserSceneComponent->GetRightVector();
-	}
-
 	if (MyWorldEditorBox)
 	{
 		if (bFreedom)
 		{
-			if (!MyWorldEditorBox->IsInWorld(GetActorLocation()))
+			FVector Result{ 0.0F, 0.0F, 0.0F };
+
+			if (Axis.Y > 0)
 			{
-				// FIXME: 수정필요
-				Result = FVector::ZeroVector;
+				Result = UserSceneComponent->GetForwardVector();
+			}
+			else if (Axis.Y < 0)
+			{
+				Result = -UserSceneComponent->GetForwardVector();
+			}
+
+			if (Axis.X > 0)
+			{
+				Result += UserSceneComponent->GetRightVector();
+			}
+			else if (Axis.X < 0)
+			{
+				Result -= UserSceneComponent->GetRightVector();
+			}
+
+			FVector NewPosition = GetActorLocation() + MovementComponent->Velocity * GetWorld()->GetDeltaSeconds();
+
+			if (MyWorldEditorBox->IsInWorld(NewPosition))
+			{
+				MovementComponent->AddInputVector(Result, true);
 			}
 			else
 			{
-				MovementComponent->AddInputVector(Result, true);
+				FVector CenterDirection = (MyWorldEditorBox->GetActorLocation() - GetActorLocation()).GetUnsafeNormal();
+				MovementComponent->AddInputVector(CenterDirection, true);
+
+				// Calculate angle between Result and CenterDirection 
+				float Angle = FMath::RadiansToDegrees(FMath::Acos(FVector::DotProduct(Result, CenterDirection) / (Result.Size() * CenterDirection.Size())));
+				if (Angle <= 90.0F)
+				{
+					MovementComponent->AddInputVector(Result, true);
+				}
 			}
 		}
 		else
 		{
-
+			FVector NewPosition = MyWorldEditorBox->WorldAndAxisToBoxPosition(GetActorLocation(), FIntVector(Axis.X, -Axis.Y, Axis.Z));
+			TeleportTo(NewPosition, GetActorRotation(), false, false);
 		}
-		//RootComponent->GetComponentVelocity()
-		//MovementComponent->ConsumeInputVector
 	}
 	else
 	{
-		MovementComponent->AddInputVector(Result, true);
+		// Missing World...
 	}
 }

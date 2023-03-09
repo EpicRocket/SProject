@@ -9,3 +9,12 @@ enum class EHousingModeType : uint8
 	Editor,
 	Spectator,
 };
+
+UENUM(BlueprintType)
+enum class EEnvironmentPropType : uint8
+{
+	Block,
+	Carpet,
+
+};
+

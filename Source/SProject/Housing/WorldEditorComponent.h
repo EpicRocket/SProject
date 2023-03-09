@@ -14,11 +14,13 @@ class SPROJECT_API UWorldEditorComponent : public UPrimitiveComponent
 
 public:
 
+	UWorldEditorComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+
 #if WITH_EDITOR
 	// UPrimitiveComponent interface
 	virtual FPrimitiveSceneProxy* CreateSceneProxy() override;
-	virtual FBoxSphereBounds CalcBounds(const FTransform& LocalToWorld) const override;
 #endif
+	virtual FBoxSphereBounds CalcBounds(const FTransform& LocalToWorld) const override;
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	virtual bool UpdateOverlapsImpl(const TOverlapArrayView* NewPendingOverlaps = nullptr, bool bDoNotifies = true, const TOverlapArrayView* OverlapsAtEndLocation = nullptr) override;
@@ -69,7 +71,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Draw, BlueprintGetter = GetExtent)
 	FVector Extent{ 1000.0F, 1000.0F, 1000.0F };
 
-	FBox Box;
+	FBox WorldBox;
 
 	TObjectPtr<FWorldEditorOctree> Octree;
 };

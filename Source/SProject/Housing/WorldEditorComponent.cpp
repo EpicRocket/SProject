@@ -327,6 +327,15 @@ private:
 
 //! UWorldEditorComponent
 
+UWorldEditorComponent::UWorldEditorComponent(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+	WorldBox = FBox{ FVector{-Extent.X / 2.0F, -Extent.Y / 2.0F, 0.0F}, FVector{Extent.X / 2.0F, Extent.Y / 2.0F, Extent.Z} };
+
+	FVector OctreeExtent = GetExtent();
+	Octree = new FWorldEditorOctree(GetRelativeLocation() + FVector(0.0F, 0.0F, OctreeExtent.GetMax() / 2.0F), OctreeExtent.GetMax() / 2.0F);
+}
+
 #if WITH_EDITOR
 
 FPrimitiveSceneProxy* UWorldEditorComponent::CreateSceneProxy()
@@ -334,26 +343,20 @@ FPrimitiveSceneProxy* UWorldEditorComponent::CreateSceneProxy()
 	return new FWorldEditorSceneProxy(this);
 }
 
+#endif
+
 FBoxSphereBounds UWorldEditorComponent::CalcBounds(const FTransform& LocalToWorld) const
 {
-	return FBoxSphereBounds{ FBox{ FVector{-Extent.X, -Extent.Y, 0.0F}, Extent } }.TransformBy(LocalToWorld);
+	return FBoxSphereBounds{ FBox{ FVector{-Extent.X / 2.0F, -Extent.Y / 2.0F, 0.0F}, FVector{Extent.X / 2.0F, Extent.Y / 2.0F, Extent.Z} } }.TransformBy(LocalToWorld);
 }
-
-#endif
 
 void UWorldEditorComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
-	Box = FBox{ FVector{-Extent.X, -Extent.Y, 0.0F}, Extent };
-
-	FVector OctreeExtent = GetExtent();
-	Octree = new FWorldEditorOctree(GetRelativeLocation() + FVector(0.0F, 0.0F, OctreeExtent.GetMax() / 2.0F), OctreeExtent.GetMax() / 2.0F);
 }
 
 void UWorldEditorComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	Octree->Destroy();
 	Super::EndPlay(EndPlayReason);
 }
 
@@ -445,5 +448,5 @@ FVector UWorldEditorComponent::Origin() const
 
 bool UWorldEditorComponent::IsInWorld(FVector WorldPosition) const
 {
-	return Box.IsInside(WorldPosition);
+	return WorldBox.IsInside(WorldPosition);
 }

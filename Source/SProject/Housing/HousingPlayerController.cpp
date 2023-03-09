@@ -89,6 +89,11 @@ void AHousingPlayerController::OnPossess(APawn* aPawn)
 
 void AHousingPlayerController::OnPawnMovement()
 {
+	if (InputData.MovementAxis.IsNearlyZero())
+	{
+		return;
+	}
+
 	AHousingPawn* MyPawn = GetPawn<AHousingPawn>();
 	if (MyPawn == nullptr && !IsValid(MyPawn))
 	{

@@ -22,6 +22,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = Utility)
 	FVector WorldToBoxPosition(FVector LocalPosition);
 
+	UFUNCTION(BlueprintPure, Category = Utility)
+	FVector WorldAndAxisToBoxPosition(FVector WorldPosition, FIntVector Axis);
+
 	/** 해당 좌표가 WorldEditorBox내에 포함 되는지 확인합니다. */
 	UFUNCTION(BlueprintPure, Category = Utility)
 	bool IsInWorld(FVector WorldPosition) const;
