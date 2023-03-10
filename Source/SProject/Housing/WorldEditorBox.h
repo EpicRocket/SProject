@@ -14,9 +14,11 @@ public:
 
 	// AActor interface
 	virtual void PreInitializeComponents() override;
-	virtual void TickActor(float DeltaTime, enum ELevelTick TickType, FActorTickFunction& ThisTickFunction) override;
 	virtual void Tick(float DeltaSeconds) override;
+#if WITH_EDITORONLY_DATA
+	virtual void TickActor(float DeltaTime, enum ELevelTick TickType, FActorTickFunction& ThisTickFunction) override;
 	virtual bool ShouldTickIfViewportsOnly() const override { return true; }
+#endif
 	// End of AActor interface
 
 	UFUNCTION(BlueprintPure, Category = Utility)
@@ -37,7 +39,10 @@ protected:
 
 private:
 
-	
+#if WITH_EDITORONLY_DATA
+	void OnActorMoving(AActor* SelcetedActor);
+	void OnActorMoved(AActor* SelcetedActor);
+#endif
 	
 public:
 
@@ -48,5 +53,11 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Component)
 	TObjectPtr<class UWorldEditorComponent> WorldEditorComponent;
+
+private:
+
+#if WITH_EDITORONLY_DATA
+	TObjectPtr<class AEnvironmentProp> DebugSelectedProp;
+#endif
 
 };

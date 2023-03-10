@@ -3,7 +3,47 @@
 #include "Components/LineBatchComponent.h"
 
 #include "WorldEditorComponent.h"
+#include "EnvironmentProp.h"
 
+#if WITH_EDITOR
+
+#include "Editor/EditorEngine.h"
+#include "Engine/Selection.h"
+
+#include "Kismet/KismetSystemLibrary.h"
+#include "Kismet/GameplayStatics.h"
+#include "Blueprint/WidgetLayoutLibrary.h"
+
+/** The editor object. */
+extern UNREALED_API class UEditorEngine* GEditor;
+#endif
+
+#if WITH_EDITOR
+
+namespace
+{
+
+void CalculatePlace(TObjectPtr<AWorldEditorBox> WorldEditorBox, TObjectPtr<AEnvironmentProp> EnvironmentProp)
+{
+	if (!WorldEditorBox || !EnvironmentProp)
+	{
+		return;
+	}
+
+	FVector NewPosition = WorldEditorBox->WorldToBoxPosition(EnvironmentProp->GetActorLocation());
+
+	FVector ActorOrigin;
+	FVector ActorExtent;
+	EnvironmentProp->GetActorBounds(false, ActorOrigin, ActorExtent);
+	DrawDebugSolidBox(WorldEditorBox->GetWorld(), NewPosition + FVector(0.0F, 0.0F, ActorExtent.Z), ActorExtent, WorldEditorBox->GetActorRotation().Quaternion(), FColor(255, 0, 0, 128), false, 0.0F);
+}
+
+}
+
+#endif
+
+
+//! AWorldEditorBox
 
 FName AWorldEditorBox::RootName = TEXT("RootComponent");
 FName AWorldEditorBox::WorldEditorComponentName = TEXT("WorldEditorComponent");
@@ -26,6 +66,17 @@ AWorldEditorBox::AWorldEditorBox()
 
 	// will be updated in PostInitProperties
 	SetCanBeDamaged(false);
+
+#if WITH_EDITOR
+
+	if (GEditor && !GEditor->PlayWorld)
+	{
+		DebugSelectedProp = nullptr;
+		GEditor->OnActorMoving().AddUObject(this, &AWorldEditorBox::OnActorMoving);
+		GEditor->OnActorMoved().AddUObject(this, &AWorldEditorBox::OnActorMoved);
+	}
+
+#endif
 }
 
 void AWorldEditorBox::PreInitializeComponents()
@@ -36,11 +87,15 @@ void AWorldEditorBox::PreInitializeComponents()
 
 void AWorldEditorBox::TickActor(float DeltaTime, enum ELevelTick TickType, FActorTickFunction& ThisTickFunction)
 {
-	Super::TickActor(DeltaTime, TickType, ThisTickFunction);
+	if (TickType != LEVELTICK_ViewportsOnly)
+	{
+		return;
+	}
 
-	//FColor BoxColor = FColor::Red;
-	//DrawDebugBox(GetWorld(), GetActorLocation() + FVector(0.0F, 0.0F, 25.0F), FVector(500.0F, 500.0F, 25.0F), FQuat::Identity, BoxColor, true, -1.0f, 0, 2.0f);
-
+	if (DebugSelectedProp)
+	{
+		CalculatePlace(this, DebugSelectedProp);
+	}
 }
 
 void AWorldEditorBox::Tick(float DeltaSeconds)
@@ -63,6 +118,7 @@ FVector AWorldEditorBox::WorldToBoxPosition(FVector WorldPosition)
 	const FVector MaxPosition = FVector(HalfExtent.X, HalfExtent.Y, HalfExtent.Z * 2.0F);
 
 	// Calculate approximations position
+	RelativeLocation += FVector(GridSize / 2.0F, GridSize / 2.0F, 0.0F);
 	RelativeLocation /= GridSize;
 	RelativeLocation.X = FMath::RoundToInt(RelativeLocation.X);
 	RelativeLocation.Y = FMath::RoundToInt(RelativeLocation.Y);
@@ -89,6 +145,7 @@ FVector AWorldEditorBox::WorldAndAxisToBoxPosition(FVector WorldPosition, FIntVe
 	const FVector MaxPosition = FVector(HalfExtent.X, HalfExtent.Y, HalfExtent.Z * 2.0F);
 
 	// Calculate approximations position
+	RelativeLocation += FVector(GridSize / 2.0F, GridSize / 2.0F, 0.0F);
 	RelativeLocation /= GridSize;
 	RelativeLocation.X = FMath::RoundToInt(RelativeLocation.X) + Axis.X;
 	RelativeLocation.Y = FMath::RoundToInt(RelativeLocation.Y) + Axis.Y;
@@ -115,4 +172,29 @@ void AWorldEditorBox::BeginPlay()
 	Super::BeginPlay();
 
 }
+
+#if WITH_EDITOR
+
+void AWorldEditorBox::OnActorMoving(AActor* SelcetedActor)
+{
+	TObjectPtr<AEnvironmentProp> EnvironmentProp = Cast<AEnvironmentProp>(SelcetedActor);
+	if (!EnvironmentProp)
+	{
+		return;
+	}
+	DebugSelectedProp = EnvironmentProp;
+}
+
+void AWorldEditorBox::OnActorMoved(AActor* SelcetedActor)
+{
+	if (!DebugSelectedProp)
+	{
+		return;
+	}
+	FVector NewPosition = WorldToBoxPosition(DebugSelectedProp->GetActorLocation());
+	DebugSelectedProp->SetActorLocation(NewPosition);
+	DebugSelectedProp = nullptr;
+}
+
+#endif
 

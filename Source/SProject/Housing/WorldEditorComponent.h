@@ -16,7 +16,7 @@ public:
 
 	UWorldEditorComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
-#if WITH_EDITOR
+#if WITH_EDITORONLY_DATA
 	// UPrimitiveComponent interface
 	virtual FPrimitiveSceneProxy* CreateSceneProxy() override;
 #endif
