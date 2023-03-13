@@ -1,15 +1,15 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 using UnrealBuildTool;
+using System.IO;
 
 public class SProject : ModuleRules
 {
-	public SProject(ReadOnlyTargetRules Target) : base(Target)
-	{
+	public SProject(ReadOnlyTargetRules Target) : base(Target) {
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-	
+
 		PublicDependencyModuleNames.AddRange(
-			new []
+			new[]
 			{
 				"Core",
 				"CoreUObject",
@@ -20,15 +20,21 @@ public class SProject : ModuleRules
 		);
 
 		PrivateDependencyModuleNames.AddRange(
-			new []
+			new[]
 			{
+				"Slate",
+				"SlateCore",
 				"UnrealEd",
 			}
 		);
 
-		// Uncomment if you are using Slate UI
-		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
-		
+		PublicIncludePaths.AddRange(
+			new[]
+			{
+				ModuleDirectory,
+			}
+		);
+
 		// Uncomment if you are using online features
 		// PrivateDependencyModuleNames.Add("OnlineSubsystem");
 
