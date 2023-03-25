@@ -15,6 +15,7 @@ public class SProjectEditor : ModuleRules
 				"CoreUObject",
 				"Engine",
 				"InputCore",
+				"XLNT"
 			}
 		);
 
