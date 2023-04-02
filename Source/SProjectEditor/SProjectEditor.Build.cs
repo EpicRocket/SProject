@@ -15,7 +15,6 @@ public class SProjectEditor : ModuleRules
 				"CoreUObject",
 				"Engine",
 				"InputCore",
-				"XLNT"
 			}
 		);
 
@@ -31,6 +30,7 @@ public class SProjectEditor : ModuleRules
 				"PropertyEditor",
 				"ToolMenus",
 				"AssetTools",
+				"BlueprintGraph",
 			}
 		);
 
