@@ -7,6 +7,27 @@
 #include "Kismet2/StructureEditorUtils.h"
 #include "Kismet2/BlueprintEditorUtils.h"
 
+#if PLATFORM_WINDOWS
+#include "OpenXLSX/OpenXLSX.hpp"
+
+#include <Windows.h>
+#include <WinNls.h>
+#include <string>
+
+namespace
+{
+std::string WStringToString(const std::wstring& wstr)
+{
+	int size = WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), -1, NULL, 0, NULL, NULL);
+	char* chRtn = new char[size];
+	WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), -1, chRtn, size, NULL, NULL);
+	std::string str(chRtn);
+	delete[] chRtn;
+	return str;
+}
+}
+#endif
+
 UExcelFactory::UExcelFactory()
 {
 	SupportedClass = UUserDefinedStruct::StaticClass();
@@ -41,27 +62,21 @@ UObject* UExcelFactory::FactoryCreateFile(UClass* InClass, UObject* InParent, FN
 	NewUserDefinedStruct->StaticLink(true);
 	NewUserDefinedStruct->Status = EUserDefinedStructureStatus::UDSS_Error;
 
+#if PLATFORM_WINDOWS
+	// Open the Excel file using OpenXLSX
+	OpenXLSX::XLDocument Document;
+	
+	Document.open(::WStringToString(*Filename));
+	
+	for (std::string const& Name : Document.workbook().worksheetNames())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Sheet Name: %s"), *FString(Name.c_str()));
+	}
+
+	// Close the Excel file
+	Document.close();
+
+#endif
+
     return NewUserDefinedStruct;
 }
-
-//FStructureEditorUtils::AddVariable(NewUserDefinedStruct, FEdGraphPinType(UEdGraphSchema_K2::PC_Boolean, NAME_None, nullptr, EPinContainerType::None, false, FEdGraphTerminalType()));
-
-// Open the Excel file using xlnt
-	/*xlnt::workbook WorkBook;
-	try
-	{
-		WorkBook.load(*Filename);
-	}
-	catch (std::exception const& Exception)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Failed to load Excel file: %s"), Exception.what());
-		return nullptr;
-	}
-
-	for (int32 Index = 0; Index < WorkBook.sheet_count(); ++Index)
-	{
-		auto const& Sheet = WorkBook.sheet_by_index(Index);
-
-		FString StructName = FString::Printf(TEXT("%hs"), Sheet.title().c_str());
-		
-	}*/
