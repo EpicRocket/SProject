@@ -4,6 +4,7 @@
 #include "Factories/Factory.h"
 #include "ExcelFactory.generated.h"
 
+
 UCLASS()
 class UExcelFactory : public UFactory
 {
@@ -15,4 +16,9 @@ public:
     //~ Begin UFactory Interface
 	virtual UObject* FactoryCreateFile(UClass* InClass, UObject* InParent, FName InName, EObjectFlags Flags, const FString& Filename, const TCHAR* Parms, FFeedbackContext* Warn, bool& bOutOperationCanceled) override;
     //~ End UFactory Interface
+
+public:
+
+	static FName StructureNameDef;
+	static FName EnumNameDef;
 };
