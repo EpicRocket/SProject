@@ -30,5 +30,9 @@ public class OpenXLSX : ModuleRules
 				"Engine",
 			}
 		);
+        
+        PublicDefinitions.Add(
+	        "WIN32_LEAN_AND_MEAN"
+        );
     }
 }
