@@ -164,6 +164,34 @@ UObject* UExcelFactory::FactoryCreateFile(UClass* InClass, UObject* InParent, FN
 
 					NewDataTable->RowStruct = NewUserDefinedStruct;
 
+
+					for (int32 Index = 3; Index < RowCount; ++Index)
+					{
+						OpenXLSX::XLRow DataRow = WorkSheet.row(Index);
+
+						TArray<FString> Collected; Collected.Reserve(TableStructures.Num());
+						auto RowDataIter = DataRow.cells().begin();
+						for (auto& [Header, Type] : TableStructures)
+						{
+							Collected.Emplace(FString(RowDataIter->value().get<std::string>().c_str()));
+							++RowDataIter;
+						}
+						
+						if (Collected.Num() == 0)
+						{
+							continue;
+						}
+						
+						
+						
+						//NewDataTable->AddRow(Collected[0], )
+
+					}
+
+					//NewDataTable->AddRow()
+
+					//NewDataTable->CreateTableFromCSVString
+
 					// Add data values
 					//for (int32 RowIndex = 3; RowIndex <= RowCount; ++RowIndex)
 					//{
