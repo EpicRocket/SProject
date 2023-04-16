@@ -173,7 +173,45 @@ UObject* UExcelFactory::FactoryCreateFile(UClass* InClass, UObject* InParent, FN
 						auto RowDataIter = DataRow.cells().begin();
 						for (auto& [Header, Type] : TableStructures)
 						{
-							Collected.Emplace(FString(RowDataIter->value().get<std::string>().c_str()));
+							auto CellType = RowDataIter->value().type();
+							switch (RowDataIter->value().type())
+							{
+								case OpenXLSX::XLValueType::Empty:
+								{
+
+								} continue;
+
+								case OpenXLSX::XLValueType::Boolean:
+								{
+									Collected.Add(RowDataIter->value().get<bool>() ? TEXT("true") : TEXT("false"));
+								} break;
+
+								case OpenXLSX::XLValueType::Integer:
+								{
+									Collected.Add(FString::Printf(TEXT("%d"), RowDataIter->value().get<int32>()));
+								} break;
+
+								case OpenXLSX::XLValueType::Float:
+								{
+									Collected.Add(FString::Printf(TEXT("%f"), RowDataIter->value().get<float>()));
+								} break;
+
+								case OpenXLSX::XLValueType::String:
+								{
+									Collected.Add(FString(RowDataIter->value().get<std::string>().c_str()));
+								} break;
+
+								case OpenXLSX::XLValueType::Error:
+								{
+
+								} continue;
+
+								default:
+								{
+									//Collected.Add(TEXT("None"));
+								} break;
+
+							}
 							++RowDataIter;
 						}
 						
@@ -181,57 +219,21 @@ UObject* UExcelFactory::FactoryCreateFile(UClass* InClass, UObject* InParent, FN
 						{
 							continue;
 						}
-						
-						
-						
-						//NewDataTable->AddRow(Collected[0], )
 
+						FName RowName = FName(*Collected[0]);
+						
+						uint8* NewDataRow = (uint8*)FMemory::Malloc(NewDataTable->RowStruct->GetStructureSize());
+						NewDataTable->RowStruct->InitializeStruct(NewDataRow);
+						FTableRowBase* CurRow = reinterpret_cast<FTableRowBase*>(NewDataRow);
+						if (nullptr != CurRow)
+						{
+							CurRow->OnPostDataImport(NewDataTable, RowName, Collected);
+							NewDataTable->AddRow(*Collected[0], *CurRow);
+						}
+						
+						NewDataTable->RowStruct->DestroyStruct(NewDataRow);
+						FMemory::Free(NewDataRow);
 					}
-
-					//NewDataTable->AddRow()
-
-					//NewDataTable->CreateTableFromCSVString
-
-					// Add data values
-					//for (int32 RowIndex = 3; RowIndex <= RowCount; ++RowIndex)
-					//{
-					//	OpenXLSX::XLRow DataRow = WorkSheet.row(RowIndex);
-					//	auto CellData = DataRow.cells().begin();
-
-					//	NewDataTable->CreateTableFromCSVString()
-
-					//	for (auto& [Header, Type] : TableStructures)
-					//	{
-					//		if (Header == TEXT("Index"))
-					//		{
-
-
-					//		}
-					//		else if (Type == TEXT("int"))
-					//		{
-
-					//		}
-
-					//	}
-
-					//	NewDataTable->AddRow()
-
-					//	//for (auto& Cell : DataRow.cells())
-					//	//{
-					//	//
-					//	//
-					//	//}
-
-					//	
-					//	FName RowName = FName(FString::Printf(TEXT("Row_%d"), RowIndex - 2));
-					//	NewDataTable->AddRow(RowName);
-
-					//	for (int32 ColIndex = 1; ColIndex <= TableStructures.Num(); ++ColIndex)
-					//	{
-					//		FString CellValue = FString(WorkSheet.cell(RowIndex, ColIndex).get<std::string>().c_str());
-					//		NewDataTable->SetCell(RowName, *TableStructures[ColIndex - 1].Get<0>(), CellValue);
-					//	}
-					//}
 					
 					AssetsToSave.Emplace(NewDataTable);
 				}
