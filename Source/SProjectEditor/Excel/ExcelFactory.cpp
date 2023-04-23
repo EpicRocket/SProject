@@ -6,6 +6,8 @@
 #include "UserDefinedStructure/UserDefinedStructEditorData.h"
 #include "Kismet2/StructureEditorUtils.h"
 #include "Kismet2/BlueprintEditorUtils.h"
+#include "DataTableEditorUtils.h"
+#include "Engine/UserDefinedEnum.h"
 
 #if PLATFORM_WINDOWS
 #include "OpenXLSX/OpenXLSX.hpp"
@@ -25,13 +27,31 @@ std::string WStringToString(const std::wstring& wstr)
 	delete[] chRtn;
 	return str;
 }
+FString UTF8ToTCHARString(const std::string& utf8Str)
+{
+	if (utf8Str.empty())
+	{
+		return FString();
+	}
+
+	int32_t targetLength = MultiByteToWideChar(CP_UTF8, 0, utf8Str.c_str(), -1, nullptr, 0);
+	if (targetLength == 0)
+	{
+		return FString();
+	}
+
+	TArray<TCHAR> targetArray; targetArray.Reserve(targetLength);
+	MultiByteToWideChar(CP_UTF8, 0, utf8Str.c_str(), -1, targetArray.GetData(), targetLength);
+
+	return FString(targetArray.GetData());
+}
 }
 #endif
 
 UExcelFactory::UExcelFactory()
 {
 	SupportedClass = UObject::StaticClass();
-    Formats.Add(TEXT("xlsx;Microsoft Excel Spreadsheet"));
+	Formats.Add(TEXT("xlsx;Microsoft Excel Spreadsheet"));
 	bEditorImport = true;
 	bText = false;
 }
@@ -122,14 +142,20 @@ UObject* UExcelFactory::FactoryCreateFile(UClass* InClass, UObject* InParent, FN
 					FString UserDefinedStructName = FString::Printf(TEXT("BS_%s"), *DefaultName);
 					UUserDefinedStruct* NewUserDefinedStruct = Cast<UUserDefinedStruct>(CreateOrOverwriteAsset(UUserDefinedStruct::StaticClass(), InParent, *UserDefinedStructName, Flags));
 
-					if (!NewUserDefinedStruct)
+					FString DataTableName = FString::Printf(TEXT("DT_%s"), *DefaultName);
+					UDataTable* NewDataTable = Cast<UDataTable>(CreateOrOverwriteAsset(UDataTable::StaticClass(), InParent, *DataTableName, Flags));
+					NewDataTable->RowStruct = NewUserDefinedStruct;
+
+					if (!NewUserDefinedStruct || !NewDataTable)
 					{
+						// TODO: 에러 코드
 						return nullptr;
 					}
 
 					NewUserDefinedStruct->EditorData = NewObject<UUserDefinedStructEditorData>(NewUserDefinedStruct, NAME_None, RF_Transactional);
 					if (nullptr == NewUserDefinedStruct->EditorData)
 					{
+						// TODO: 에러 코드
 						return nullptr;
 					}
 
@@ -151,20 +177,6 @@ UObject* UExcelFactory::FactoryCreateFile(UClass* InClass, UObject* InParent, FN
 						FStructureEditorUtils::OnStructureChanged(NewUserDefinedStruct, FStructureEditorUtils::EStructureEditorChangeInfo::AddedVariable);
 					}
 
-					AssetsToSave.Emplace(NewUserDefinedStruct);
-
-					// Create DataTable Blueprint
-					FString DataTableName = FString::Printf(TEXT("DT_%s"), *DefaultName);
-					UDataTable* NewDataTable = Cast<UDataTable>(CreateOrOverwriteAsset(UDataTable::StaticClass(), InParent, *DataTableName, Flags));
-					
-					if (!NewDataTable)
-					{
-						return nullptr;
-					}
-
-					NewDataTable->RowStruct = NewUserDefinedStruct;
-
-
 					for (int32 Index = 3; Index < RowCount; ++Index)
 					{
 						OpenXLSX::XLRow DataRow = WorkSheet.row(Index);
@@ -178,7 +190,7 @@ UObject* UExcelFactory::FactoryCreateFile(UClass* InClass, UObject* InParent, FN
 							{
 								case OpenXLSX::XLValueType::Empty:
 								{
-
+									// TODO: 에러로그
 								} continue;
 
 								case OpenXLSX::XLValueType::Boolean:
@@ -198,17 +210,18 @@ UObject* UExcelFactory::FactoryCreateFile(UClass* InClass, UObject* InParent, FN
 
 								case OpenXLSX::XLValueType::String:
 								{
-									Collected.Add(FString(RowDataIter->value().get<std::string>().c_str()));
+									auto Message = UTF8ToTCHARString(RowDataIter->value().get<std::string>());
+									Collected.Add(FString(Message));
 								} break;
 
 								case OpenXLSX::XLValueType::Error:
 								{
-
+									// TODO: 에러로그
 								} continue;
 
 								default:
 								{
-									//Collected.Add(TEXT("None"));
+									// TODO: 에러로그
 								} break;
 
 							}
@@ -221,26 +234,90 @@ UObject* UExcelFactory::FactoryCreateFile(UClass* InClass, UObject* InParent, FN
 						}
 
 						FName RowName = FName(*Collected[0]);
-						
-						uint8* NewDataRow = (uint8*)FMemory::Malloc(NewDataTable->RowStruct->GetStructureSize());
-						NewDataTable->RowStruct->InitializeStruct(NewDataRow);
-						FTableRowBase* CurRow = reinterpret_cast<FTableRowBase*>(NewDataRow);
-						if (nullptr != CurRow)
+						uint8* RowPtr = FDataTableEditorUtils::AddRow(NewDataTable, RowName);
+						if (nullptr == RowPtr)
 						{
-							CurRow->OnPostDataImport(NewDataTable, RowName, Collected);
-							NewDataTable->AddRow(*Collected[0], *CurRow);
+							continue;
 						}
-						
-						NewDataTable->RowStruct->DestroyStruct(NewDataRow);
-						FMemory::Free(NewDataRow);
+
+						int32 CollectedIndex = 0;
+						for (TFieldIterator<FProperty> It(NewDataTable->RowStruct); It; ++It)
+						{
+							FProperty* BaseProp = *It;
+							check(BaseProp);
+							DataTableUtils::AssignStringToProperty(Collected[CollectedIndex++], BaseProp, RowPtr);
+						}
 					}
 					
+					AssetsToSave.Emplace(NewUserDefinedStruct);
 					AssetsToSave.Emplace(NewDataTable);
 				}
 					break;
 				case UExcelFactory::Enum:
 				{
-					// Create Enum Blueprint
+					FString UserDefinedEnumName = FString::Printf(TEXT("BE_%s"), *DefaultName);
+					UUserDefinedEnum* NewUserDefinedEnum = Cast<UUserDefinedEnum>(CreateOrOverwriteAsset(UUserDefinedEnum::StaticClass(), InParent, *UserDefinedEnumName, Flags));
+
+					if (!NewUserDefinedEnum)
+					{
+						// TODO: 에러 코드
+						return nullptr;
+					}
+
+					NewUserDefinedEnum->SetMetaData(TEXT("BlueprintType"), TEXT("true"));
+					NewUserDefinedEnum->Bind();
+					
+					TArray<TPair<FName, int64>> EnumValues;
+					for (int32 Index = 3; Index < RowCount; ++Index)
+					{
+						OpenXLSX::XLRow DataRow = WorkSheet.row(Index);
+
+						auto RowDataIter = DataRow.cells().begin();
+						for (auto& [Header, Type] : TableStructures)
+						{
+							auto CellType = RowDataIter->value().type();
+							switch (RowDataIter->value().type())
+							{
+							case OpenXLSX::XLValueType::Empty:
+							{
+								// TODO: 에러로그
+							} continue;
+
+							case OpenXLSX::XLValueType::Boolean:
+							{
+							} break;
+
+							case OpenXLSX::XLValueType::Integer:
+							{
+							} break;
+
+							case OpenXLSX::XLValueType::Float:
+							{
+							} break;
+
+							case OpenXLSX::XLValueType::String:
+							{
+								auto Message = UTF8ToTCHARString(RowDataIter->value().get<std::string>());
+								EnumValues.Emplace(TPair<FName, int64>(FName(*Message), EnumValues.Num()));
+
+							} break;
+
+							case OpenXLSX::XLValueType::Error:
+							{
+								// TODO: 에러로그
+							} continue;
+
+							default:
+							{
+								// TODO: 에러로그
+							} break;
+
+							}
+							++RowDataIter;
+						}
+					}
+					NewUserDefinedEnum->SetEnums(EnumValues, UEnum::ECppForm::EnumClass, EEnumFlags::None, /*bAddMaxKeyIfMissing=*/true);
+					AssetsToSave.Emplace(NewUserDefinedEnum);
 				}
 					break;
 				default: continue;
@@ -265,5 +342,5 @@ UObject* UExcelFactory::FactoryCreateFile(UClass* InClass, UObject* InParent, FN
 		FAssetRegistryModule::AssetCreated(AssetsToSave[i]);
 	}
 
-    return AssetsToSave.Num() == 0 ? nullptr : AssetsToSave[0];
+	return AssetsToSave.Num() == 0 ? nullptr : AssetsToSave[0];
 }
