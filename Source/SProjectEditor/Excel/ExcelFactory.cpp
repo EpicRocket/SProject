@@ -6,6 +6,7 @@
 #include "UserDefinedStructure/UserDefinedStructEditorData.h"
 #include "Kismet2/StructureEditorUtils.h"
 #include "Kismet2/BlueprintEditorUtils.h"
+#include "Kismet2/EnumEditorUtils.h"
 #include "DataTableEditorUtils.h"
 #include "Engine/UserDefinedEnum.h"
 
@@ -268,6 +269,9 @@ UObject* UExcelFactory::FactoryCreateFile(UClass* InClass, UObject* InParent, FN
 					NewUserDefinedEnum->Bind();
 					
 					TArray<TPair<FName, int64>> EnumValues;
+
+					NewUserDefinedEnum->SetEnums(EnumValues, UEnum::ECppForm::Namespaced);
+
 					for (int32 Index = 3; Index < RowCount; ++Index)
 					{
 						OpenXLSX::XLRow DataRow = WorkSheet.row(Index);
@@ -315,8 +319,16 @@ UObject* UExcelFactory::FactoryCreateFile(UClass* InClass, UObject* InParent, FN
 							}
 							++RowDataIter;
 						}
+
+						if (EnumValues.Num() == 0)
+						{
+							continue;
+						}
+
+						FEnumEditorUtils::AddNewEnumeratorForUserDefinedEnum(NewUserDefinedEnum);
+						FEnumEditorUtils::SetEnumeratorDisplayName(NewUserDefinedEnum, EnumValues.Num() - 1, FText::FromString(EnumValues.Last().Key.ToString()));
 					}
-					NewUserDefinedEnum->SetEnums(EnumValues, UEnum::ECppForm::EnumClass, EEnumFlags::None, /*bAddMaxKeyIfMissing=*/true);
+
 					AssetsToSave.Emplace(NewUserDefinedEnum);
 				}
 					break;
