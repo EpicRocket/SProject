@@ -26,4 +26,6 @@
 Content/* filter=lfs diff=lfs merge=lfs -text
 Resources/* filter=lfs diff=lfs merge=lfs -text
 Plugins/MortarPlugin/Content/* filter=lfs diff=lfs merge=lfs -text
+Plugins/MortarPlugin/Binaries/* filter=lfs diff=lfs merge=lfs -text
 Plugins/RTSUnitTemplate/Content/* filter=lfs diff=lfs merge=lfs -text
+Plugins/RTSUnitTemplate/Binaries/* filter=lfs diff=lfs merge=lfs -text
