@@ -7,7 +7,11 @@
 		{
 			"Name": "SProject",
 			"Type": "Runtime",
-			"LoadingPhase": "Default"
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"Engine",
+				"CommonUI"
+			]
 		},
 		{
 			"Name": "SProjectEditor",
@@ -118,6 +122,16 @@
 		{
 			"Name": "StructUtils",
 			"Enabled": true
+		},
+		{
+			"Name": "MortarPlugin",
+			"Enabled": true,
+			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/c7d15c6abe2d49d08130c643b455fd4a"
+		},
+		{
+			"Name": "RTSUnitTemplate",
+			"Enabled": true,
+			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/4b336b20be144255b04af1b4a31bf5eb"
 		}
 	]
 }
