@@ -1,17 +1,13 @@
 {
 	"FileVersion": 3,
-	"EngineAssociation": "{906F7821-4575-9800-55A2-379BEC81AB2F}",
+	"EngineAssociation": "",
 	"Category": "",
 	"Description": "",
 	"Modules": [
 		{
 			"Name": "SProject",
 			"Type": "Runtime",
-			"LoadingPhase": "Default",
-			"AdditionalDependencies": [
-				"Engine",
-				"CommonUI"
-			]
+			"LoadingPhase": "Default"
 		},
 		{
 			"Name": "SProjectEditor",
@@ -30,108 +26,6 @@
 		{
 			"Name": "CommonUI",
 			"Enabled": true
-		},
-		{
-			"Name": "GameplayBehaviors",
-			"Enabled": true
-		},
-		{
-			"Name": "CurveExpression",
-			"Enabled": true
-		},
-		{
-			"Name": "AnimationLocomotionLibrary",
-			"Enabled": true
-		},
-		{
-			"Name": "AssetSearch",
-			"Enabled": true
-		},
-		{
-			"Name": "BlueprintFileUtils",
-			"Enabled": true
-		},
-		{
-			"Name": "BlueprintStats",
-			"Enabled": true
-		},
-		{
-			"Name": "CameraCalibration",
-			"Enabled": true
-		},
-		{
-			"Name": "CodeView",
-			"Enabled": true
-		},
-		{
-			"Name": "CodeEditor",
-			"Enabled": true
-		},
-		{
-			"Name": "AbilitySystemGameFeatureActions",
-			"Enabled": true
-		},
-		{
-			"Name": "CommonConversation",
-			"Enabled": true
-		},
-		{
-			"Name": "DataRegistry",
-			"Enabled": true
-		},
-		{
-			"Name": "GameFeatures",
-			"Enabled": true
-		},
-		{
-			"Name": "GameplayAbilities",
-			"Enabled": true
-		},
-		{
-			"Name": "GameplayInteractions",
-			"Enabled": true
-		},
-		{
-			"Name": "GameplayStateTree",
-			"Enabled": true
-		},
-		{
-			"Name": "MassEntity",
-			"Enabled": true
-		},
-		{
-			"Name": "MassGameplay",
-			"Enabled": true
-		},
-		{
-			"Name": "ModularGameplay",
-			"Enabled": true
-		},
-		{
-			"Name": "NavCorridor",
-			"Enabled": true
-		},
-		{
-			"Name": "SmartObjects",
-			"Enabled": true
-		},
-		{
-			"Name": "StateTree",
-			"Enabled": true
-		},
-		{
-			"Name": "StructUtils",
-			"Enabled": true
-		},
-		{
-			"Name": "MortarPlugin",
-			"Enabled": true,
-			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/c7d15c6abe2d49d08130c643b455fd4a"
-		},
-		{
-			"Name": "RTSUnitTemplate",
-			"Enabled": true,
-			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/4b336b20be144255b04af1b4a31bf5eb"
 		}
 	]
 }

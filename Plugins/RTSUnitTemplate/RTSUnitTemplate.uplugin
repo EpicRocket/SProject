@@ -10,7 +10,7 @@
 	"DocsURL": "http://teufel-engineering.com:81/en/rts-unit-template",
 	"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/4b336b20be144255b04af1b4a31bf5eb",
 	"SupportURL": "",
-	"EngineVersion": "5.1.0",
+	"EngineVersion": "5.2.0",
 	"CanContainContent": true,
 	"Installed": true,
 	"Modules": [
