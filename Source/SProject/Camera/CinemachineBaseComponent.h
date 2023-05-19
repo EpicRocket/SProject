@@ -5,6 +5,9 @@
 #include "Components/ActorComponent.h"
 #include "CinemachineBaseComponent.generated.h"
 
+class AActor;
+class UCinemachineVirtualCameraComponent;
+
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class SPROJECT_API UCinemachineBaseComponent : public UActorComponent
 {
@@ -16,7 +19,12 @@ public:
         return 0.0F;
     }
 
-    //virtual void MuateCameraState()
+    AActor* GetFollowTarget();
+
+    AActor* GetLookAtTarget();
+    
 
 protected:
+
+    UCinemachineVirtualCameraComponent* CameraComponent;
 };
