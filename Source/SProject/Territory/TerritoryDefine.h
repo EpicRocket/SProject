@@ -12,4 +12,5 @@ enum class ETerritoryModeType : uint8
 {
 	Idle,
 	Construct,
+	Move
 };

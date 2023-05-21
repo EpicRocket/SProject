@@ -26,6 +26,7 @@ public:
 	TSubclassOf<class ATerritoryBuilding> GetConstructBuildingBP() const { return BuildingBP; }
 	void SetConstructBuildingBP(const TSubclassOf<class ATerritoryBuilding>& InBuildingBP) { BuildingBP = InBuildingBP; }
 
+
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess))
 	ETerritoryModeType ModeType;
@@ -33,5 +34,4 @@ private:
 	// For Construct Mode
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess))
 	TSubclassOf<class ATerritoryBuilding> BuildingBP;
-	
 };

@@ -2,6 +2,9 @@
 
 
 #include "TerritoryPlayerController.h"
+
+#include "IAssetTypeActions.h"
+#include "IMediaAudioSample.h"
 #include "TerritoryDefine.h"
 
 ATerritoryPlayerController::ATerritoryPlayerController()
@@ -22,6 +25,8 @@ void ATerritoryPlayerController::SetModeType(const ETerritoryModeType InModeType
 		break;
 	case ETerritoryModeType::Construct:
 		GetWorld()->GetFirstPlayerController()->CurrentClickTraceChannel = ECC_GameTraceChannel1;
+		break;
+	case ETerritoryModeType::Move:
 		break;
 	}
 }
