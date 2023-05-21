@@ -29,6 +29,19 @@ private:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	TObjectPtr<UStaticMeshComponent> MeshComp;
+
+private:
+	TObjectPtr<class ATerritoryGameMode> TerritoryGameMode;
+	TObjectPtr<class ATerritoryPlayerController> TerritoryPC;
+	
+	float DoubleClickTime;
+	float ClickDelta;
+	int32 ClickCount;
+	
 public:
 	TObjectPtr<UStaticMeshComponent> GetMeshComponent() const { return MeshComp; }
+
+private:
+	virtual void NotifyActorOnClicked(FKey ButtonPressed) override;
+	void OnDoubleClicked();
 };
