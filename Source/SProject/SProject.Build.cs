@@ -25,6 +25,7 @@ public class SProject : ModuleRules
 				"Slate",
 				"SlateCore",
 				"UnrealEd",
+				"CommonUI",
 			}
 		);
 
