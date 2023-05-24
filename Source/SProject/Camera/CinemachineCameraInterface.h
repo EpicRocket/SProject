@@ -18,9 +18,9 @@ class SPROJECT_API ICinemachineCameraInterface
 	GENERATED_BODY()
 
 public:
-	virtual FString GetName() const
+	virtual FString GetCameraName() const
 	{
-		return FString(TEXT("Unknown Name"));
+		return FString(TEXT("Unknown Camera"));
 	}
 
 	virtual FString GetDescription() const
@@ -32,31 +32,46 @@ public:
 	{
 		return 10;
 	}
-	virtual void SetPrioirty(int32 InValue) = 0;
+	
+	virtual void SetPriority(int32 InValue) = 0;
 
 	virtual AActor* GetLookAt() = 0;
+	
 	virtual void SetLookAt(AActor* InActor) = 0;
 
 	virtual AActor* GetFollow() = 0;
+	
 	virtual void SetFollow(AActor* InActor) = 0;
 
-	virtual FCinemachineCameraState GetState() const = 0;
+	virtual FCinemachineCameraState GetState() = 0;
 
 	virtual ICinemachineCameraInterface* GetParentCamera()
 	{
 		return nullptr;
 	}
 
-	virtual bool IsLiveChild(ICinemachineCameraInterface InCamera, bool DominantChildOnly = false)
+	virtual bool IsLiveChild(ICinemachineCameraInterface* InCamera, bool DominantChildOnly = false)
 	{
 		return false;
 	}
 
-	virtual void UpdateCameraState(FVector WorldUp, float DeltaTime) = 0;
+	virtual void UpdateCameraState(FVector WorldUp, float DeltaTime)
+	{
+		// Empty
+	}
 
-	virtual void InternalUpdateCameraState(FVector WorldUp, float DeltaTime) = 0;
+	virtual void InternalUpdateCameraState(FVector WorldUp, float DeltaTime)
+	{
+		// Empty
+	}
 
-	virtual void OnTransitionFromCamera(ICinemachineCameraInterface InFromCamera, FVector WorldUp, float DeltaTime) = 0;
+	virtual void OnTransitionFromCamera(ICinemachineCameraInterface* InFromCamera, FVector WorldUp, float DeltaTime)
+	{
+		// Empty
+	}
 
-	virtual void OnTargetObjectWarped(AActor* InTarget, FVector InPositionDelta) = 0;
+	virtual void OnTargetObjectWarped(AActor* InTarget, FVector InPositionDelta)
+	{
+		// Empty
+	}
 };

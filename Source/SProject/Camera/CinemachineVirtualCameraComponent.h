@@ -6,6 +6,14 @@
 #include "CinemachineCameraInterface.h"
 #include "CinemachineVirtualCameraComponent.generated.h"
 
+UENUM(BlueprintType)
+enum class ECineamchineStandbyUpdateMode : uint8
+{
+	Nerver,
+	Always,
+	RoundRobin,
+};
+
 class AActor;
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
@@ -22,57 +30,72 @@ public:
 	//~ End UActorComponent Interface
 
 	//~ Begin ICinemachineCameraInterface Interface
-	virtual FString GetName() const override
+	virtual FString GetCameraName() const
 	{
 		return GetName();
 	}
 
-	virtual int32 GetPriority() const override
+	virtual int32 GetPriority() const
 	{
 		return Priority;
 	}
 
-	virtual void SetPrioirty(int32 InValue) override
+	virtual void SetPriority(int32 InValue)
 	{
 		Priority = InValue;
 	}
 
-	virtual AActor* GetLookAt() override
+	virtual AActor* GetLookAt()
 	{
 		return LookAtTarget;
 	}
-	virtual void SetLookAt(AActor* InActor) override
+	virtual void SetLookAt(AActor* InActor)
 	{
 		LookAtTarget = InActor;
 	}
 
-	virtual AActor* GetFollow() override
+	virtual AActor* GetFollow()
 	{
 		return FollowTarget;
 	}
-	virtual void SetFollow(AActor* InActor) override
+	virtual void SetFollow(AActor* InActor)
 	{
 		FollowTarget = InActor;
 	}
 
-	virtual FCinemachineCameraState GetState() const = 0;
-
-	virtual ICinemachineCameraInterface* GetParentCamera() override
+	virtual FCinemachineCameraState GetState()
 	{
-        if(!SlaveStatusUpdated)
-        {
-            UpdateSlaveStatus();
-        }
+		return FCinemachineCameraState();
+	}
+
+	virtual ICinemachineCameraInterface* GetParentCamera()
+	{
+		if (!SlaveStatusUpdated)
+		{
+			UpdateSlaveStatus();
+		}
 		return ParentCamera;
 	}
 
-    virtual void UpdateCameraState(FVector WorldUp, float DeltaTime) override;
+	virtual void UpdateCameraState(FVector WorldUp, float DeltaTime)
+	{
+		// TODO
+	}
 
-	virtual void InternalUpdateCameraState(FVector WorldUp, float DeltaTime) override;
+	virtual void InternalUpdateCameraState(FVector WorldUp, float DeltaTime)
+	{
+		// TODO
+	}
 
-	virtual void OnTransitionFromCamera(ICinemachineCameraInterface InFromCamera, FVector WorldUp, float DeltaTime) override;
+	virtual void OnTransitionFromCamera(ICinemachineCameraInterface* InFromCamera, FVector WorldUp, float DeltaTime)
+	{
+		// TODO
+	}
 
-	virtual void OnTargetObjectWarped(AActor* InTarget, FVector InPositionDelta) override;
+	virtual void OnTargetObjectWarped(AActor* InTarget, FVector InPositionDelta)
+	{
+		// TODO
+	}
 	//~ End ICinemachineCameraInterface Interface
 
 	AActor* ResolveFollow(AActor* LocalFollow);

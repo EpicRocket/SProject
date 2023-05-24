@@ -2,10 +2,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Curves/CurveFloat.h"
 #include "CinemachineCameraState.h"
+#include "CinemachineCameraInterface.h"
 #include "CinemachineBlend.generated.h"
-
-class ICinemachineCameraInterface;
 
 UCLASS(BlueprintType)
 class UCinemachineBlend : public UObject
@@ -15,11 +15,7 @@ class UCinemachineBlend : public UObject
 public:
 	UCinemachineBlend();
 
-	UCinemachineBlend(ICinemachineCameraInterface* InCameraA, ICinemachineCameraInterface* InCameraB, const FRuntimeFloatCurve& Curve, float InTimeInBlend, float InDuration);
-
 	float GetBlendWeight() const;
-
-	bool IsValid() const;
 
 	bool IsComplete() const;
 
@@ -33,10 +29,10 @@ public:
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cinemachine")
-	ICinemachineCameraInterface* CameraA;
+	UObject* CameraA;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cinemachine")
-	ICinemachineCameraInterface* CameraB;
+	UObject* CameraB;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cinemachine")
 	FRuntimeFloatCurve BlendCurve;
@@ -45,5 +41,174 @@ public:
 	float TimeInBlend;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cinemachine")
-	float Duraction;
+	float Duration;
+};
+
+USTRUCT(BlueprintType)
+struct FCinemachineBlendDefinition
+{
+	GENERATED_USTRUCT_BODY()
+
+public:
+	FCinemachineBlendDefinition();
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cinemachine")
+	float Time;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cinemachine")
+	FRuntimeFloatCurve Curve;
+};
+
+UCLASS(Blueprintable)
+class UStaticPointVirtualCamera : public UObject, public ICinemachineCameraInterface
+{
+	GENERATED_BODY()
+
+public:
+	virtual FString GetCameraName() const
+	{
+		return FString("");
+	}
+
+	virtual FString GetDescription() const
+	{
+		return FString("");
+	}
+
+	virtual int32 GetPriority() const
+	{
+		return Priority;
+	}
+
+	virtual void SetPriority(int32 InPriority)
+	{
+		Priority = InPriority;
+	}
+
+	virtual AActor* GetLookAt()
+	{
+		return LookAt;
+	}
+
+	virtual void SetLookAt(AActor* InLookAt)
+	{
+		LookAt = InLookAt;
+	}
+
+	virtual AActor* GetFollow()
+	{
+		return Follow;
+	}
+
+	virtual void SetFollow(AActor* InFollow)
+	{
+		Follow = InFollow;
+	}
+
+	virtual FCinemachineCameraState GetState()
+	{
+		return State;
+	}
+
+public:
+	int32 Priority;
+
+	UPROPERTY()
+	AActor* LookAt;
+
+	UPROPERTY()
+	AActor* Follow;
+
+	FCinemachineCameraState State;
+};
+
+UCLASS(Blueprintable)
+class UBlendSourceVirtualCamera : public UObject, public ICinemachineCameraInterface
+{
+	GENERATED_BODY()
+
+public:
+	UBlendSourceVirtualCamera()
+		: Blend(nullptr), Priority(0), LookAt(nullptr), Follow(nullptr)
+	{
+	}
+
+	virtual FString GetCameraName() const
+	{
+		return FString(TEXT("Mid-blend"));
+	}
+
+	virtual FString GetDescription() const
+	{
+		return IsValid(Blend) ? Blend->GetDescription() : FString(TEXT("None"));
+	}
+
+	virtual int32 GetPriority() const
+	{
+		return Priority;
+	}
+
+	virtual void SetPriority(int32 InPriority)
+	{
+		Priority = InPriority;
+	}
+
+	virtual AActor* GetLookAt()
+	{
+		return LookAt;
+	}
+
+	virtual void SetLookAt(AActor* InLookAt)
+	{
+		LookAt = InLookAt;
+	}
+
+	virtual AActor* GetFollow()
+	{
+		return Follow;
+	}
+
+	virtual void SetFollow(AActor* InFollow)
+	{
+		Follow = InFollow;
+	}
+
+	virtual FCinemachineCameraState GetState()
+	{
+		return State;
+	}
+
+	virtual bool IsLiveChild(ICinemachineCameraInterface* InCamera, bool DominantChildOnly = false)
+	{
+		return IsValid(Blend) && (Cast<ICinemachineCameraInterface>(Blend->CameraA) == InCamera || Cast<ICinemachineCameraInterface>(Blend->CameraB) == InCamera);
+	}
+
+	virtual void UpdateCameraState(FVector WorldUp, float DeltaTime)
+	{
+		if (IsValid(Blend))
+		{
+			Blend->UpdateCameraState(WorldUp, DeltaTime);
+			State = Blend->GetState();
+		}
+	}
+
+	virtual FCinemachineCameraState CalculateNewState(float DeltaTime)
+	{
+		return GetState();
+	}
+
+public:
+	UPROPERTY()
+	UCinemachineBlend* Blend;
+
+	int32 Priority;
+
+	UPROPERTY()
+	AActor* LookAt;
+
+	UPROPERTY()
+	AActor* Follow;
+
+	FCinemachineCameraState State;
 };
