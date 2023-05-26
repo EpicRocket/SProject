@@ -74,6 +74,6 @@ DerivedDataCache/*
 
 # Exclusion StarterContent
 Content/StarterContent
-.idea/.idea.SProject/.idea/vcs.xml
-.idea/.idea.SProject/.idea/indexLayout.xml
-.idea/.idea.SProject/.idea/encodings.xml
+
+#Rider file
+.idea/
