@@ -11,6 +11,8 @@ struct SPROJECT_API FCinemachineLensSettings
     GENERATED_USTRUCT_BODY()
 
 public:
+	static FCinemachineLensSettings FromCamera(class UCameraComponent* CameraComponent);
+
     static FCinemachineLensSettings Lerp(const FCinemachineLensSettings& A, const FCinemachineLensSettings& B, float Alpha);
 
 public:
@@ -27,6 +29,8 @@ public:
 		, Dutch(0.0f)
     {
     }
+
+
 
 public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = LensSettgins, meta = (UIMin = "5.0", UIMax = "170", ClampMin = "0.001", ClampMax = "360.0", Units = deg))

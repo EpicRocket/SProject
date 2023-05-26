@@ -14,8 +14,13 @@ enum class ECinemachineBrainUpdateMethod : uint8
     ManualUpdate,
 };
 
+class UCinemachineBrainComponent;
+class UCinemachineVirtualCameraComponent;
 class UCameraComponent;
 class AActor;
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCinemachineBrainEvent, UCinemachineBrainComponent*, Brain);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FCinemachineVirtualCameraActivatedEvent, UCinemachineVirtualCameraComponent*, VCamera, UCinemachineVirtualCameraComponent*, VCameraFrom);
 
 UCLASS(Blueprintable, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class SPROJECT_API UCinemachineBrainComponent : public UActorComponent
@@ -37,7 +42,19 @@ public:
 
     void ManualUpdate(float DeltaTime);
 
+	bool IsLiveBlend(UObject* ICamera);
+
+	bool IsLive(UObject* ICamera, bool DominantChildOnly = false);
+
+
+
 public:
+	UPROPERTY(BlueprintAssignable, Category = CinemachineBrain)
+	FCinemachineBrainEvent CameraCutEvent;
+
+	UPROPERTY(BlueprintAssignable, Category = CinemachineBrain)
+	FCinemachineVirtualCameraActivatedEvent CameraActivatedEvent;
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CinemachineBrain)
     ECinemachineBrainUpdateMethod UpdateMethod;
 

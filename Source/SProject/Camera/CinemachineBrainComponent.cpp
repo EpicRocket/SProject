@@ -29,3 +29,13 @@ void UCinemachineBrainComponent::ManualUpdate(float DeltaTime)
 {
     
 }
+
+bool UCinemachineBrainComponent::IsLiveBlend(UObject* ICamera)
+{
+	return false;
+}
+
+bool UCinemachineBrainComponent::IsLive(UObject* ICamera, bool DominantChildOnly)
+{
+	return false;
+}

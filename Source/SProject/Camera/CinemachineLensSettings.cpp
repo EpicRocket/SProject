@@ -1,6 +1,21 @@
 
 #include "CinemachineLensSettings.h"
 #include "Math/UnrealMathUtility.h"
+#include "Camera/CameraComponent.h"
+
+FCinemachineLensSettings FCinemachineLensSettings::FromCamera(UCameraComponent* CameraComponent)
+{
+	FCinemachineLensSettings Lens;
+	if (!IsValid(CameraComponent))
+	{
+		return Lens;
+	}
+
+	Lens.FieldOfView = CameraComponent->FieldOfView;
+	Lens.AspectRatio = CameraComponent->AspectRatio;
+
+    return Lens;
+}
 
 FCinemachineLensSettings FCinemachineLensSettings::Lerp(const FCinemachineLensSettings& A, const FCinemachineLensSettings& B, float Alpha)
 {

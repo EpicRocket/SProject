@@ -68,7 +68,7 @@ class UStaticPointVirtualCamera : public UObject, public ICinemachineCameraInter
 public:
 	virtual FString GetCameraName() const
 	{
-		return FString("");
+		return FString("None");
 	}
 
 	virtual FString GetDescription() const
