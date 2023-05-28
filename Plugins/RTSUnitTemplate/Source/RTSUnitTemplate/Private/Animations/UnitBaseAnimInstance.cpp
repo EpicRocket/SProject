@@ -107,5 +107,4 @@ void UUnitBaseAnimInstance::SetBlendPoints(AUnitBase* Unit, float Deltaseconds)
 		
 		
 	}
-
 }
