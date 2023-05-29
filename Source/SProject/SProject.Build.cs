@@ -15,7 +15,8 @@ public class SProject : ModuleRules
 				"CoreUObject",
 				"Engine",
 				"InputCore",
-				"UMG"
+				"UMG",
+				"GameFeatures",
 			}
 		);
 
@@ -25,7 +26,11 @@ public class SProject : ModuleRules
 				"Slate",
 				"SlateCore",
 				"UnrealEd",
+				"EnhancedInput",
+				"UIExtension",
 				"CommonUI",
+				"CommonInput",
+				"CommonGame",
 			}
 		);
 
