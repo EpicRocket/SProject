@@ -18,6 +18,9 @@ class SPROJECT_API ATerritoryPlayerController : public APlayerController
 
 public:
 	ATerritoryPlayerController();
+	virtual void SetupInputComponent() override;
+
+	virtual void Tick(float DeltaSeconds) override;
 	
 public:
 	const ETerritoryModeType& GetMode() const { return ModeType; }
@@ -25,13 +28,24 @@ public:
 	
 	TSubclassOf<class ATerritoryBuilding> GetConstructBuildingBP() const { return BuildingBP; }
 	void SetConstructBuildingBP(const TSubclassOf<class ATerritoryBuilding>& InBuildingBP) { BuildingBP = InBuildingBP; }
+	void SetMovedBuilding(TObjectPtr<class ATerritoryBuilding> InMovedBuilding) { MovedBuilding = InMovedBuilding; }
 
+public:
+	TObjectPtr<class ATerritoryBuilding> GetMovedBuilding() const { return MovedBuilding; }
+	float GetDoubleClickTime() const { return DoubleClickTime; }
 
 private:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Territory Controll", meta = (AllowPrivateAccess))
 	ETerritoryModeType ModeType;
 	
 	// For Construct Mode
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Territory Controll", meta = (AllowPrivateAccess))
 	TSubclassOf<class ATerritoryBuilding> BuildingBP;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Territory Controll", meta = (AllowPrivateAccess))
+	float DoubleClickTime;
+
+private:
+	UPROPERTY()
+	TObjectPtr<class ATerritoryBuilding> MovedBuilding;
 };

@@ -24,24 +24,40 @@ public:
 	virtual void Tick(float DeltaTime) override;
  
 private:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess))
 	TObjectPtr<USceneComponent> SceneComp;
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess))
 	TObjectPtr<UStaticMeshComponent> MeshComp;
 
+public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Territory")
+	FLinearColor PreviewColorCan;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Territory")
+	FLinearColor PreviewColorDeny;
+	
 private:
 	TObjectPtr<class ATerritoryGameMode> TerritoryGameMode;
 	TObjectPtr<class ATerritoryPlayerController> TerritoryPC;
+	TObjectPtr<class ATerritoryTile> OwnerTile;
 	
 	float DoubleClickTime;
-	float ClickDelta;
+	float DoubleClickDelta;
 	int32 ClickCount;
+	bool bPressed;
+
+public:
+	void SetOwnerTile(TObjectPtr<class ATerritoryTile> Tile) { OwnerTile = Tile; }
 	
 public:
-	TObjectPtr<UStaticMeshComponent> GetMeshComponent() const { return MeshComp; }
+	FORCEINLINE TObjectPtr<UStaticMeshComponent> GetMeshComponent() const { return MeshComp; }
+	FORCEINLINE TObjectPtr<class ATerritoryTile> GetOwnerTile() const { return OwnerTile; }
 
 private:
 	virtual void NotifyActorOnClicked(FKey ButtonPressed) override;
+	virtual void NotifyActorOnReleased(FKey ButtonReleased) override;
+	virtual void NotifyActorBeginCursorOver() override;
+	virtual void NotifyActorEndCursorOver() override;
 	void OnDoubleClicked();
 };

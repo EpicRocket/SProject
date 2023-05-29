@@ -16,11 +16,4 @@ class SPROJECT_API ATerritoryGameMode : public AGameModeBase
 
 public:
 	ATerritoryGameMode();
-	
-private:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Territory", meta = (AllowPrivateAccess))
-	float DoubleClickTime;
-
-public:
-	FORCEINLINE float GetDoubleClickTime() const { return DoubleClickTime; }
 };

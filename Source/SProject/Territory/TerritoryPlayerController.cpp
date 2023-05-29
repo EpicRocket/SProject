@@ -3,8 +3,6 @@
 
 #include "TerritoryPlayerController.h"
 
-#include "IAssetTypeActions.h"
-#include "IMediaAudioSample.h"
 #include "TerritoryDefine.h"
 
 ATerritoryPlayerController::ATerritoryPlayerController()
@@ -16,17 +14,32 @@ ATerritoryPlayerController::ATerritoryPlayerController()
 	bEnableTouchOverEvents = true;
 }
 
+void ATerritoryPlayerController::SetupInputComponent()
+{
+	Super::SetupInputComponent();
+
+	
+}
+
+void ATerritoryPlayerController::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+	
+}
+
 void ATerritoryPlayerController::SetModeType(const ETerritoryModeType InModeType)
 {
 	ModeType = InModeType;
 	switch (ModeType)
 	{
 	case ETerritoryModeType::Idle:
+		CurrentClickTraceChannel = ECC_Visibility;
 		break;
 	case ETerritoryModeType::Construct:
-		GetWorld()->GetFirstPlayerController()->CurrentClickTraceChannel = ECC_GameTraceChannel1;
+		CurrentClickTraceChannel = ECC_GameTraceChannel1;
 		break;
 	case ETerritoryModeType::Move:
+		CurrentClickTraceChannel = ECC_GameTraceChannel1;
 		break;
-	}
+	}	
 }

@@ -6,5 +6,4 @@
 
 ATerritoryGameMode::ATerritoryGameMode()
 {
-	DoubleClickTime = 0.4f;
 }

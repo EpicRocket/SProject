@@ -5,6 +5,7 @@
 #include "SProject.h"
 #include "TerritoryDefine.h"
 #include "TerritoryPlayerController.h"
+#include "Materials/MaterialInstanceDynamic.h"
 
 // Sets default values
 ATerritoryTile::ATerritoryTile()
@@ -23,13 +24,32 @@ ATerritoryTile::ATerritoryTile()
 	PreviewMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PreviewMeshComp"));
 	PreviewMeshComp->SetupAttachment(RootComponent);
 	
-	bIsEmpty = true;
+	bHasToEmpty = false;
 	bCursor = false;
 }
 
 void ATerritoryTile::BeginPlay()
 {
 	Super::BeginPlay();
+	TerritoryPC = Cast<ATerritoryPlayerController>(GetWorld()->GetFirstPlayerController());
+	VERIFY(TerritoryPC);
+}
+
+void ATerritoryTile::ShowPreviewMesh(TObjectPtr<ATerritoryBuilding> Building, const FLinearColor& Color) const
+{
+	PreviewMeshComp->SetVisibility(true);
+	PreviewMeshComp->SetRelativeTransform(Building->GetMeshComponent()->GetRelativeTransform());
+			
+	const TObjectPtr<UStaticMesh> NewMesh = Building->GetMeshComponent()->GetStaticMesh();
+	PreviewMeshComp->SetStaticMesh(NewMesh);
+	for(int i = 0; i < PreviewMeshComp->GetNumMaterials(); ++i)
+	{
+		if(PreviewMeshComp->GetMaterial(i))
+		{
+			const auto MI = PreviewMeshComp->CreateAndSetMaterialInstanceDynamic(i);
+			MI->SetVectorParameterValue(TEXT("Base Color Tint"), Color);
+		}
+	}
 }
 
 void ATerritoryTile::NotifyActorBeginCursorOver()
@@ -37,23 +57,38 @@ void ATerritoryTile::NotifyActorBeginCursorOver()
 	Super::NotifyActorBeginCursorOver();
 	bCursor = true;
 
-	const TObjectPtr<ATerritoryPlayerController> TerritoryPC = Cast<ATerritoryPlayerController>(GetWorld()->GetFirstPlayerController());
-
 	VERIFY(TerritoryPC);
 	switch(TerritoryPC->GetMode())
 	{
 	case ETerritoryModeType::Idle:
 		break;
 	case ETerritoryModeType::Construct:
-		if(IsEmpty())
 		{
-			CALLINFO
-			const TObjectPtr<ATerritoryBuilding> TerritoryBuilding = TerritoryPC->GetConstructBuildingBP().GetDefaultObject();
-			PreviewMeshComp->SetRelativeTransform(TerritoryBuilding->GetMeshComponent()->GetRelativeTransform());
-			
-			const TObjectPtr<UStaticMesh> NewMesh = TerritoryBuilding->GetMeshComponent()->GetStaticMesh();
-			PreviewMeshComp->SetStaticMesh(NewMesh);
+			const TObjectPtr<ATerritoryBuilding> Building = TerritoryPC->GetConstructBuildingBP().GetDefaultObject();
+			if(IsEmpty())
+			{
+				ShowPreviewMesh(Building, Building->PreviewColorCan);
+			}
+			else
+			{
+				ShowPreviewMesh(Building, Building->PreviewColorDeny);
+			}
+			break;
 		}
+	case ETerritoryModeType::Move:
+		{
+			const TObjectPtr<ATerritoryBuilding> Building = TerritoryPC->GetMovedBuilding();
+			if(IsEmpty())
+			{
+				ShowPreviewMesh(Building, Building->PreviewColorCan);
+			}
+			else
+			{
+				ShowPreviewMesh(Building, Building->PreviewColorDeny);
+			}
+			break;
+		}
+	default:
 		break;
 	}
 }
@@ -62,43 +97,91 @@ void ATerritoryTile::NotifyActorEndCursorOver()
 {
 	Super::NotifyActorEndCursorOver();
 	bCursor = false;
-	
-	const TObjectPtr<ATerritoryPlayerController> TerritoryPC = Cast<ATerritoryPlayerController>(GetWorld()->GetFirstPlayerController());
 
-	VERIFY(TerritoryPC);
 	switch(TerritoryPC->GetMode())
 	{
 	case ETerritoryModeType::Idle:
 		break;
 	case ETerritoryModeType::Construct:
-		CALLINFO
 		PreviewMeshComp->SetStaticMesh(nullptr);
 		break;
+	case ETerritoryModeType::Move:
+		PreviewMeshComp->SetStaticMesh(nullptr);
+		break;
+		
+	default: ;
 	}
 }
 
 
 void ATerritoryTile::NotifyActorOnClicked(FKey ButtonPressed)
 {
-	const TObjectPtr<ATerritoryPlayerController> TerritoryPC = Cast<ATerritoryPlayerController>(GetWorld()->GetFirstPlayerController());
+	VERIFY(TerritoryPC);
+	switch(TerritoryPC->GetMode())
+	{
+	case ETerritoryModeType::Idle: break;
+	case ETerritoryModeType::Construct: break;
+	case ETerritoryModeType::Move: break;
+	default: ;
+	}
+}
 
+void ATerritoryTile::NotifyActorOnReleased(FKey ButtonReleased)
+{
+	Super::NotifyActorOnReleased(ButtonReleased);
+	
 	VERIFY(TerritoryPC);
 	switch(TerritoryPC->GetMode())
 	{
 	case ETerritoryModeType::Idle:
 		break;
+
 	case ETerritoryModeType::Construct:
-		if(IsEmpty())
 		{
-			const TObjectPtr<ATerritoryBuilding> TerritoryBuilding = TerritoryPC->GetConstructBuildingBP().GetDefaultObject();
-			Building = GetWorld()->SpawnActor<ATerritoryBuilding>(TerritoryPC->GetConstructBuildingBP());
-			Building->SetActorTransform(GetActorTransform());
-			Building->GetMeshComponent()->SetRelativeTransform(TerritoryBuilding->GetMeshComponent()->GetRelativeTransform());
+			if(IsEmpty())
+			{
+				const TObjectPtr<ATerritoryBuilding> TerritoryBuilding = TerritoryPC->GetConstructBuildingBP().GetDefaultObject();
+				OwnBuilding = GetWorld()->SpawnActor<ATerritoryBuilding>(TerritoryPC->GetConstructBuildingBP());
+				OwnBuilding->SetActorTransform(GetActorTransform());
+				OwnBuilding->GetMeshComponent()->SetRelativeTransform(TerritoryBuilding->GetMeshComponent()->GetRelativeTransform());
+				OwnBuilding->SetOwnerTile(this);
 			
-			PreviewMeshComp->SetStaticMesh(nullptr);
-			TerritoryPC->SetModeType(ETerritoryModeType::Idle);
-			bIsEmpty = false;
+				PreviewMeshComp->SetStaticMesh(nullptr);
+				PreviewMeshComp->SetVisibility(false);
+				TerritoryPC->SetModeType(ETerritoryModeType::Idle);
+			}
+			break;
 		}
-		break;
+		
+	case ETerritoryModeType::Move:
+		{
+			const TObjectPtr<ATerritoryBuilding> MovedBuilding = TerritoryPC->GetMovedBuilding();
+			const TObjectPtr<ATerritoryTile> MovedBuildingTile = MovedBuilding->GetOwnerTile();
+			if(MovedBuildingTile != this)
+			{
+				if(IsEmpty())
+				{
+					PreviewMeshComp->SetVisibility(false);
+					OwnBuilding = MovedBuildingTile->OwnBuilding;
+					OwnBuilding->SetActorLocation(GetActorLocation());
+					OwnBuilding->SetOwnerTile(this);
+					MovedBuildingTile->SetBuilding(nullptr);
+					TerritoryPC->SetModeType(ETerritoryModeType::Idle);
+				}
+				else
+				{
+					/*
+					const TObjectPtr<ATerritoryBuilding> PrevBuilding = Building;
+					Building = MovedBuilding;
+					Building->SetActorLocation(GetActorLocation());
+					
+					PrevBuilding->SetOwnerTile(MovedBuildingTile);
+					PrevBuilding->SetActorLocation(MovedBuilding->GetActorLocation());
+					MovedBuildingTile->SetBuilding(PrevBuilding);
+					*/
+				}
+			}
+			break;
+		}
 	}
 }

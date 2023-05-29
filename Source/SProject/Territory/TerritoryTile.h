@@ -27,21 +27,32 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Tile", meta = (AllowPrivateAccess))
 	TObjectPtr<UStaticMeshComponent> PreviewMeshComp;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Tile", meta = (AllowPrivateAccess))
+	bool bHasToEmpty;
+
+private:
 	UPROPERTY()
-	TObjectPtr<ATerritoryBuilding> Building;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Tile", meta = (AllowPrivateAccess))
-	bool bIsEmpty;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Tile", meta = (AllowPrivateAccess))
-	int a;
+	TObjectPtr<ATerritoryPlayerController> TerritoryPC;
+	
+	UPROPERTY()
+	TObjectPtr<ATerritoryBuilding> OwnBuilding;
 
 public:
-	FORCEINLINE bool IsEmpty() const { return bIsEmpty; }
+	void ShowPreviewMesh(TObjectPtr<ATerritoryBuilding> Building, const FLinearColor& Color) const;
+
+public:
+	void SetBuilding(const TObjectPtr<ATerritoryBuilding> InBuilding) { OwnBuilding = InBuilding; }
+
+public:
+	FORCEINLINE TObjectPtr<ATerritoryBuilding> GetBuilding() const { return OwnBuilding; }
+
+public:
+	FORCEINLINE bool IsEmpty() const { return OwnBuilding == nullptr && !bHasToEmpty; }
 
 private:
 	bool bCursor;
 	virtual void NotifyActorBeginCursorOver() override;
 	virtual void NotifyActorEndCursorOver() override;
 	virtual void NotifyActorOnClicked(FKey ButtonPressed) override;
+	virtual void NotifyActorOnReleased(FKey ButtonReleased) override;
 };
