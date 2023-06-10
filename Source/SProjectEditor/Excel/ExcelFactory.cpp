@@ -17,9 +17,10 @@
 #include <WinNls.h>
 #include <string>
 #include <exception>
-namespace
-{
-std::string WStringToString(const std::wstring& wstr)
+#endif
+
+#if PLATFORM_WINDOWS
+static std::string WStringToString(const std::wstring& wstr)
 {
 	int size = WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), -1, NULL, 0, NULL, NULL);
 	char* chRtn = new char[size];
@@ -28,7 +29,8 @@ std::string WStringToString(const std::wstring& wstr)
 	delete[] chRtn;
 	return str;
 }
-FString UTF8ToTCHARString(const std::string& utf8Str)
+
+static FString UTF8ToTCHARString(const std::string& utf8Str)
 {
 	if (utf8Str.empty())
 	{
@@ -46,15 +48,14 @@ FString UTF8ToTCHARString(const std::string& utf8Str)
 
 	return FString(targetArray.GetData());
 }
-}
 #endif
 
 UExcelFactory::UExcelFactory()
 {
-	SupportedClass = UObject::StaticClass();
-	Formats.Add(TEXT("xlsx;Microsoft Excel Spreadsheet"));
-	bEditorImport = true;
-	bText = false;
+	//SupportedClass = UObject::StaticClass();
+	//Formats.Add(TEXT("xlsx;Microsoft Excel Spreadsheet"));
+	//bEditorImport = true;
+	//bText = false;
 }
 
 UObject* UExcelFactory::FactoryCreateFile(UClass* InClass, UObject* InParent, FName InName, EObjectFlags Flags, const FString& Filename, const TCHAR* Parms, FFeedbackContext* Warn, bool& bOutOperationCanceled)
