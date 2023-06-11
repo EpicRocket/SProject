@@ -1,7 +1,18 @@
 
 #include "XlsxObjectFactory.h"
 #include "Misc/MessageDialog.h"
+#include "ObjectTools.h"
 #include "XlsxObject.h"
+#include "HAL/FileManager.h"
+#include "DataTableEditorUtils.h"
+#include "Engine/UserDefinedEnum.h"
+#include "AssetToolsModule.h"
+#include "AssetRegistry/AssetRegistryModule.h"
+#include "Engine/UserDefinedStruct.h"
+#include "UserDefinedStructure/UserDefinedStructEditorData.h"
+#include "Kismet2/StructureEditorUtils.h"
+#include "Kismet2/BlueprintEditorUtils.h"
+#include "Kismet2/EnumEditorUtils.h"
 
 #if PLATFORM_WINDOWS
 #include <Windows.h>
@@ -14,7 +25,6 @@
 #include "OpenXLSX/headers/XLCellValue.hpp"
 #endif
 
-#if PLATFORM_WINDOWS
 static std::string WStringToString(const std::wstring& wstr)
 {
 	int size = WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), -1, NULL, 0, NULL, NULL);
@@ -44,7 +54,47 @@ static FString UTF8ToTCHARString(const std::string& utf8Str)
 
 	return FString(targetArray.GetData());
 }
-#endif
+
+static FString ToTypeString(const OpenXLSX::XLCellValueProxy& Proxy)
+{
+	switch (Proxy.type())
+	{
+	case OpenXLSX::XLValueType::Boolean: Proxy.get<bool>() ? TEXT("true") : TEXT("false");
+
+	case OpenXLSX::XLValueType::Integer: return FString::Printf(TEXT("%d"), Proxy.get<int>());
+
+	case OpenXLSX::XLValueType::Float: return FString::Printf(TEXT("%f"), Proxy.get<float>());
+
+	case OpenXLSX::XLValueType::String: return UTF8ToTCHARString(Proxy.get<std::string>());
+	}
+	return FString();
+}
+
+enum class EAssetType : uint8
+{
+	None,
+	Struct,
+	Enum,
+};
+
+struct FRowData
+{
+	FString Header;
+	FString Type;
+
+	FRowData() {};
+	FRowData(FString InHeader, FString InType)
+		: Header(InHeader), Type(InType)
+	{}
+};
+
+struct FSheetData
+{
+	EAssetType AssetType = EAssetType::None;
+	FString Name;
+	TArray<TTuple<FRowData, TArray<FString>>> Datas;
+};
+
 
 UXlsxObjectFactory::UXlsxObjectFactory()
 {
@@ -52,22 +102,72 @@ UXlsxObjectFactory::UXlsxObjectFactory()
 	Formats.Add(TEXT("xlsx;Microsoft Excel Spreadsheet"));
 	bEditorImport = true;
 	bText = false;
-	bCreateNew = true;
 }
 
-UObject* UXlsxObjectFactory::FactoryCreateNew(UClass* InClass, UObject* InParent, FName InName, EObjectFlags Flags, UObject* Context, FFeedbackContext* Warn)
+UObject* UXlsxObjectFactory::FactoryCreateFile(UClass* InClass, UObject* InParent, FName InName, EObjectFlags Flags, const FString& Filename, const TCHAR* Parms, FFeedbackContext* Warn, bool& bOutOperationCanceled)
 {
-	// TODO: 이미 존재한다면, 존재 중인 객체의 Object들 모두 삭제
-	FString FileName = ThisClass::GetCurrentFilename();
-	std::set<std::string> StructNames;
-	std::set<std::string> EnumNames;
+	UXlsxObject* ExistingAsset = Cast<UXlsxObject>(StaticFindObject(nullptr, InParent, *InName.ToString()));
+	if (ExistingAsset)
+	{
+		IFileManager& FileManager = IFileManager::Get();
+		if (!FileManager.Delete(*ExistingAsset->SubsystemPath, false, false, true))
+		{
+			FMessageDialog::Open(EAppMsgType::Ok, FText::FromString(FString::Printf(TEXT("Could not delete existing asset %s"), *Filename)));
+			return nullptr;
+		}
+
+		// Delete DataTables
+		TArray<UObject*> DeleteTables;
+		DeleteTables.Reserve(ExistingAsset->DataTables.Num());
+		for (UDataTable* Item : ExistingAsset->DataTables)
+		{
+			DeleteTables.Emplace(Item);
+		}
+		ExistingAsset->DataTables.Empty();
+
+		// Delete Structs
+		TArray<UObject*> DeleteStructs;
+		DeleteStructs.Reserve(ExistingAsset->Structs.Num());
+		for (UObject* Item : ExistingAsset->Structs)
+		{
+			DeleteStructs.Emplace(Item);
+		}
+		ExistingAsset->Structs.Empty();
+
+		// Delete Enums
+		TArray<UObject*> DeleteEnums;
+		DeleteEnums.Reserve(ExistingAsset->Enums.Num());
+		for (UObject* Item : ExistingAsset->Enums)
+		{
+			DeleteEnums.Emplace(Item);
+		}
+		ExistingAsset->Enums.Empty();
+
+		// Delete all objects
+		TArray<UObject*> DeleteObjects;
+		DeleteObjects.Reserve(DeleteTables.Num() + DeleteStructs.Num() + DeleteEnums.Num() + 1);
+		DeleteObjects.Emplace(ExistingAsset);
+		DeleteObjects.Append(DeleteTables);
+		DeleteObjects.Append(DeleteStructs);
+		DeleteObjects.Append(DeleteEnums);
+
+		if (!ObjectTools::ForceDeleteObjects(DeleteObjects))
+		{
+			FMessageDialog::Open(EAppMsgType::Ok, FText::FromString(FString::Printf(TEXT("Could not delete existing asset %s"), *Filename)));
+			return nullptr;
+		}
+
+		CollectGarbage(GARBAGE_COLLECTION_KEEPFLAGS);
+	}
+
+	TArray<FSheetData> SheetDatas;
 
 	try
 	{
-		OpenXLSX::XLDocument Document(::WStringToString(*FileName));
+		OpenXLSX::XLDocument Document(WStringToString(*Filename));
 		if (!Document.isOpen())
 		{
-			FMessageDialog::Open(EAppMsgType::Ok, FText::FromString(FString::Printf(TEXT("Failed to open the document. [%s]"), *FileName)));
+			FMessageDialog::Open(EAppMsgType::Ok, FText::FromString(FString::Printf(TEXT("Failed to open the document. [%s]"), *Filename)));
 			return nullptr;
 		}
 
@@ -75,36 +175,201 @@ UObject* UXlsxObjectFactory::FactoryCreateNew(UClass* InClass, UObject* InParent
 
 		for (std::string const& Name : WorkBook.sheetNames())
 		{
-			FString SheetName = FString(Name.c_str());
-			if (SheetName.Left(1) == TEXT("!"))
+			FSheetData SheetData;
+			SheetData.Name = FString(Name.c_str());
+
+			if (SheetData.Name.Left(1) == TEXT("!"))
 			{	// Blueprint Structure Type
-				StructNames.emplace(Name);
+				SheetData.AssetType = EAssetType::Struct;
 			}
-			else if (SheetName.Left(1) == TEXT("@"))
+			else if (SheetData.Name.Left(1) == TEXT("@"))
 			{	// Blueprint Enum Type
-				EnumNames.emplace(Name);
+				SheetData.AssetType = EAssetType::Enum;
 			}
 			else
 			{	// Unknown
 				continue;
 			}
+
+			SheetData.Name = SheetData.Name.RightChop(1);
+
+			try
+			{
+				OpenXLSX::XLWorksheet WorkSheet = WorkBook.worksheet(Name);
+				int32 RowCount = WorkSheet.rowCount();
+				if (RowCount < 2)
+				{
+					continue;
+				}
+
+				OpenXLSX::XLRow HeaderRow = WorkSheet.row(1);
+				OpenXLSX::XLRow TypeRow = WorkSheet.row(2);
+				auto HeaderRowIter = HeaderRow.cells().begin();
+				auto TypeRowIter = TypeRow.cells().begin();
+
+				for (; HeaderRowIter != HeaderRow.cells().end(); ++HeaderRowIter, ++TypeRowIter)
+				{
+					auto& Header = HeaderRowIter->value();
+					auto& Type = TypeRowIter->value();
+
+					FString HeaderName(Header.get<std::string>().c_str());
+					FString TypeName(Type.get<std::string>().c_str());
+
+					try
+					{
+
+					}
+					catch (std::exception Exception)
+					{
+						continue;
+					}
+
+					SheetData.Datas.Emplace(TTuple<FRowData, TArray<FString>>(FRowData(HeaderName, TypeName), TArray<FString>()));
+				}
+
+				for (int32 Index = 3; Index < RowCount; ++Index)
+				{
+					OpenXLSX::XLRow DataRow = WorkSheet.row(Index);
+					auto RowDataIter = DataRow.cells().begin();
+
+					for (int32 i = 0; i < SheetData.Datas.Num(); ++i)
+					{
+						auto& RowData = RowDataIter->value();
+						SheetData.Datas[i].Value.Emplace(ToTypeString(RowData));
+						++RowDataIter;
+					}
+				}
+			}
+			catch (std::exception Exception)
+			{
+				UE_LOG(LogTemp, Error, TEXT("Failed to open the sheet. [%s]"), *SheetData.Name);
+				continue;
+			}
+
+			SheetDatas.Emplace(SheetData);
 		}
 	}
 	catch (std::exception Exception)
 	{
-		FMessageDialog::Open(EAppMsgType::Ok, FText::FromString(Exception.what()));
+		UE_LOG(LogTemp, Error, TEXT("Failed to open the document. [%s]"), *UTF8ToTCHARString(Exception.what()))
+		return nullptr;
 	}
 
-	try
+	SheetDatas.Sort([](FSheetData const& Left, FSheetData const& Right)
 	{
-		// TODO: Create Enum types
-	}
-	catch (std::exception Exception)
+		if (Left.AssetType == EAssetType::Enum && Right.AssetType == EAssetType::Struct)
+		{
+			return true;
+		}
+		else if (Left.AssetType == EAssetType::Struct && Right.AssetType == EAssetType::Enum)
+		{
+			return false;
+		}
+		else
+		{
+			return false;
+		}
+	});
+
+	UXlsxObject* Result = NewObject<UXlsxObject>(InParent, InClass, FName(*FString::Printf(TEXT("XLSX_%s"), *InName.ToString())), Flags);
+
+	for (auto const& SheetData : SheetDatas)
 	{
-		FMessageDialog::Open(EAppMsgType::Ok, FText::FromString(Exception.what()));
+		if (SheetData.Datas.IsEmpty())
+		{
+			continue;
+		}
+
+		switch (SheetData.AssetType)
+		{
+		case EAssetType::Struct:
+		{
+			FString UserDefinedStructName = FString::Printf(TEXT("BS_%s"), *SheetData.Name);
+			UUserDefinedStruct* NewUserDefinedStruct = NewObject<UUserDefinedStruct>(InParent, UUserDefinedStruct::StaticClass(), *UserDefinedStructName, Flags);
+
+			NewUserDefinedStruct->EditorData = NewObject<UUserDefinedStructEditorData>(NewUserDefinedStruct, NAME_None, RF_Transactional);
+			NewUserDefinedStruct->Guid = FGuid::NewGuid();
+			NewUserDefinedStruct->SetMetaData(TEXT("BlueprintType"), TEXT("true"));
+			NewUserDefinedStruct->Bind();
+			NewUserDefinedStruct->StaticLink(true);
+			NewUserDefinedStruct->Status = EUserDefinedStructureStatus::UDSS_Error;
+
+			for (auto const& [RowData, Datas] : SheetData.Datas)
+			{
+				FStructVariableDescription NewVar;
+				NewVar.VarName = *RowData.Header;
+				NewVar.FriendlyName = *RowData.Header;
+				NewVar.SetPinType(FEdGraphPinType(FName(*RowData.Type), NAME_None, nullptr, EPinContainerType::None, false, FEdGraphTerminalType()));
+				NewVar.VarGuid = FGuid::NewGuid();
+				FStructureEditorUtils::GetVarDesc(NewUserDefinedStruct).Add(NewVar);
+
+				FStructureEditorUtils::OnStructureChanged(NewUserDefinedStruct, FStructureEditorUtils::EStructureEditorChangeInfo::AddedVariable);
+			}
+
+			FString DataTableName = FString::Printf(TEXT("DT_%s"), *SheetData.Name);
+			UDataTable* NewDataTable = NewObject<UDataTable>(InParent, UDataTable::StaticClass(), *DataTableName, Flags);
+			NewDataTable->RowStruct = NewUserDefinedStruct;
+
+			for (auto const& [RowData, Datas] : SheetData.Datas)
+			{
+				FName RowName = FName(*Datas[0]);
+				uint8* RowPtr = FDataTableEditorUtils::AddRow(NewDataTable, RowName);
+
+				int32 RowIndex = 0;
+				for (TFieldIterator<FProperty> It(NewDataTable->RowStruct); It; ++It)
+				{
+					FProperty* BaseProp = *It;
+					check(BaseProp);
+					DataTableUtils::AssignStringToProperty(Datas[RowIndex++], BaseProp, RowPtr);
+				}
+			}
+
+			Result->Structs.Emplace(NewUserDefinedStruct);
+			Result->DataTables.Emplace(NewDataTable);
+		} break;
+
+		case EAssetType::Enum:
+		{
+			FString UserDefinedEnumName = FString::Printf(TEXT("BE_%s"), *SheetData.Name);
+			UUserDefinedEnum* NewUserDefinedEnum = NewObject<UUserDefinedEnum>(InParent, UUserDefinedEnum::StaticClass(), *UserDefinedEnumName, Flags);
+
+			NewUserDefinedEnum->SetMetaData(TEXT("BlueprintType"), TEXT("true"));
+			NewUserDefinedEnum->Bind();
+
+			TArray<TPair<FName, int64>> EnumValues;
+			NewUserDefinedEnum->SetEnums(EnumValues, UEnum::ECppForm::Namespaced);
+
+			for (auto const& [RowData, Datas] : SheetData.Datas)
+			{
+				EnumValues.Emplace(TPair<FName, int64>(FName(*Datas[0]), EnumValues.Num()));
+				FEnumEditorUtils::AddNewEnumeratorForUserDefinedEnum(NewUserDefinedEnum);
+				FEnumEditorUtils::SetEnumeratorDisplayName(NewUserDefinedEnum, EnumValues.Num() - 1, FText::FromString(EnumValues.Last().Key.ToString()));
+			}
+
+			Result->Enums.Emplace(NewUserDefinedEnum);
+		} break;
+
+		default: continue;
+		}
 	}
 
-	UXlsxObject* Result = Cast<UXlsxObject>(CreateOrOverwriteAsset(InClass, InParent, InName, Flags));
+	for (auto const& Item : Result->Structs)
+	{
+		FAssetRegistryModule::AssetCreated(Item);
+		GEditor->BroadcastObjectReimported(Item);
+	}
+
+	for (auto const& Item : Result->Enums)
+	{
+		FAssetRegistryModule::AssetCreated(Item);
+		GEditor->BroadcastObjectReimported(Item);
+	}
+
+	for (auto const& Item : Result->DataTables)
+	{
+		FAssetRegistryModule::AssetCreated(Item);
+		GEditor->BroadcastObjectReimported(Item);
+	}
 
 	return Result;
 }

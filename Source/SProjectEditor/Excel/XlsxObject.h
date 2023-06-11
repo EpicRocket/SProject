@@ -11,12 +11,15 @@ class UXlsxObject : public UObject
     GENERATED_BODY()
 
 public:
-    UPROPERTY(VisibleAnywhere, Category = "XlsxObject")
-    TArray<TObjectPtr<UObject>> Structs;
+	UPROPERTY(VisibleAnywhere, Category = "XlsxObject")
+	FString SubsystemPath;
 
     UPROPERTY(VisibleAnywhere, Category = "XlsxObject")
-    TArray<TObjectPtr<UObject>> Enums;
+    TArray<UObject*> Structs;
 
     UPROPERTY(VisibleAnywhere, Category = "XlsxObject")
-    TArray<TObjectPtr<class UDataTable>> DataTables;
+    TArray<UObject*> Enums;
+
+    UPROPERTY(VisibleAnywhere, Category = "XlsxObject")
+    TArray<class UDataTable*> DataTables;
 };
