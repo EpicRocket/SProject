@@ -19,16 +19,16 @@ public:
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Tile", meta = (AllowPrivateAccess))
-	USceneComponent* SceneComp;
+	TObjectPtr<USceneComponent> SceneComp;
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Tile", meta = (AllowPrivateAccess))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile", meta = (AllowPrivateAccess))
 	TObjectPtr<UStaticMeshComponent> MeshComp;
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Tile", meta = (AllowPrivateAccess))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile", meta = (AllowPrivateAccess))
 	TObjectPtr<UStaticMeshComponent> PreviewMeshComp;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Tile", meta = (AllowPrivateAccess))
-	bool bHasToEmpty;
+	bool bHasToEmpty;	
 
 private:
 	UPROPERTY()

@@ -1,13 +1,17 @@
 {
 	"FileVersion": 3,
-	"EngineAssociation": "",
+	"EngineAssociation": "{906F7821-4575-9800-55A2-379BEC81AB2F}",
 	"Category": "",
 	"Description": "",
 	"Modules": [
 		{
 			"Name": "SProject",
 			"Type": "Runtime",
-			"LoadingPhase": "Default"
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"Engine",
+				"CommonUI"
+			]
 		},
 		{
 			"Name": "SProjectEditor",

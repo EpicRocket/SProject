@@ -5,7 +5,10 @@
 #include "SProject.h"
 #include "TerritoryDefine.h"
 #include "TerritoryPlayerController.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "Materials/MaterialInstanceDynamic.h"
+
+static constexpr ECollisionChannel ECC_TerritoryTile = ECC_GameTraceChannel11;
 
 // Sets default values
 ATerritoryTile::ATerritoryTile()
@@ -16,23 +19,20 @@ ATerritoryTile::ATerritoryTile()
 
 	SceneComp =  CreateDefaultSubobject<USceneComponent>(TEXT("RootComp"));
 	RootComponent = SceneComp;
-	
-	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
-	MeshComp->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Block);
-	MeshComp->SetupAttachment(RootComponent);
-	
-	PreviewMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PreviewMeshComp"));
-	PreviewMeshComp->SetupAttachment(RootComponent);
-	
-	bHasToEmpty = false;
-	bCursor = false;
 }
 
 void ATerritoryTile::BeginPlay()
 {
 	Super::BeginPlay();
 	TerritoryPC = Cast<ATerritoryPlayerController>(GetWorld()->GetFirstPlayerController());
-	VERIFY(TerritoryPC);
+	VERIFY(TerritoryPC)
+	
+	MeshComp->SetCollisionResponseToChannel(ECC_TerritoryTile, ECollisionResponse::ECR_Block);
+	LOG_CHECK(MeshComp)
+	LOG_CHECK(PreviewMeshComp)
+	
+	bHasToEmpty = false;
+	bCursor = false;
 }
 
 void ATerritoryTile::ShowPreviewMesh(TObjectPtr<ATerritoryBuilding> Building, const FLinearColor& Color) const

@@ -21,7 +21,7 @@ DECLARE_LOG_CATEGORY_EXTERN(Project, Log, All);
 
 #define	LOG_SCREEN(Format, ...) GEngine->AddOnScreenDebugMessage(1, 10.f, FColor::Red, FString::Printf(TEXT(Format), ##__VA_ARGS__));
 
-#define LOG_CHECK(Expr, ...) { if(!(Expr)) { LOG_ERROR(TEXT("ASSERTION : %s"), TEXT("'"#Expr"'")); return __VA_ARGS__; } }
+#define LOG_CHECK(Expr) { if(!(Expr)) { LOG_ERROR("ASSERTION : %s", TEXT("'"#Expr"'")) } }
 
 #define VERIFY(Expr) verifyf(Expr != nullptr, TEXT("%s ASSERTION : %s"), *CALLINFO_S, TEXT("'"#Expr"'"));
 #define VERIFYF(Expr, Format, ...) verifyf(Expr != nullptr, TEXT("%s ASSERTION : %s, %s"), *CALLINFO_S, TEXT("'"#Expr"'"), *FString::Printf(TEXT(Format), ##__VA_ARGS__));

@@ -6,6 +6,8 @@
 #include "GameFramework/PlayerController.h"
 #include "TerritoryPlayerController.generated.h"
 
+struct FInputActionValue;
+
 enum class ETerritoryModeType : uint8;
 
 /**
@@ -23,27 +25,41 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 	
 public:
-	const ETerritoryModeType& GetMode() const { return ModeType; }
-	void SetModeType(const ETerritoryModeType InModeType);
-	
-	TSubclassOf<class ATerritoryBuilding> GetConstructBuildingBP() const { return BuildingBP; }
 	void SetConstructBuildingBP(const TSubclassOf<class ATerritoryBuilding>& InBuildingBP) { BuildingBP = InBuildingBP; }
 	void SetMovedBuilding(TObjectPtr<class ATerritoryBuilding> InMovedBuilding) { MovedBuilding = InMovedBuilding; }
+	void SetModeType(const ETerritoryModeType InModeType);
+
 
 public:
+	TSubclassOf<class ATerritoryBuilding> GetConstructBuildingBP() const { return BuildingBP; }
 	TObjectPtr<class ATerritoryBuilding> GetMovedBuilding() const { return MovedBuilding; }
+	const ETerritoryModeType& GetMode() const { return ModeType; }
 	float GetDoubleClickTime() const { return DoubleClickTime; }
 
 private:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Territory Controll", meta = (AllowPrivateAccess))
+	void OnTouchBegin(const FInputActionValue& ActionValue);
+	void OnHold(const FInputActionValue& ActionValue);
+	void OnTouchEnd(const FInputActionValue& ActionValue);
+	void OnTap(const FInputActionValue& ActionValue);
+
+private:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Territory|Config", meta = (AllowPrivateAccess))
+	class UInputMappingContext* InputMapping;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Territory|Config", meta = (AllowPrivateAccess))
+	class UTerritoryInputConfigData* InputConfigData;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Territory", meta = (AllowPrivateAccess))
+	float DoubleClickTime;
+	
+	
+private:	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Territory|observation", meta = (AllowPrivateAccess))
 	ETerritoryModeType ModeType;
 	
 	// For Construct Mode
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Territory Controll", meta = (AllowPrivateAccess))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Territory|observation", meta = (AllowPrivateAccess))
 	TSubclassOf<class ATerritoryBuilding> BuildingBP;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Territory Controll", meta = (AllowPrivateAccess))
-	float DoubleClickTime;
 
 private:
 	UPROPERTY()

@@ -16,11 +16,10 @@ public:
 	// Sets default values for this actor's properties
 	AHexTileMaker();
 
-	virtual void PostInitializeComponents() override;
+	UFUNCTION(BlueprintCallable, CallInEditor, Category = "HexGrid")
+	void SpawnTile();
 	
 protected:
-	TArray<TArray<TObjectPtr<ATerritoryTile>>> Tile2DArray;
-	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HexGrid")
 	TSubclassOf<ATerritoryTile> TileBP;
 	

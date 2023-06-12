@@ -3,6 +3,7 @@
 
 #include "Territory/TerritoryBuilding.h"
 
+#include "SProject.h"
 #include "TerritoryDefine.h"
 #include "TerritoryGameMode.h"
 #include "TerritoryPlayerController.h"
@@ -16,8 +17,6 @@ ATerritoryBuilding::ATerritoryBuilding()
 	SceneComp = CreateDefaultSubobject<USceneComponent>(TEXT("RootComp"));
 	RootComponent = SceneComp;
 	
-	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
-	MeshComp->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned
@@ -29,6 +28,7 @@ void ATerritoryBuilding::BeginPlay()
 	DoubleClickTime = TerritoryPC->GetDoubleClickTime();
 	DoubleClickDelta = 0.0f;
 	bPressed = false;
+	VERIFYF(MeshComp, "MeshComp is not bound")
 }
 
 // Called every frame
@@ -92,4 +92,3 @@ void ATerritoryBuilding::NotifyActorEndCursorOver()
 {
 	Super::NotifyActorEndCursorOver();
 }
-
