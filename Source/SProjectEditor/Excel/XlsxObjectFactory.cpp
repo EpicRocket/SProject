@@ -77,13 +77,13 @@ enum class EAssetType : uint8
 	Enum,
 };
 
-struct FRowData
+struct FXlsxObjectHeaderData
 {
 	FString Header;
 	FString Type;
 
-	FRowData() {};
-	FRowData(FString InHeader, FString InType)
+	FXlsxObjectHeaderData() {};
+	FXlsxObjectHeaderData(FString InHeader, FString InType)
 		: Header(InHeader), Type(InType)
 	{}
 };
@@ -92,7 +92,8 @@ struct FSheetData
 {
 	EAssetType AssetType = EAssetType::None;
 	FString Name;
-	TArray<TTuple<FRowData, TArray<FString>>> Datas;
+	TArray<FXlsxObjectHeaderData> Headers;
+	TArray<TArray<FString>> Cells;
 };
 
 
@@ -215,29 +216,19 @@ UObject* UXlsxObjectFactory::FactoryCreateFile(UClass* InClass, UObject* InParen
 					FString HeaderName(Header.get<std::string>().c_str());
 					FString TypeName(Type.get<std::string>().c_str());
 
-					try
-					{
-
-					}
-					catch (std::exception Exception)
-					{
-						continue;
-					}
-
-					SheetData.Datas.Emplace(TTuple<FRowData, TArray<FString>>(FRowData(HeaderName, TypeName), TArray<FString>()));
+					SheetData.Headers.Emplace(FXlsxObjectHeaderData(HeaderName, TypeName));
 				}
 
-				for (int32 Index = 3; Index < RowCount; ++Index)
+				for (int32 i = 3; i < RowCount; ++i)
 				{
-					OpenXLSX::XLRow DataRow = WorkSheet.row(Index);
-					auto RowDataIter = DataRow.cells().begin();
-
-					for (int32 i = 0; i < SheetData.Datas.Num(); ++i)
+					OpenXLSX::XLRow DataRow = WorkSheet.row(i);
+					TArray<FString> Cells;
+					for (auto Iter = DataRow.cells().begin(); Iter != DataRow.cells().end(); ++Iter)
 					{
-						auto& RowData = RowDataIter->value();
-						SheetData.Datas[i].Value.Emplace(ToTypeString(RowData));
-						++RowDataIter;
+						auto& RowData = Iter->value();
+						Cells.Emplace(ToTypeString(RowData));
 					}
+					SheetData.Cells.Emplace(Cells);
 				}
 			}
 			catch (std::exception Exception)
@@ -275,11 +266,6 @@ UObject* UXlsxObjectFactory::FactoryCreateFile(UClass* InClass, UObject* InParen
 
 	for (auto const& SheetData : SheetDatas)
 	{
-		if (SheetData.Datas.IsEmpty())
-		{
-			continue;
-		}
-
 		switch (SheetData.AssetType)
 		{
 		case EAssetType::Struct:
@@ -294,12 +280,12 @@ UObject* UXlsxObjectFactory::FactoryCreateFile(UClass* InClass, UObject* InParen
 			NewUserDefinedStruct->StaticLink(true);
 			NewUserDefinedStruct->Status = EUserDefinedStructureStatus::UDSS_Error;
 
-			for (auto const& [RowData, Datas] : SheetData.Datas)
+			for (auto const& Header : SheetData.Headers)
 			{
 				FStructVariableDescription NewVar;
-				NewVar.VarName = *RowData.Header;
-				NewVar.FriendlyName = *RowData.Header;
-				NewVar.SetPinType(FEdGraphPinType(FName(*RowData.Type), NAME_None, nullptr, EPinContainerType::None, false, FEdGraphTerminalType()));
+				NewVar.VarName = *Header.Header;
+				NewVar.FriendlyName = *Header.Header;
+				NewVar.SetPinType(FEdGraphPinType(FName(*Header.Type), NAME_None, nullptr, EPinContainerType::None, false, FEdGraphTerminalType()));
 				NewVar.VarGuid = FGuid::NewGuid();
 				FStructureEditorUtils::GetVarDesc(NewUserDefinedStruct).Add(NewVar);
 
@@ -310,17 +296,25 @@ UObject* UXlsxObjectFactory::FactoryCreateFile(UClass* InClass, UObject* InParen
 			UDataTable* NewDataTable = NewObject<UDataTable>(InParent, UDataTable::StaticClass(), *DataTableName, Flags);
 			NewDataTable->RowStruct = NewUserDefinedStruct;
 
-			for (auto const& [RowData, Datas] : SheetData.Datas)
+			// TODO: 저기 FOR문에서 루프 돌면 안됨
+			for (auto const& Cell : SheetData.Cells)
 			{
-				FName RowName = FName(*Datas[0]);
+				FName RowName = FName(*Cell[0]);
 				uint8* RowPtr = FDataTableEditorUtils::AddRow(NewDataTable, RowName);
-
 				int32 RowIndex = 0;
-				for (TFieldIterator<FProperty> It(NewDataTable->RowStruct); It; ++It)
+				for (TFieldIterator<FProperty> It(NewDataTable->RowStruct); It; ++It) // <<<< FIX
 				{
 					FProperty* BaseProp = *It;
 					check(BaseProp);
-					DataTableUtils::AssignStringToProperty(Datas[RowIndex++], BaseProp, RowPtr);
+					if (Cell.IsValidIndex(RowIndex))
+					{
+						DataTableUtils::AssignStringToProperty(Cell[RowIndex++], BaseProp, RowPtr);
+					}
+					else
+					{
+						FMessageDialog::Open(EAppMsgType::Ok, FText::FromString(FString::Printf(TEXT("[%s] is index invalid."), *SheetData.Name)));
+						return nullptr;
+					}
 				}
 			}
 
@@ -339,9 +333,9 @@ UObject* UXlsxObjectFactory::FactoryCreateFile(UClass* InClass, UObject* InParen
 			TArray<TPair<FName, int64>> EnumValues;
 			NewUserDefinedEnum->SetEnums(EnumValues, UEnum::ECppForm::Namespaced);
 
-			for (auto const& [RowData, Datas] : SheetData.Datas)
+			for (auto const& Cell : SheetData.Cells)
 			{
-				EnumValues.Emplace(TPair<FName, int64>(FName(*Datas[0]), EnumValues.Num()));
+				EnumValues.Emplace(TPair<FName, int64>(FName(*Cell[0]), EnumValues.Num()));
 				FEnumEditorUtils::AddNewEnumeratorForUserDefinedEnum(NewUserDefinedEnum);
 				FEnumEditorUtils::SetEnumeratorDisplayName(NewUserDefinedEnum, EnumValues.Num() - 1, FText::FromString(EnumValues.Last().Key.ToString()));
 			}
