@@ -31,6 +31,7 @@ public class SProject : ModuleRules
 				"CommonUI",
 				"CommonInput",
 				"CommonGame",
+				"ModularGameplayActors",
 			}
 		);
 
