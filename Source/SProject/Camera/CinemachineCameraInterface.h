@@ -1,19 +1,20 @@
 
+
 #pragma once
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
-#include "GameFramework/Actor.h"
+#include "Components/SceneComponent.h"
 #include "CinemachineCameraState.h"
 #include "CinemachineCameraInterface.generated.h"
 
 UINTERFACE(BlueprintType)
-class SPROJECT_API UCinemachineCameraInterface : public UInterface
+class UCinemachineCameraInterface : public UInterface
 {
 	GENERATED_BODY()
 };
 
-class SPROJECT_API ICinemachineCameraInterface
+class ICinemachineCameraInterface
 {
 	GENERATED_BODY()
 
@@ -32,25 +33,25 @@ public:
 	{
 		return 10;
 	}
-	
+
 	virtual void SetPriority(int32 InValue) = 0;
 
-	virtual AActor* GetLookAt() = 0;
-	
-	virtual void SetLookAt(AActor* InActor) = 0;
+	virtual USceneComponent* GetLookAt() const = 0;
 
-	virtual AActor* GetFollow() = 0;
-	
-	virtual void SetFollow(AActor* InActor) = 0;
+	virtual void SetLookAt(USceneComponent* LookAtSceneComponent) = 0;
 
-	virtual FCinemachineCameraState GetState() = 0;
+	virtual USceneComponent* GetFollow() const = 0;
+
+	virtual void SetFollow(USceneComponent* FollowSceneComponent) = 0;
+
+	virtual FCinemachineCameraState GetState() const = 0;
 
 	virtual ICinemachineCameraInterface* GetParentCamera()
 	{
 		return nullptr;
 	}
 
-	virtual bool IsLiveChild(ICinemachineCameraInterface* InCamera, bool DominantChildOnly = false)
+	virtual bool IsLiveChild(ICinemachineCameraInterface* InCamera, bool DominantChildOnly = false) const
 	{
 		return false;
 	}
@@ -70,7 +71,7 @@ public:
 		// Empty
 	}
 
-	virtual void OnTargetObjectWarped(AActor* InTarget, FVector InPositionDelta)
+	virtual void OnTargetObjectWarped(USceneComponent* InTarget, FVector InPositionDelta)
 	{
 		// Empty
 	}

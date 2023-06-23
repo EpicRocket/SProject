@@ -1,12 +1,17 @@
 
+
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/SceneComponent.h"
 #include "Curves/CurveFloat.h"
 #include "CinemachineCameraState.h"
 #include "CinemachineCameraInterface.h"
 #include "CinemachineBlend.generated.h"
 
+/**
+ * 블렌딩 대상인 두 카메라의 정보를 가지고 있는 객체
+*/
 UCLASS(BlueprintType)
 class UCinemachineBlend : public UObject
 {
@@ -44,6 +49,9 @@ public:
 	float Duration;
 };
 
+/**
+ * 두 가상 카메라의 블렌딩을 정의하는 구조체 (주로 커브를 정의 합니다.)
+*/
 USTRUCT(BlueprintType)
 struct FCinemachineBlendDefinition
 {
@@ -60,7 +68,10 @@ public:
 	FRuntimeFloatCurve Curve;
 };
 
-UCLASS(Blueprintable)
+/**
+ * 가상 카메라 블렌딩을 위한 임시 구조체
+*/
+UCLASS(Blueprintable, ClassGroup = (Cinemachine))
 class UStaticPointVirtualCamera : public UObject, public ICinemachineCameraInterface
 {
 	GENERATED_BODY()
@@ -86,27 +97,27 @@ public:
 		Priority = InPriority;
 	}
 
-	virtual AActor* GetLookAt()
+	virtual USceneComponent* GetLookAt() const
 	{
 		return LookAt;
 	}
 
-	virtual void SetLookAt(AActor* InLookAt)
+	virtual void SetLookAt(USceneComponent* InLookAt)
 	{
 		LookAt = InLookAt;
 	}
 
-	virtual AActor* GetFollow()
+	virtual USceneComponent* GetFollow() const
 	{
 		return Follow;
 	}
 
-	virtual void SetFollow(AActor* InFollow)
+	virtual void SetFollow(USceneComponent* InFollow)
 	{
 		Follow = InFollow;
 	}
 
-	virtual FCinemachineCameraState GetState()
+	virtual FCinemachineCameraState GetState() const
 	{
 		return State;
 	}
@@ -114,23 +125,29 @@ public:
 public:
 	int32 Priority;
 
-	UPROPERTY()
-	AActor* LookAt;
+	UPROPERTY(Transient)
+	USceneComponent* LookAt;
 
-	UPROPERTY()
-	AActor* Follow;
+	UPROPERTY(Transient)
+	USceneComponent* Follow;
 
 	FCinemachineCameraState State;
 };
 
-UCLASS(Blueprintable)
+/**
+ * 블렌딩에 대한 결과 소스를 정의하는 구조체
+*/
+UCLASS(Blueprintable, ClassGroup = (Cinemachine))
 class UBlendSourceVirtualCamera : public UObject, public ICinemachineCameraInterface
 {
 	GENERATED_BODY()
 
 public:
 	UBlendSourceVirtualCamera()
-		: Blend(nullptr), Priority(0), LookAt(nullptr), Follow(nullptr)
+		: Blend(nullptr)
+		, Priority(0)
+		, LookAt(nullptr)
+		, Follow(nullptr)
 	{
 	}
 
@@ -154,32 +171,32 @@ public:
 		Priority = InPriority;
 	}
 
-	virtual AActor* GetLookAt()
+	virtual USceneComponent* GetLookAt() const
 	{
 		return LookAt;
 	}
 
-	virtual void SetLookAt(AActor* InLookAt)
+	virtual void SetLookAt(USceneComponent* InLookAt)
 	{
 		LookAt = InLookAt;
 	}
 
-	virtual AActor* GetFollow()
+	virtual USceneComponent* GetFollow() const
 	{
 		return Follow;
 	}
 
-	virtual void SetFollow(AActor* InFollow)
+	virtual void SetFollow(USceneComponent* InFollow)
 	{
 		Follow = InFollow;
 	}
 
-	virtual FCinemachineCameraState GetState()
+	virtual FCinemachineCameraState GetState() const
 	{
 		return State;
 	}
 
-	virtual bool IsLiveChild(ICinemachineCameraInterface* InCamera, bool DominantChildOnly = false)
+	virtual bool IsLiveChild(ICinemachineCameraInterface* InCamera, bool DominantChildOnly = false) const
 	{
 		return IsValid(Blend) && (Cast<ICinemachineCameraInterface>(Blend->CameraA) == InCamera || Cast<ICinemachineCameraInterface>(Blend->CameraB) == InCamera);
 	}
@@ -199,16 +216,16 @@ public:
 	}
 
 public:
-	UPROPERTY()
+	UPROPERTY(Transient)
 	UCinemachineBlend* Blend;
 
 	int32 Priority;
 
-	UPROPERTY()
-	AActor* LookAt;
+	UPROPERTY(Transient)
+	USceneComponent* LookAt;
 
-	UPROPERTY()
-	AActor* Follow;
+	UPROPERTY(Transient)
+	USceneComponent* Follow;
 
 	FCinemachineCameraState State;
 };

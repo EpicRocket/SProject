@@ -1,36 +1,76 @@
 
+
 #include "CinemachineExtension.h"
-#include "CinemachineVirtualCameraComponent.h"
+#include "CinemachineVirtualCameraBaseComponent.h"
 
 UCinemachineExtension::UCinemachineExtension()
+	: bExtensionEnable(true)
 {
+	bCacheExtensionEnable = bExtensionEnable;
 }
 
 void UCinemachineExtension::BeginPlay()
 {
 	Super::BeginPlay();
-	ConnectToVCamera(true);
+	if (true == bExtensionEnable)
+	{
+		bCacheExtensionEnable = !bExtensionEnable;
+		SetEnable(true);
+	}
+	else
+	{
+		bCacheExtensionEnable = bExtensionEnable;
+	}
 }
 
 void UCinemachineExtension::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
+	SetEnable(false);
 	Super::EndPlay(EndPlayReason);
-	ConnectToVCamera(false);
 }
 
-UCinemachineVirtualCameraComponent* UCinemachineExtension::GetVirtualCamera()
+#if WITH_EDITOR
+void UCinemachineExtension::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
-	return Cast<UCinemachineVirtualCameraComponent>(GetAttachParent());
+	UWorld* World = GetWorld();
+	if (World && World->IsGameWorld())
+	{
+		SetEnable(bExtensionEnable);
+	}
+	Super::PostEditChangeProperty(PropertyChangedEvent);
+}
+#endif
+
+UCinemachineVirtualCameraBaseComponent* UCinemachineExtension::GetVirtualCamera()
+{
+	return Cast<UCinemachineVirtualCameraBaseComponent>(GetAttachParent());
 }
 
-void UCinemachineExtension::EnsureStarted()
+void UCinemachineExtension::SetEnable(bool bEnable)
 {
-	ConnectToVCamera(true);
+	if (bCacheExtensionEnable == bEnable)
+	{
+		return;
+	}
+	bExtensionEnable = bEnable;
+
+	if (bEnable)
+	{
+		SetComponentTickEnabled(true);
+		OnEnable();
+	}
+	else
+	{
+		OnDisable();
+		SetComponentTickEnabled(false);
+	}
+
+	bCacheExtensionEnable = bExtensionEnable;
 }
 
 void UCinemachineExtension::ConnectToVCamera(bool bConnect)
 {
-    UCinemachineVirtualCameraComponent* VCamera = GetVirtualCamera();
+    UCinemachineVirtualCameraBaseComponent* VCamera = GetVirtualCamera();
     if(IsValid(VCamera))
     {
         if(bConnect)
@@ -48,7 +88,17 @@ void UCinemachineExtension::ConnectToVCamera(bool bConnect)
     }
 }
 
-void UCinemachineExtension::InvokePostPipelineStageCallback(UCinemachineVirtualCameraComponent* VCamera, ECinemachineStage Stage, FCinemachineCameraState& State, float DeltaTime)
+void UCinemachineExtension::OnEnable()
+{
+	ConnectToVCamera(true);
+}
+
+void UCinemachineExtension::OnDisable()
+{
+	ConnectToVCamera(false);
+}
+
+void UCinemachineExtension::InvokePostPipelineStageCallback(UCinemachineVirtualCameraBaseComponent* VCamera, ECinemachineStage Stage, FCinemachineCameraState& State, float DeltaTime)
 {
     PostPipelineStageCallback(VCamera, Stage, State, DeltaTime);
 }

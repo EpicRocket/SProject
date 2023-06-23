@@ -1,23 +1,29 @@
 
+
 #pragma once
 #include "CoreMinimal.h"
 #include "Components/SceneComponent.h"
 #include "CinemachineTargetGroupBaseComponent.generated.h"
 
-UCLASS(abstract, ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
-class SPROJECT_API UCinemachineTargetGroupBaseComponent : public USceneComponent
+UCLASS(abstract, ClassGroup = (Cinemachine), meta = (BlueprintSpawnableComponent))
+class UCinemachineTargetGroupBaseComponent : public USceneComponent
 {
 	GENERATED_BODY()
 
 public:
-	virtual AActor* GetTarget()
+	virtual USceneComponent* GetTarget()
 	{
-		return nullptr;
+		return this;
 	}
 
-	virtual FBoxSphereBounds GetBounds()
+	virtual FBox GetBoundingBox()
 	{
-		return FBoxSphereBounds();
+		return FBox();
+	}
+
+	virtual FSphere GetBoundingSphere()
+	{
+		return FSphere();
 	}
 
 	virtual bool IsEmpty()
@@ -30,7 +36,7 @@ public:
 		return FBox();
 	}
 
-	virtual void GetViewSpaceAngularBounds(FMatrix Observer, FVector& MaxAngles, FVector ZRange)
+	virtual void GetViewSpaceAngularBounds(FMatrix Observer, FVector2D& MinAngles, FVector2D& MaxAngles, FVector2D ZRange)
 	{
 		// Empty
 	}

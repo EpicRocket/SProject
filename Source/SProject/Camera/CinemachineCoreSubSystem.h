@@ -1,9 +1,11 @@
 
+
 #pragma once
 
 #include "CoreMinimal.h"
 #include "Templates/SharedPointer.h"
 #include "Subsystems/WorldSubsystem.h"
+#include "CinemachineBrainComponent.h"
 #include "CinemachineBlend.h"
 #include "CinemachineCoreSubSystem.generated.h"
 
@@ -16,15 +18,18 @@ enum class ECinemachineStage : uint8
 	Finalize,
 };
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FCinemachineBlendDelegate, UObject*, FromVCam, UObject*, ToVCam, FCinemachineBlendDefinition, DefaultBlend, UObject*, Owner);
+DECLARE_DYNAMIC_DELEGATE_RetVal_FourParams(FCinemachineBlendDefinition, FCinemachineBlendDelegate, UObject*, FromVCam, UObject*, ToVCam, FCinemachineBlendDefinition, DefaultBlend, UObject*, Owner);
 
 class UCinemachineBrainComponent;
-class UCinemachineVirtualCameraComponent;
-class UCinemachineUpdateTrackerStatus;
-class AActor;
+class UCinemachineVirtualCameraBaseComponent;
+class ICinemachineCameraInterface;
+class USceneComponent;
 
+/**
+ * CineamchineBrainComponent 및 CinemachineVirtualCameraBaseComponent의 전체 목록과 가상 카메라의 우선 순위를 관리 합니다.
+*/
 UCLASS()
-class SPROJECT_API UCinemachineCoreSubSystem : public UWorldSubsystem
+class UCinemachineCoreSubSystem : public UWorldSubsystem
 {
 	GENERATED_BODY()
 
@@ -34,56 +39,71 @@ public:
 	UFUNCTION(BlueprintPure, Category = Cinemachine)
 	int32 GetBrainCameraCount() const;
 
+	UFUNCTION(BlueprintPure, Category = Cinemachine)
 	UCinemachineBrainComponent* GetBrainCamera(int32 Index) const;
 
+	UFUNCTION(BlueprintCallable, Category = Cinemachine)
 	void AddActiveBrain(UCinemachineBrainComponent* BrainComponent);
 
+	UFUNCTION(BlueprintCallable, Category = Cinemachine)
 	void RemoveActiveBrain(UCinemachineBrainComponent* BrainComponent);
 
+	UFUNCTION(BlueprintPure, Category = Cinemachine)
 	int32 GetVirtualCameraCount() const;
 
-	UCinemachineVirtualCameraComponent* GetVirtualCamera(int32 Index);
+	UFUNCTION(BlueprintPure, Category = Cinemachine)
+	UCinemachineVirtualCameraBaseComponent* GetVirtualCamera(int32 Index);
 
-	void AddActiveCamera(UCinemachineVirtualCameraComponent* VCamera);
+	UFUNCTION(BlueprintCallable, Category = Cinemachine)
+	void AddActiveCamera(UCinemachineVirtualCameraBaseComponent* VCamera);
 
-	void RemoveActiveCamera(UCinemachineVirtualCameraComponent* VCamera);
+	UFUNCTION(BlueprintCallable, Category = Cinemachine)
+	void RemoveActiveCamera(UCinemachineVirtualCameraBaseComponent* VCamera);
 
-	void CameraEnabled(UCinemachineVirtualCameraComponent* VCamera);
+	UFUNCTION(BlueprintCallable, Category = Cinemachine)
+	void CameraEnabled(UCinemachineVirtualCameraBaseComponent* VCamera);
 
-	void CameraDisabled(UCinemachineVirtualCameraComponent* VCamera);
+	UFUNCTION(BlueprintCallable, Category = Cinemachine)
+	void CameraDisabled(UCinemachineVirtualCameraBaseComponent* VCamera);
 
 	void UpdateAllActiveVirtualCameras(FVector WorldUp, float DeltaTime);
 
-	void UpdateVirtualCamera(UCinemachineVirtualCameraComponent* VCamera, FVector WorldUp, float DeltaTime);
+	void UpdateVirtualCamera(UCinemachineVirtualCameraBaseComponent* VCamera, FVector WorldUp, float DeltaTime);
 
-	AActor* GetUpdateTarget(UCinemachineVirtualCameraComponent* VCamera);
+	UFUNCTION(BlueprintPure, Category = Cinemachine)
+	USceneComponent* GetUpdateTarget(UCinemachineVirtualCameraBaseComponent* VCamera);
 
-	bool IsLive(UObject* ICamera);
+	bool IsLive(ICinemachineCameraInterface* ICamera);
 
-	bool IsLiveBlend(UObject* ICamera);
+	bool IsLiveInBlend(ICinemachineCameraInterface* ICamera);
 
-	void GenerateCameraActivationEvent(UCinemachineVirtualCameraComponent* VCamera, UCinemachineVirtualCameraComponent* VCameraFrom);
+	void GenerateCameraActivationEvent(UCinemachineVirtualCameraBaseComponent* VCamera, UCinemachineVirtualCameraBaseComponent* VCameraFrom);
 
-	void GenerateCameraCutEvent(UCinemachineVirtualCameraComponent* VCamera);
+	void GenerateCameraCutEvent(UCinemachineVirtualCameraBaseComponent* VCamera);
 
-	UCinemachineBrainComponent* FindPotentialTargetBrain(UCinemachineVirtualCameraComponent* VCamera);
+	UFUNCTION(BlueprintPure, Category = Cinemachine)
+	UCinemachineBrainComponent* FindPotentialTargetBrain(UCinemachineVirtualCameraBaseComponent* VCamera);
 
-	void OnTargetObjectWarped(AActor* Target, FVector LocationDelta);
+	void OnTargetObjectWarped(USceneComponent* Target, FVector LocationDelta);
 
 public:
-	UPROPERTY(BlueprintAssignable, Category = Cinemachine)
-	FCinemachineBlendDelegate OnBlend;
+	UPROPERTY(BlueprintReadWrite, Category = Cinemachine)
+	FCinemachineBlendDelegate OnBlendOverride;
 
-	bool bSmartUpdate;
+	UPROPERTY(BlueprintAssignable, Category = CinemachineBrain)
+	FCinemachineBrainEvent CameraUpdatedEvent;
+
+	UPROPERTY(BlueprintAssignable, Category = CinemachineBrain)
+	FCinemachineBrainEvent CameraCutEvent;
 
 private:
 	TArray<UCinemachineBrainComponent*> ActiveBrains;
 
-	TArray<UCinemachineVirtualCameraComponent*> ActiveVirtualCameras;
+	TArray<UCinemachineVirtualCameraBaseComponent*> ActiveVirtualCameras;
 
-	TArray<TArray<UCinemachineVirtualCameraComponent*>> AllVirtualCameras;
+	TArray<TArray<UCinemachineVirtualCameraBaseComponent*>> AllVirtualCameras;
 
-	UCinemachineVirtualCameraComponent* RoundRobinVCameraLastFrame;
+	UCinemachineVirtualCameraBaseComponent* RoundRobinVCameraLastFrame;
 
 	bool bActiveCameraAreSorted;
 

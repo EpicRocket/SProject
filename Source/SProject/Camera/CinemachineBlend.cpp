@@ -1,3 +1,5 @@
+
+
 #include "CinemachineBlend.h"
 #include "Math/UnrealMathUtility.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -17,6 +19,10 @@ float UCinemachineBlend::GetBlendWeight() const
 	{
 		return 1.0F;
 	}
+	else if(FMath::IsNearlyZero(Duration))
+	{
+		return 0.0F;
+	}
 	return FMath::Clamp(RichCurve->Eval(TimeInBlend / Duration), 0.0F, 1.0F);
 }
 
@@ -27,8 +33,8 @@ bool UCinemachineBlend::IsComplete() const
 
 FString UCinemachineBlend::GetDescription() const
 {
-	TScriptInterface<ICinemachineCameraInterface> ICameraA(CameraA);
-	TScriptInterface<ICinemachineCameraInterface> ICameraB(CameraB);
+	ICinemachineCameraInterface* ICameraA = Cast<ICinemachineCameraInterface>(CameraA);
+	ICinemachineCameraInterface* ICameraB = Cast<ICinemachineCameraInterface>(CameraB);
 	FString CameraAName = !IsValid(CameraA) && ICameraA ? FString(TEXT("[None]")) : FString::Printf(TEXT("[{0}]"), *ICameraA->GetCameraName());
 	FString CameraBName = !IsValid(CameraB) && ICameraB ? FString(TEXT("[None]")) : FString::Printf(TEXT("[{0}]"), *ICameraB->GetCameraName());
 	return FString::Printf(TEXT("{0} {1}% from {2} }"), *CameraBName, static_cast<int32>(GetBlendWeight() * 100.0F), *CameraAName);
@@ -60,7 +66,7 @@ void UCinemachineBlend::UpdateCameraState(FVector WorldUp, float DeltaTime)
 {
 	if (IsValid(CameraA))
 	{
-		TScriptInterface<ICinemachineCameraInterface> ICamera(CameraA);
+		ICinemachineCameraInterface* ICamera = Cast<ICinemachineCameraInterface>(CameraA);
 		if (ICamera)
 		{
 			ICamera->UpdateCameraState(WorldUp, DeltaTime);
@@ -68,7 +74,7 @@ void UCinemachineBlend::UpdateCameraState(FVector WorldUp, float DeltaTime)
 	}
 	if (IsValid(CameraB))
 	{
-		TScriptInterface<ICinemachineCameraInterface> ICamera(CameraB);
+		ICinemachineCameraInterface* ICamera = Cast<ICinemachineCameraInterface>(CameraB);
 		if (ICamera)
 		{
 			ICamera->UpdateCameraState(WorldUp, DeltaTime);
@@ -80,8 +86,8 @@ FCinemachineCameraState UCinemachineBlend::GetState() const
 {
 	if (IsValid(CameraA) && IsValid(CameraB))
 	{
-		TScriptInterface<ICinemachineCameraInterface> ICameraA(CameraA);
-		TScriptInterface<ICinemachineCameraInterface> ICameraB(CameraB);
+		ICinemachineCameraInterface* ICameraA = Cast<ICinemachineCameraInterface>(CameraA);
+		ICinemachineCameraInterface* ICameraB = Cast<ICinemachineCameraInterface>(CameraB);
 		if (ICameraA && ICameraB)
 		{
 			return FCinemachineCameraState::Lerp(ICameraA->GetState(), ICameraB->GetState(), GetBlendWeight());
@@ -89,7 +95,7 @@ FCinemachineCameraState UCinemachineBlend::GetState() const
 	}
 	else if (IsValid(CameraA))
 	{
-		TScriptInterface<ICinemachineCameraInterface> ICamera(CameraA);
+		ICinemachineCameraInterface* ICamera = Cast<ICinemachineCameraInterface>(CameraA);
 		if (ICamera)
 		{
 			return ICamera->GetState();
@@ -97,7 +103,7 @@ FCinemachineCameraState UCinemachineBlend::GetState() const
 	}
 	else if (IsValid(CameraB))
 	{
-		TScriptInterface<ICinemachineCameraInterface> ICamera(CameraB);
+		ICinemachineCameraInterface* ICamera = Cast<ICinemachineCameraInterface>(CameraB);
 		if (ICamera)
 		{
 			return ICamera->GetState();

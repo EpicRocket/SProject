@@ -1,10 +1,14 @@
 
+
 #pragma once
 
 #include "CoreMinimal.h"
 #include "CinemachineLensSettings.h"
 #include "CinemachineCameraState.generated.h"
 
+/**
+ * 가상 카메라 블렌딩에 대한 힌트 값 정의
+*/
 UENUM(BlueprintType)
 enum class ECinemachineBlendHintValue : uint8
 {
@@ -19,8 +23,11 @@ enum class ECinemachineBlendHintValue : uint8
 	NoLens = 0x40,
 };
 
+/**
+ * 가상 카메라의 상태를 나타내는 구조체
+*/
 USTRUCT(BlueprintType)
-struct SPROJECT_API FCinemachineCameraState
+struct FCinemachineCameraState
 {
 	GENERATED_USTRUCT_BODY()
 
@@ -61,36 +68,45 @@ public:
 		return RawLocation + LocationCorrection;
 	}
 
+	FRotator FinalOrientation() const
+	{
+		if (FMath::Abs(Lens.Dutch) > UE_KINDA_SMALL_NUMBER)
+		{
+			return (GetCorrectedOrientation().Quaternion() * FQuat(FVector::ForwardVector, FMath::DegreesToRadians(Lens.Dutch))).Rotator();
+		}
+		return GetCorrectedOrientation();
+	}
+
 	FVector InterpolateLocation(FVector LocationA, FVector PivotA, FVector LocationB, FVector PivotB, float Alpha) const;
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CinemachineCameraState)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cinemachine|State")
 	FCinemachineLensSettings Lens;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CinemachineCameraState)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cinemachine|State")
 	FVector ReferenceUp;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CinemachineCameraState)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cinemachine|State")
 	FVector ReferenceLookAt;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CinemachineCameraState)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cinemachine|State")
 	FVector RawLocation;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CinemachineCameraState)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cinemachine|State")
 	FRotator RawOrientation;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CinemachineCameraState)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cinemachine|State")
 	FVector LocationDampingBypass;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CinemachineCameraState)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cinemachine|State")
 	float ShotQuality;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CinemachineCameraState)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cinemachine|State")
 	FVector LocationCorrection;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CinemachineCameraState)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cinemachine|State")
 	FRotator OrientationCorrection;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CinemachineCameraState)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cinemachine|State")
 	ECinemachineBlendHintValue BlendHint;
 };

@@ -1,11 +1,12 @@
 
+
 #include "CinemachineCoreSubSystem.h"
 #include "CinemachineBrainComponent.h"
-#include "CinemachineVirtualCameraComponent.h"
+#include "Camera/CameraComponent.h"
+#include "CinemachineVirtualCameraBaseComponent.h"
 
 UCinemachineCoreSubSystem::UCinemachineCoreSubSystem()
 	: UWorldSubsystem()
-	, bSmartUpdate(true)
 	, RoundRobinVCameraLastFrame(nullptr)
 	, bActiveCameraAreSorted(false)
 	, ActivationSequence(0)
@@ -44,11 +45,11 @@ int32 UCinemachineCoreSubSystem::GetVirtualCameraCount() const
 	return ActiveVirtualCameras.Num();
 }
 
-UCinemachineVirtualCameraComponent* UCinemachineCoreSubSystem::GetVirtualCamera(int32 Index)
+UCinemachineVirtualCameraBaseComponent* UCinemachineCoreSubSystem::GetVirtualCamera(int32 Index)
 {
 	if (!bActiveCameraAreSorted && ActiveVirtualCameras.Num() > 0)
 	{
-		ActiveVirtualCameras.Sort([](const UCinemachineVirtualCameraComponent& A, const UCinemachineVirtualCameraComponent& B) -> bool
+		ActiveVirtualCameras.Sort([](const UCinemachineVirtualCameraBaseComponent& A, const UCinemachineVirtualCameraBaseComponent& B) -> bool
 		{
 			return A.GetPriority() == B.GetPriority() ? A.ActivationId > B.ActivationId : A.GetPriority() > B.GetPriority();
 		});
@@ -57,7 +58,7 @@ UCinemachineVirtualCameraComponent* UCinemachineCoreSubSystem::GetVirtualCamera(
 	return ActiveVirtualCameras.IsValidIndex(Index) ? ActiveVirtualCameras[Index] : nullptr;
 }
 
-void UCinemachineCoreSubSystem::AddActiveCamera(UCinemachineVirtualCameraComponent* VCamera)
+void UCinemachineCoreSubSystem::AddActiveCamera(UCinemachineVirtualCameraBaseComponent* VCamera)
 {
 	if (!IsValid(VCamera))
 	{
@@ -69,7 +70,7 @@ void UCinemachineCoreSubSystem::AddActiveCamera(UCinemachineVirtualCameraCompone
 	bActiveCameraAreSorted = false;
 }
 
-void UCinemachineCoreSubSystem::RemoveActiveCamera(UCinemachineVirtualCameraComponent* VCamera)
+void UCinemachineCoreSubSystem::RemoveActiveCamera(UCinemachineVirtualCameraBaseComponent* VCamera)
 {
 	if (IsValid(VCamera))
 	{
@@ -77,7 +78,7 @@ void UCinemachineCoreSubSystem::RemoveActiveCamera(UCinemachineVirtualCameraComp
 	}
 }
 
-void UCinemachineCoreSubSystem::CameraEnabled(UCinemachineVirtualCameraComponent* VCamera)
+void UCinemachineCoreSubSystem::CameraEnabled(UCinemachineVirtualCameraBaseComponent* VCamera)
 {
 	if (!IsValid(VCamera))
 	{
@@ -85,18 +86,18 @@ void UCinemachineCoreSubSystem::CameraEnabled(UCinemachineVirtualCameraComponent
 	}
 
 	int32 ParentLevel = 0;
-	for (UCinemachineVirtualCameraComponent* ParentCamera = VCamera->GetParentCamera(); IsValid(ParentCamera); ParentCamera = ParentCamera->GetParentCamera())
+	for (UCinemachineVirtualCameraBaseComponent* ParentCamera = VCamera->GetParentCamera(); IsValid(ParentCamera); ParentCamera = ParentCamera->GetParentCamera())
 	{
 		++ParentLevel;
 	}
 	while (AllVirtualCameras.Num() <= ParentLevel)
 	{
-		AllVirtualCameras.Emplace(TArray<UCinemachineVirtualCameraComponent*>());;
+		AllVirtualCameras.Emplace(TArray<UCinemachineVirtualCameraBaseComponent*>());;
 	}
 	AllVirtualCameras[ParentLevel].Emplace(VCamera);
 }
 
-void UCinemachineCoreSubSystem::CameraDisabled(UCinemachineVirtualCameraComponent* VirtualCameraComponent)
+void UCinemachineCoreSubSystem::CameraDisabled(UCinemachineVirtualCameraBaseComponent* VirtualCameraComponent)
 {
 	if (!IsValid(VirtualCameraComponent))
 	{
@@ -115,17 +116,17 @@ void UCinemachineCoreSubSystem::CameraDisabled(UCinemachineVirtualCameraComponen
 
 void UCinemachineCoreSubSystem::UpdateAllActiveVirtualCameras(FVector WorldUp, float DeltaTime)
 {
-	UCinemachineVirtualCameraComponent* CurrentRoundRobin = RoundRobinVCameraLastFrame;
+	UCinemachineVirtualCameraBaseComponent* CurrentRoundRobin = RoundRobinVCameraLastFrame;
 
 	for (int32 i = AllVirtualCameras.Num() - 1; i >= 0; --i)
 	{
-		TArray<UCinemachineVirtualCameraComponent*> SubCameras = AllVirtualCameras[i];
+		TArray<UCinemachineVirtualCameraBaseComponent*> SubCameras = AllVirtualCameras[i];
 		for (int32 j = SubCameras.Num() - 1; j >= 0; --j)
 		{
-			UCinemachineVirtualCameraComponent* VCamera = SubCameras[j];
+			UCinemachineVirtualCameraBaseComponent* VCamera = SubCameras[j];
 			if (VCamera == RoundRobinVCameraLastFrame)
 			{
-				RoundRobinVCameraLastFrame = nullptr;
+				CurrentRoundRobin = nullptr;
 			}
 			if (!IsValid(VCamera))
 			{
@@ -136,7 +137,7 @@ void UCinemachineCoreSubSystem::UpdateAllActiveVirtualCameras(FVector WorldUp, f
 			{
 				UpdateVirtualCamera(VCamera, WorldUp, DeltaTime);
 			}
-			else if (!IsValid(CurrentRoundRobin) && VCamera != RoundRobinVCameraLastFrame && VCamera->StandbyUpdateMode != ECineamchineStandbyUpdateMode::Nerver && VCamera->IsActive())
+			else if (!IsValid(CurrentRoundRobin) && VCamera != RoundRobinVCameraLastFrame && VCamera->StandbyUpdateMode != ECineamchineStandbyUpdateMode::Nerver && VCamera->IsEnable())
 			{
 				UpdateVirtualCamera(VCamera, WorldUp, DeltaTime);
 				CurrentRoundRobin = VCamera;
@@ -151,32 +152,22 @@ void UCinemachineCoreSubSystem::UpdateAllActiveVirtualCameras(FVector WorldUp, f
 	RoundRobinVCameraLastFrame = CurrentRoundRobin;
 }
 
-void UCinemachineCoreSubSystem::UpdateVirtualCamera(UCinemachineVirtualCameraComponent* VCamera, FVector WorldUp, float DeltaTime)
+void UCinemachineCoreSubSystem::UpdateVirtualCamera(UCinemachineVirtualCameraBaseComponent* VCamera, FVector WorldUp, float DeltaTime)
 {
 	if (!IsValid(VCamera))
 	{
 		return;
 	}
-
-	if (bSmartUpdate)
-	{
-		AActor* UpdateTarget = GetUpdateTarget(VCamera);
-		if (!IsValid(UpdateTarget))
-		{
-			return;
-		}
-	}
-
 	VCamera->InternalUpdateCameraState(WorldUp, DeltaTime);
 }
 
-AActor* UCinemachineCoreSubSystem::GetUpdateTarget(UCinemachineVirtualCameraComponent* VCamera)
+USceneComponent* UCinemachineCoreSubSystem::GetUpdateTarget(UCinemachineVirtualCameraBaseComponent* VCamera)
 {
 	if (!IsValid(VCamera))
 	{
 		return nullptr;
 	}
-	AActor* Target = VCamera->GetLookAt();
+	USceneComponent* Target = VCamera->GetLookAt();
 	if (IsValid(Target))
 	{
 		return Target;
@@ -186,17 +177,12 @@ AActor* UCinemachineCoreSubSystem::GetUpdateTarget(UCinemachineVirtualCameraComp
 	{
 		return Target;
 	}
-	return VCamera->GetOwner();
+	return VCamera;
 }
 
-bool UCinemachineCoreSubSystem::IsLive(UObject* ICamera)
+bool UCinemachineCoreSubSystem::IsLive(ICinemachineCameraInterface* ICamera)
 {
-	if (!IsValid(ICamera))
-	{
-		return false;
-	}
-	ICinemachineCameraInterface* CameraInterface = Cast<ICinemachineCameraInterface>(ICamera);
-	if (nullptr == CameraInterface)
+	if (nullptr == ICamera)
 	{
 		return false;
 	}
@@ -211,21 +197,16 @@ bool UCinemachineCoreSubSystem::IsLive(UObject* ICamera)
 	return false;
 }
 
-bool UCinemachineCoreSubSystem::IsLiveBlend(UObject* ICamera)
+bool UCinemachineCoreSubSystem::IsLiveInBlend(ICinemachineCameraInterface* ICamera)
 {
-	if (!IsValid(ICamera))
-	{
-		return false;
-	}
-	ICinemachineCameraInterface* CameraInterface = Cast<ICinemachineCameraInterface>(ICamera);
-	if (nullptr == CameraInterface)
+	if (nullptr == ICamera)
 	{
 		return false;
 	}
 	for (int32 i = 0; i < GetBrainCameraCount(); ++i)
 	{
 		UCinemachineBrainComponent* BrainComponent = GetBrainCamera(i);
-		if (IsValid(BrainComponent) && BrainComponent->IsLiveBlend(ICamera))
+		if (IsValid(BrainComponent) && BrainComponent->IsLiveInBlend(ICamera))
 		{
 			return true;
 		}
@@ -233,7 +214,7 @@ bool UCinemachineCoreSubSystem::IsLiveBlend(UObject* ICamera)
 	return false;
 }
 
-void UCinemachineCoreSubSystem::GenerateCameraActivationEvent(UCinemachineVirtualCameraComponent* VCamera, UCinemachineVirtualCameraComponent* VCameraFrom)
+void UCinemachineCoreSubSystem::GenerateCameraActivationEvent(UCinemachineVirtualCameraBaseComponent* VCamera, UCinemachineVirtualCameraBaseComponent* VCameraFrom)
 {
 	if (!IsValid(VCamera))
 	{
@@ -249,7 +230,7 @@ void UCinemachineCoreSubSystem::GenerateCameraActivationEvent(UCinemachineVirtua
 	}
 }
 
-void UCinemachineCoreSubSystem::GenerateCameraCutEvent(UCinemachineVirtualCameraComponent* VCamera)
+void UCinemachineCoreSubSystem::GenerateCameraCutEvent(UCinemachineVirtualCameraBaseComponent* VCamera)
 {
 	if (!IsValid(VCamera))
 	{
@@ -261,11 +242,12 @@ void UCinemachineCoreSubSystem::GenerateCameraCutEvent(UCinemachineVirtualCamera
 		if (IsValid(BrainComponent) && BrainComponent->IsLive(VCamera))
 		{
 			BrainComponent->CameraCutEvent.Broadcast(BrainComponent);
+			CameraCutEvent.Broadcast(BrainComponent);
 		}
 	}
 }
 
-UCinemachineBrainComponent* UCinemachineCoreSubSystem::FindPotentialTargetBrain(UCinemachineVirtualCameraComponent* VCamera)
+UCinemachineBrainComponent* UCinemachineCoreSubSystem::FindPotentialTargetBrain(UCinemachineVirtualCameraBaseComponent* VCamera)
 {
 	if (!IsValid(VCamera))
 	{
@@ -294,11 +276,11 @@ UCinemachineBrainComponent* UCinemachineCoreSubSystem::FindPotentialTargetBrain(
 	return nullptr;
 }
 
-void UCinemachineCoreSubSystem::OnTargetObjectWarped(AActor* Target, FVector LocationDelta)
+void UCinemachineCoreSubSystem::OnTargetObjectWarped(USceneComponent* Target, FVector LocationDelta)
 {
 	for (int32 i = 0; i < GetVirtualCameraCount(); ++i)
 	{
-		UCinemachineVirtualCameraComponent* VCamera = GetVirtualCamera(i);
+		UCinemachineVirtualCameraBaseComponent* VCamera = GetVirtualCamera(i);
 		if (IsValid(VCamera))
 		{
 			VCamera->OnTargetObjectWarped(Target, LocationDelta);

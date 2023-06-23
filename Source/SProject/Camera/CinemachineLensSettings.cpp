@@ -1,4 +1,5 @@
 
+
 #include "CinemachineLensSettings.h"
 #include "Math/UnrealMathUtility.h"
 #include "Camera/CameraComponent.h"
@@ -24,4 +25,11 @@ FCinemachineLensSettings FCinemachineLensSettings::Lerp(const FCinemachineLensSe
     Lens.FieldOfView = FMath::Lerp(A.FieldOfView, B.FieldOfView, Alpha);
     Lens.Dutch = FMath::Lerp(A.Dutch, B.Dutch, Alpha);
     return Lens;
+}
+
+void FCinemachineLensSettings::Validate()
+{
+	FieldOfView = FMath::Clamp(FieldOfView, 0.01F, 179.0F);
+	AspectRatio = FMath::Clamp(AspectRatio, 0.1F, 100.0F);
+	Dutch = FMath::Clamp(Dutch, -180.0F, 180.0F);
 }
