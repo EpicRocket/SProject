@@ -5,8 +5,8 @@
 #include "CinemachineCoreSubSystem.h"
 #include "CinemachineTargetGroupComponent.h"
 #include "CinemachineInputAxisProviderInterface.h"
-#include "Damper.h"
-#include "VectorExtension.h"
+#include "Shared/Damper.h"
+#include "Shared/VectorExtension.h"
 
 UCinemachineVirtualCameraBaseComponent::UCinemachineVirtualCameraBaseComponent()
 	: Priority(0)

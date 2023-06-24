@@ -110,3 +110,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cinemachine|State")
 	ECinemachineBlendHintValue BlendHint;
 };
+
+FRotator ApplyCameraRotation(const FQuat& Orient, const FVector2D& Rot, const FVector& WorldUp);
+
+FVector2D GetCameraRotationToTarget(const FQuat& Orient, FVector LookAtDir, FVector WorldUp);

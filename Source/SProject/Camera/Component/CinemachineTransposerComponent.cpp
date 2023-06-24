@@ -4,16 +4,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Camera/CinemachineCoreSubSystem.h"
 #include "Camera/CinemachineVirtualCameraBaseComponent.h"
-#include "VectorExtension.h"
-
-static FRotator LookRotation(FVector Forward, FVector Up = FVector::UpVector)
-{
-	Forward.Normalize();
-	Up.Normalize();
-	FVector Right = (Up ^ Forward).GetSafeNormal();
-	Up = Forward ^ Right;
-	return FQuat(FMatrix(Forward, Right, Up, FVector::ZeroVector)).Rotator();
-}
+#include "Shared/VectorExtension.h"
 
 UCinemachineTransposerComponent::UCinemachineTransposerComponent()
 	: BindingMode(ECineamchineTransposerBindingMode::LockToTargetWithWorldUp)
@@ -112,11 +103,11 @@ FRotator UCinemachineTransposerComponent::GetReferenceOrientation(FVector WorldU
 			{
 				break;
 			}
-			return LookRotation(Forward, WorldUp);
+			return UVectorExtension::LookRotation(Forward, WorldUp);
 		}
 
 		case ECineamchineTransposerBindingMode::LockToTargetNoRoll:
-			return LookRotation(TargetOrientation.Quaternion() * FVector::ForwardVector, WorldUp);
+			return UVectorExtension::LookRotation(TargetOrientation.Quaternion() * FVector::ForwardVector, WorldUp);
 
 		case ECineamchineTransposerBindingMode::LockToTarget:
 			return TargetOrientation;
@@ -128,7 +119,7 @@ FRotator UCinemachineTransposerComponent::GetReferenceOrientation(FVector WorldU
 			{
 				break;
 			}
-			return LookRotation(Forward, WorldUp);
+			return UVectorExtension::LookRotation(Forward, WorldUp);
 		}
 		}
 	}
@@ -215,7 +206,7 @@ void UCinemachineTransposerComponent::TrackTarget(float DeltaTime, FVector Up, F
 	FVector LocationDelta = TargetLocation - CurrentLocation;
 	if (bPrevStateValid)
 	{
-		FRotator DampingSpace = DesiredCameraOffset.IsNearlyZero() ? GetVirtualCameraState().RawOrientation : LookRotation(DampedOrientation.Quaternion() * DesiredCameraOffset, Up);
+		FRotator DampingSpace = DesiredCameraOffset.IsNearlyZero() ? GetVirtualCameraState().RawOrientation : UVectorExtension::LookRotation(DampedOrientation.Quaternion() * DesiredCameraOffset, Up);
 		FVector LocalDelta = DampingSpace.GetInverse().Quaternion() * LocationDelta;
 		LocalDelta = VCamera->DetachedFollowTargetDamp(LocalDelta, GetDamping(), DeltaTime);
 		LocationDelta = DampingSpace.Quaternion() * LocalDelta;
@@ -283,7 +274,7 @@ FVector UCinemachineTransposerComponent::GetAngularDamping() const
 	switch (BindingMode)
 	{
 	case ECineamchineTransposerBindingMode::LockToTargetOnAssign: // falls through
-	case ECineamchineTransposerBindingMode::WorldSpace:		   // falls through
+	case ECineamchineTransposerBindingMode::WorldSpace:			  // falls through
 	case ECineamchineTransposerBindingMode::SimpleFollowWithWorldUp:
 	{
 		return FVector::ZeroVector;

@@ -3,8 +3,6 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "VectorExtension.generated.h"
 
-
-
 /**
  * Vector 타입의 확장 기능을 제공하기 위한 클래스입니다.
  */
@@ -82,10 +80,7 @@ public:
 	{
 		Alpha = FMath::Clamp(Alpha, 0.0F, 1.0F);
 		float OneMinusAlpha = 1.0F - Alpha;
-		return OneMinusAlpha * OneMinusAlpha * OneMinusAlpha * V0
-			+ 3.0F * OneMinusAlpha * OneMinusAlpha * Alpha * V1
-			+ 3.0F * OneMinusAlpha * Alpha * Alpha * V2
-			+ Alpha * Alpha * Alpha * V3;
+		return OneMinusAlpha * OneMinusAlpha * OneMinusAlpha * V0 + 3.0F * OneMinusAlpha * OneMinusAlpha * Alpha * V1 + 3.0F * OneMinusAlpha * Alpha * Alpha * V2 + Alpha * Alpha * Alpha * V3;
 	}
 
 	UFUNCTION(BlueprintPure, Category = VectorExtension)
@@ -97,5 +92,15 @@ public:
 			return 0.0F;
 		}
 		return FMath::Clamp((V1 - S1) | Segment / Segment.SizeSquared(), 0.0F, 1.0F);
+	}
+
+	UFUNCTION(BlueprintPure, Category = VectorExtension)
+	static FRotator LookRotation(FVector Forward, FVector Up = FVector::UpVector)
+	{
+		Forward.Normalize();
+		Up.Normalize();
+		FVector Right = (Up ^ Forward).GetSafeNormal();
+		Up = Forward ^ Right;
+		return FQuat(FMatrix(Forward, Right, Up, FVector::ZeroVector)).Rotator();
 	}
 };

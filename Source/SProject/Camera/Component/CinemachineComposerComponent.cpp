@@ -5,7 +5,7 @@
 #include "Shared/LocationPredictor.h"
 #include "Camera/CinemachineVirtualCameraBaseComponent.h"
 #include "Camera/CinemachineCoreSubSystem.h"
-#include "VectorExtension.h"
+#include "Shared/VectorExtension.h"
 
 static FBox2D ScreenToFOV(FBox2D ScreenRect, float FOV, float FOVH, float AspectRatio)
 {
@@ -33,59 +33,6 @@ static FBox2D ScreenToFOV(FBox2D ScreenRect, float FOV, float FOVH, float Aspect
 	FOVRect.Max.X = ((FOVH / 2.0f) + Angle) / FOVH;
 
 	return FOVRect;
-}
-
-static FRotator LookRotation(FVector Forward, FVector Up = FVector::UpVector)
-{
-	Forward.Normalize();
-	Up.Normalize();
-	FVector Right = (Up ^ Forward).GetSafeNormal();
-	Up = Forward ^ Right;
-	return FQuat(FMatrix(Forward, Right, Up, FVector::ZeroVector)).Rotator();
-}
-
-static FRotator ApplyCameraRotation(const FQuat& Orient, const FVector2D& Rot, const FVector& WorldUp)
-{
-	FQuat Q = FQuat(FVector::RightVector, FMath::DegreesToRadians(Rot.X));
-	return (FQuat(WorldUp, FMath::DegreesToRadians(Rot.Y)) * Orient * Q).Rotator();
-}
-
-static FVector2D GetCameraRotationToTarget(const FQuat& Orient, FVector LookAtDir, FVector WorldUp)
-{
-	if (LookAtDir.IsNearlyZero())
-	{
-		return FVector2D::ZeroVector;
-	}
-
-	FQuat ToLocal = Orient.Inverse();
-	FVector Up = ToLocal * WorldUp;
-	LookAtDir = ToLocal * LookAtDir;
-
-	float AngleH = 0;
-	{
-		FVector TargetDirH = FVector::VectorPlaneProject(LookAtDir, Up);
-		if (!TargetDirH.IsNearlyZero())
-		{
-			FVector CurrentDirH = FVector::VectorPlaneProject(FVector::ForwardVector, Up);
-			if (CurrentDirH.IsNearlyZero())
-			{
-				if (FVector::DotProduct(CurrentDirH, Up) > 0)
-				{
-					CurrentDirH = FVector::VectorPlaneProject(FVector::UpVector, Up);
-				}
-				else
-				{
-					CurrentDirH = FVector::VectorPlaneProject(FVector::DownVector, Up);
-				}
-			}
-			AngleH = UVectorExtension::SignedAngle(CurrentDirH, TargetDirH, Up);
-		}
-	}
-	FQuat Q = FQuat(Up, FMath::DegreesToRadians(AngleH));
-
-	float AngleV = UVectorExtension::SignedAngle(Q * FVector::ForwardVector, LookAtDir, Q * FVector::RightVector);
-
-	return FVector2D(AngleV, AngleH);
 }
 
 //! FFOVCache
@@ -211,7 +158,7 @@ void UCinemachineComposerComponent::MutateCameraState(FCinemachineCameraState& S
 	FRotator RigOrientation = State.RawOrientation;
 	if (DeltaTime < 0.0F || !VCamera->GetPreviousStateIsValid())
 	{
-		RigOrientation = UKismetMathLibrary::MakeRotFromXZ(RigOrientation.Quaternion() * FVector::ForwardVector, State.ReferenceUp);//LookRotation(RigOrientation.Quaternion() * FVector::ForwardVector, State.ReferenceUp);
+		RigOrientation = UVectorExtension::LookRotation(RigOrientation.Quaternion() * FVector::ForwardVector, State.ReferenceUp);
 		FBox2D Rect = FOVCache->FOVSoftGuideRect;
 		if (bCenterOnActivate)
 		{
@@ -224,12 +171,12 @@ void UCinemachineComposerComponent::MutateCameraState(FCinemachineCameraState& S
 		FVector Direction = LookAtPrevFrame - CameraLocationPrevFrame;
 		if (Direction.IsNearlyZero())
 		{
-			RigOrientation = LookRotation(CameraOrientationPrevFrame.Quaternion() * FVector::ForwardVector, State.ReferenceUp);
+			RigOrientation = UVectorExtension::LookRotation(CameraOrientationPrevFrame.Quaternion() * FVector::ForwardVector, State.ReferenceUp);
 		}
 		else
 		{
 			Direction = FQuat::MakeFromEuler(State.LocationDampingBypass) * Direction;
-			RigOrientation = LookRotation(Direction, State.ReferenceUp);
+			RigOrientation = UVectorExtension::LookRotation(Direction, State.ReferenceUp);
 			RigOrientation = ApplyCameraRotation(RigOrientation.Quaternion(), -ScreenOffsetPreFrame, State.ReferenceUp);
 		}
 

@@ -3,22 +3,13 @@
 #include "CinemachineCameraState.h"
 #include "Shared/VectorExtension.h"
 
-static FRotator LookRotation(FVector Forward, FVector Up = FVector::UpVector)
-{
-	Forward.Normalize();
-	Up.Normalize();
-	FVector Right = (Up ^ Forward).GetSafeNormal();
-	Up = Forward ^ Right;
-	return FQuat(FMatrix(Forward, Right, Up, FVector::ZeroVector)).Rotator();
-}
-
-static FRotator ApplyCameraRotation(const FQuat& Orient, const FVector2D& Rot, const FVector& WorldUp)
+FRotator ApplyCameraRotation(const FQuat& Orient, const FVector2D& Rot, const FVector& WorldUp)
 {
 	FQuat Q = FQuat(FVector::RightVector, FMath::DegreesToRadians(Rot.X));
 	return (FQuat(WorldUp, FMath::DegreesToRadians(Rot.Y)) * Orient * Q).Rotator();
 }
 
-static FVector2D GetCameraRotationToTarget(const FQuat& Orient, FVector LookAtDir, FVector WorldUp)
+FVector2D GetCameraRotationToTarget(const FQuat& Orient, FVector LookAtDir, FVector WorldUp)
 {
 	if (LookAtDir.IsNearlyZero())
 	{
@@ -218,7 +209,7 @@ FCinemachineCameraState FCinemachineCameraState::Lerp(const FCinemachineCameraSt
 			}
 
 			FRotator TempRot = NewOrient;
-			NewOrient = LookRotation(DirectionTarget, Up);
+			NewOrient = UVectorExtension::LookRotation(DirectionTarget, Up);
 			FVector2D DeltaA = -GetCameraRotationToTarget(A.RawOrientation.Quaternion(), A.ReferenceLookAt - A.GetCorrectedLocation(), Up);
 			FVector2D DeltaB = -GetCameraRotationToTarget(B.RawOrientation.Quaternion(), B.ReferenceLookAt - B.GetCorrectedLocation(), Up);
 			NewOrient = ApplyCameraRotation(NewOrient.Quaternion(), FMath::Lerp(DeltaA, DeltaB, AdjustedAlpha), Up);

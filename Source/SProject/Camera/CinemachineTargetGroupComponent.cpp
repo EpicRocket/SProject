@@ -1,7 +1,7 @@
 
 
 #include "CinemachineTargetGroupComponent.h"
-#include "VectorExtension.h"
+#include "Shared/VectorExtension.h"
 
 static FBox CreateBox(FVector Min, FVector Max)
 {
