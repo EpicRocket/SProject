@@ -17,6 +17,10 @@ public class SProject : ModuleRules
 				"InputCore",
 				"UMG",
 				"GameFeatures",
+				"ModularGameplayActors",
+				"GameplayAbilities",
+				"GameplayTags",
+				"AIModule",
 			}
 		);
 
@@ -31,7 +35,6 @@ public class SProject : ModuleRules
 				"CommonUI",
 				"CommonInput",
 				"CommonGame",
-				"ModularGameplayActors",
 			}
 		);
 
