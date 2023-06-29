@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "EnhancedInputComponent.h"
-#include "EnhancedInputSubsystems.h"
 #include "SInputComponent.generated.h"
 
 class USInputConfig;
@@ -17,6 +16,8 @@ UCLASS()
 class SPROJECT_API USInputComponent : public UEnhancedInputComponent
 {
 	GENERATED_BODY()
+
+	virtual void BeginPlay() override;
 
 public:
 	void AddInputMappings(const USInputConfig* InputConfig, UEnhancedInputLocalPlayerSubsystem* InputSubsystem) const;

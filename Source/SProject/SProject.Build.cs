@@ -18,6 +18,7 @@ public class SProject : ModuleRules
 				"UMG",
 				"GameFeatures",
 				"ModularGameplayActors",
+				"ModularGameplay",
 				"GameplayAbilities",
 				"GameplayTags",
 				"AIModule",

@@ -2,6 +2,7 @@
 
 #include "GameFeatureAction_WorldActionBase.h"
 
+#include "GameFeaturesSubsystem.h"
 #include "Engine/GameInstance.h"
 #include "Engine/World.h"
 

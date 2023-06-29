@@ -9,6 +9,12 @@
 #include "System/SMappableConfigPair.h"
 #include "SInputConfig.h"
 
+void USInputComponent::BeginPlay()
+{
+	Super::BeginPlay();
+	
+}
+
 void USInputComponent::AddInputMappings(const USInputConfig* InputConfig, UEnhancedInputLocalPlayerSubsystem* InputSubsystem) const
 {
 	check(InputConfig);
