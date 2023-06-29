@@ -17,6 +17,7 @@ public class SProject : ModuleRules
 				"InputCore",
 				"UMG",
 				"GameFeatures",
+				"GameplayTags",
 			}
 		);
 

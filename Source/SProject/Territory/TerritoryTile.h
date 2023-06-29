@@ -20,17 +20,11 @@ public:
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Tile", meta = (AllowPrivateAccess))
 	TObjectPtr<USceneComponent> SceneComp;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile", meta = (AllowPrivateAccess))
-	TObjectPtr<UStaticMeshComponent> MeshComp;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile", meta = (AllowPrivateAccess))
-	TObjectPtr<UStaticMeshComponent> PreviewMeshComp;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Tile", meta = (AllowPrivateAccess))
-	bool bHasToEmpty;	
+	bool bHasToEmpty;
 
-private:
+private:	
 	UPROPERTY()
 	TObjectPtr<ATerritoryPlayerController> TerritoryPC;
 	
@@ -38,7 +32,7 @@ private:
 	TObjectPtr<ATerritoryBuilding> OwnBuilding;
 
 public:
-	void ShowPreviewMesh(TObjectPtr<ATerritoryBuilding> Building, const FLinearColor& Color) const;
+	void ShowPreviewBuilding(const FLinearColor& Color) const;
 
 public:
 	void SetBuilding(const TObjectPtr<ATerritoryBuilding> InBuilding) { OwnBuilding = InBuilding; }

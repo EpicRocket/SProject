@@ -20,9 +20,11 @@ public:
 	
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
-	TSubclassOf<ATerritoryBuilding> BuildingBP;
+	FString BuildingPath;
 public:
-	const TSubclassOf<ATerritoryBuilding>& GetBuilding() const { return BuildingBP; }
+	UFUNCTION(BlueprintSetter)
+	void SetBuildingPath(FString InBuildingPath) { BuildingPath = InBuildingPath; }
+	const FString& GetBuildingPath() const { return BuildingPath; }
 
 private:
 	virtual void NativeOnClicked() override;

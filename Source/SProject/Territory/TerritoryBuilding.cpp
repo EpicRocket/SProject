@@ -16,7 +16,9 @@ ATerritoryBuilding::ATerritoryBuilding()
 	
 	SceneComp = CreateDefaultSubobject<USceneComponent>(TEXT("RootComp"));
 	RootComponent = SceneComp;
-	
+
+	PreviewColorCan = FLinearColor(0.0f, 1.0f, 0.0f, 0.5f);
+	PreviewColorDeny = FLinearColor(1.0f, 0.0f, 0.0f, 0.5f);
 }
 
 // Called when the game starts or when spawned

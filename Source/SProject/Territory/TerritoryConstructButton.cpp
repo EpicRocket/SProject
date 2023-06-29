@@ -11,7 +11,6 @@
 void UTerritoryConstructButton::NativeConstruct()
 {
 	Super::NativeConstruct();
-	
 }
 
 void UTerritoryConstructButton::NativeOnClicked()
@@ -19,10 +18,10 @@ void UTerritoryConstructButton::NativeOnClicked()
 	Super::NativeOnClicked();
 	
 	LOG("%s Clicked", *GetName());
-	if(BuildingBP)
+	if(const TSubclassOf<ATerritoryBuilding> BuildingBP = LoadObject<UClass>(nullptr, *BuildingPath))
 	{
 		const TObjectPtr<ATerritoryPlayerController> TerritoryPC = Cast<ATerritoryPlayerController>(GetWorld()->GetFirstPlayerController());
-		TerritoryPC->SetConstructBuildingBP(BuildingBP);
+		TerritoryPC->RegisterBuilding(BuildingBP);
 		TerritoryPC->SetModeType(ETerritoryModeType::Construct);
 	}
 }

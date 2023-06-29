@@ -10,7 +10,8 @@
 			"LoadingPhase": "Default",
 			"AdditionalDependencies": [
 				"Engine",
-				"CommonUI"
+				"CommonUI",
+				"EnhancedInput"
 			]
 		},
 		{
@@ -59,6 +60,14 @@
 		},
 		{
 			"Name": "PCGGeometryScriptInterop",
+			"Enabled": true
+		},
+		{
+			"Name": "Territory",
+			"Enabled": true
+		},
+		{
+			"Name": "Core",
 			"Enabled": true
 		}
 	]

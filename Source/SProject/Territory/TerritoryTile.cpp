@@ -5,7 +5,6 @@
 #include "SProject.h"
 #include "TerritoryDefine.h"
 #include "TerritoryPlayerController.h"
-#include "Kismet/KismetSystemLibrary.h"
 #include "Materials/MaterialInstanceDynamic.h"
 
 static constexpr ECollisionChannel ECC_TerritoryTile = ECC_GameTraceChannel11;
@@ -26,30 +25,51 @@ void ATerritoryTile::BeginPlay()
 	Super::BeginPlay();
 	TerritoryPC = Cast<ATerritoryPlayerController>(GetWorld()->GetFirstPlayerController());
 	VERIFY(TerritoryPC)
-	
-	MeshComp->SetCollisionResponseToChannel(ECC_TerritoryTile, ECollisionResponse::ECR_Block);
-	LOG_CHECK(MeshComp)
-	LOG_CHECK(PreviewMeshComp)
+
+	TArray<UMeshComponent*> MeshComponents;
+	GetComponents(MeshComponents);
+	for(const auto Mesh : MeshComponents)
+	{		
+		Mesh->SetCollisionResponseToChannel(ECC_TerritoryTile, ECollisionResponse::ECR_Block);
+	}
 	
 	bHasToEmpty = false;
 	bCursor = false;
 }
 
-void ATerritoryTile::ShowPreviewMesh(TObjectPtr<ATerritoryBuilding> Building, const FLinearColor& Color) const
+void ATerritoryTile::ShowPreviewBuilding(const FLinearColor& Color) const
 {
-	PreviewMeshComp->SetVisibility(true);
-	PreviewMeshComp->SetRelativeTransform(Building->GetMeshComponent()->GetRelativeTransform());
-			
-	const TObjectPtr<UStaticMesh> NewMesh = Building->GetMeshComponent()->GetStaticMesh();
-	PreviewMeshComp->SetStaticMesh(NewMesh);
-	for(int i = 0; i < PreviewMeshComp->GetNumMaterials(); ++i)
+	const TObjectPtr<AActor> PreviewBuilding = TerritoryPC->GetPreviewBuilding();
+	PreviewBuilding->SetActorTransform(GetActorTransform());
+	
+	TArray<UStaticMeshComponent*> StaticMeshComponents;
+	PreviewBuilding->GetComponents(StaticMeshComponents);
+	for(const auto PreviewMesh : StaticMeshComponents)
 	{
-		if(PreviewMeshComp->GetMaterial(i))
+		for(int i = 0; i < PreviewMesh->GetNumMaterials(); ++i)
 		{
-			const auto MI = PreviewMeshComp->CreateAndSetMaterialInstanceDynamic(i);
-			MI->SetVectorParameterValue(TEXT("Base Color Tint"), Color);
+			if(PreviewMesh->GetMaterial(i))
+			{
+				const auto MI = PreviewMesh->CreateAndSetMaterialInstanceDynamic(i);
+				MI->SetVectorParameterValue(TEXT("Base Color Tint"), Color);
+			}
 		}
 	}
+	
+	TArray<USkeletalMeshComponent*> SkeletalMeshComponents;
+	PreviewBuilding->GetComponents(SkeletalMeshComponents);
+	for(const auto PreviewMesh : SkeletalMeshComponents)
+	{
+		for(int i = 0; i < PreviewMesh->GetNumMaterials(); ++i)
+		{
+			if(PreviewMesh->GetMaterial(i))
+			{
+				const auto MI = PreviewMesh->CreateAndSetMaterialInstanceDynamic(i);
+				MI->SetVectorParameterValue(TEXT("Base Color Tint"), Color);
+			}
+		}
+	}
+	TerritoryPC->SetPreviewBuildingVisiblity(true);
 }
 
 void ATerritoryTile::NotifyActorBeginCursorOver()
@@ -57,21 +77,21 @@ void ATerritoryTile::NotifyActorBeginCursorOver()
 	Super::NotifyActorBeginCursorOver();
 	bCursor = true;
 
-	VERIFY(TerritoryPC);
 	switch(TerritoryPC->GetMode())
 	{
 	case ETerritoryModeType::Idle:
 		break;
 	case ETerritoryModeType::Construct:
 		{
-			const TObjectPtr<ATerritoryBuilding> Building = TerritoryPC->GetConstructBuildingBP().GetDefaultObject();
+			const TSubclassOf<ATerritoryBuilding> BuildingBP = TerritoryPC->GetConstructBuildingBP();
+			const TObjectPtr<ATerritoryBuilding> Building = BuildingBP.GetDefaultObject();
 			if(IsEmpty())
 			{
-				ShowPreviewMesh(Building, Building->PreviewColorCan);
+				ShowPreviewBuilding(Building->PreviewColorCan);
 			}
 			else
 			{
-				ShowPreviewMesh(Building, Building->PreviewColorDeny);
+				ShowPreviewBuilding(Building->PreviewColorDeny);
 			}
 			break;
 		}
@@ -80,11 +100,11 @@ void ATerritoryTile::NotifyActorBeginCursorOver()
 			const TObjectPtr<ATerritoryBuilding> Building = TerritoryPC->GetMovedBuilding();
 			if(IsEmpty())
 			{
-				ShowPreviewMesh(Building, Building->PreviewColorCan);
+				ShowPreviewBuilding(Building->PreviewColorCan);
 			}
 			else
 			{
-				ShowPreviewMesh(Building, Building->PreviewColorDeny);
+				ShowPreviewBuilding(Building->PreviewColorDeny);
 			}
 			break;
 		}
@@ -103,10 +123,10 @@ void ATerritoryTile::NotifyActorEndCursorOver()
 	case ETerritoryModeType::Idle:
 		break;
 	case ETerritoryModeType::Construct:
-		PreviewMeshComp->SetStaticMesh(nullptr);
+		TerritoryPC->SetPreviewBuildingVisiblity(false);
 		break;
 	case ETerritoryModeType::Move:
-		PreviewMeshComp->SetStaticMesh(nullptr);
+		TerritoryPC->SetPreviewBuildingVisiblity(false);
 		break;
 		
 	default: ;
@@ -116,7 +136,6 @@ void ATerritoryTile::NotifyActorEndCursorOver()
 
 void ATerritoryTile::NotifyActorOnClicked(FKey ButtonPressed)
 {
-	VERIFY(TerritoryPC);
 	switch(TerritoryPC->GetMode())
 	{
 	case ETerritoryModeType::Idle: break;
@@ -130,7 +149,6 @@ void ATerritoryTile::NotifyActorOnReleased(FKey ButtonReleased)
 {
 	Super::NotifyActorOnReleased(ButtonReleased);
 	
-	VERIFY(TerritoryPC);
 	switch(TerritoryPC->GetMode())
 	{
 	case ETerritoryModeType::Idle:
@@ -140,14 +158,12 @@ void ATerritoryTile::NotifyActorOnReleased(FKey ButtonReleased)
 		{
 			if(IsEmpty())
 			{
-				const TObjectPtr<ATerritoryBuilding> TerritoryBuilding = TerritoryPC->GetConstructBuildingBP().GetDefaultObject();
-				OwnBuilding = GetWorld()->SpawnActor<ATerritoryBuilding>(TerritoryPC->GetConstructBuildingBP());
+				const TSubclassOf<ATerritoryBuilding> BuildingBP = TerritoryPC->GetConstructBuildingBP();
+				OwnBuilding = GetWorld()->SpawnActor<ATerritoryBuilding>(BuildingBP);
 				OwnBuilding->SetActorTransform(GetActorTransform());
-				OwnBuilding->GetMeshComponent()->SetRelativeTransform(TerritoryBuilding->GetMeshComponent()->GetRelativeTransform());
 				OwnBuilding->SetOwnerTile(this);
-			
-				PreviewMeshComp->SetStaticMesh(nullptr);
-				PreviewMeshComp->SetVisibility(false);
+				
+				TerritoryPC->UnRegisterBuilding();
 				TerritoryPC->SetModeType(ETerritoryModeType::Idle);
 			}
 			break;
@@ -161,11 +177,12 @@ void ATerritoryTile::NotifyActorOnReleased(FKey ButtonReleased)
 			{
 				if(IsEmpty())
 				{
-					PreviewMeshComp->SetVisibility(false);
 					OwnBuilding = MovedBuildingTile->OwnBuilding;
 					OwnBuilding->SetActorLocation(GetActorLocation());
 					OwnBuilding->SetOwnerTile(this);
 					MovedBuildingTile->SetBuilding(nullptr);
+					
+					TerritoryPC->UnRegisterBuilding();
 					TerritoryPC->SetModeType(ETerritoryModeType::Idle);
 				}
 				else
