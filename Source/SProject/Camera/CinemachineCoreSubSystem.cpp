@@ -18,9 +18,21 @@ int32 UCinemachineCoreSubSystem::GetBrainCameraCount() const
 	return ActiveBrains.Num();
 }
 
-UCinemachineBrainComponent* UCinemachineCoreSubSystem::GetBrainCamera(int32 Index) const
+UCinemachineBrainComponent* UCinemachineCoreSubSystem::GetBrainCamera(int32 Index)
 {
-	return ActiveBrains.IsValidIndex(Index) ? ActiveBrains[Index] : nullptr;
+	if (!ActiveBrains.IsValidIndex(Index))
+	{
+		return nullptr;
+	}
+	UCinemachineBrainComponent* Result = ActiveBrains[Index];
+
+	if (!IsValid(Result))
+	{
+		ActiveBrains.RemoveAt(Index);
+		return nullptr;
+	}
+
+	return Result;
 }
 
 void UCinemachineCoreSubSystem::AddActiveBrain(UCinemachineBrainComponent* BrainComponent)
@@ -64,7 +76,7 @@ void UCinemachineCoreSubSystem::AddActiveCamera(UCinemachineVirtualCameraBaseCom
 	{
 		return;
 	}
-	checkf(!ActiveVirtualCameras.Contains(VCamera), TEXT("VirtualCameraComponent is already in ActiveVirtualCameras [%s]"), *VCamera->GetCameraName());
+	checkf(!ActiveVirtualCameras.Contains(VCamera), TEXT("{%s}는 이미 등록 된 CV카메라 입니다."), *VCamera->GetCameraName());
 	VCamera->ActivationId = ActivationSequence++;
 	ActiveVirtualCameras.Emplace(VCamera);
 	bActiveCameraAreSorted = false;
@@ -86,7 +98,8 @@ void UCinemachineCoreSubSystem::CameraEnabled(UCinemachineVirtualCameraBaseCompo
 	}
 
 	int32 ParentLevel = 0;
-	for (UCinemachineVirtualCameraBaseComponent* ParentCamera = VCamera->GetParentCamera(); IsValid(ParentCamera); ParentCamera = ParentCamera->GetParentCamera())
+	UCinemachineVirtualCameraBaseComponent* ParentCamera = Cast<UCinemachineVirtualCameraBaseComponent>(VCamera->GetParentCamera());
+	for (; IsValid(ParentCamera); ParentCamera = Cast<UCinemachineVirtualCameraBaseComponent>(ParentCamera->GetParentCamera()))
 	{
 		++ParentLevel;
 	}
@@ -133,11 +146,11 @@ void UCinemachineCoreSubSystem::UpdateAllActiveVirtualCameras(FVector WorldUp, f
 				SubCameras.RemoveAt(j);
 				continue;
 			}
-			if (VCamera->StandbyUpdateMode == ECineamchineStandbyUpdateMode::Always || IsLive(VCamera))
+			if (VCamera->StandbyUpdateMode == ECVStandbyUpdateMode::Always || IsLive(VCamera))
 			{
 				UpdateVirtualCamera(VCamera, WorldUp, DeltaTime);
 			}
-			else if (!IsValid(CurrentRoundRobin) && VCamera != RoundRobinVCameraLastFrame && VCamera->StandbyUpdateMode != ECineamchineStandbyUpdateMode::Nerver && VCamera->IsEnable())
+			else if (!IsValid(CurrentRoundRobin) && VCamera != RoundRobinVCameraLastFrame && VCamera->StandbyUpdateMode != ECVStandbyUpdateMode::Nerver && VCamera->IsEnable())
 			{
 				UpdateVirtualCamera(VCamera, WorldUp, DeltaTime);
 				CurrentRoundRobin = VCamera;
@@ -275,16 +288,3 @@ UCinemachineBrainComponent* UCinemachineCoreSubSystem::FindPotentialTargetBrain(
 
 	return nullptr;
 }
-
-void UCinemachineCoreSubSystem::OnTargetObjectWarped(USceneComponent* Target, FVector LocationDelta)
-{
-	for (int32 i = 0; i < GetVirtualCameraCount(); ++i)
-	{
-		UCinemachineVirtualCameraBaseComponent* VCamera = GetVirtualCamera(i);
-		if (IsValid(VCamera))
-		{
-			VCamera->OnTargetObjectWarped(Target, LocationDelta);
-		}
-	}
-}
-

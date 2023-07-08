@@ -10,7 +10,7 @@
  * 가상 카메라 블렌딩에 대한 힌트 값 정의
 */
 UENUM(BlueprintType)
-enum class ECinemachineBlendHintValue : uint8
+enum class ECVBlendHintValue : uint8
 {
 	Nothing = 0x00,
 	NoLocation = 0x01,
@@ -44,7 +44,7 @@ public:
 		, ShotQuality(1.0f)
 		, LocationCorrection(FVector::ZeroVector)
 		, OrientationCorrection(FRotator::ZeroRotator)
-		, BlendHint(ECinemachineBlendHintValue::Nothing)
+		, BlendHint(ECVBlendHintValue::Nothing)
 	{
 	}
 
@@ -108,7 +108,7 @@ public:
 	FRotator OrientationCorrection;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cinemachine|State")
-	ECinemachineBlendHintValue BlendHint;
+	ECVBlendHintValue BlendHint;
 };
 
 FRotator ApplyCameraRotation(const FQuat& Orient, const FVector2D& Rot, const FVector& WorldUp);

@@ -10,7 +10,7 @@
 #include "CinemachineCoreSubSystem.generated.h"
 
 UENUM(BlueprintType)
-enum class ECinemachineStage : uint8
+enum class ECVStage : uint8
 {
 	Body,
 	Aim,
@@ -40,7 +40,7 @@ public:
 	int32 GetBrainCameraCount() const;
 
 	UFUNCTION(BlueprintPure, Category = Cinemachine)
-	UCinemachineBrainComponent* GetBrainCamera(int32 Index) const;
+	UCinemachineBrainComponent* GetBrainCamera(int32 Index);
 
 	UFUNCTION(BlueprintCallable, Category = Cinemachine)
 	void AddActiveBrain(UCinemachineBrainComponent* BrainComponent);
@@ -83,8 +83,6 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = Cinemachine)
 	UCinemachineBrainComponent* FindPotentialTargetBrain(UCinemachineVirtualCameraBaseComponent* VCamera);
-
-	void OnTargetObjectWarped(USceneComponent* Target, FVector LocationDelta);
 
 public:
 	UPROPERTY(BlueprintReadWrite, Category = Cinemachine)

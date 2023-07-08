@@ -24,8 +24,6 @@ public:
 
 	bool IsComplete() const;
 
-	FString GetDescription() const;
-
 	bool Uses(ICinemachineCameraInterface* ICamera);
 
 	void UpdateCameraState(FVector WorldUp, float DeltaTime);
@@ -55,7 +53,7 @@ public:
 USTRUCT(BlueprintType)
 struct FCinemachineBlendDefinition
 {
-	GENERATED_USTRUCT_BODY()
+	GENERATED_BODY()
 
 public:
 	FCinemachineBlendDefinition();
@@ -79,7 +77,7 @@ class UStaticPointVirtualCamera : public UObject, public ICinemachineCameraInter
 public:
 	virtual FString GetCameraName() const
 	{
-		return FString("None");
+		return FString("StaticPointVirtualCamera");
 	}
 
 	virtual FString GetDescription() const
@@ -154,11 +152,6 @@ public:
 	virtual FString GetCameraName() const
 	{
 		return FString(TEXT("Mid-blend"));
-	}
-
-	virtual FString GetDescription() const
-	{
-		return IsValid(Blend) ? Blend->GetDescription() : FString(TEXT("None"));
 	}
 
 	virtual int32 GetPriority() const

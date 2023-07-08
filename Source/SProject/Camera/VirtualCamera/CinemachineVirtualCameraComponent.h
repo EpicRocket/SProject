@@ -3,43 +3,47 @@
 #pragma once
 
 #include "Camera/CinemachineVirtualCameraBaseComponent.h"
-#include "Camera/CinemachineBaseComponent.h"
+#include "Camera/CinemachineBaseStage.h"
 #include "CinemachineVirtualCameraComponent.generated.h"
 
-enum class ECinemachineStage : uint8;
+enum class ECVStage : uint8;
 
 /**
  * 일반적으로 사용 되는 가상 카메라 컴포넌트 입니다.
- * Follow 타겟에 대한 기능을 사용하기 위해서는 UCinemachineTransposerComponent를 자식으로 가지고 있어야 합니다.
- * LookAt 타겟에 대한 기능을 사용하기 위해서는 UCinemachineComposerComponent를 자식으로 가지고 있어야 합니다.
+ * Follow 타겟에 대한 기능을 사용하기 위해서는 UCinemachineTransposer를 자식으로 가지고 있어야 합니다.
+ * LookAt 타겟에 대한 기능을 사용하기 위해서는 UCinemachineComposer를 자식으로 가지고 있어야 합니다.
 */
-UCLASS(Blueprintable, ClassGroup = (Cinemachine), meta = (BlueprintSpawnableComponent))
+UCLASS(Blueprintable, BlueprintType, ClassGroup = (Cinemachine), meta = (BlueprintSpawnableComponent))
 class UCinemachineVirtualCameraComponent : public UCinemachineVirtualCameraBaseComponent
 {
 	GENERATED_BODY()
 
+	friend class UCinemachineFreeLookComponent;
+
 public:
 	UCinemachineVirtualCameraComponent();
 
-	//~ Begin UActorComponent Interface
-	virtual void BeginPlay() override;
-	//~ End UActorComponent Interface
+#if WITH_EDITOR
+	//~ Begin USceneComponent Interface.
+	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
+	virtual void PostEditChangeChainProperty(FPropertyChangedChainEvent& PropertyChangedEvent) override;
+	//~ End USceneComponent Interface.
+#endif
 
 	//~ Begin UCinemachineVirtualCameraBaseComponent Interface
 	virtual float GetMaxDampTime() override;
 	virtual void InternalUpdateCameraState(FVector WorldUp, float DeltaTime) override;
-	virtual void OnTargetObjectWarped(USceneComponent* Target, FVector IocationDelta) override;
 	virtual void ForceCameraLocation(FVector Location, FRotator Rotation) override;
 	virtual void OnTransitionFromCamera(ICinemachineCameraInterface* FromCamera, FVector WorldUp, float DeltaTime) override;
 	virtual bool RequiresUserInput() override;
 	//~ End UCinemachineVirtualCameraBaseComponent Interface
 
-	UCinemachineBaseComponent* GetCinemachineComponent(ECinemachineStage Stage);
+	UCinemachineBaseStage* GetCinemachineStage(ECVStage Stage);
 
-	template <typename T, typename = typename std::enable_if<std::is_base_of<UCinemachineBaseComponent, T>::value>::type>
-	T* GetCinemachineComponent()
+	template <typename T, typename = typename std::enable_if<std::is_base_of<UCinemachineBaseStage, T>::value>::type>
+	T* GetCinemachineStage()
 	{
-		for (UCinemachineBaseComponent* Component : ComponentPipeline)
+		for (UCinemachineBaseStage* Component : StagePipeline)
 		{
 			if (Component->IsA<T>())
 			{
@@ -49,22 +53,23 @@ public:
 		return nullptr;
 	}
 
-	UCinemachineBaseComponent* AddCinemachineComponent(TSubclassOf<UCinemachineBaseComponent> CreateComponent, FName ComponentName);
+	UCinemachineBaseStage* AddCinemachineComponent(TSubclassOf<UCinemachineBaseStage> CreateComponent, FName ComponentName, UCinemachineBaseStage* Template);
 
 	void SetStateRawLocation(FVector Location)
 	{
 		VCameraState.RawLocation = Location;
 	}
 
-	void InvalidateComponentPipeline()
+	void InvalidateStagePipeline()
 	{
-		ComponentPipeline.Empty();
+		StagePipeline.Empty();
 	}
 
-	void UpdateComponentPipeline();
-
 protected:
+	//~ Begin UCinemachineVirtualCameraBaseComponent Interface
+	virtual void OnInitailize_Implementation() override;
 	virtual void OnEnable() override;
+	//~ End UCinemachineVirtualCameraBaseComponent Interface
 
 private:
 	FCinemachineCameraState CalculateNewState(FVector WorldUp, float DeltaTime);
@@ -74,12 +79,30 @@ public:
 	FCinemachineTransitionParameters TransitionParameters;
 
 private:
-	UPROPERTY(VisibleAnywhere, Transient, Category = Cinemachine, Transient, meta = (AllowPrivateAccess = true))
-	TArray<UCinemachineBaseComponent*> ComponentPipeline;
+	UPROPERTY(VisibleAnywhere, Transient, Category = Cinemachine, Transient, meta = (AllowPrivateAccess = true, ShowInnerProperties))
+	TArray<UCinemachineBaseStage*> StagePipeline;
 
 	UPROPERTY(Transient)
-	USceneComponent* DefaultCachedLookAtTarget;
+	USceneComponent* DefaultCachedLookAtTarget = nullptr;
 
 	UPROPERTY(Transient)
-	UCinemachineVirtualCameraBaseComponent* DefaultCachedLookAtTargetVCamera;
+	UCinemachineVirtualCameraBaseComponent* DefaultCachedLookAtTargetVCamera = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Cinemachine|Spawn", meta = (AllowPrivateAccess = "true", ForceRebuildProperty = "AimStageTemplate"))
+	TSubclassOf<UCinemachineBaseStage> AimStageClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Cinemachine|Spawn", meta = (AllowPrivateAccess = "true", ForceRebuildProperty = "BodyStageTemplate"))
+	TSubclassOf<UCinemachineBaseStage> BodyStageClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Cinemachine|Spawn", meta = (AllowPrivateAccess = "true", ForceRebuildProperty = "NoiseStageTemplate"))
+	TSubclassOf<UCinemachineBaseStage> NoiseStageClass;
+
+	UPROPERTY(VisibleDefaultsOnly, DuplicateTransient, Category = "Cinemachine|Spawn", meta = (ShowInnerProperties))
+	TObjectPtr<UCinemachineBaseStage> AimStageTemplate;
+
+	UPROPERTY(VisibleDefaultsOnly, DuplicateTransient, Category = "Cinemachine|Spawn", meta = (ShowInnerProperties))
+	TObjectPtr<UCinemachineBaseStage> BodyStageTemplate;
+
+	UPROPERTY(VisibleDefaultsOnly, DuplicateTransient, Category = "Cinemachine|Spawn", meta = (ShowInnerProperties))
+	TObjectPtr<UCinemachineBaseStage> NoiseStageTemplate;
 };

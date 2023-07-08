@@ -1,19 +1,35 @@
 
+
 #pragma once
 
 #include "Camera/CinemachineVirtualCameraBaseComponent.h"
 #include "Camera/CinemachineTransitionParameters.h"
 #include "Camera/CinemachineAxisState.h"
-#include "Camera/Component/CinemachineOrbitalTransposerComponent.h"
-#include "CinemachineFreeLook.generated.h"
+#include "Camera/Component/CinemachineOrbitalTransposer.h"
+#include "CinemachineFreeLookComponent.generated.h"
 
 class UCinemachineVirtualCameraComponent;
-class UCinemachineFreeLook;
+
+USTRUCT(BlueprintType)
+struct FCVFreeLookTransposerDamp
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float X = 1.0F;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float Y = 1.0F;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float Z = 1.0F;
+};
 
 USTRUCT(BlueprintType)
 struct FCinemachineFreeLockOrbit
 {
-	GENERATED_USTRUCT_BODY()
+	GENERATED_BODY()
 
 public:
 	FCinemachineFreeLockOrbit()
@@ -35,53 +51,61 @@ public:
 	float Radius;
 };
 
-UCLASS(Blueprintable, ClassGroup = (Cinemachine), meta = (BlueprintSpawnableComponent))
-class UCinemachineFreeLook : public UCinemachineVirtualCameraBaseComponent
+UENUM(BlueprintType)
+enum class ECVFreeLookRigType : uint8
+{
+	TopRig,
+	MiddleRig,
+	BottomRig,
+};
+
+UCLASS(BlueprintType, ClassGroup = (Cinemachine), meta = (BlueprintSpawnableComponent))
+class UCinemachineFreeLookComponent : public UCinemachineVirtualCameraBaseComponent
 {
 	GENERATED_BODY()
 public:
 	static const int32 RIG_COUNT = 3;
 
 public:
-	UCinemachineFreeLook();
+	UCinemachineFreeLookComponent();
 
 	//~ Begin USceneComponent Interface
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 #if WITH_EDITOR
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
+	virtual void PostEditChangeChainProperty(FPropertyChangedChainEvent& PropertyChangedEvent) override;
 #endif
 	//~ End USceneComponent Interface
 
 	//~ Begin UCinemachineVirtualCameraBaseComponent Interface
 	virtual bool IsLiveChild(ICinemachineCameraInterface* InCamera, bool DominantChildOnly = false) const override;
-	virtual void OnTargetObjectWarped(USceneComponent* Target, FVector LocationDelta) override;
 	virtual void ForceCameraLocation(FVector Location, FRotator Rotation) override;
 	virtual void InternalUpdateCameraState(FVector WorldUp, float DeltaTime) override;
 	virtual void OnTransitionFromCamera(ICinemachineCameraInterface* FromCamera, FVector WorldUp, float DeltaTime);
 	virtual bool RequiresUserInput() override;
 	virtual void SetPreviousStateIsValid(bool bValue) override;
-	virtual void SetInputAxisProvider(TScriptInterface<ICinemachineInputAxisProviderInterface> InsertProvider);
+	virtual void UpdateInputAxisProvider();
 	//~ End UCinemachineVirtualCameraBaseComponent Interface
 
 	UFUNCTION(BlueprintPure, Category = "Cinemachine|FreeLock")
-	UCinemachineVirtualCameraComponent* GetRig(int32 Index);
+	UCinemachineVirtualCameraComponent* GetRig(ECVFreeLookRigType RigType);
 
 	UFUNCTION(BlueprintPure, Category = "Cinemachine|FreeLock")
-	bool RigsAreCreated() const
-	{
-		return Rigs.Num() == UCinemachineFreeLook::RIG_COUNT && Orbitals.Num() == UCinemachineFreeLook::RIG_COUNT;
-	}
-
-	UFUNCTION(BlueprintCallable, Category = "Cinemachine|FreeLock")
 	FVector GetLocalLocationForCameraFromInput(float Alpha); /*Alpha 값은 0 ~ 1 사이 입니다. TODO: 코멘트 작성*/
 
 protected:
 	//~ Begin UCinemachineVirtualCameraBaseComponent Interface
+	virtual void OnInitailize_Implementation() override;
 	virtual void OnEnable() override;
 	virtual void OnDisable() override;
 	//~ End UCinemachineVirtualCameraBaseComponent Interface
 
+	UFUNCTION(BlueprintCallable, Category = "Cinemachine|FreeLock")
+	void SetRig(ECVFreeLookRigType RigType, UCinemachineVirtualCameraComponent* Rig);
+
 private:
+	void SetOrbital(ECVFreeLookRigType RigType, UCinemachineOrbitalTransposer* Orbital);
+
 	float GetYAxisClosestValue(FVector CameraLocation, FVector Up);
 
 	float SteepestDescent(FVector CameraOffset);
@@ -91,9 +115,7 @@ private:
 		Orbitals.Empty();
 	}
 
-	bool UpdateRigCache();
-
-	float UpdateXAxisHeading(UCinemachineOrbitalTransposerComponent* Orbital, float DeltaTime, FVector Up);
+	float UpdateXAxisHeading(UCinemachineOrbitalTransposer* Orbital, float DeltaTime, FVector Up);
 
 	void PushSettingsToRigs();
 
@@ -123,31 +145,58 @@ public:
 	FCinemachineAxisState XAxis;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cinemachine|FreeLock")
-	FCinemachineOrbitalTransposerHeading Heading;
+	FCVOrbitalTransposerHeading Heading;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cinemachine|FreeLock")
 	FCinemachineAxisStateRecentering RecenterToTargetHeading;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cinemachine|FreeLock")
-	ECineamchineTransposerBindingMode BindingMode;
+	ECVBindingMode BindingMode;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cinemachine|FreeLock", meta = (ClampMin = 0.0, ClampMax = 1.0))
 	float SplineCurvature;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cinemachine|FreeLock", EditFixedSize)
-	TArray<FCinemachineFreeLockOrbit> Orbits;
+	TMap<ECVFreeLookRigType, FCinemachineFreeLockOrbit> Orbits;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cinemachine|FreeLock")
 	FRuntimeFloatCurve BlendCurve;
 
+protected:
+	UPROPERTY(VisibleAnywhere, Category = "Cinemachine|FreeLock", EditFixedSize)
+	TMap<ECVFreeLookRigType, UCinemachineVirtualCameraComponent*> Rigs;
+
+	UPROPERTY(VisibleAnywhere, Category = "Cinemachine|FreeLock", EditFixedSize)
+	TMap<ECVFreeLookRigType, UCinemachineOrbitalTransposer*> Orbitals;
+
 private:
-	UPROPERTY(VisibleAnywhere, Transient, Category = "Cinemachine|FreeLock", meta = (AllowPrivateAccess = true))
-	TArray<UCinemachineVirtualCameraComponent*> Rigs;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Cinemachine|Spawn", meta = (AllowPrivateAccess = "true", ForceRebuildProperty = "TopRigAimStageTemplate"))
+	TSubclassOf<UCinemachineBaseStage> TopRigAimStageClass;
 
-	UPROPERTY(VisibleAnywhere, Transient, Category = "Cinemachine|FreeLock", meta = (AllowPrivateAccess = true))
-	TArray<UCinemachineOrbitalTransposerComponent*> Orbitals;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Cinemachine|Spawn", meta = (AllowPrivateAccess = "true", ForceRebuildProperty = "MiddleRigAimStageTemplate"))
+	TSubclassOf<UCinemachineBaseStage> MiddleRigAimStageClass;
 
-	UPROPERTY(VisibleAnywhere, Transient, Category = "Cinemachine|FreeLock", meta = (AllowPrivateAccess = true))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Cinemachine|Spawn", meta = (AllowPrivateAccess = "true", ForceRebuildProperty = "BottomRigAimStageTemplate"))
+	TSubclassOf<UCinemachineBaseStage> BottomRigAimStageClass;
+
+	UPROPERTY(VisibleDefaultsOnly, DuplicateTransient, Category = "Cinemachine|Spawn", meta = (ShowInnerProperties))
+	TObjectPtr<UCinemachineBaseStage> TopRigAimStageTemplate;
+
+	UPROPERTY(VisibleDefaultsOnly, DuplicateTransient, Category = "Cinemachine|Spawn", meta = (ShowInnerProperties))
+	TObjectPtr<UCinemachineBaseStage> MiddleRigAimStageTemplate;
+
+	UPROPERTY(VisibleDefaultsOnly, DuplicateTransient, Category = "Cinemachine|Spawn", meta = (ShowInnerProperties))
+	TObjectPtr<UCinemachineBaseStage> BottomRigAimStageTemplate;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Cinemachine|Spawn", meta = (AllowPrivateAccess = "true"))
+	FCVFreeLookTransposerDamp TopRigTransposerDamp;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Cinemachine|Spawn", meta = (AllowPrivateAccess = "true"))
+	FCVFreeLookTransposerDamp MiddleRigTransposerDamp;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Cinemachine|Spawn", meta = (AllowPrivateAccess = "true"))
+	FCVFreeLookTransposerDamp BottomRigTransposerDamp;
+
 	bool bDestroyed = false;
 
 	UPROPERTY(Transient)
@@ -160,8 +209,8 @@ private:
 
 	uint64 LastHeadingUpdateFrame = 0;
 
-	UPROPERTY(VisibleAnywhere, Category = "Cinemachine|FreeLock", EditFixedSize, meta = (AllowPrivateAccess = true))
-	TArray<FCinemachineFreeLockOrbit> CachedOrbits;
+	UPROPERTY(EditFixedSize)
+	TMap<ECVFreeLookRigType,FCinemachineFreeLockOrbit> CachedOrbits;
 
 	float CachedTension = 0.0F;
 

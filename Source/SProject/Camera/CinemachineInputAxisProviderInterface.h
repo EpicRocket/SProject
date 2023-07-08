@@ -7,7 +7,7 @@
 #include "InputActionValue.h"
 #include "CinemachineInputAxisProviderInterface.generated.h"
 
-UINTERFACE(BlueprintType)
+UINTERFACE(BlueprintType, meta = (CannotImplementInterfaceInBlueprint))
 class UCinemachineInputAxisProviderInterface : public UInterface
 {
 	GENERATED_BODY()
@@ -18,5 +18,9 @@ class ICinemachineInputAxisProviderInterface
 	GENERATED_BODY()
 
 public:
-	virtual float GetInputAxisValue(EAxis::Type ProviderAxis) = 0;
+	UFUNCTION(BlueprintCallable, Category = "Cinemachine|Interface")
+	virtual float GetInputValue(EAxis::Type ProviderAxis)
+	{
+		return 0.0F;
+	}
 };

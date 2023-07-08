@@ -1,10 +1,11 @@
 
 #include "CinemachineAxisState.h"
 #include "Kismet/GameplayStatics.h"
+#include "GameFramework/Controller.h"
 #include "Shared/Damper.h"
 
 /** Magic Number */
-constexpr float DAMPING_MAX_SPEED_THRESHOLD = 9999.0F;
+static constexpr float DAMPING_MAX_SPEED_THRESHOLD = 9999.0F;
 
 //! FCinemachineAxisStateRecentering
 
@@ -86,6 +87,7 @@ FCinemachineAxisState::FCinemachineAxisState()
 	, LastUpdateFrame(0)
 	, bValueRangeLocked(false)
 	, bHasRecentering(false)
+	, ProviderAxis(EAxis::None)
 {
 }
 
@@ -104,6 +106,7 @@ FCinemachineAxisState::FCinemachineAxisState(float InMinValue, float InMaxValue,
 	, LastUpdateFrame(0)
 	, bValueRangeLocked(bInRangeLocked)
 	, bHasRecentering(false)
+	, ProviderAxis(EAxis::None)
 {
 }
 
@@ -121,7 +124,7 @@ bool FCinemachineAxisState::Update(const UObject* WorldContextObject, float Delt
 	}
 	LastUpdateTime = UGameplayStatics::GetRealTimeSeconds(WorldContextObject);
 
-	InputAxisValue = HasInputProvider() ? Provider->GetInputAxisValue(ProviderAxis) : 0.0F;
+	InputAxisValue = HasInputProvider() ? Provider->GetInputValue(ProviderAxis) : 0.0F;
 	float Input = InputAxisValue;
 
 	if (false == bEnhancePointerPrecision)
@@ -153,5 +156,51 @@ bool FCinemachineAxisState::Update(const UObject* WorldContextObject, float Delt
 		}
 	}
 	Value = ClampValue(Value + CurrentSpeed);
+	return FMath::Abs(Input) > UE_KINDA_SMALL_NUMBER;
+}
+
+bool FCinemachineAxisState::MaxSpeedUpdate(float Input, float DeltaTime)
+{
+	if (MaxSpeed > UE_KINDA_SMALL_NUMBER)
+	{
+		float TargetSpeed = Input * MaxSpeed;
+		if (FMath::Abs(TargetSpeed) < UE_KINDA_SMALL_NUMBER || (FMath::Sign(CurrentSpeed) == FMath::Sign(TargetSpeed) && FMath::Abs(TargetSpeed) < FMath::Abs(CurrentSpeed)))
+		{
+			float Alpha = FMath::Abs(TargetSpeed - CurrentSpeed) / FMath::Max(UE_KINDA_SMALL_NUMBER, DecelerateTime);
+			float Delta = FMath::Min(Alpha * DeltaTime, FMath::Abs(CurrentSpeed));
+			CurrentSpeed -= FMath::Sign(CurrentSpeed) * Delta;
+		}
+		else
+		{
+			float Alpha = FMath::Abs(TargetSpeed - CurrentSpeed) / FMath::Max(UE_KINDA_SMALL_NUMBER, AccelerateTime);
+			CurrentSpeed += FMath::Sign(TargetSpeed) * Alpha * DeltaTime;
+			if (FMath::IsNearlyEqual(FMath::Sign(CurrentSpeed), FMath::Sign(TargetSpeed)) && FMath::Abs(CurrentSpeed) > FMath::Abs(TargetSpeed))
+			{
+				CurrentSpeed = TargetSpeed;
+			}
+		}
+	}
+
+	float CurrentMaxSpeed = GetMaxSpeed();
+	CurrentSpeed = FMath::Clamp(CurrentSpeed, -CurrentMaxSpeed, CurrentMaxSpeed);
+	if (FMath::Abs(CurrentSpeed) < UE_KINDA_SMALL_NUMBER)
+	{
+		CurrentSpeed = 0.0F;
+	}
+
+	Value += CurrentSpeed * DeltaTime;
+	bool bOutOfRange = (Value > MaxValue) || (Value < MinValue);
+	if (bOutOfRange)
+	{
+		if (bWarp)
+		{
+			Value = Value > MaxValue ? MinValue + (Value - MaxValue) : MaxValue + (Value - MinValue);
+		}
+		else
+		{
+			Value = FMath::Clamp(Value, MinValue, MaxValue);
+			CurrentSpeed = 0.0F;
+		}
+	}
 	return FMath::Abs(Input) > UE_KINDA_SMALL_NUMBER;
 }

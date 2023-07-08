@@ -7,21 +7,27 @@
 
 //! UCinemachineBrainFrame
 
-FCinemachineBrainFrame::FCinemachineBrainFrame()
-	: Id(0)
-	, bActive(false)
-	, BlendStartPosition(0.0F)
+FCVBrainFrame::FCVBrainFrame(UObject* Outer)
 {
-	Blend = NewObject<UCinemachineBlend>();
-	WorkingBlend = NewObject<UCinemachineBlend>();
-	WorkingBlendSource = NewObject<UBlendSourceVirtualCamera>();
+	if (IsValid(Outer))
+	{
+		EObjectFlags Flags = RF_Public;
+		Flags |= (RF_TextExportTransient | RF_NonPIEDuplicateTransient);
+		if (Outer->HasAllFlags(RF_Transient))
+		{
+			Flags |= RF_Transient;
+		}
+
+		Blend = NewObject<UCinemachineBlend>(Outer, TEXT("Blend(CV)"), Flags);
+		WorkingBlend = NewObject<UCinemachineBlend>(Outer, TEXT("WorkingBlend(CV)"), Flags);
+		WorkingBlendSource = NewObject<UBlendSourceVirtualCamera>(Outer, TEXT("WorkingBlendSource(CV)"), Flags);
+	}
 }
 
 //! UCinemachineBrainComponent
 
 UCinemachineBrainComponent::UCinemachineBrainComponent()
-	: WorldUpOverride(nullptr)
-	, bBrainEnabled(true)
+	: bBrainEnabled(true)
 {
 	bCacheBrainEnabled = bBrainEnabled;
 
@@ -32,7 +38,17 @@ void UCinemachineBrainComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	SetEnable(true);
+	Init();
+
+	if (true == bBrainEnabled)
+	{
+		bCacheBrainEnabled = !bBrainEnabled;
+		SetEnable(true);
+	}
+	else
+	{
+		bCacheBrainEnabled = bBrainEnabled;
+	}
 }
 
 void UCinemachineBrainComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -44,6 +60,13 @@ void UCinemachineBrainComponent::EndPlay(const EEndPlayReason::Type EndPlayReaso
 void UCinemachineBrainComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	if (!IsEnable())
+	{
+		return;
+	}
+
+	// TODO: [Camera]에디터에서도 사용 가능하도록 수정 필요
 	if (TickType == ELevelTick::LEVELTICK_All)
 	{
 		ManualUpdate(DeltaTime);
@@ -62,25 +85,41 @@ void UCinemachineBrainComponent::PostEditChangeProperty(FPropertyChangedEvent& P
 }
 #endif
 
+void UCinemachineBrainComponent::Init()
+{
+	if (bIsInitialized)
+	{
+		return;
+	}
+	bIsInitialized = true;
+
+	EObjectFlags Flags = RF_Public;
+	Flags |= (RF_TextExportTransient | RF_NonPIEDuplicateTransient);
+	if (HasAllFlags(RF_Transient))
+	{
+		Flags |= RF_Transient;
+	}
+	CurrentLiveCameras = NewObject<UCinemachineBlend>(this, TEXT("CurrentLiveCameras(CV)"), Flags);
+	OutputCamera = IsValid(TargetOverride) ? TargetOverride : Cast<UCameraComponent>(GetAttachParent());
+
+	OnInitailize();
+}
+
 void UCinemachineBrainComponent::SetEnable(bool bEnable)
 {
+	if (bCacheBrainEnabled == bEnable)
+	{
+		return;
+	}
+	bBrainEnabled = bEnable;
+
 	if (bEnable)
 	{
-		bool bInitailize = false;
-		if (false == bInitailized)
-		{
-			bInitailized = bInitailize = true;
-			CurrentLiveCameras = NewObject<UCinemachineBlend>(this);
-			OutputCamera = IsValid(TargetOverride) ? TargetOverride : Cast<UCameraComponent>(GetAttachParent());
-		}
-
+		Init();
 		SetComponentTickEnabled(true);
 		OnEnable();
-
-		if (true == bInitailize)
-		{
-			OnInitailize();
-		}
+		LastFrameUpdated = -1;
+		UpdateVirtualCameras(-1.0F);
 	}
 	else
 	{
@@ -138,7 +177,12 @@ UCinemachineVirtualCameraBaseComponent* UCinemachineBrainComponent::GetActiveVir
 
 bool UCinemachineBrainComponent::IsLiveInBlend(ICinemachineCameraInterface* ICamera)
 {
-	if (nullptr == ICamera)
+	if (nullptr == ICamera || !IsValid(CurrentLiveCameras))
+	{
+		return false;
+	}
+
+	if (!IsValid(CurrentLiveCameras))
 	{
 		return false;
 	}
@@ -169,6 +213,11 @@ bool UCinemachineBrainComponent::IsLiveInBlend(ICinemachineCameraInterface* ICam
 
 bool UCinemachineBrainComponent::IsLive(ICinemachineCameraInterface* ICamera, bool DominantChildOnly)
 {
+	if (nullptr == ICamera || !IsValid(CurrentLiveCameras))
+	{
+		return false;
+	}
+
 	if (CurrentLiveCameras->Uses(ICamera))
 	{
 		return true;
@@ -191,14 +240,14 @@ void UCinemachineBrainComponent::ComputeCurrentBlend(UCinemachineBlend* OutputBl
 {
 	if (FrameStack.Num() == 0)
 	{
-		FrameStack.Emplace(FCinemachineBrainFrame());
+		FrameStack.Emplace(FCVBrainFrame(this));
 	}
 
 	int32 LastActive = 0;
 	int32 TopLayer = FMath::Max(1, FrameStack.Num() - NumTopLayersToExclude);
 	for (int32 i = 0; i < TopLayer; ++i)
 	{
-		FCinemachineBrainFrame& Frame = FrameStack[i];
+		FCVBrainFrame& Frame = FrameStack[i];
 
 		if (i == 0 || Frame.bActive)
 		{
@@ -294,9 +343,17 @@ void UCinemachineBrainComponent::OnEnable()
 
 	if (FrameStack.IsEmpty())
 	{
-		FrameStack.Emplace(FCinemachineBrainFrame());
+		FrameStack.Emplace(FCVBrainFrame(this));
 	}
 	World->GetSubsystem<UCinemachineCoreSubSystem>()->AddActiveBrain(this);
+
+
+	if (IsValid(GetOutputCamera()))
+	{
+		CachedOutputCameraLocation = OutputCamera->GetComponentLocation();
+		CachedOutputCameraRotation = OutputCamera->GetComponentRotation();
+		OutputCamera->SetAbsolute(true, true, true);
+	}
 }
 
 void UCinemachineBrainComponent::OnDisable()
@@ -309,6 +366,12 @@ void UCinemachineBrainComponent::OnDisable()
 
 	World->GetSubsystem<UCinemachineCoreSubSystem>()->RemoveActiveBrain(this);
 	FrameStack.Empty();
+
+	if (IsValid(GetOutputCamera()))
+	{
+		OutputCamera->SetAbsolute(false, false, false);
+		OutputCamera->SetWorldLocationAndRotation(CachedOutputCameraLocation, CachedOutputCameraRotation);
+	}
 }
 
 void UCinemachineBrainComponent::UpdateVirtualCameras(float DeltaTime)
@@ -335,7 +398,7 @@ int32 UCinemachineBrainComponent::GetBrainFrame(int32 WithId)
 			return i;
 		}
 	}
-	FCinemachineBrainFrame NewFrame;
+	FCVBrainFrame NewFrame(this);
 	NewFrame.Id = WithId;
 	FrameStack.Emplace(NewFrame);
 	return FrameStack.Num() - 1;
@@ -355,7 +418,7 @@ void UCinemachineBrainComponent::ProcessActiveCamera(float DeltaTime)
 		State.RawLocation = SceneComponent->GetComponentLocation();
 		State.RawOrientation = SceneComponent->GetComponentRotation();
 		State.Lens = FCinemachineLensSettings::FromCamera(GetOutputCamera());
-		State.BlendHint = static_cast<ECinemachineBlendHintValue>(static_cast<int32>(ECinemachineBlendHintValue::NoTransform) | static_cast<int32>(ECinemachineBlendHintValue::NoLens));
+		State.BlendHint = static_cast<ECVBlendHintValue>(static_cast<int32>(ECVBlendHintValue::NoTransform) | static_cast<int32>(ECVBlendHintValue::NoLens));
 		PushStateToCamera(State);
 	}
 	else
@@ -375,7 +438,10 @@ void UCinemachineBrainComponent::ProcessActiveCamera(float DeltaTime)
 			}
 			ActiveCamera->UpdateCameraState(DefaultWorldUp(), DeltaTime);
 		}
-		PushStateToCamera(CurrentLiveCameras->GetState());
+		if (IsValid(CurrentLiveCameras))
+		{
+			PushStateToCamera(CurrentLiveCameras->GetState());
+		}
 	}
 	ActiveCameraPreviousFrame = ActiveCamera;
 }
@@ -384,10 +450,10 @@ void UCinemachineBrainComponent::UpdateFrame0(float DeltaTime)
 {
 	if (FrameStack.IsEmpty())
 	{
-		FrameStack.Emplace(FCinemachineBrainFrame());
+		FrameStack.Emplace(FCVBrainFrame(this));
 	}
 
-	FCinemachineBrainFrame& Frame = FrameStack[0];
+	FCVBrainFrame& Frame = FrameStack[0];
 	UCinemachineVirtualCameraBaseComponent* ActiveCamera = TopCameraFromPriorityQueue();
 	ICinemachineCameraInterface* OutGoingCamera = Cast<ICinemachineCameraInterface>(Frame.Blend->CameraB);
 
@@ -413,19 +479,27 @@ void UCinemachineBrainComponent::UpdateFrame0(float DeltaTime)
 					UBlendSourceVirtualCamera* BlendSourceVCamera = Cast<UBlendSourceVirtualCamera>(ICameraA);
 					if (((ICameraA == ActiveCamera) || (IsValid(BlendSourceVCamera) && BlendSourceVCamera->Blend->CameraB == ActiveCamera)) && ICameraB == OutGoingCamera)
 					{
-						float Progress = Frame.BlendStartPosition + (1 - Frame.BlendStartPosition) * Frame.Blend->TimeInBlend / Frame.Blend->Duration;
+						float Alpha = Frame.Blend->Duration > UE_KINDA_SMALL_NUMBER ? Frame.Blend->TimeInBlend / Frame.Blend->Duration : 0.0F;
+						float Progress = Frame.BlendStartPosition + (1 - Frame.BlendStartPosition) * Alpha;
 						BlendDuration *= Progress;
 						BlendStartPosition = 1 - Progress;
 					}
 
-					UCinemachineBlend* NewBlend = NewObject<UCinemachineBlend>();
+					EObjectFlags Flags = RF_Public;
+					Flags |= (RF_TextExportTransient | RF_NonPIEDuplicateTransient);
+					if (HasAllFlags(RF_Transient))
+					{
+						Flags |= RF_Transient;
+					}
+
+					UCinemachineBlend* NewBlend = NewObject<UCinemachineBlend>(this, TEXT("NewBlend(CV)"), Flags);
 					NewBlend->CameraA = Frame.Blend->CameraA;
 					NewBlend->CameraB = Frame.Blend->CameraB;
 					NewBlend->BlendCurve = Frame.Blend->BlendCurve;
 					NewBlend->Duration = Frame.Blend->Duration;
 					NewBlend->TimeInBlend = Frame.Blend->TimeInBlend;
 
-					UBlendSourceVirtualCamera* NewBlendSourceVCamera = NewObject<UBlendSourceVirtualCamera>();
+					UBlendSourceVirtualCamera* NewBlendSourceVCamera = NewObject<UBlendSourceVirtualCamera>(this, TEXT("NewBlendSourceVCamera(CV)"), Flags);
 					NewBlendSourceVCamera->Blend = NewBlend;
 
 					Frame.Blend->CameraA = NewBlendSourceVCamera;
@@ -493,32 +567,38 @@ FCinemachineBlendDefinition UCinemachineBrainComponent::LookupBlend(UObject* Fro
 void UCinemachineBrainComponent::PushStateToCamera(FCinemachineCameraState State)
 {
 	CurrentCameraState = State;
-	USceneComponent* Target = GetOutputCamera();
+	UCameraComponent* Camera = GetOutputCamera();
+	if (IsValid(Camera))
+	{
+		int32 BlendHint = static_cast<int32>(CurrentCameraState.BlendHint);
 
-	int32 BlendHint = static_cast<int32>(CurrentCameraState.BlendHint);
-	if ((BlendHint & static_cast<int32>(ECinemachineBlendHintValue::NoLocation)) == 0)
-	{
-		if (IsValid(Target))
+		bool bLocation = (BlendHint & static_cast<int32>(ECVBlendHintValue::NoLocation)) == 0;
+		bool bOrientation = (BlendHint & static_cast<int32>(ECVBlendHintValue::NoOrientation)) == 0;
+		if (bLocation && bOrientation)
 		{
-			Target->SetWorldLocation(CurrentCameraState.FinalLocation());
+			Camera->SetWorldLocationAndRotation(CurrentCameraState.FinalLocation(), CurrentCameraState.FinalOrientation());
+		}
+		else
+		{
+			if (bLocation)
+			{
+				Camera->SetWorldLocation(CurrentCameraState.FinalLocation());
+			}
+			if (bOrientation)
+			{
+				Camera->SetWorldRotation(CurrentCameraState.FinalOrientation());
+			}
+		}
+		if ((BlendHint & static_cast<int32>(ECVBlendHintValue::NoLens)) == 0)
+		{
+			if (IsValid(Camera))
+			{
+				Camera->FieldOfView = CurrentCameraState.Lens.FieldOfView;
+				Camera->AspectRatio = CurrentCameraState.Lens.AspectRatio;
+			}
 		}
 	}
-	if ((BlendHint & static_cast<int32>(ECinemachineBlendHintValue::NoOrientation)) == 0)
-	{
-		if (IsValid(Target))
-		{
-			Target->SetWorldRotation(CurrentCameraState.FinalOrientation());
-		}
-	}
-	if ((BlendHint & static_cast<int32>(ECinemachineBlendHintValue::NoLens)) == 0)
-	{
-		UCameraComponent* Camera = GetOutputCamera();
-		if (IsValid(Camera))
-		{
-			Camera->FieldOfView = CurrentCameraState.Lens.FieldOfView;
-			Camera->AspectRatio = CurrentCameraState.Lens.AspectRatio;
-		}
-	}
+
 	if (UWorld* World = GetWorld())
 	{
 		World->GetSubsystem<UCinemachineCoreSubSystem>()->CameraUpdatedEvent.Broadcast(this);

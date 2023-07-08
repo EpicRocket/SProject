@@ -2,46 +2,35 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/SceneComponent.h"
 #include "CinemachineCameraState.h"
 #include "CinemachineExtension.generated.h"
 
 class UCinemachineVirtualCameraBaseComponent;
-enum class ECinemachineStage : uint8;
+enum class ECVStage : uint8;
 
 /**
  * 가상 카메라에 대한 확장 기능을 정의하는 추상 클래스
 */
-UCLASS(Abstract, ClassGroup = (Cineamchine), meta = (BlueprintSpawnableComponent))
-class UCinemachineExtension : public USceneComponent
+UCLASS(Abstract, ClassGroup = (Cineamchine))
+class UCinemachineExtension : public UObject
 {
 	GENERATED_BODY()
 
 public:
-	UCinemachineExtension();
+	void Init(UCinemachineVirtualCameraBaseComponent* OwnerVirtualCamera);
 
-	//~ Begin UActorComponent Interface
-	virtual void BeginPlay() override;
-	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
-#if WITH_EDITOR
-	void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
-#endif
-	//~ End UActorComponent Interface
-
-	UFUNCTION(BlueprintPure, Category = "Cinemachine|Extension")
-	UCinemachineVirtualCameraBaseComponent* GetVirtualCamera();
+	UFUNCTION(BlueprintPure, Category = Cinemachine)
+		bool IsInitialized() const
+	{
+		return bIsInitialized;
+	}
 
 	virtual void PrePipelineMutateCameraStateCallback(UCinemachineVirtualCameraBaseComponent* VCamera, FCinemachineCameraState& State, float DeltaTime)
 	{
 		// Empty
 	}
 
-	virtual void InvokePostPipelineStageCallback(UCinemachineVirtualCameraBaseComponent* VCamera, ECinemachineStage Stage, FCinemachineCameraState& State, float DeltaTime);
-
-	virtual void OnTargetObjectWarped(USceneComponent* Target, FVector LocationDelta)
-	{
-		// Empty
-	}
+	virtual void InvokePostPipelineStageCallback(UCinemachineVirtualCameraBaseComponent* VCamera, ECVStage Stage, FCinemachineCameraState& State, float DeltaTime);
 
 	virtual void ForceCameraLocation(FVector Location, FRotator Rotation)
 	{
@@ -63,26 +52,14 @@ public:
 		return false;
 	}
 
-	UFUNCTION(BlueprintCallable, Category = "Cinemachine|Extension")
-	void SetEnable(bool bEnable);
-
-	UFUNCTION(BlueprintPure, Category = "Cinemachine|Extension")
-	bool IsEnable() const
-	{
-		return bExtensionEnable;
-	}
-
-protected:
 	virtual void ConnectToVCamera(bool bConnect);
+protected:
+	virtual void OnInitialize() { /* Needs Overriding */ }
 
-	virtual void PostPipelineStageCallback(UCinemachineVirtualCameraBaseComponent* VCamera, ECinemachineStage Stage, FCinemachineCameraState& State, float DeltaTime)
+	virtual void PostPipelineStageCallback(UCinemachineVirtualCameraBaseComponent* VCamera, ECVStage Stage, FCinemachineCameraState& State, float DeltaTime)
 	{
 		// Empty;
 	}
-
-	virtual void OnEnable();
-
-	virtual void OnDisable();
 
 	template <typename T, typename = typename std::enable_if<std::is_base_of<UObject, T>::value>::type>
 	T GetExtraState(UCinemachineVirtualCameraBaseComponent* VCamera)
@@ -109,12 +86,13 @@ protected:
 		return Result;
 	}
 
-protected:
-	UPROPERTY(EditAnywhere, Category = "Cinemachine|Extension")
-	bool bExtensionEnable;
+public:
+	UPROPERTY(BlueprintReadOnly, Category = "Cinemachine|Extension")
+	UCinemachineVirtualCameraBaseComponent* Owner;
 
 private:
 	TMap<UCinemachineVirtualCameraBaseComponent*, UObject*> ExtraState;
 
-	bool bCacheExtensionEnable;
+private:
+	bool bIsInitialized = false;
 };

@@ -31,15 +31,6 @@ bool UCinemachineBlend::IsComplete() const
 	return TimeInBlend >= Duration || !(IsValid(CameraA) || IsValid(CameraB));
 }
 
-FString UCinemachineBlend::GetDescription() const
-{
-	ICinemachineCameraInterface* ICameraA = Cast<ICinemachineCameraInterface>(CameraA);
-	ICinemachineCameraInterface* ICameraB = Cast<ICinemachineCameraInterface>(CameraB);
-	FString CameraAName = !IsValid(CameraA) && ICameraA ? FString(TEXT("[None]")) : FString::Printf(TEXT("[{0}]"), *ICameraA->GetCameraName());
-	FString CameraBName = !IsValid(CameraB) && ICameraB ? FString(TEXT("[None]")) : FString::Printf(TEXT("[{0}]"), *ICameraB->GetCameraName());
-	return FString::Printf(TEXT("{0} {1}% from {2} }"), *CameraBName, static_cast<int32>(GetBlendWeight() * 100.0F), *CameraAName);
-}
-
 bool UCinemachineBlend::Uses(ICinemachineCameraInterface* ICamera)
 {
 	if (ICamera == Cast<ICinemachineCameraInterface>(CameraA) || ICamera == Cast<ICinemachineCameraInterface>(CameraB))
@@ -113,6 +104,6 @@ FCinemachineCameraState UCinemachineBlend::GetState() const
 }
 
 FCinemachineBlendDefinition::FCinemachineBlendDefinition()
-	: Time(0.0F)
+	: Time(1.0F)
 {
 }

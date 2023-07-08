@@ -7,32 +7,48 @@
 #include "CinemachineCameraInterface.h"
 #include "CinemachineCameraState.h" // include lens settings
 #include "CinemachineBlend.h"
-#include "CinemachineLensSettings.h"
-#include "CinemachineTransitionParameters.h"
 #include "CinemachineVirtualCameraBaseComponent.generated.h"
 
+class USceneComponent;
+class UCinemachineExtension;
+class UCinemachineBlend;
+class UCinemachineTargetGroupBaseComponent;
+class UCinemachineTargetGroupComponent;
+class ICinemachineInputAxisProviderInterface;
+enum class ECVStage : uint8;
+enum class ECVBlendHint : uint8;
+
+#define CINEMACHINE_SPAWN_TEMPLATE_POST_CHANGE_PROPERTY(PropertyChangedEvent, CurrentClassType, StageClass, StageTemplate, StageType) \
+	if (PropertyChangedEvent.Property && PropertyChangedEvent.Property->GetFName() == GET_MEMBER_NAME_CHECKED(CurrentClassType, StageClass)) { \
+		if (IsTemplate()) { \
+			SetStageTemplate(StageClass, StageClass, StageTemplate, StageType); \
+		} \
+		else { \
+			CurrentClassType* Archetype = CastChecked<CurrentClassType>(GetArchetype()); \
+			StageTemplate = (Archetype->StageClass == StageClass ? Archetype->StageTemplate : nullptr); \
+		} \
+	}
+
+#define CINEMACHINE_SPAWN_TEMPLATE_POST_CHANGE_CHAIN_PROPERTY(PropertyChangedEvent, CurrentClassType, StageClass, StageTemplate, StageType) \
+	if (PropertyChangedEvent.Property && PropertyChangedEvent.Property->GetFName() == GET_MEMBER_NAME_CHECKED(CurrentClassType, StageClass)) { \
+		if (IsTemplate()) { \
+			SetStageTemplate(StageClass, StageClass, StageTemplate, StageType); \
+		} \
+		else { \
+			StageTemplate = CastChecked<CurrentClassType>(GetArchetype())->StageTemplate; \
+		} \
+	}
+
+
 UENUM(BlueprintType)
-enum class ECineamchineStandbyUpdateMode : uint8
+enum class ECVStandbyUpdateMode : uint8
 {
-	Nerver,
-	Always,
-	RoundRobin,
+	Nerver UMETA(DisplayName = "카메라 갱신하지 않음"),
+	Always UMETA(DisplayName = "카메라 항상 갱신"),
+	RoundRobin UMETA(DisplayName = "Tick 당 한번 갱신"),
 };
 
-class UCinemachineExtension;
-class UCinemachineTargetGroupComponent;
-class UCinemachineTargetGroupBaseComponent;
-class ICinemachineInputAxisProviderInterface;
-enum class ECinemachineStage : uint8;
-
-/**
- * 가상 카메라 추상 클래스
- * Unreal Engine 카메라와는 별개로, 가상의 카메라를 정의합니다.
- * 가상 카메라는 실제로 카메라 컴포넌트를 가지고 있지 않습니다.
- * 가상 카메라를 사용하기 위해서는 UCinemachineCoreSubSystem에 등록해 줘야 합니다.
- * 만약 사용하지 않는다면, UCinemachineCoreSubSystem에서 제거해 줘야 합니다.
- */
-UCLASS(Abstract, ClassGroup = (Cinemachine), meta = (BlueprintSpawnableComponent))
+UCLASS(Abstract, BlueprintType, ClassGroup = (Cinemachine))
 class UCinemachineVirtualCameraBaseComponent : public USceneComponent, public ICinemachineCameraInterface
 {
 	GENERATED_BODY()
@@ -40,157 +56,79 @@ class UCinemachineVirtualCameraBaseComponent : public USceneComponent, public IC
 public:
 	UCinemachineVirtualCameraBaseComponent();
 
-	//~ Begin UActorComponent Interface
-	virtual void BeginPlay() override;
-	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	// ~Begin AActor
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction);
 #if WITH_EDITOR
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 #endif
-	//~ End UActorComponent Interface
-	
-	//~ Begin ICinemachineCameraInterface Interface
+	// ~End AActor
+
+	//~ Begin ICinemachineCameraInterface
 	virtual FString GetCameraName() const override
-	{
+    {
 		return GetName();
 	}
 
 	virtual int32 GetPriority() const override
-	{
-		return Priority;
-	}
+    {
+        return Priority;
+    }
 
 	virtual void SetPriority(int32 InValue) override
-	{
-		Priority = InValue;
-	}
+    {
+        Priority = InValue;
+    }
 
-	virtual USceneComponent* GetLookAt() const override
-	{
-		return ResolveLookAt(LookAtTarget);
-	}
+	virtual USceneComponent* GetLookAt() const override;
 
-	virtual void SetLookAt(USceneComponent* LookAtSceneComponent) override
-	{
-		LookAtTarget = LookAtSceneComponent;
-	}
+	virtual void SetLookAt(USceneComponent* LookAtSceneComponent) override;
 
-	virtual USceneComponent* GetFollow() const override
-	{
-		return ResolveFollow(FollowTarget);
-	}
+	virtual USceneComponent* GetFollow() const override;
 
-	virtual void SetFollow(USceneComponent* FollowSceneComponent) override
-	{
-		FollowTarget = FollowSceneComponent;
-	}
+	virtual void SetFollow(USceneComponent* FollowSceneComponent) override;
 
 	virtual FCinemachineCameraState GetState() const override
-	{
-		return VCameraState;
-	}
+    {
+        return VCameraState;
+    }
 
-	virtual UCinemachineVirtualCameraBaseComponent* GetParentCamera() override
-	{
-		if (!SlaveStatusUpdated)
-		{
-			UpdateSlaveStatus();
-		}
-		return ParentCamera;
-	}
+	virtual ICinemachineCameraInterface* GetParentCamera() override;
 
 	virtual void UpdateCameraState(FVector WorldUp, float DeltaTime) override;
 
-	virtual void InternalUpdateCameraState(FVector WorldUp, float DeltaTime) override
-	{
-		// Empty
-	}
-
 	virtual void OnTransitionFromCamera(ICinemachineCameraInterface* FromCamera, FVector WorldUp, float DeltaTime) override;
 
-	virtual void OnTargetObjectWarped(USceneComponent* Target, FVector LocationDelta) override;
-	//~ End ICinemachineCameraInterface Interface
-
-	//~ Begin Only BP Function
-	UFUNCTION(BlueprintPure, Category = Cinemachine)
-	FString BP_GetCameraName() const
-	{
-		return GetCameraName();
-	}
-
-	UFUNCTION(BlueprintPure, Category = Cinemachine)
-	FString BP_GetDescription() const
-	{
-		return GetDescription();
-	}
-
-	UFUNCTION(BlueprintPure, Category = Cinemachine)
-	int32 BP_GetPriority() const
-	{
-		return GetPriority();
-	}
+	//~ End ICinemachineCameraInterface
 
 	UFUNCTION(BlueprintCallable, Category = Cinemachine)
-	void BP_SetPriority(int32 InValue)
-	{
-		SetPriority(InValue);
-	}
+	void Init();
 
-	UFUNCTION(BlueprintPure, Category = Cinemachine)
-	USceneComponent* BP_GetLookAt()
-	{
-		return GetLookAt();
-	}
+    UFUNCTION(BlueprintCallable, Category = Cinemachine)
+    void SetEnable(bool bEnable);
 
-	UFUNCTION(BlueprintCallable, Category = Cinemachine)
-	void BP_SetLookAt(USceneComponent* LookAtSceneComponent)
-	{
-		SetLookAt(LookAtSceneComponent);
-	}
-
-	UFUNCTION(BlueprintPure, Category = Cinemachine)
-	USceneComponent* BP_GetFollow()
-	{
-		return GetFollow();
-	}
-
-	UFUNCTION(BlueprintCallable, Category = Cinemachine)
-	void BP_SetFollow(USceneComponent* FollowSceneComponent)
-	{
-		SetFollow(FollowSceneComponent);
-	}
-	//~ End Only BP Function
-
-	virtual bool RequiresUserInput();
-
-	UFUNCTION(BlueprintCallable, Category = Cinemachine)
-	virtual void SetEnable(bool bEnable);
-
-	UFUNCTION(BlueprintPure, Category = Cinemachine)
+    UFUNCTION(BlueprintPure, Category = Cinemachine)
 	bool IsEnable() const
-	{
-		return bCameraEnable;
-	}
+    {
+        return bCameraEnable;
+    }
 
-	virtual bool GetPreviousStateIsValid() const
+    virtual bool GetPreviousStateIsValid() const
 	{
 		return PreviousStateIsValid;
 	}
+
 	virtual void SetPreviousStateIsValid(bool bValue)
 	{
 		PreviousStateIsValid = bValue;
 	}
 
-	UFUNCTION(BlueprintCallable, Category = Cinemachine)
-	virtual void AddExtension(UCinemachineExtension* Extension);
+    UFUNCTION(BlueprintPure, Category = Cinemachine)
+   	virtual bool RequiresUserInput();
 
-	UFUNCTION(BlueprintCallable, Category = Cinemachine)
-	virtual void RemoveExtension(UCinemachineExtension* Extension);
-
-	UFUNCTION(BlueprintPure, Category = Cinemachine)
+    UFUNCTION(BlueprintPure, Category = Cinemachine)
 	virtual float GetMaxDampTime();
 
-	float DetachedFollowTargetDamp(float Initial, float DampTime, float DeltaTime) const;
+    float DetachedFollowTargetDamp(float Initial, float DampTime, float DeltaTime) const;
 
 	FVector DetachedFollowTargetDamp(FVector Initial, FVector DampTime, float DeltaTime) const;
 
@@ -202,16 +140,23 @@ public:
 
 	FVector DetachedLookAtTargetDamp(FVector Initial, float DampTime, float DeltaTime) const;
 
-	UFUNCTION(BlueprintPure, Category = Cinemachine)
+    UFUNCTION(BlueprintPure, Category = Cinemachine)
 	USceneComponent* ResolveFollow(USceneComponent* LocalFollow) const;
 
 	UFUNCTION(BlueprintPure, Category = Cinemachine)
 	USceneComponent* ResolveLookAt(USceneComponent* LocalLookAt) const;
 
 	UFUNCTION(BlueprintCallable, Category = Cinemachine)
-	void MoveToTopOfPrioritySubqueue();
+	void MoveToTopOfPrioritySubQueue();
 
+	UFUNCTION(BlueprintCallable, Category = Cinemachine)
 	virtual void ForceCameraLocation(FVector Location, FRotator Rotation);
+
+	UFUNCTION(BlueprintCallable, Category = Cinemachine)
+	void AddExtension(UCinemachineExtension* Extension);
+
+	UFUNCTION(BlueprintCallable, Category = Cinemachine)
+	void RemoveExtension(UCinemachineExtension* Extension);
 
 	virtual UCinemachineTargetGroupBaseComponent* GetFollowTargetGroup();
 
@@ -224,20 +169,38 @@ public:
 	ICinemachineInputAxisProviderInterface* GetInputAxisProvider() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Cinemachine|Input")
-	virtual void SetInputAxisProvider(TScriptInterface<ICinemachineInputAxisProviderInterface> InsertProvider);
+	void SetInputAxisProvider(TScriptInterface<ICinemachineInputAxisProviderInterface> InsertProvider);
+
+	virtual void UpdateInputAxisProvider() { /*Needs Overridng*/ }
+
+	UFUNCTION(BlueprintPure, Category = Cinemachine)
+	bool IsInitialized() const
+	{
+		return bIsInitialized;
+	}
 
 protected:
-	virtual void OnEnable();
+	// ~Begin AActor
+	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason);
+	// ~End AActor
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = Cinemachine)
+	void OnInitailize();
+
+	virtual void OnInitailize_Implementation() { /* Needs Overrding */ }
+
+    virtual void OnEnable();
 
 	virtual void OnDisable();
 
-	void InvokePostPipelineStageCallback(UCinemachineVirtualCameraBaseComponent* VCamera, ECinemachineStage Stage, FCinemachineCameraState& State, float DeltaTime);
+	void InvokePostPipelineStageCallback(UCinemachineVirtualCameraBaseComponent* VCamera, ECVStage Stage, FCinemachineCameraState& State, float DeltaTime);
 
 	void InvokePrePipelineMutateCameraStateCallback(UCinemachineVirtualCameraBaseComponent* VCamera, FCinemachineCameraState& State, float DeltaTime);
 
 	bool InvokeOnTransitionInExtensions(UCinemachineVirtualCameraBaseComponent* FromVCamera, FVector WorldUp, float DeltaTime);
 
-	void ApplyLocationBlendMethod(FCinemachineCameraState& State, ECinemachineBlendHint BlendHint);
+	void ApplyLocationBlendMethod(FCinemachineCameraState& State, ECVBlendHint BlendHint);
 
 	UCinemachineBlend* CreateBlend(UObject* CameraA, UObject* CameraB, FCinemachineBlendDefinition BlendDefinition, UCinemachineBlend* ActiveBlend);
 
@@ -246,56 +209,59 @@ protected:
 	void UpdateTargetCache();
 
 private:
-	void UpdateSlaveStatus();
+    void UpdateSlaveStatus();
 
 	void UpdateVcamPoolStatus();
 
 	void InvalidateCachedTargets();
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Cinemachine)
-	int32 Priority;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Cinemachine)
+	int32 Priority = 0;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Cinemachine)
+	int32 ActivationId = INDEX_NONE;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Cinemachine, meta = (ClampMin = "0.0", ClampMax = "1.0"))
+	float FollowTargetAttachment = 0.0F;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Cinemachine, meta = (ClampMin = "0.0", ClampMax = "1.0"))
+	float LookAtTargetAttachment = 0.0F;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Cinemachine)
-	int32 ActivationId;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Cinemachine, meta = (ClampMin = "0.0", ClampMax = "1.0"))
-	float FollowTargetAttachment;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Cinemachine, meta = (ClampMin = "0.0", ClampMax = "1.0"))
-	float LookAtTargetAttachment;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Cinemachine)
-	ECineamchineStandbyUpdateMode StandbyUpdateMode;
+	ECVStandbyUpdateMode StandbyUpdateMode = ECVStandbyUpdateMode::RoundRobin;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Cinemachine)
 	TArray<UCinemachineExtension*> Extensions;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Cinemachine)
-	bool bFollowTargetChanged;
+	bool bFollowTargetChanged = false;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Cinemachine)
-	bool bLookAtTargetChanged;
+	bool bLookAtTargetChanged = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Cinemachine)
 	FCinemachineLensSettings VCameraLens;
 
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Cinemachine)
-	USceneComponent* LookAtTarget;
+	UPROPERTY(VisibleAnywhere, Transient, BlueprintReadWrite, Category = Cinemachine)
+	USceneComponent* LookAtTarget = nullptr;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Cinemachine)
-	USceneComponent* FollowTarget;
+	UPROPERTY(VisibleAnywhere, Transient, BlueprintReadWrite, Category = Cinemachine)
+	USceneComponent* FollowTarget = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Cinemachine)
 	FCinemachineCameraState VCameraState;
 
-	ICinemachineInputAxisProviderInterface* InputAxisProvider;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Cinemachine)
+	UObject* InputAxisProvider = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = Cinemachine)
-	bool bCameraEnable;
+	bool bCameraEnable = false;
+
+	void SetStageTemplate(TSubclassOf<class UCinemachineBaseStage>& OutClass, UClass* InClass, TObjectPtr<class UCinemachineBaseStage>& OutTemplate, ECVStage Filter);
 
 private:
+	bool bIsInitialized = false;
+
 	bool PreviousStateIsValid = false;
 
 	bool SlaveStatusUpdated = false;
@@ -325,5 +291,5 @@ private:
 	UPROPERTY(Transient)
 	UCinemachineTargetGroupComponent* CachedLookAtTargetGroup = nullptr;
 
-	bool bCacheCameraEnable;
+	bool bCacheCameraEnable = false;
 };

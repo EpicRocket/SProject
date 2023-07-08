@@ -23,8 +23,8 @@ static void EncapsulateBox(FBox& Source, const FBox& Other)
 }
 
 UCinemachineTargetGroupComponent::UCinemachineTargetGroupComponent()
-	: LocationMode(ECinemachineTargetGroupLocationMode::GroupCenter)
-	, RotationMode(ECinemachineTargetGroupRotationMode::Manual)
+	: LocationMode(ECVTargetGroupLocationMode::GroupCenter)
+	, RotationMode(ECVTargetGroupRotationMode::Manual)
 	, MaxWeight(0.0F)
 	, AverageLocation(FVector::ZeroVector)
 	, BoundingBox(ForceInitToZero)
@@ -37,6 +37,8 @@ UCinemachineTargetGroupComponent::UCinemachineTargetGroupComponent()
 void UCinemachineTargetGroupComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	// TODO: [Camera]에디터에서도 사용 가능하도록 수정 필요
 	if (TickType == ELevelTick::LEVELTICK_All)
 	{
 		DoUpdate();
@@ -167,36 +169,56 @@ void UCinemachineTargetGroupComponent::DoUpdate()
 
 	switch (LocationMode)
 	{
-	case ECinemachineTargetGroupLocationMode::GroupCenter:
+	case ECVTargetGroupLocationMode::GroupCenter:
 		SetWorldLocation(Bounds.Origin);
 		break;
-	case ECinemachineTargetGroupLocationMode::GroupAverage:
+	case ECVTargetGroupLocationMode::GroupAverage:
 		SetWorldLocation(AverageLocation);
 		break;
 	}
 
 	switch (RotationMode)
 	{
-	case ECinemachineTargetGroupRotationMode::Manual:
+	case ECVTargetGroupRotationMode::Manual:
 		break;
-	case ECinemachineTargetGroupRotationMode::GroupAverage:
+	case ECVTargetGroupRotationMode::GroupAverage:
 		SetWorldRotation(CalculateAverageOrientation());
 		break;
 	}
 }
 
+void UCinemachineTargetGroupComponent::ClearMembers()
+{
+	Members.Empty();
+}
+
 void UCinemachineTargetGroupComponent::AddMember(USceneComponent* Target, float Weight, float Radius)
 {
-	FCinemachineTargetGroupMember Member;
-	Member.Target = Target;
-	Member.Weight = Weight;
-	Member.Radius = Radius;
-	Members.Emplace(Member);
+	if (IsValid(Target))
+	{
+		FCVTargetGroupMember Member;
+		Member.Target = Target;
+		Member.Weight = Weight;
+		Member.Radius = Radius;
+		Members.Emplace(Member);
+	}
+}
+
+void UCinemachineTargetGroupComponent::InsertMember(USceneComponent* Target, int32 Position, float Weight, float Radius)
+{
+	if (IsValid(Target))
+	{
+		FCVTargetGroupMember Member;
+		Member.Target = Target;
+		Member.Weight = Weight;
+		Member.Radius = Radius;
+		Members.Insert(Member, 0);
+	}
 }
 
 void UCinemachineTargetGroupComponent::RemoveMember(USceneComponent* Target)
 {
-	Members.RemoveAll([Target](const FCinemachineTargetGroupMember& Member)
+	Members.RemoveAll([Target](const FCVTargetGroupMember& Member)
 					  { return Member.Target == Target; });
 }
 
@@ -213,7 +235,7 @@ FSphere UCinemachineTargetGroupComponent::GetWeightedBoundsForMember(int32 Membe
 	return WeightedMemberBoundsForValidMember(Members[MemberIndex], AverageLocation, MaxWeight);
 }
 
-FSphere UCinemachineTargetGroupComponent::WeightedMemberBoundsForValidMember(FCinemachineTargetGroupMember& OutMember, FVector TargetLocation, float Max)
+FSphere UCinemachineTargetGroupComponent::WeightedMemberBoundsForValidMember(FCVTargetGroupMember& OutMember, FVector TargetLocation, float Max)
 {
 	FVector Location = OutMember.Target->GetComponentLocation();
 	float Weight = FMath::Max(0.0F, OutMember.Weight);
@@ -232,14 +254,27 @@ void UCinemachineTargetGroupComponent::UpdateMemberValidity()
 {
 	ValidMembers.Empty();
 	MemberValidity.Empty();
+	TSet<int32> DeleteKeys;
+	DeleteKeys.Reserve(Members.Num());
+	
 	for (int32 i = 0; i < Members.Num(); ++i)
 	{
-		bool bValue = IsValid(Members[i].Target) && Members[i].Weight > UE_KINDA_SMALL_NUMBER;
+		if(!IsValid(Members[i].Target))
+		{
+			DeleteKeys.Emplace(i);
+			continue;
+		}
+		bool bValue = Members[i].Weight > UE_KINDA_SMALL_NUMBER;
 		MemberValidity.Emplace(bValue);
 		if (bValue)
 		{
 			ValidMembers.Emplace(i);
 		}
+	}
+
+	for(int32 Key : DeleteKeys)
+	{
+		Members.RemoveAt(Key);
 	}
 }
 
@@ -252,7 +287,7 @@ FVector UCinemachineTargetGroupComponent::CalculateAverageLocation(float& OutMax
 	for (int32 i = 0; i < Count; ++i)
 	{
 		int32 Index = ValidMembers[i];
-		FCinemachineTargetGroupMember& Member = Members[Index];
+		FCVTargetGroupMember& Member = Members[Index];
 		float Weight = Member.Weight;
 		WeightSum += Weight;
 		Location += Member.Target->GetComponentLocation() * Weight;
@@ -319,7 +354,7 @@ FRotator UCinemachineTargetGroupComponent::CalculateAverageOrientation()
 	FQuat Rotation = FQuat::Identity;
 	for (int32 Index : ValidMembers)
 	{
-		FCinemachineTargetGroupMember& Member = Members[Index];
+		FCVTargetGroupMember& Member = Members[Index];
 		float ScaledWeight = Member.Weight / MaxWeight;
 		FRotator MemberRotation = Member.Target->GetComponentRotation();
 		Rotation *= FQuat::Slerp(FQuat::Identity, MemberRotation.Quaternion(), ScaledWeight);

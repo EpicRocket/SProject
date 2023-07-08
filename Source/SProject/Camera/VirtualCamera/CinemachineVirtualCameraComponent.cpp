@@ -1,6 +1,7 @@
 
 
 #include "CinemachineVirtualCameraComponent.h"
+#include "UObject/Package.h"
 #include "Camera/CinemachineCoreSubSystem.h"
 
 UCinemachineVirtualCameraComponent::UCinemachineVirtualCameraComponent()
@@ -9,16 +10,28 @@ UCinemachineVirtualCameraComponent::UCinemachineVirtualCameraComponent()
 {
 }
 
-void UCinemachineVirtualCameraComponent::BeginPlay()
+#if WITH_EDITOR
+void UCinemachineVirtualCameraComponent::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
-	Super::BeginPlay();
+	CINEMACHINE_SPAWN_TEMPLATE_POST_CHANGE_PROPERTY(PropertyChangedEvent, UCinemachineVirtualCameraComponent, AimStageClass, AimStageTemplate, ECVStage::Aim);
+	CINEMACHINE_SPAWN_TEMPLATE_POST_CHANGE_PROPERTY(PropertyChangedEvent, UCinemachineVirtualCameraComponent, BodyStageClass, BodyStageTemplate, ECVStage::Body);
+	CINEMACHINE_SPAWN_TEMPLATE_POST_CHANGE_PROPERTY(PropertyChangedEvent, UCinemachineVirtualCameraComponent, NoiseStageClass, NoiseStageTemplate, ECVStage::Noise);
+	Super::PostEditChangeProperty(PropertyChangedEvent);
 }
+
+void UCinemachineVirtualCameraComponent::PostEditChangeChainProperty(FPropertyChangedChainEvent& PropertyChangedEvent)
+{
+	CINEMACHINE_SPAWN_TEMPLATE_POST_CHANGE_CHAIN_PROPERTY(PropertyChangedEvent, UCinemachineVirtualCameraComponent, AimStageClass, AimStageTemplate, ECVStage::Aim);
+	CINEMACHINE_SPAWN_TEMPLATE_POST_CHANGE_CHAIN_PROPERTY(PropertyChangedEvent, UCinemachineVirtualCameraComponent, BodyStageClass, BodyStageTemplate, ECVStage::Body);
+	CINEMACHINE_SPAWN_TEMPLATE_POST_CHANGE_CHAIN_PROPERTY(PropertyChangedEvent, UCinemachineVirtualCameraComponent, NoiseStageClass, NoiseStageTemplate, ECVStage::Noise);
+	Super::PostEditChangeChainProperty(PropertyChangedEvent);
+}
+#endif
 
 float UCinemachineVirtualCameraComponent::GetMaxDampTime()
 {
 	float MaxDamp = Super::GetMaxDampTime();
-	UpdateComponentPipeline();
-	for (UCinemachineBaseComponent* CinemachineComponent : ComponentPipeline)
+	for (UCinemachineBaseStage* CinemachineComponent : StagePipeline)
 	{
 		if (!IsValid(CinemachineComponent))
 		{
@@ -36,47 +49,36 @@ void UCinemachineVirtualCameraComponent::InternalUpdateCameraState(FVector World
 	VCameraState = CalculateNewState(WorldUp, DeltaTime);
 	ApplyLocationBlendMethod(VCameraState, TransitionParameters.BlendHint);
 
-	if (IsValid(GetFollow()))
+	bool bFollowIsValid = IsValid(GetFollow());
+	bool bLookAtIsValid = IsValid(GetLookAt());
+
+	if (bFollowIsValid && bLookAtIsValid)
 	{
-		SetWorldLocation(VCameraState.RawLocation);
+		SetWorldLocationAndRotation(VCameraState.RawLocation, VCameraState.RawOrientation);
 	}
-	if (IsValid(GetLookAt()))
+	else
 	{
-		SetWorldRotation(VCameraState.RawOrientation);
+		if (bFollowIsValid)
+		{
+			SetWorldLocation(VCameraState.RawLocation);
+		}
+		if (bLookAtIsValid)
+		{
+			SetWorldRotation(VCameraState.RawOrientation);
+		}
 	}
 
 	SetPreviousStateIsValid(true);
-}
-
-void UCinemachineVirtualCameraComponent::OnTargetObjectWarped(USceneComponent* Target, FVector LocationDelta)
-{
-	if (Target == GetFollow())
-	{
-		AddWorldOffset(LocationDelta);
-		VCameraState.RawLocation += LocationDelta;
-	}
-	UpdateComponentPipeline();
-	for (UCinemachineBaseComponent* CinemachineComponent : ComponentPipeline)
-	{
-		if (!IsValid(CinemachineComponent))
-		{
-			continue;
-		}
-		CinemachineComponent->OnTargetObjectWarped(Target, LocationDelta);
-	}
-	Super::OnTargetObjectWarped(Target, LocationDelta);
 }
 
 void UCinemachineVirtualCameraComponent::ForceCameraLocation(FVector Location, FRotator Rotation)
 {
 	SetPreviousStateIsValid(true);
-	SetWorldLocation(Location);
-	SetWorldRotation(Rotation);
+	SetWorldLocationAndRotation(Location, Rotation);
 	VCameraState.RawLocation = Location;
 	VCameraState.RawOrientation = Rotation;
 
-	UpdateComponentPipeline();
-	for (UCinemachineBaseComponent* CinemachineComponent : ComponentPipeline)
+	for (UCinemachineBaseStage* CinemachineComponent : StagePipeline)
 	{
 		if (!IsValid(CinemachineComponent))
 		{
@@ -105,9 +107,7 @@ void UCinemachineVirtualCameraComponent::OnTransitionFromCamera(ICinemachineCame
 		ForceCameraLocation(FromCamera->GetState().FinalLocation(), FromCamera->GetState().FinalOrientation());
 	}
 
-	UpdateComponentPipeline();
-
-	for (UCinemachineBaseComponent* CinemachineComponent : ComponentPipeline)
+	for (UCinemachineBaseStage* CinemachineComponent : StagePipeline)
 	{
 		if (!IsValid(CinemachineComponent))
 		{
@@ -137,13 +137,13 @@ bool UCinemachineVirtualCameraComponent::RequiresUserInput()
 	{
 		return true;
 	}
-	for (UCinemachineBaseComponent* CinemachineComponent : ComponentPipeline)
+	for (UCinemachineBaseStage* CinemachineComponent : StagePipeline)
 	{
 		if (!IsValid(CinemachineComponent))
 		{
 			continue;
 		}
-		if (CinemachineComponent->RequriesUserInput())
+		if (CinemachineComponent->RequiresUserInput())
 		{
 			return true;
 		}
@@ -151,9 +151,9 @@ bool UCinemachineVirtualCameraComponent::RequiresUserInput()
 	return false;
 }
 
-UCinemachineBaseComponent* UCinemachineVirtualCameraComponent::GetCinemachineComponent(ECinemachineStage Stage)
+UCinemachineBaseStage* UCinemachineVirtualCameraComponent::GetCinemachineStage(ECVStage Stage)
 {
-	for (UCinemachineBaseComponent* CinemachineComponent : ComponentPipeline)
+	for (UCinemachineBaseStage* CinemachineComponent : StagePipeline)
 	{
 		if (!IsValid(CinemachineComponent))
 		{
@@ -167,40 +167,54 @@ UCinemachineBaseComponent* UCinemachineVirtualCameraComponent::GetCinemachineCom
 	return nullptr;
 }
 
-UCinemachineBaseComponent* UCinemachineVirtualCameraComponent::AddCinemachineComponent(TSubclassOf<UCinemachineBaseComponent> CreateComponent, FName ComponentName)
+UCinemachineBaseStage* UCinemachineVirtualCameraComponent::AddCinemachineComponent(TSubclassOf<UCinemachineBaseStage> CreateComponent, FName ComponentName, UCinemachineBaseStage* Template)
 {
-	UCinemachineBaseComponent* Component = NewObject<UCinemachineBaseComponent>(this, CreateComponent, ComponentName, EObjectFlags::RF_Transient);
+	EObjectFlags Flags = RF_Public;
+	Flags |= (RF_TextExportTransient | RF_NonPIEDuplicateTransient);
+	if (HasAllFlags(RF_Transient) || (IsValid(GetOwner()) && (GetOwner()->HasAllFlags(RF_Transient))))
+	{
+		Flags |= RF_Transient;
+	}
+
+	UCinemachineBaseStage* Component = NewObject<UCinemachineBaseStage>(this, CreateComponent, ComponentName, Flags, Template);
 	if (IsValid(Component))
 	{
-		Component->RegisterComponent();
-		Component->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform);
+		Component->Init(this);
+		StagePipeline.Emplace(Component);
+		StagePipeline.Sort([](UCinemachineBaseStage& Left, UCinemachineBaseStage& Right)
+			{ return Left.GetStage() < Right.GetStage(); });
+		return Component;
 	}
-	ComponentPipeline.Empty();
-	return Component;
+	else
+	{
+		return nullptr;
+	}
+}
+
+void UCinemachineVirtualCameraComponent::OnInitailize_Implementation()
+{
+	Super::OnInitailize_Implementation();
+
+	if (AimStageClass != nullptr)
+	{
+		AddCinemachineComponent(AimStageClass, TEXT("AimStage(CV)"), AimStageTemplate);
+	}
+
+	if (BodyStageClass != nullptr)
+	{
+		AddCinemachineComponent(BodyStageClass, TEXT("BodyStage(CV)"), BodyStageTemplate);
+	}
+
+	if (NoiseStageClass != nullptr)
+	{
+		AddCinemachineComponent(NoiseStageClass, TEXT("NoiseStage(CV)"), NoiseStageTemplate);
+	}
 }
 
 void UCinemachineVirtualCameraComponent::OnEnable()
 {
 	Super::OnEnable();
 	VCameraState = PullStateFromVirtualCamera(FVector::UpVector, VCameraLens);
-	ComponentPipeline.Empty();
-}
-
-void UCinemachineVirtualCameraComponent::UpdateComponentPipeline()
-{
-	TArray<UCinemachineBaseComponent*> NewComponentPipeline;
-	for (USceneComponent* Child : GetAttachChildren())
-	{
-		UCinemachineBaseComponent* CinemachineComponent = Cast<UCinemachineBaseComponent>(Child);
-		if (!IsValid(CinemachineComponent))
-		{
-			continue;
-		}
-		NewComponentPipeline.Add(CinemachineComponent);
-	}
-	NewComponentPipeline.Sort([](UCinemachineBaseComponent& Left, UCinemachineBaseComponent& Right)
-							  { return Left.GetStage() < Right.GetStage(); });
-	ComponentPipeline = NewComponentPipeline;
 }
 
 FCinemachineCameraState UCinemachineVirtualCameraComponent::CalculateNewState(FVector WorldUp, float DeltaTime)
@@ -229,21 +243,19 @@ FCinemachineCameraState UCinemachineVirtualCameraComponent::CalculateNewState(FV
 		}
 	}
 
-	UpdateComponentPipeline();
-
 	InvokePrePipelineMutateCameraStateCallback(this, State, DeltaTime);
 
 	bool HaveAim = false;
-	if (ComponentPipeline.IsEmpty())
+	if (StagePipeline.IsEmpty())
 	{
-		for (uint8 Stage = static_cast<uint8>(ECinemachineStage::Body); Stage <= static_cast<uint8>(ECinemachineStage::Finalize); ++Stage)
+		for (uint8 Stage = static_cast<uint8>(ECVStage::Body); Stage <= static_cast<uint8>(ECVStage::Finalize); ++Stage)
 		{
-			InvokePostPipelineStageCallback(this, static_cast<ECinemachineStage>(Stage), State, DeltaTime);
+			InvokePostPipelineStageCallback(this, static_cast<ECVStage>(Stage), State, DeltaTime);
 		}
 	}
 	else
 	{
-		for (UCinemachineBaseComponent* CinemachineComponent : ComponentPipeline)
+		for (UCinemachineBaseStage* CinemachineComponent : StagePipeline)
 		{
 			if (IsValid(CinemachineComponent))
 			{
@@ -252,35 +264,35 @@ FCinemachineCameraState UCinemachineVirtualCameraComponent::CalculateNewState(FV
 		}
 
 		int32 ComponentIndex = 0;
-		UCinemachineBaseComponent* PostAimBody = nullptr;
-		for (uint8 Stage = static_cast<uint8>(ECinemachineStage::Body); Stage <= static_cast<uint8>(ECinemachineStage::Finalize); ++Stage)
+		UCinemachineBaseStage* PostAimBody = nullptr;
+		for (uint8 Stage = static_cast<uint8>(ECVStage::Body); Stage <= static_cast<uint8>(ECVStage::Finalize); ++Stage)
 		{
-			UCinemachineBaseComponent* Select = ComponentPipeline.IsValidIndex(ComponentIndex) ? ComponentPipeline[ComponentIndex] : nullptr;
-			if (IsValid(Select) && static_cast<ECinemachineStage>(Stage) == Select->GetStage())
+			UCinemachineBaseStage* Select = StagePipeline.IsValidIndex(ComponentIndex) ? StagePipeline[ComponentIndex] : nullptr;
+			if (IsValid(Select) && static_cast<ECVStage>(Stage) == Select->GetStage())
 			{
 				++ComponentIndex;
-				if (static_cast<ECinemachineStage>(Stage) == ECinemachineStage::Body && Select->BodyAppliesAfterAim())
+				if (static_cast<ECVStage>(Stage) == ECVStage::Body && Select->BodyAppliesAfterAim())
 				{
 					PostAimBody = Select;
 					continue;
 				}
 				Select->MutateCameraState(State, DeltaTime);
-				HaveAim = static_cast<ECinemachineStage>(Stage) == ECinemachineStage::Aim;
+				HaveAim = static_cast<ECVStage>(Stage) == ECVStage::Aim;
 			}
 
-			InvokePostPipelineStageCallback(this, static_cast<ECinemachineStage>(Stage), State, DeltaTime);
+			InvokePostPipelineStageCallback(this, static_cast<ECVStage>(Stage), State, DeltaTime);
 
-			if (static_cast<ECinemachineStage>(Stage) == ECinemachineStage::Aim && IsValid(PostAimBody))
+			if (static_cast<ECVStage>(Stage) == ECVStage::Aim && IsValid(PostAimBody))
 			{
 				PostAimBody->MutateCameraState(State, DeltaTime);
-				InvokePostPipelineStageCallback(this, ECinemachineStage::Body, State, DeltaTime);
+				InvokePostPipelineStageCallback(this, ECVStage::Body, State, DeltaTime);
 			}
 		}
 	}
 
 	if (!HaveAim)
 	{
-		State.BlendHint = static_cast<ECinemachineBlendHintValue>(static_cast<int32>(State.BlendHint) | static_cast<int32>(ECinemachineBlendHintValue::IgnoreLookAtTarget));
+		State.BlendHint = static_cast<ECVBlendHintValue>(static_cast<int32>(State.BlendHint) | static_cast<int32>(ECVBlendHintValue::IgnoreLookAtTarget));
 	}
 
 	return State;

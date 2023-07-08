@@ -1,4 +1,5 @@
 
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -74,7 +75,7 @@ public:
 		if (FVector::DotProduct(Current2OriginalTarget, OrigintalTarget2Result) > 0.0F)
 		{
 			Result = OriginalTarget;
-			CurrentVelocity = (Result - OriginalTarget) / DeltaTime;
+			CurrentVelocity = DeltaTime > UE_KINDA_SMALL_NUMBER ? (Result - OriginalTarget) / DeltaTime : FVector::ZeroVector;
 		}
 		return Result;
 	}
@@ -99,7 +100,7 @@ public:
 		if ((OriginalTarget - Current > 0.0F) == (Result > OriginalTarget))
 		{
 			Result = OriginalTarget;
-			CurrentVelocity = (Result - OriginalTarget) / DeltaTime;
+			CurrentVelocity = DeltaTime > UE_KINDA_SMALL_NUMBER ? (Result - OriginalTarget) / DeltaTime : 0.0F;
 		}
 		return Result;
 	}

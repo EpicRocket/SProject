@@ -15,28 +15,29 @@ class ICinemachineCameraInterface;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCinemachineBrainEvent, UCinemachineBrainComponent*, Brain);
 
 USTRUCT()
-struct FCinemachineBrainFrame
+struct FCVBrainFrame
 {
-	GENERATED_USTRUCT_BODY()
+	GENERATED_BODY()
 
 public:
-	FCinemachineBrainFrame();
+	FCVBrainFrame() = default;
+	FCVBrainFrame(UObject* Outer);
 
 public:
-	int32 Id;
+	int32 Id = INDEX_NONE;
 
 	UPROPERTY(Transient)
-	UCinemachineBlend* Blend;
+	UCinemachineBlend* Blend = nullptr;
 
-	bool bActive;
-
-	UPROPERTY(Transient)
-	UCinemachineBlend* WorkingBlend;
+	bool bActive = false;
 
 	UPROPERTY(Transient)
-	UBlendSourceVirtualCamera* WorkingBlendSource;
+	UCinemachineBlend* WorkingBlend = nullptr;
 
-	float BlendStartPosition;
+	UPROPERTY(Transient)
+	UBlendSourceVirtualCamera* WorkingBlendSource = nullptr;
+
+	float BlendStartPosition = 0.0F;
 };
 
 /**
@@ -62,8 +63,22 @@ public:
 #endif
 	//~ End UActorComponent Interface
 	
+	void Init();
+
+	UFUNCTION(BlueprintPure, Category = Cinemachine)
+	bool IsInitialized() const
+	{
+		return bIsInitialized;
+	}
+
 	UFUNCTION(BlueprintCallable, Category = "Cinemachine|Brain")
 	virtual void SetEnable(bool bEnable);
+
+	UFUNCTION(BlueprintPure, Category = Cinemachine)
+	bool IsEnable() const
+	{
+		return bBrainEnabled;
+	}
 
 	UFUNCTION(BlueprintPure, Category = "Cinemachine|Brain")
 	UCameraComponent* GetOutputCamera();
@@ -123,7 +138,7 @@ public:
 	FCinemachineVirtualCameraActivatedEvent CameraActivatedEvent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cinemachine|Brain")
-	USceneComponent* WorldUpOverride;
+	USceneComponent* WorldUpOverride = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cinemachine|Brain")
 	FCinemachineBlendDefinition DefaultBlend;
@@ -145,7 +160,7 @@ private:
 	uint64 LastFrameUpdated = 0;
 
 	UPROPERTY(Transient)
-	TArray<FCinemachineBrainFrame> FrameStack;
+	TArray<FCVBrainFrame> FrameStack;
 
 	int32 NextFrameId = 1;
 
@@ -154,7 +169,11 @@ private:
 
 	UCinemachineVirtualCameraBaseComponent* ActiveCameraPreviousFrame = nullptr;
 
-	bool bCacheBrainEnabled;
+	bool bCacheBrainEnabled = false;
 
-	bool bInitailized = false;
+	bool bIsInitialized = false;
+
+	FVector CachedOutputCameraLocation = FVector::ZeroVector;
+
+	FRotator CachedOutputCameraRotation = FRotator::ZeroRotator;
 };

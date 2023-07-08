@@ -1,9 +1,11 @@
 
 
-#include "CinemachineOrbitalTransposerComponent.h"
+#include "CinemachineOrbitalTransposer.h"
+//! Engine Include
 #include "GameFramework/MovementComponent.h"
 #include "GameFramework/Actor.h"
 #include "Kismet/KismetSystemLibrary.h"
+//! Module Include
 #include "Camera/CinemachineCoreSubSystem.h"
 #include "Camera/CinemachineVirtualCameraBaseComponent.h"
 #include "Camera/CinemachineInputAxisProviderInterface.h"
@@ -152,62 +154,39 @@ private:
 	float DecayExponent;
 };
 
-//! UCinemachineOrbitalTransposerComponent
+//! UCinemachineOrbitalTransposer
 
-UCinemachineOrbitalTransposerComponent::UCinemachineOrbitalTransposerComponent()
-	: Heading(ECinemachineOrbitalTransposerHeadingDefinition::TargetForward, 4, 0.0F)
-	, RecenterToTargetHeading(true, 1.0F, 2.0F)
-	, XAxis(-180.0F, 180.0F, true, false, 300.0F, 0.1F, 0.1F)
-	, bHeadingIsSlave(false)
+UCinemachineOrbitalTransposer::UCinemachineOrbitalTransposer()
 {
-}
-
-void UCinemachineOrbitalTransposerComponent::BeginPlay()
-{
-	Super::BeginPlay();
-
-	if (!HeadingUpdater)
+	HeadingUpdater = [this](UCinemachineOrbitalTransposer* OrbitalTransposer, float DeltaTime, FVector Up) -> float
 	{
-		HeadingUpdater = [this](UCinemachineOrbitalTransposerComponent* OrbitalTransposer, float DeltaTime, FVector Up) -> float
-		{
-			return InternalUpdateHeading(OrbitalTransposer, DeltaTime, Up);
-		};
-	}
+		return InternalUpdateHeading(OrbitalTransposer, DeltaTime, Up);
+	};
 }
 
 #if WITH_EDITOR
-void UCinemachineOrbitalTransposerComponent::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
+void UCinemachineOrbitalTransposer::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
-	XAxis.Validate();
-	RecenterToTargetHeading.Validate();
+	OrbitalTransposerData.XAxis.Validate();
+	OrbitalTransposerData.RecenterToTargetHeading.Validate();
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 }
 #endif
 
-void UCinemachineOrbitalTransposerComponent::OnTargetObjectWarped(USceneComponent* Target, FVector LocationDelta)
-{
-	Super::OnTargetObjectWarped(Target, LocationDelta);
-	if (Target == GetFollowTarget())
-	{
-		LastTargetLocation += LocationDelta;
-		LastCameraLocation += LocationDelta;
-	}
-}
-
-void UCinemachineOrbitalTransposerComponent::ForceCameraLocation(FVector Location, FRotator Rotation)
+void UCinemachineOrbitalTransposer::ForceCameraLocation(FVector Location, FRotator Rotation)
 {
 	Super::ForceCameraLocation(Location, Rotation);
 	LastCameraLocation = Location;
-	if (UCinemachineVirtualCameraBaseComponent* VCamera = GetCinemachineVirtualCameraBaseComponent())
+	if (IsValid(Owner))
 	{
-		XAxis.Value = GetAxisClosestValue(Location, VCamera->GetState().ReferenceUp);
+		OrbitalTransposerData.XAxis.Value = GetAxisClosestValue(Location, Owner->GetState().ReferenceUp);
 	}
 }
 
-bool UCinemachineOrbitalTransposerComponent::OnTransitionFromCamera(ICinemachineCameraInterface* FromCamera, FVector WorldUp, float DeltaTime, FCinemachineTransitionParameters& TransitionParameters)
+bool UCinemachineOrbitalTransposer::OnTransitionFromCamera(ICinemachineCameraInterface* FromCamera, FVector WorldUp, float DeltaTime, FCinemachineTransitionParameters& TransitionParameters)
 {
-	RecenterToTargetHeading.DoRecentering(this, XAxis, -1.0F, 0.0F);
-	RecenterToTargetHeading.CancelRecentering(this);
+	OrbitalTransposerData.RecenterToTargetHeading.DoRecentering(this, OrbitalTransposerData.XAxis, -1.0F, 0.0F);
+	OrbitalTransposerData.RecenterToTargetHeading.CancelRecentering(this);
 
 	UWorld* World = GetWorld();
 	if (!IsValid(World))
@@ -220,17 +199,17 @@ bool UCinemachineOrbitalTransposerComponent::OnTransitionFromCamera(ICinemachine
 		return false;
 	}
 
-	bool bIsLiveInBlend = World->GetSubsystem<UCinemachineCoreSubSystem>()->IsLiveInBlend(Cast<ICinemachineCameraInterface>(GetCinemachineVirtualCameraBaseComponent()));
-	if (BindingMode != ECineamchineTransposerBindingMode::SimpleFollowWithWorldUp && TransitionParameters.bInheritLocation && !bIsLiveInBlend)
+	bool bIsLiveInBlend = World->GetSubsystem<UCinemachineCoreSubSystem>()->IsLiveInBlend(Cast<ICinemachineCameraInterface>(Owner));
+	if (TransposerData.BindingMode != ECVBindingMode::SimpleFollowWithWorldUp && TransitionParameters.bInheritLocation && !bIsLiveInBlend)
 	{
-		XAxis.Value = GetAxisClosestValue(FromCamera->GetState().RawLocation, WorldUp);
+		OrbitalTransposerData.XAxis.Value = GetAxisClosestValue(FromCamera->GetState().RawLocation, WorldUp);
 		return true;
 	}
 
 	return false;
 }
 
-void UCinemachineOrbitalTransposerComponent::MutateCameraState(FCinemachineCameraState& State, float DeltaTime)
+void UCinemachineOrbitalTransposer::MutateCameraState(FCinemachineCameraState& State, float DeltaTime)
 {
 	InitPrevFrameStateInfo(State, DeltaTime);
 
@@ -259,9 +238,9 @@ void UCinemachineOrbitalTransposerComponent::MutateCameraState(FCinemachineCamer
 		return;
 	}
 
-	if (BindingMode == ECineamchineTransposerBindingMode::SimpleFollowWithWorldUp)
+	if (TransposerData.BindingMode != ECVBindingMode::SimpleFollowWithWorldUp)
 	{
-		LastHeadingTemp += Heading.Bias;
+		LastHeadingTemp += OrbitalTransposerData.Heading.Bias;
 	}
 	FQuat HeadingRotation = FQuat(FVector::UpVector, FMath::DegreesToRadians(LastHeadingTemp));
 
@@ -279,39 +258,38 @@ void UCinemachineOrbitalTransposerComponent::MutateCameraState(FCinemachineCamer
 	Location += GetOffsetForMinimumTargetDistance(Location, Offset, State.RawOrientation.Quaternion() * FVector::ForwardVector, State.ReferenceUp, TargetLocation);
 	State.RawLocation = Location + Offset;
 
-	return;
-	// FIXME: 카메라 흔들리는 버그 있음 코드 수정 필요
-	/*if (UCinemachineVirtualCameraBaseComponent* VCamera = GetCinemachineVirtualCameraBaseComponent())
+	if (DeltaTime >= 0.0F && IsValid(Owner))
 	{
-		if (DeltaTime >= 0.0F && VCamera->GetPreviousStateIsValid())
+		if (Owner->GetPreviousStateIsValid())
 		{
 			FVector LookAtLocation = TargetLocation;
 			if (IsValid(GetLookAtTarget()))
 			{
 				LookAtLocation = GetLookAtTargetLocation();
 			}
-			FVector Direction0 = LastCameraLocation - LookAtLocation;
-			FVector Direction1 = State.RawLocation - LookAtLocation;
-			if (Direction0.SizeSquared() > 0.01F && Direction1.SizeSquared() > 0.01F)
+			FVector Dir0 = LastCameraLocation - LookAtLocation;
+			FVector Dir1 = State.RawLocation - LookAtLocation;
+			if (Dir0.SizeSquared() > 0.01F && Dir1.SizeSquared() > 0.01F)
 			{
-				State.LocationDampingBypass = UVectorExtension::SafeFromToRotation(Direction0, Direction1, State.ReferenceUp).Euler();
+				State.LocationDampingBypass = UVectorExtension::SafeFromToRotation(Dir0, Dir1, State.ReferenceUp).Euler();
 			}
 		}
 	}
+
 	LastTargetLocation = TargetLocation;
-	LastCameraLocation = State.RawLocation;*/
+	LastCameraLocation = State.RawLocation;
 }
 
-FVector UCinemachineOrbitalTransposerComponent::GetTargetCameraLocation(FVector WorldUp)
+FVector UCinemachineOrbitalTransposer::GetTargetCameraLocation(FVector WorldUp)
 {
 	if (!IsValid(GetFollowTarget()))
 	{
 		return FVector::ZeroVector;
 	}
 	float HeadingValue = LastHeading;
-	if (BindingMode != ECineamchineTransposerBindingMode::SimpleFollowWithWorldUp)
+	if (TransposerData.BindingMode != ECVBindingMode::SimpleFollowWithWorldUp)
 	{
-		HeadingValue += Heading.Bias;
+		HeadingValue += OrbitalTransposerData.Heading.Bias;
 	}
 	FQuat Orientation = FQuat(FVector::UpVector, FMath::DegreesToRadians(HeadingValue));
 	Orientation = GetReferenceOrientation(WorldUp).Quaternion() * Orientation;
@@ -320,28 +298,27 @@ FVector UCinemachineOrbitalTransposerComponent::GetTargetCameraLocation(FVector 
 	return Location;
 }
 
-float UCinemachineOrbitalTransposerComponent::UpdateHeading(float DeltaTime, FVector Up, FCinemachineAxisState& OutAxis)
+float UCinemachineOrbitalTransposer::UpdateHeading(float DeltaTime, FVector Up, FCinemachineAxisState& OutAxis)
 {
-	return UpdateHeading(DeltaTime, Up, OutAxis, RecenterToTargetHeading, true);
+	return UpdateHeading(DeltaTime, Up, OutAxis, OrbitalTransposerData.RecenterToTargetHeading, true);
 }
 
-float UCinemachineOrbitalTransposerComponent::UpdateHeading(float DeltaTime, FVector Up, FCinemachineAxisState& OutAxis, FCinemachineAxisStateRecentering& OutRecentering, bool bIsLive)
+float UCinemachineOrbitalTransposer::UpdateHeading(float DeltaTime, FVector Up, FCinemachineAxisState& OutAxis, FCinemachineAxisStateRecentering& OutRecentering, bool bIsLive)
 {
-	UCinemachineVirtualCameraBaseComponent* VCamera = GetCinemachineVirtualCameraBaseComponent();
-	if (!IsValid(VCamera))
+	if (!IsValid(Owner))
 	{
 		OutAxis.Reset();
 		OutRecentering.CancelRecentering(this);
 		return OutAxis.Value;
 	}
 
-	if (BindingMode == ECineamchineTransposerBindingMode::SimpleFollowWithWorldUp)
+	if (TransposerData.BindingMode == ECVBindingMode::SimpleFollowWithWorldUp)
 	{
 		OutAxis.MinValue = -180.0F;
 		OutAxis.MaxValue = 180.0F;
 	}
 
-	if (DeltaTime < 0.0F || !VCamera->GetPreviousStateIsValid() || !bIsLive)
+	if (DeltaTime < 0.0F || !Owner->GetPreviousStateIsValid() || !bIsLive)
 	{
 		OutAxis.Reset();
 		OutRecentering.CancelRecentering(this);
@@ -351,7 +328,7 @@ float UCinemachineOrbitalTransposerComponent::UpdateHeading(float DeltaTime, FVe
 		OutRecentering.CancelRecentering(this);
 	}
 
-	if (BindingMode == ECineamchineTransposerBindingMode::SimpleFollowWithWorldUp)
+	if (TransposerData.BindingMode == ECVBindingMode::SimpleFollowWithWorldUp)
 	{
 		float FinalHeading = OutAxis.Value;
 		OutAxis.Value = 0.0f;
@@ -363,43 +340,38 @@ float UCinemachineOrbitalTransposerComponent::UpdateHeading(float DeltaTime, FVe
 	return OutAxis.Value;
 }
 
-void UCinemachineOrbitalTransposerComponent::UpdateInputAxisProvider()
+void UCinemachineOrbitalTransposer::UpdateInputAxisProvider()
 {
-	UCinemachineVirtualCameraBaseComponent* VCamera = GetCinemachineVirtualCameraBaseComponent();
-
-	XAxis.SetInputAxisProvider(EAxis::X, nullptr);
-	if (!bHeadingIsSlave && IsValid(VCamera))
+	OrbitalTransposerData.XAxis.SetInputAxisProvider(EAxis::X, nullptr);
+	if (!bHeadingIsSlave && IsValid(Owner))
 	{
-		if (ICinemachineInputAxisProviderInterface* Provider = VCamera->GetInputAxisProvider())
-		{
-			XAxis.SetInputAxisProvider(EAxis::X, Provider);
-		}
+		OrbitalTransposerData.XAxis.SetInputAxisProvider(EAxis::X, Owner->GetInputAxisProvider());
 	}
 }
 
-float UCinemachineOrbitalTransposerComponent::GetAxisClosestValue(FVector CameraLocation, FVector Up)
+float UCinemachineOrbitalTransposer::GetAxisClosestValue(FVector CameraLocation, FVector Up)
 {
 	FQuat Orientation = GetReferenceOrientation(Up).Quaternion();
-	FVector Forward = (Orientation * FVector::ForwardVector).ProjectOnToNormal(Up);
+	FVector Forward = FVector::VectorPlaneProject(Orientation * FVector::ForwardVector, Up);
 	if (!Forward.IsNearlyZero() && IsValid(GetFollowTarget()))
 	{
 		float HeadingValue = 0.0F;
-		if (BindingMode != ECineamchineTransposerBindingMode::SimpleFollowWithWorldUp)
+		if (TransposerData.BindingMode != ECVBindingMode::SimpleFollowWithWorldUp)
 		{
-			HeadingValue += Heading.Bias;
+			HeadingValue += OrbitalTransposerData.Heading.Bias;
 		}
 		Orientation *= FQuat(Up, FMath::DegreesToRadians(HeadingValue));
 		FVector TargetLocation = GetFollowTargetLocation();
 		FVector Location = TargetLocation + Orientation * GetEffectiveOffset();
 
-		FVector V1 = (Location - TargetLocation).ProjectOnToNormal(Up);
-		FVector V2 = (CameraLocation - TargetLocation).ProjectOnToNormal(Up);
+		FVector V1 = FVector::VectorPlaneProject(Location - TargetLocation, Up);
+		FVector V2 = FVector::VectorPlaneProject(CameraLocation - TargetLocation, Up);
 		return UVectorExtension::SignedAngle(V1, V2, Up);
 	}
 	return LastHeading;
 }
 
-float UCinemachineOrbitalTransposerComponent::InternalUpdateHeading(UCinemachineOrbitalTransposerComponent* Orbital, float DeltaTime, FVector Up)
+float UCinemachineOrbitalTransposer::InternalUpdateHeading(UCinemachineOrbitalTransposer* Orbital, float DeltaTime, FVector Up)
 {
 	if (!IsValid(Orbital))
 	{
@@ -412,12 +384,12 @@ float UCinemachineOrbitalTransposerComponent::InternalUpdateHeading(UCinemachine
 		return 0.0F;
 	}
 
-	return  Orbital->UpdateHeading(DeltaTime, Up, Orbital->XAxis, Orbital->RecenterToTargetHeading, World->GetSubsystem<UCinemachineCoreSubSystem>()->IsLive(Cast<ICinemachineCameraInterface>(Orbital->GetCinemachineVirtualCameraBaseComponent())));
+	return  Orbital->UpdateHeading(DeltaTime, Up, Orbital->OrbitalTransposerData.XAxis, Orbital->OrbitalTransposerData.RecenterToTargetHeading, World->GetSubsystem<UCinemachineCoreSubSystem>()->IsLive(Cast<ICinemachineCameraInterface>(Orbital->Owner)));
 }
 
-float UCinemachineOrbitalTransposerComponent::GetTargetHeading(float CurrentHeading, FRotator TargetOrientation)
+float UCinemachineOrbitalTransposer::GetTargetHeading(float CurrentHeading, FRotator TargetOrientation)
 {
-	if (BindingMode == ECineamchineTransposerBindingMode::SimpleFollowWithWorldUp)
+	if (TransposerData.BindingMode == ECVBindingMode::SimpleFollowWithWorldUp)
 	{
 		return 0.0F;
 	}
@@ -427,41 +399,39 @@ float UCinemachineOrbitalTransposerComponent::GetTargetHeading(float CurrentHead
 		return CurrentHeading;
 	}
 
-	ECinemachineOrbitalTransposerHeadingDefinition HeadingDefinition = Heading.Definition;
-	if (HeadingDefinition == ECinemachineOrbitalTransposerHeadingDefinition::Velocity && !IsValid(TargetMovementComponent))
+	ECVOrbitalTransposerHeadingDef HeadingDefinition = OrbitalTransposerData.Heading.Definition;
+	if (HeadingDefinition == ECVOrbitalTransposerHeadingDef::Velocity && !IsValid(TargetMovementComponent))
 	{
-		HeadingDefinition = ECinemachineOrbitalTransposerHeadingDefinition::LocationDelta;
+		HeadingDefinition = ECVOrbitalTransposerHeadingDef::LocationDelta;
 	}
 
 	FVector Velocity = FVector::ZeroVector;
 	switch (HeadingDefinition)
 	{
-	case ECinemachineOrbitalTransposerHeadingDefinition::LocationDelta:
+	case ECVOrbitalTransposerHeadingDef::LocationDelta:
 		Velocity = GetFollowTargetLocation() - LastTargetLocation;
 		break;
-	case ECinemachineOrbitalTransposerHeadingDefinition::Velocity:
+	case ECVOrbitalTransposerHeadingDef::Velocity:
 		Velocity = TargetMovementComponent->Velocity;
 		break;
-	case ECinemachineOrbitalTransposerHeadingDefinition::TargetForward:
+	case ECVOrbitalTransposerHeadingDef::TargetForward:
 		Velocity = GetFollowTargetRotation().Quaternion() * FVector::ForwardVector;
 		break;
 
-	case ECinemachineOrbitalTransposerHeadingDefinition::WorldForward:	// falls through
+	case ECVOrbitalTransposerHeadingDef::WorldForward:	// falls through
 	default:
 		return 0.0F;
 	}
 
 	FVector Up = TargetOrientation.Quaternion() * FVector::UpVector;
-	Velocity = Velocity.ProjectOnToNormal(Up);
-	if (HeadingDefinition != ECinemachineOrbitalTransposerHeadingDefinition::TargetForward)
+	Velocity = FVector::VectorPlaneProject(Velocity, Up);
+	if (HeadingDefinition != ECVOrbitalTransposerHeadingDef::TargetForward)
 	{
-		int32 FilterSize = Heading.VelocityFilterStrength * 5;
+		int32 FilterSize = OrbitalTransposerData.Heading.VelocityFilterStrength * 5;
 		if (!HeadingTracker.IsValid() || HeadingTracker->FilterSize() != FilterSize)
 		{
 			HeadingTracker.Reset();
-			auto a = FHeadingTracker(Heading.VelocityFilterStrength, FilterSize);
-			//HeadingTracker = MakeShared<FHeadingTracker>();
-			//HeadingTracker = MakeShareable<FHeadingTracker>(new FHeadingTracker(Heading.VelocityFilterStrength, FilterSize));
+			HeadingTracker = MakeShared<FHeadingTracker>(OrbitalTransposerData.Heading.VelocityFilterStrength, FilterSize);
 		}
 		if (HeadingTracker.IsValid())
 		{

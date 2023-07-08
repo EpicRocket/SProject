@@ -1,6 +1,6 @@
 
 
-#include "CinemachineComposerComponent.h"
+#include "CinemachineComposer.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Shared/LocationPredictor.h"
 #include "Camera/CinemachineVirtualCameraBaseComponent.h"
@@ -63,50 +63,31 @@ public:
 			double RadianHFOV = 2.0 * FMath::Atan(FMath::Tan(FMath::DegreesToRadians(FOV) * 0.5) * Lens.AspectRatio);
 			FOVH = FMath::RadiansToDegrees(RadianHFOV);
 
-			FOVSoftGuideRect = ScreenToFOV(SoftGuide, FOV, FOVH, Lens.AspectRatio);
+			if (FOV > UE_KINDA_SMALL_NUMBER && FOVH > UE_KINDA_SMALL_NUMBER)
+			{
+				FOVSoftGuideRect = ScreenToFOV(SoftGuide, FOV, FOVH, Lens.AspectRatio);
+				FOVHardGuideRect = ScreenToFOV(HardGuide, FOV, FOVH, Lens.AspectRatio);
+			}
+			else
+			{
+				FOVSoftGuideRect = FBox2D(ForceInitToZero);
+				FOVHardGuideRect = FBox2D(ForceInitToZero);
+			}
 			SoftGuideRect = SoftGuide;
-			FOVHardGuideRect = ScreenToFOV(HardGuide, FOV, FOVH, Lens.AspectRatio);
 			HardGuideRect = HardGuide;
 			Aspect = Lens.AspectRatio;
 		}
 	}
 };
 
-//! UCinemachineComposerComponent
+//! UCinemachineComposer
 
-UCinemachineComposerComponent::UCinemachineComposerComponent()
-	: TrackedObjectOffset(FVector::ZeroVector)
-	, LookaheadTime(0.0F)
-	, LookaheadSmoothing(0.0F)
-	, LookaheadIgnoreY(false)
-	, HorizontalDamping(0.5F)
-	, VerticalDamping(0.5F)
-	, ScreenX(0.5F)
-	, ScreenY(0.5F)
-	, DeadZoneWidth(0.0F)
-	, DeadZoneHeight(0.0F)
-	, SoftZoneWidth(0.8F)
-	, SoftZoneHeight(0.8F)
-	, BiasX(0.0F)
-	, BiasY(0.0F)
-	, bCenterOnActivate(true)
-	, TrackedPoint(FVector::ZeroVector)
-	, CameraLocationPrevFrame(FVector::ZeroVector)
-	, LookAtPrevFrame(FVector::ZeroVector)
-	, ScreenOffsetPreFrame(FVector2D::ZeroVector)
-	, CameraOrientationPrevFrame(FRotator::ZeroRotator)
+UCinemachineComposer::UCinemachineComposer()
+	: TrackedPoint(FVector::ZeroVector)
 {
 }
 
-void UCinemachineComposerComponent::BeginPlay()
-{
-	Super::BeginPlay();
-
-	Predictor = NewObject<ULocationPredictor>(this);
-	FOVCache = MakeShared<FFOVCache>();
-}
-
-void UCinemachineComposerComponent::PrePipelineMutateCameraState(FCinemachineCameraState& State, float DeltaTime)
+void UCinemachineComposer::PrePipelineMutateCameraState(FCinemachineCameraState& State, float DeltaTime)
 {
 	if (State.HasLookAt())
 	{
@@ -114,20 +95,19 @@ void UCinemachineComposerComponent::PrePipelineMutateCameraState(FCinemachineCam
 	}
 }
 
-ECinemachineStage UCinemachineComposerComponent::GetStage() const
+ECVStage UCinemachineComposer::GetStage() const
 {
-	return ECinemachineStage::Aim;
+	return ECVStage::Aim;
 }
 
-void UCinemachineComposerComponent::MutateCameraState(FCinemachineCameraState& State, float DeltaTime)
+void UCinemachineComposer::MutateCameraState(FCinemachineCameraState& State, float DeltaTime)
 {
 	if (!IsValid(GetLookAtTarget()) || !State.HasLookAt() || !FOVCache.IsValid())
 	{
 		return;
 	}
 
-	UCinemachineVirtualCameraBaseComponent* VCamera = GetCinemachineVirtualCameraBaseComponent();
-	if (!IsValid(VCamera))
+	if (!IsValid(Owner))
 	{
 		return;
 	}
@@ -139,14 +119,16 @@ void UCinemachineComposerComponent::MutateCameraState(FCinemachineCameraState& S
 		FVector ToTracked = TrackedPoint - Mid;
 		if ((ToLookAt | ToTracked) < 0.0F)
 		{
-			float Alpha = FVector::Distance(State.ReferenceLookAt, Mid) / FVector::Distance(State.ReferenceLookAt, TrackedPoint);
+			float V1 = FVector::Distance(State.ReferenceLookAt, Mid);
+			float V2 = FVector::Distance(State.ReferenceLookAt, TrackedPoint);
+			float Alpha = V1 / V2;
 			TrackedPoint = FMath::Lerp(State.ReferenceLookAt, TrackedPoint, Alpha);
 		}
 	}
 
 	if ((TrackedPoint - State.GetCorrectedLocation()).IsNearlyZero())
 	{
-		if (DeltaTime >= 0.0F && VCamera->GetPreviousStateIsValid())
+		if (DeltaTime >= 0.0F && Owner->GetPreviousStateIsValid())
 		{
 			State.RawOrientation = CameraOrientationPrevFrame;
 		}
@@ -156,11 +138,11 @@ void UCinemachineComposerComponent::MutateCameraState(FCinemachineCameraState& S
 	FOVCache->UpdateCache(State.Lens, GetSoftGuidRect(), GetHardGuidRect());
 
 	FRotator RigOrientation = State.RawOrientation;
-	if (DeltaTime < 0.0F || !VCamera->GetPreviousStateIsValid())
+	if (DeltaTime < 0.0F || !Owner->GetPreviousStateIsValid())
 	{
 		RigOrientation = UVectorExtension::LookRotation(RigOrientation.Quaternion() * FVector::ForwardVector, State.ReferenceUp);
 		FBox2D Rect = FOVCache->FOVSoftGuideRect;
-		if (bCenterOnActivate)
+		if (ComposerData.bCenterOnActivate)
 		{
 			Rect = FBox2D(Rect.GetCenter(), Rect.GetCenter());
 		}
@@ -182,7 +164,7 @@ void UCinemachineComposerComponent::MutateCameraState(FCinemachineCameraState& S
 
 		RotateToScreenBounds(State, FOVCache->FOVSoftGuideRect, TrackedPoint, RigOrientation, FOVCache->FOV, FOVCache->FOVH, DeltaTime);
 
-		if (DeltaTime < 0.0F || VCamera->LookAtTargetAttachment > (1 - UE_KINDA_SMALL_NUMBER))
+		if (DeltaTime < 0.0F || Owner->LookAtTargetAttachment > (1 - UE_KINDA_SMALL_NUMBER))
 		{
 			RotateToScreenBounds(State, FOVCache->FOVHardGuideRect, State.ReferenceLookAt, RigOrientation, FOVCache->FOV, FOVCache->FOVH, -1.0F);
 		}
@@ -196,51 +178,40 @@ void UCinemachineComposerComponent::MutateCameraState(FCinemachineCameraState& S
 	State.RawOrientation = CameraOrientationPrevFrame;
 }
 
-void UCinemachineComposerComponent::OnTargetObjectWarped(USceneComponent* Target, FVector LocationDelta)
-{
-	if (Target == GetLookAtTarget())
-	{
-		CameraLocationPrevFrame += LocationDelta;
-		LookAtPrevFrame += LocationDelta;
-		Predictor->ApplyTransformDelta(LocationDelta);
-	}
-}
-
-void UCinemachineComposerComponent::ForceCameraLocation(FVector Location, FRotator Rotation)
+void UCinemachineComposer::ForceCameraLocation(FVector Location, FRotator Rotation)
 {
 	CameraLocationPrevFrame = Location;
 	CameraOrientationPrevFrame = Rotation;
 }
 
-float UCinemachineComposerComponent::GetMaxDampTime() const
+float UCinemachineComposer::GetMaxDampTime() const
 {
-	return FMath::Max(HorizontalDamping, VerticalDamping);
+	return FMath::Max(ComposerData.HorizontalDamping, ComposerData.VerticalDamping);
 }
 
-FVector UCinemachineComposerComponent::GetLookAtPointAndSetTrackedPoint(FVector LookAt, FVector Up, float DeltaTime)
+FVector UCinemachineComposer::GetLookAtPointAndSetTrackedPoint(FVector LookAt, FVector Up, float DeltaTime)
 {
 	FVector Location = LookAt;
 	if (IsValid(GetLookAtTarget()))
 	{
-		Location += GetLookAtTargetRotation().Quaternion() * TrackedObjectOffset;
+		Location += GetLookAtTargetRotation().Quaternion() * ComposerData.TrackedObjectOffset;
 	}
 
-	if (LookaheadTime < UE_KINDA_SMALL_NUMBER)
+	if (ComposerData.LookaheadTime < UE_KINDA_SMALL_NUMBER)
 	{
 		TrackedPoint = Location;
 	}
 	else
 	{
-		UCinemachineVirtualCameraBaseComponent* VCamera = GetCinemachineVirtualCameraBaseComponent();
-		if (IsValid(VCamera))
+		if (IsValid(Owner))
 		{
-			bool bResetLookahead = VCamera->bLookAtTargetChanged || !VCamera->GetPreviousStateIsValid();
-			Predictor->Smoothing = LookaheadSmoothing;
+			bool bResetLookahead = Owner->bLookAtTargetChanged || !Owner->GetPreviousStateIsValid();
+			Predictor->Smoothing = ComposerData.LookaheadSmoothing;
 			Predictor->AddLocation(Location, bResetLookahead ? -1.0F : DeltaTime);
-			FVector LocationDelta = Predictor->PredictLocationDelta(LookaheadTime);
-			if (LookaheadIgnoreY)
+			FVector LocationDelta = Predictor->PredictLocationDelta(ComposerData.LookaheadTime);
+			if (ComposerData.LookaheadIgnoreY)
 			{
-				LocationDelta = LocationDelta.ProjectOnToNormal(Up);
+				LocationDelta = FVector::VectorPlaneProject(LocationDelta, Up);
 			}
 			TrackedPoint = Location + LocationDelta;
 		}
@@ -248,35 +219,38 @@ FVector UCinemachineComposerComponent::GetLookAtPointAndSetTrackedPoint(FVector 
 	return Location;
 }
 
-FBox2D UCinemachineComposerComponent::GetSoftGuidRect()
+FBox2D UCinemachineComposer::GetSoftGuidRect()
 {
-	return FBox2D(FVector2D(ScreenX - DeadZoneWidth / 2.0F, ScreenY - DeadZoneHeight / 2.0F), FVector2D(ScreenX + DeadZoneWidth / 2.0F, ScreenY + DeadZoneHeight / 2.0F));
+	return FBox2D(FVector2D(ComposerData.ScreenX - ComposerData.DeadZoneWidth / 2.0F, ComposerData.ScreenY - ComposerData.DeadZoneHeight / 2.0F), FVector2D(ComposerData.ScreenX + ComposerData.DeadZoneWidth / 2.0F, ComposerData.ScreenY + ComposerData.DeadZoneHeight / 2.0F));
 }
 
-void UCinemachineComposerComponent::SetSoftGuidRect(FBox2D Rect)
+void UCinemachineComposer::SetSoftGuidRect(FBox2D Rect)
 {
-	DeadZoneWidth = FMath::Clamp(Rect.Max.X, 0.0F, 2.0F);
-	DeadZoneHeight = FMath::Clamp(Rect.Max.Y, 0.0F, 2.0F);
-	ScreenX = FMath::Clamp(Rect.Min.X + DeadZoneWidth / 2.0F, -0.5F, 1.5F);
-	ScreenY = FMath::Clamp(Rect.Min.Y + DeadZoneHeight / 2.0F, -0.5F, 1.5F);
-	SoftZoneWidth = FMath::Max(SoftZoneWidth, DeadZoneWidth);
-	SoftZoneHeight = FMath::Max(SoftZoneHeight, DeadZoneHeight);
+	ComposerData.DeadZoneWidth = FMath::Clamp(Rect.Max.X, 0.0F, 2.0F);
+	ComposerData.DeadZoneHeight = FMath::Clamp(Rect.Max.Y, 0.0F, 2.0F);
+	ComposerData.ScreenX = FMath::Clamp(Rect.Min.X + ComposerData.DeadZoneWidth / 2.0F, -0.5F, 1.5F);
+	ComposerData.ScreenY = FMath::Clamp(Rect.Min.Y + ComposerData.DeadZoneHeight / 2.0F, -0.5F, 1.5F);
+	ComposerData.SoftZoneWidth = FMath::Max(ComposerData.SoftZoneWidth, ComposerData.DeadZoneWidth);
+	ComposerData.SoftZoneHeight = FMath::Max(ComposerData.SoftZoneHeight, ComposerData.DeadZoneHeight);
 }
 
-FBox2D UCinemachineComposerComponent::GetHardGuidRect()
+FBox2D UCinemachineComposer::GetHardGuidRect()
 {
-	return FBox2D(FVector2D(ScreenX - SoftZoneWidth / 2.0F, ScreenY - SoftZoneHeight / 2.0F), FVector2D(ScreenX + SoftZoneWidth / 2.0F, ScreenY + SoftZoneHeight / 2.0F)).MoveTo(FVector2D(BiasX * (SoftZoneWidth - DeadZoneWidth), BiasY * (SoftZoneHeight - DeadZoneWidth)));
+	return FBox2D(
+			   FVector2D(ComposerData.ScreenX - ComposerData.SoftZoneWidth / 2.0F, ComposerData.ScreenY - ComposerData.SoftZoneHeight / 2.0F),
+			   FVector2D(ComposerData.ScreenX + ComposerData.SoftZoneWidth / 2.0F, ComposerData.ScreenY + ComposerData.SoftZoneHeight / 2.0F))
+		.MoveTo(FVector2D(ComposerData.BiasX * (ComposerData.SoftZoneWidth - ComposerData.DeadZoneWidth), ComposerData.BiasY * (ComposerData.SoftZoneHeight - ComposerData.DeadZoneWidth)));
 }
 
-void UCinemachineComposerComponent::SetHardGuidRect(FBox2D Rect)
+void UCinemachineComposer::SetHardGuidRect(FBox2D Rect)
 {
-	SoftZoneWidth = FMath::Clamp(Rect.Max.X, 0.0F, 2.0F);
-	SoftZoneHeight = FMath::Clamp(Rect.Max.Y, 0.0F, 2.0F);
-	DeadZoneWidth = FMath::Max(SoftZoneWidth, DeadZoneWidth);
-	DeadZoneHeight = FMath::Max(SoftZoneHeight, DeadZoneHeight);
+	ComposerData.SoftZoneWidth = FMath::Clamp(Rect.Max.X, 0.0F, 2.0F);
+	ComposerData.SoftZoneHeight = FMath::Clamp(Rect.Max.Y, 0.0F, 2.0F);
+	ComposerData.DeadZoneWidth = FMath::Max(ComposerData.SoftZoneWidth, ComposerData.DeadZoneWidth);
+	ComposerData.DeadZoneHeight = FMath::Max(ComposerData.SoftZoneHeight, ComposerData.DeadZoneHeight);
 }
 
-void UCinemachineComposerComponent::RotateToScreenBounds(FCinemachineCameraState& State, FBox2D ScreenRect, FVector TargetPoint, FRotator& RigOrientation, float FOV, float FOVH, float DeltaTime)
+void UCinemachineComposer::RotateToScreenBounds(FCinemachineCameraState& State, FBox2D ScreenRect, FVector TargetPoint, FRotator& RigOrientation, float FOV, float FOVH, float DeltaTime)
 {
 	FVector TargetDirection = TargetPoint - State.GetCorrectedLocation();
 	FVector2D RotationToRect = GetCameraRotationToTarget(RigOrientation.Quaternion(), TargetDirection, State.ReferenceUp);
@@ -313,26 +287,25 @@ void UCinemachineComposerComponent::RotateToScreenBounds(FCinemachineCameraState
 		RotationToRect.Y = 0.0F;
 	}
 
-	UCinemachineVirtualCameraBaseComponent* VCamera = GetCinemachineVirtualCameraBaseComponent();
-	if (IsValid(VCamera))
+	if (IsValid(Owner))
 	{
-		if (DeltaTime >= 0.0F && VCamera->GetPreviousStateIsValid())
+		if (DeltaTime >= 0.0F && Owner->GetPreviousStateIsValid())
 		{
-			RotationToRect.X = VCamera->DetachedLookAtTargetDamp(RotationToRect.X, VerticalDamping, DeltaTime);
-			RotationToRect.Y = VCamera->DetachedLookAtTargetDamp(RotationToRect.Y, HorizontalDamping, DeltaTime);
+			RotationToRect.X = Owner->DetachedLookAtTargetDamp(RotationToRect.X, ComposerData.VerticalDamping, DeltaTime);
+			RotationToRect.Y = Owner->DetachedLookAtTargetDamp(RotationToRect.Y, ComposerData.HorizontalDamping, DeltaTime);
 		}
 	}
 
 	RigOrientation = ApplyCameraRotation(RigOrientation.Quaternion(), RotationToRect, State.ReferenceUp);
 }
 
-void UCinemachineComposerComponent::ClampVerticalBounds(FBox2D& Rect, FVector Direction, FVector Up, float FOV)
+void UCinemachineComposer::ClampVerticalBounds(FBox2D& Rect, FVector Direction, FVector Up, float FOV)
 {
 	float Angle = UVectorExtension::Angle(Direction, Up);
 	float FOVH = (FOV / 2.0F) + 1.0F;
 	if (Angle < FOVH)
 	{
-		float MaxY = 1.0F - (FOVH - Angle) / FOV;
+		float MaxY = FOV > UE_KINDA_SMALL_NUMBER ? 1.0F - (FOVH - Angle) / FOV : 1.0F;
 		if (Rect.Max.Y > MaxY)
 		{
 			Rect.Min.Y = FMath::Min(Rect.Min.Y, MaxY);
@@ -341,11 +314,23 @@ void UCinemachineComposerComponent::ClampVerticalBounds(FBox2D& Rect, FVector Di
 	}
 	if (Angle > (180 - FOVH))
 	{
-		float MinY = (FOVH - (180 - Angle)) / FOV;
+		float MinY = FOV > UE_KINDA_SMALL_NUMBER ? (FOVH - (180 - Angle)) / FOV : 1.0F;
 		if (Rect.Min.Y < MinY)
 		{
 			Rect.Min.Y = FMath::Max(Rect.Min.Y, MinY);
 			Rect.Max.Y = FMath::Max(Rect.Max.Y, MinY);
 		}
 	}
+}
+
+void UCinemachineComposer::OnInitialize()
+{
+	EObjectFlags Flags = RF_Public;
+	Flags |= (RF_TextExportTransient | RF_NonPIEDuplicateTransient);
+	if (HasAllFlags(RF_Transient))
+	{
+		Flags |= RF_Transient;
+	}
+	Predictor = NewObject<ULocationPredictor>(this, TEXT("Predictor(CV)"), Flags);
+	FOVCache = MakeShared<FFOVCache>();
 }

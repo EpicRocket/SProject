@@ -7,7 +7,7 @@
 #include "CinemachineTargetGroupComponent.generated.h"
 
 USTRUCT(BlueprintType)
-struct FCinemachineTargetGroupMember
+struct FCVTargetGroupMember
 {
 	GENERATED_BODY()
 
@@ -23,14 +23,14 @@ public:
 };
 
 UENUM(BlueprintType)
-enum class ECinemachineTargetGroupLocationMode : uint8
+enum class ECVTargetGroupLocationMode : uint8
 {
 	GroupCenter,
 	GroupAverage,
 };
 
 UENUM(BlueprintType)
-enum class ECinemachineTargetGroupRotationMode : uint8
+enum class ECVTargetGroupRotationMode : uint8
 {
 	Manual,
 	GroupAverage,
@@ -38,17 +38,17 @@ enum class ECinemachineTargetGroupRotationMode : uint8
 
 /**
  * 가상 카메라를 그룹으로 묶어 가중치와 반경에 따른 결과 값을 출력하는 컴포넌트
-*/
-UCLASS()
+ */
+UCLASS(BlueprintType, ClassGroup = (Cinemachine), meta = (BlueprintSpawnableComponent))
 class UCinemachineTargetGroupComponent : public UCinemachineTargetGroupBaseComponent
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
 public:
 	UCinemachineTargetGroupComponent();
 
 	//~ Begin UActorComponent interface
-	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	//~ End UActorComponent interface
 
 	//~ Begin UCinemachineTargetGroupBaseComponent interface
@@ -61,13 +61,23 @@ public:
 
 	void DoUpdate();
 
+	UFUNCTION(BlueprintCallable, Category = "Cinemachine|Group")
+	void ClearMembers();
+
+	UFUNCTION(BlueprintCallable, Category = "Cinemachine|Group")
 	void AddMember(USceneComponent* Target, float Weight, float Radius);
 
+	UFUNCTION(BlueprintCallable, Category = "Cinemachine|Group")
+	void InsertMember(USceneComponent* Target, int32 Position, float Weight, float Radius);
+
+	UFUNCTION(BlueprintCallable, Category = "Cinemachine|Group")
 	void RemoveMember(USceneComponent* Target);
 
+	UFUNCTION(BlueprintPure, Category = "Cinemachine|Group")
 	FSphere GetWeightedBoundsForMember(int32 MemberIndex);
 
-	FSphere WeightedMemberBoundsForValidMember(FCinemachineTargetGroupMember& OutMember, FVector TargetLocation, float Max);
+	UFUNCTION(BlueprintPure, Category = "Cinemachine|Group")
+	FSphere WeightedMemberBoundsForValidMember(FCVTargetGroupMember& OutMember, FVector TargetLocation, float Max);
 
 	void UpdateMemberValidity();
 
@@ -86,16 +96,16 @@ private:
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CinemachineTargetGroup)
-	ECinemachineTargetGroupLocationMode LocationMode;
+	ECVTargetGroupLocationMode LocationMode;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CinemachineTargetGroup)
-	ECinemachineTargetGroupRotationMode RotationMode;
+	ECVTargetGroupRotationMode RotationMode;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CinemachineTargetGroup)
-	TArray<FCinemachineTargetGroupMember> Members;
+	TArray<FCVTargetGroupMember> Members;
 
 private:
-	float MaxWeight;		// CalculateAverageLocation 호출을 통해 값 갱신됨
+	float MaxWeight; // CalculateAverageLocation 호출을 통해 값 갱신됨
 	FVector AverageLocation;
 	FBox BoundingBox;
 	FSphere BoundingSphere;

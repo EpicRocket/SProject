@@ -10,7 +10,7 @@ class UCinemachineVirtualCameraBaseComponent;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FCinemachineVirtualCameraActivatedEvent, UCinemachineVirtualCameraBaseComponent*, VCamera, UCinemachineVirtualCameraBaseComponent*, VCameraFrom);
 
 UENUM(BlueprintType)
-enum class ECinemachineBlendHint : uint8
+enum class ECVBlendHint : uint8
 {
 	None,
 	SphericalLocation,
@@ -28,7 +28,7 @@ struct FCinemachineTransitionParameters
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Cinemachine)
-	ECinemachineBlendHint BlendHint = ECinemachineBlendHint::None;
+	ECVBlendHint BlendHint = ECVBlendHint::None;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Cinemachine)
 	bool bInheritLocation = false;

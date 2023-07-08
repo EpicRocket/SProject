@@ -2,12 +2,12 @@
 
 #pragma once
 
-#include "Camera/Component/CinemachineTransposerComponent.h"
+#include "Camera/Component/CinemachineTransposer.h"
 #include "Camera/CinemachineAxisState.h"
-#include "CinemachineOrbitalTransposerComponent.generated.h"
+#include "CinemachineOrbitalTransposer.generated.h"
 
 UENUM(BlueprintType)
-enum class ECinemachineOrbitalTransposerHeadingDefinition
+enum class ECVOrbitalTransposerHeadingDef
 {
 	// 마지막으로 갱신된 위치와 현재 위치의 차이로 계산
 	LocationDelta,
@@ -20,16 +20,16 @@ enum class ECinemachineOrbitalTransposerHeadingDefinition
 };
 
 USTRUCT(BlueprintType)
-struct FCinemachineOrbitalTransposerHeading
+struct FCVOrbitalTransposerHeading
 {
-	GENERATED_USTRUCT_BODY()
+	GENERATED_BODY()
 
 public:
-	FCinemachineOrbitalTransposerHeading()
+	FCVOrbitalTransposerHeading()
 	{
 	}
 
-	FCinemachineOrbitalTransposerHeading(ECinemachineOrbitalTransposerHeadingDefinition InDefinition, int32 InVelocityFilterStrength, float InBias)
+	FCVOrbitalTransposerHeading(ECVOrbitalTransposerHeadingDef InDefinition, int32 InVelocityFilterStrength, float InBias)
 		: Definition(InDefinition)
 		, VelocityFilterStrength(InVelocityFilterStrength)
 		, Bias(InBias)
@@ -38,7 +38,7 @@ public:
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	ECinemachineOrbitalTransposerHeadingDefinition Definition = ECinemachineOrbitalTransposerHeadingDefinition::TargetForward;
+	ECVOrbitalTransposerHeadingDef Definition = ECVOrbitalTransposerHeadingDef::TargetForward;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = 0, ClampMax = 10))
 	int32 VelocityFilterStrength = 0;
@@ -47,35 +47,57 @@ public:
 	float Bias = 0.0F;
 };
 
-UCLASS(Blueprintable, ClassGroup = (Cinemachine), meta = (BlueprintSpawnableComponent))
-class UCinemachineOrbitalTransposerComponent : public UCinemachineTransposerComponent
+USTRUCT(BlueprintType)
+struct FCVOrbitalTransposerData
 {
 	GENERATED_BODY()
 
 public:
-	UCinemachineOrbitalTransposerComponent();
+	FCVOrbitalTransposerData()
+		: Heading(ECVOrbitalTransposerHeadingDef::TargetForward, 4, 0.0F)
+		, RecenterToTargetHeading(true, 1.0F, 2.0F)
+		, XAxis(-180.0F, 180.0F, true, false, 300.0F, 0.1F, 0.1F)
+	{
+	}
 
-    //~ Begin USceneComponent Interface
-	virtual void BeginPlay() override;
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FCVOrbitalTransposerHeading Heading;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FCinemachineAxisStateRecentering RecenterToTargetHeading;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FCinemachineAxisState XAxis;
+};
+
+UCLASS(BlueprintType, ClassGroup = (Cinemachine), meta = (BlueprintSpawnableComponent))
+class UCinemachineOrbitalTransposer : public UCinemachineTransposer
+{
+	GENERATED_BODY()
+
+public:
+	UCinemachineOrbitalTransposer();
+
+    //~ Begin UObject Interface
 #if WITH_EDITOR
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 #endif
-	//~ End USceneComponent Interface
+	//~ End UObject Interface
 
-	//~ Begin UCinemachineBaseComponent interface
-	virtual void OnTargetObjectWarped(USceneComponent* Target, FVector LocationDelta) override;
+	//~ Begin UCinemachineBaseStage interface
 	virtual void ForceCameraLocation(FVector Location, FRotator Rotation) override;
 	virtual bool OnTransitionFromCamera(ICinemachineCameraInterface* FromCamera, FVector WorldUp, float DeltaTime, FCinemachineTransitionParameters& TransitionParameters) override;
 	virtual void MutateCameraState(FCinemachineCameraState& State, float DeltaTime) override;
-	virtual bool RequriesUserInput() const override
+	virtual bool RequiresUserInput() const override
 	{
 		return true;
 	}
-	//~ End UCinemachineBaseComponent interface
+	//~ End UCinemachineBaseStage interface
 
-	//~ Begin UCinemachineTransposerComponent interface
+	//~ Begin UCinemachineTransposer interface
 	virtual FVector GetTargetCameraLocation(FVector WorldUp) override;
-	//~ End UCinemachineTransposerComponent interface
+	//~ End UCinemachineTransposer interface
 
 	float UpdateHeading(float DeltaTime, FVector Up, FCinemachineAxisState& OutAxis);
 
@@ -86,24 +108,18 @@ public:
 	float GetAxisClosestValue(FVector CameraLocation, FVector Up);
 
 private:
-	float InternalUpdateHeading(UCinemachineOrbitalTransposerComponent* Orbital, float DeltaTime, FVector Up);
+	float InternalUpdateHeading(UCinemachineOrbitalTransposer* Orbital, float DeltaTime, FVector Up);
 
 	float GetTargetHeading(float CurrentHeading, FRotator TargetOrientation);
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cinemachine|Component|Transposer")
-	FCinemachineOrbitalTransposerHeading Heading;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cinemachine|Stage")
+	FCVOrbitalTransposerData OrbitalTransposerData;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cinemachine|Component|Transposer")
-	FCinemachineAxisStateRecentering RecenterToTargetHeading;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cinemachine|Component|Transposer")
-    FCinemachineAxisState XAxis;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cinemachine|Component|Transposer")
-	bool bHeadingIsSlave;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cinemachine|Stage")
+	bool bHeadingIsSlave = false;
     
-	TFunction<float(UCinemachineOrbitalTransposerComponent*, float, FVector)> HeadingUpdater;
+	TFunction<float(UCinemachineOrbitalTransposer*, float, FVector)> HeadingUpdater;
 
 private:
 	FVector LastTargetLocation = FVector::ZeroVector;

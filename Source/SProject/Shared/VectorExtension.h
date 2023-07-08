@@ -1,4 +1,5 @@
 
+
 #pragma once
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "VectorExtension.generated.h"
@@ -67,7 +68,7 @@ public:
 	UFUNCTION(BlueprintPure, Category = VectorExtension)
 	static FQuat SafeFromToRotation(FVector V1, FVector V2, FVector Up)
 	{
-		FVector Axis = FVector::CrossProduct(V1, V2);
+		FVector Axis = V1.GetSafeNormal() ^ V2.GetSafeNormal();
 		if (Axis.IsNearlyZero())
 		{
 			Axis = Up;
@@ -102,5 +103,20 @@ public:
 		FVector Right = (Up ^ Forward).GetSafeNormal();
 		Up = Forward ^ Right;
 		return FQuat(FMatrix(Forward, Right, Up, FVector::ZeroVector)).Rotator();
+	}
+
+	/** true is left, false is right (so zero value is right) */
+	UFUNCTION(BlueprintPure, Category = VectorExtension)
+	static bool IsLeftDirection(FVector ForwardVector, FVector TargetDirection, FVector WorldUp = FVector::UpVector)
+	{
+		FVector ForwardOnPlane = ForwardVector - WorldUp * (ForwardVector | WorldUp);
+		FVector VectorAToBOnPlane = TargetDirection - WorldUp * (TargetDirection | WorldUp);
+
+		ForwardOnPlane.Normalize();
+		VectorAToBOnPlane.Normalize();
+
+		FVector CrossProduct = ForwardOnPlane ^ VectorAToBOnPlane;
+		float DotProductWithWorldUp = FVector::DotProduct(CrossProduct, WorldUp);
+		return DotProductWithWorldUp > 0;
 	}
 };
