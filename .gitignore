@@ -72,8 +72,10 @@ Plugins/*/Intermediate/*
 # Cache files for the editor to use
 DerivedDataCache/*
 
-# Exclusion StarterContent
+# Exclusion Contents
 Content/StarterContent
+Content/Developers
+Content/Collections
 
 #Rider file
 .idea/
