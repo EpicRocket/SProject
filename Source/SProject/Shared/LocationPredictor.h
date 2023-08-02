@@ -6,25 +6,22 @@
 #include "Shared/Damper.h"
 #include "LocationPredictor.generated.h"
 
-UCLASS(BlueprintType)
-class ULocationPredictor : public UObject
+USTRUCT(BlueprintType)
+struct FLocationPredictor
 {
     GENERATED_BODY()
 
 public:
-    UFUNCTION(BlueprintPure)
     bool IsEmpty() const
     {
         return !HaveLocation;
     }
 
-    UFUNCTION(BlueprintCallable)
     void ApplyTransformDelta(FVector LocationDelta)
     {
         Location += LocationDelta;
     }
 
-    UFUNCTION(BlueprintCallable)
     void Reset()
     {
         HaveLocation = false;
@@ -32,7 +29,6 @@ public:
         Velocity = FVector::ZeroVector;
     }
 
-    UFUNCTION(BlueprintCallable)
     void AddLocation(FVector NextLocation, float DeltaTime)
     {
         if(DeltaTime < 0.0F)
@@ -49,13 +45,11 @@ public:
         HaveLocation = true;
     }
 
-    UFUNCTION(BlueprintPure)
     FVector PredictLocationDelta(float LookaheadTime)
     {
         return Velocity * LookaheadTime;
     }
 
-    UFUNCTION(BlueprintPure)
     FVector PredictLocation(float LookaheadTime)
     {
         return Location + PredictLocationDelta(LookaheadTime);

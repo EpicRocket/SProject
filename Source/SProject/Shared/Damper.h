@@ -23,8 +23,7 @@ public:
 		{
 			return 0.0F;
 		}
-		float K = -NEGLECTABLE_RESIDUAL / DampTime;
-		return Initial * (1 - FMath::Exp(-K * DeltaTime));
+		return Initial * (1 - FMath::Exp(NEGLECTABLE_RESIDUAL * DampTime / DeltaTime));
 	}
 
 	static FVector Damp(FVector Initial, FVector DampTime, float DeltaTime)
