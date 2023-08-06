@@ -19,7 +19,7 @@ struct FWorldContext;
  * Base class for GameFeatureActions that wish to do something world specific.
  */
 UCLASS(Abstract)
-class SPROJECT_API UGameFeatureAction_WorldActionBase : public UGameFeatureAction
+class UGameFeatureAction_WorldActionBase : public UGameFeatureAction
 {
 	GENERATED_BODY()
 

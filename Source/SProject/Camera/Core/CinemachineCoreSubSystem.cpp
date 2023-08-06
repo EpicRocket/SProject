@@ -348,7 +348,7 @@ void UCinemachineCoreSubSystem::UnregisterListener(FCinemachineGameplayMessageLi
 	}
 	else
 	{
-		UE_LOG(LogCcg, Warning, TEXT("[UCinemachineCoreSubSystem] Trying to unregister an invalid Handle."));
+		UE_LOG(LogTemp, Warning, TEXT("[UCinemachineCoreSubSystem] Trying to unregister an invalid Handle."));
 	}
 }
 

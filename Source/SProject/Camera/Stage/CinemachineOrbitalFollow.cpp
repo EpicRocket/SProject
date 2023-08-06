@@ -1,7 +1,7 @@
 
 
 #include "CinemachineOrbitalFollow.h"
-#include "Library/SplineHelper.h"
+#include "Shared/SplineHelper.h"
 #include "Shared/VectorExtension.h"
 #include "Camera/Core/CinemachineCoreSubSystem.h"
 #include "Camera/Core/CinemachineVirtualCameraBaseComponent.h"

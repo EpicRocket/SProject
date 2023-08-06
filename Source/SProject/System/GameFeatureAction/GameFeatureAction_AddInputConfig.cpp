@@ -1,4 +1,4 @@
-﻿// Copyright Epic Games, Inc. All Rights Reserved.
+// Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "GameFeatureAction_AddInputConfig.h"
 #include "Components/GameFrameworkComponentManager.h"
@@ -10,7 +10,7 @@
 #include "GameFeatureAction_WorldActionBase.h"
 #include "PlayerMappableInputConfig.h"
 #include "GameFramework/Pawn.h"
-#include "System/SMappableConfigPair.h"
+#include "System/SuperMappableConfigPair.h"
 
 //#include UE_INLINE_GENERATED_CPP_BY_NAME(GameFeatureAction_AddInputConfig)
 

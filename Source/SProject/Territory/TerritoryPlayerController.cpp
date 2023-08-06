@@ -7,7 +7,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "TerritoryDefine.h"
 #include "TerritoryBuilding.h"
-#include "System/SFunctionLibrary.h"
+#include "System/SuperFunctionLibrary.h"
 
 ATerritoryPlayerController::ATerritoryPlayerController()
 {	
@@ -60,7 +60,7 @@ void ATerritoryPlayerController::RegisterBuilding(TSubclassOf<ATerritoryBuilding
 	BuildingBP = InBuildingBP;
 	TSubclassOf<AActor> A = BuildingBP;
 	TArray<UStaticMeshComponent*> StaticMeshComponents;
-	USFunctionLibrary::GetComponents(BuildingBP, StaticMeshComponents);
+	USuperFunctionLibrary::GetComponents(BuildingBP, StaticMeshComponents);
 	for(const auto Mesh : StaticMeshComponents)
 	{
 		const TObjectPtr<UStaticMeshComponent> PreviewMesh = NewObject<UStaticMeshComponent>(PreviewBuilding, Mesh->GetFName(), RF_NoFlags, Mesh);
@@ -70,7 +70,7 @@ void ATerritoryPlayerController::RegisterBuilding(TSubclassOf<ATerritoryBuilding
 	}
 	
 	TArray<USkeletalMeshComponent*> SkeletalMeshComponents;
-	USFunctionLibrary::GetComponents(BuildingBP, SkeletalMeshComponents);
+	USuperFunctionLibrary::GetComponents(BuildingBP, SkeletalMeshComponents);
 	for(const auto Mesh : SkeletalMeshComponents)
 	{
 		const TObjectPtr<USkeletalMeshComponent> PreviewMesh = NewObject<USkeletalMeshComponent>(PreviewBuilding, Mesh->GetFName(), RF_NoFlags, Mesh);

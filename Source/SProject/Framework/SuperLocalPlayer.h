@@ -5,7 +5,7 @@
 #include "SuperLocalPlayer.generated.h"
 
 UCLASS()
-class SPROJECT_API USuperLocalPlayer : public UCommonLocalPlayer
+class USuperLocalPlayer : public UCommonLocalPlayer
 {
     GENERATED_BODY()
 

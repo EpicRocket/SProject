@@ -16,7 +16,7 @@ struct FComponentRequestHandle;
  * Expects that local players are set up to use the EnhancedInput system.
  */
 UCLASS(meta = (DisplayName = "Add Input Config"))
-class SPROJECT_API UGameFeatureAction_AddInputConfig : public UGameFeatureAction
+class UGameFeatureAction_AddInputConfig : public UGameFeatureAction
 {
 	GENERATED_BODY()
 	

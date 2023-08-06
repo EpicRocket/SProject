@@ -36,6 +36,8 @@ public class SProject : ModuleRules
 				"CommonUI",
 				"CommonInput",
 				"CommonGame",
+				"GameplayMessageRuntime",
+				"GameplayMessageNodes",
 			}
 		);
 
