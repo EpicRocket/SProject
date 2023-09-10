@@ -38,7 +38,10 @@ public class SProject : ModuleRules
 				"CommonGame",
 				"GameplayMessageRuntime",
 				"GameplayMessageNodes",
-			}
+                "GameSettings",
+                "AsyncMixin",
+                "PocketWorlds",
+            }
 		);
 
 		PublicIncludePaths.AddRange(
