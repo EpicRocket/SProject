@@ -1,6 +1,6 @@
 {
 	"FileVersion": 3,
-	"EngineAssociation": "",
+	"EngineAssociation": "{1AD6E2C4-4EEF-D723-7B9D-239495BB1F86}",
 	"Category": "",
 	"Description": "",
 	"Modules": [
@@ -29,20 +29,6 @@
 			]
 		},
 		{
-			"Name": "CommonUI",
-			"Enabled": true
-		},
-		{
-			"Name": "MortarPlugin",
-			"Enabled": true,
-			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/c7d15c6abe2d49d08130c643b455fd4a"
-		},
-		{
-			"Name": "RTSUnitTemplate",
-			"Enabled": true,
-			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/4b336b20be144255b04af1b4a31bf5eb"
-		},
-		{
 			"Name": "GameFeatures",
 			"Enabled": true
 		},
@@ -63,11 +49,11 @@
 			"Enabled": true
 		},
 		{
-			"Name": "Territory",
+			"Name": "UIExtension",
 			"Enabled": true
 		},
 		{
-			"Name": "Core",
+			"Name": "GameplayStateTree",
 			"Enabled": true
 		}
 	]

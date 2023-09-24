@@ -10,7 +10,7 @@
 	"DocsURL": "https://finalrockstar-mortarplugin-ue4.netlify.app/",
 	"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/c7d15c6abe2d49d08130c643b455fd4a",
 	"SupportURL": "finalrockstar@gmail.com",
-	"EngineVersion": "5.2.0",
+	"EngineVersion": "5.3.0",
 	"CanContainContent": true,
 	"Installed": true,
 	"Modules": [
