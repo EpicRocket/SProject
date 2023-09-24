@@ -48,5 +48,13 @@
 			"Name": "PCGGeometryScriptInterop",
 			"Enabled": true
 		},
+		{
+			"Name": "UIExtension",
+			"Enabled": true
+		},
+		{
+			"Name": "GameplayStateTree",
+			"Enabled": true
+		}
 	]
 }
