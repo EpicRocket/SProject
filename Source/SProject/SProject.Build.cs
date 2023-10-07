@@ -22,7 +22,8 @@ public class SProject : ModuleRules
 				"GameplayAbilities",
 				"GameplayTags",
 				"AIModule",
-			}
+                "DataValidation",
+            }
 		);
 
 		PrivateDependencyModuleNames.AddRange(

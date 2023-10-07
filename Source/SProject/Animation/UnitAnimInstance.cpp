@@ -13,15 +13,6 @@ void UUnitAnimInstance::InitializeWithAbilitySystem(UAbilitySystemComponent* ASC
 	GameplayTagPropertyMap.Initialize(this, ASC);
 }
 
-#if WITH_EDITOR
-EDataValidationResult UUnitAnimInstance::IsDataValid(TArray<FText>& ValidationErrors)
-{
-	Super::IsDataValid(ValidationErrors);
-	GameplayTagPropertyMap.IsDataValid(this, ValidationErrors);
-	return ((ValidationErrors.Num() > 0) ? EDataValidationResult::Invalid : EDataValidationResult::Valid);
-}
-#endif // WITH_EDITOR
-
 void UUnitAnimInstance::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();

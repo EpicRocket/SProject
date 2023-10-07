@@ -17,10 +17,6 @@ public:
 	virtual void InitializeWithAbilitySystem(class UAbilitySystemComponent* ASC);
 
 protected:
-#if WITH_EDITOR
-	virtual EDataValidationResult IsDataValid(TArray<FText>& ValidationErrors) override;
-#endif // WITH_EDITOR
-
 	virtual void NativeInitializeAnimation() override;
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
