@@ -1,16 +1,23 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Input/SuperInputConfig.h"
+#include "SuperInputConfig.h"
+
+#include UE_INLINE_GENERATED_CPP_BY_NAME(SuperInputConfig)
 
 const UInputAction* USuperInputConfig::FindNativeInputActionForTag(const FGameplayTag& InputTag, bool bLogNotFound) const
 {
-	for (const FSuperTagedInputAction& TaggedInputAction : NativeInputActions)
+	for (const FSuperInputAction& Action : NativeInputActions)
 	{
-		if (TaggedInputAction.InputAction && TaggedInputAction.InputTag == InputTag)
+		if (Action.InputAction && (Action.InputTag == InputTag))
 		{
-			return TaggedInputAction.InputAction;
+			return Action.InputAction;
 		}
+	}
+
+	if (bLogNotFound)
+	{
+		UE_LOG(LogInput, Error, TEXT("Can't find NativeInputAction for InputTag [%s] on InputConfig [%s]."), *InputTag.ToString(), *GetNameSafe(this));
 	}
 
 	return nullptr;
@@ -18,5 +25,18 @@ const UInputAction* USuperInputConfig::FindNativeInputActionForTag(const FGamepl
 
 const UInputAction* USuperInputConfig::FindAbilityInputActionForTag(const FGameplayTag& InputTag, bool bLogNotFound) const
 {
+	for (const FSuperInputAction& Action : AbilityInputActions)
+	{
+		if (Action.InputAction && (Action.InputTag == InputTag))
+		{
+			return Action.InputAction;
+		}
+	}
+
+	if (bLogNotFound)
+	{
+		UE_LOG(LogInput, Error, TEXT("Can't find AbilityInputAction for InputTag [%s] on InputConfig [%s]."), *InputTag.ToString(), *GetNameSafe(this));
+	}
+
 	return nullptr;
 }
