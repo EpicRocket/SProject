@@ -44,7 +44,7 @@ void USuperInputComponent::BindAbilityActions(const USuperInputConfig* InputConf
 {
 	check(InputConfig);
 
-	for (const FLyraInputAction& Action : InputConfig->AbilityInputActions)
+	for (const FSuperInputAction& Action : InputConfig->AbilityInputActions)
 	{
 		if (Action.InputAction && Action.InputTag.IsValid())
 		{
