@@ -7,6 +7,8 @@
 
 #include "UnitAbilitySystemComponent.generated.h"
 
+class UUnitAbilityTagRelationshipMapping;
+
 UCLASS()
 class UUnitAbilitySystemComponent : public UAbilitySystemComponent
 {
