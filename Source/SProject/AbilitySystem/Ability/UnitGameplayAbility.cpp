@@ -29,8 +29,6 @@ UUnitGameplayAbility::UUnitGameplayAbility()
 	ActivationGroup = EUnitAbilityActivationGroup::Independent;
 
 	bLogCancelation = false;
-
-	ActiveCameraMode = nullptr;
 }
 
 UUnitAbilitySystemComponent* UUnitGameplayAbility::GetUnitAbilitySystemComponentFromActorInfo() const
@@ -148,9 +146,9 @@ void UUnitGameplayAbility::NativeOnAbilityFailedToActivate(const FGameplayTagCon
 {
 }
 
-void UUnitGameplayAbility::ScriptOnAbilityFailedToActivate(const FGameplayTagContainer& FailedReason) const
-{
-}
+//void UUnitGameplayAbility::ScriptOnAbilityFailedToActivate(const FGameplayTagContainer& FailedReason) const
+//{
+//}
 
 bool UUnitGameplayAbility::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const
 {
@@ -207,16 +205,3 @@ void UUnitGameplayAbility::OnPawnAvatarSet()
 void UUnitGameplayAbility::GetAbilitySource(FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, float& OutSourceLevel, const IUnitAbilitySourceInterface*& OutAbilitySource, AActor*& OutEffectCauser) const
 {
 }
-
-void UUnitGameplayAbility::K2_OnAbilityAdded()
-{
-}
-
-void UUnitGameplayAbility::K2_OnAbilityRemoved()
-{
-}
-
-void UUnitGameplayAbility::K2_OnPawnAvatarSet()
-{
-}
-

@@ -30,7 +30,7 @@ public:
 
 	// Input configuration used by player controlled pawns to create input mappings and bind input actions.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Unit|Input")
-	TObjectPtr<struct FSuperInputAction> InputConfig;
+	TObjectPtr<class USuperInputConfig> InputConfig;
 
 	// // Default camera mode used by player controlled pawns.
 	// UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Lyra|Camera")

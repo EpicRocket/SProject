@@ -66,11 +66,11 @@ struct FUnitAbilitySet_GrantedHandles
 	GENERATED_BODY()
 
 public:
-	void AddAbilitySpecHandle(const FGameplayAbilitySpecHandle& Handle);
+	/*void AddAbilitySpecHandle(const FGameplayAbilitySpecHandle& Handle);
 	void AddGameplayEffectHandle(const FActiveGameplayEffectHandle& Handle);
 	void AddAttributeSet(UAttributeSet* Set);
 
-	void TakeFromAbilitySystem(UUnitAbilitySystemComponent* UnitASC);
+	void TakeFromAbilitySystem(UUnitAbilitySystemComponent* UnitASC);*/
 
 protected:
 
@@ -93,11 +93,9 @@ class UUnitAbilitySet : public UPrimaryDataAsset
 	GENERATED_BODY()
 
 public:
-	UUnitAbilitySet(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
-
 	// Grants the ability set to the specified ability system component.
 	// The returned handles can be used later to take away anything that was granted.
-	void GiveToAbilitySystem(UUnitAbilitySystemComponent* UnitASC, FUnitAbilitySet_GrantedHandles* OutGrantedHandles, UObject* SourceObject = nullptr) const;
+	//void GiveToAbilitySystem(UUnitAbilitySystemComponent* UnitASC, FUnitAbilitySet_GrantedHandles* OutGrantedHandles, UObject* SourceObject = nullptr) const;
 
 protected:
 

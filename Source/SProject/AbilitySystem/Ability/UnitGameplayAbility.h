@@ -99,7 +99,7 @@ public:
 	void OnAbilityFailedToActivate(const FGameplayTagContainer& FailedReason) const
 	{
 		NativeOnAbilityFailedToActivate(FailedReason);
-		ScriptOnAbilityFailedToActivate(FailedReason);
+		//ScriptOnAbilityFailedToActivate(FailedReason);
 	}
 
 protected:

@@ -4,7 +4,7 @@
 #include "CommonGameInstance.h"
 #include "SuperGameInstance.generated.h"
 
-UCLASS(Config = Game)
+UCLASS(Config = SProject)
 class USuperGameInstance : public UCommonGameInstance
 {
     GENERATED_BODY()

@@ -21,7 +21,8 @@ public class SProject : ModuleRules
 				"ModularGameplay",
 				"GameplayAbilities",
 				"GameplayTags",
-				"AIModule",
+				"GameplayTasks",
+                "AIModule",
                 "DataValidation",
             }
 		);

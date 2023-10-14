@@ -4,15 +4,18 @@
 #include "UObject/Interface.h"
 #include "UnitAbilitySourceInterface.generated.h"
 
+class UPhysicalMaterial;
+struct FGameplayTagContainer;
+
 UINTERFACE()
 class UUnitAbilitySourceInterface : public UInterface
 {
-	GENERATED_UINTERFACE_BODY()
+	GENERATED_BODY()
 };
 
-class IUnitAbilitySourceInterface
+class IUnitAbilitySourceInterface : public IInterface
 {
-	GENERATED_IINTERFACE_BODY()
+	GENERATED_BODY()
 
 	/**
 	 * Compute the multiplier for effect falloff with distance

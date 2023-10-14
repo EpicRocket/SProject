@@ -14,8 +14,6 @@ class SPROJECT_API USuperInputComponent : public UEnhancedInputComponent
 {
 	GENERATED_BODY()
 
-	virtual void BeginPlay() override;
-
 public:
 	void AddInputMappings(const USuperInputConfig* InputConfig, UEnhancedInputLocalPlayerSubsystem* InputSubsystem) const;
 	void RemoveInputMappings(const USuperInputConfig* InputConfig, UEnhancedInputLocalPlayerSubsystem* InputSubsystem) const;

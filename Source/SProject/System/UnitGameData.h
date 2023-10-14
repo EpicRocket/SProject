@@ -1,3 +1,4 @@
+
 #pragma once
 
 #include "Engine/DataAsset.h"
@@ -16,11 +17,8 @@ class UUnitGameData : public UPrimaryDataAsset
 	GENERATED_BODY()
 
 public:
-
-	ULyraGameData();
-
 	// Returns the loaded game data.
-	static const ULyraGameData& Get();
+	static const UUnitGameData& Get();
 
 public:
 
