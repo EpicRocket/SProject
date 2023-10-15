@@ -56,10 +56,6 @@
 //{
 //}
 //
-//void UUnitAbilitySystemComponent::CancelAbilitiesByFunc(TShouldCancelAbilityFunc ShouldCancelFunc, bool bReplicateCancelAbility)
-//{
-//}
-//
 //void UUnitAbilitySystemComponent::CancelInputActivatedAbilities(bool bReplicateCancelAbility)
 //{
 //}
@@ -116,6 +112,10 @@
 //void UUnitAbilitySystemComponent::GetAdditionalActivationTagRequirements(const FGameplayTagContainer& AbilityTags, FGameplayTagContainer& OutActivationRequired, FGameplayTagContainer& OutActivationBlocked) const
 //{
 //}
+
+void UUnitAbilitySystemComponent::CancelAbilitiesByFunc(TShouldCancelAbilityFunc ShouldCancelFunc, bool bReplicateCancelAbility)
+{
+}
 
 bool UUnitAbilitySystemComponent::IsActivationGroupBlocked(EUnitAbilityActivationGroup Group) const
 {

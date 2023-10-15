@@ -6,7 +6,7 @@
 #include "GameUIManagerSubsystem.h"
 #include "GameUISubsystem.generated.h"
 
-UCLASS()
+UCLASS(Config = SProject)
 class UGameUISubsystem : public UGameUIManagerSubsystem
 {
     GENERATED_BODY()

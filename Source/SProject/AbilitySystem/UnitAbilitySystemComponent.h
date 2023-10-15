@@ -21,8 +21,8 @@ public:
 //
 //	virtual void InitAbilityActorInfo(AActor* InOwnerActor, AActor* InAvatarActor) override;
 //
-//	typedef TFunctionRef<bool(const UUnitGameplayAbility* UnitAbility, FGameplayAbilitySpecHandle Handle)> TShouldCancelAbilityFunc;
-//	void CancelAbilitiesByFunc(TShouldCancelAbilityFunc ShouldCancelFunc, bool bReplicateCancelAbility);
+	typedef TFunctionRef<bool(const UUnitGameplayAbility* UnitAbility, FGameplayAbilitySpecHandle Handle)> TShouldCancelAbilityFunc;
+	void CancelAbilitiesByFunc(TShouldCancelAbilityFunc ShouldCancelFunc, bool bReplicateCancelAbility);
 //
 //	void CancelInputActivatedAbilities(bool bReplicateCancelAbility);
 //

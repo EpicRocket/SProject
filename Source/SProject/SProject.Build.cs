@@ -9,44 +9,52 @@ public class SProject : ModuleRules
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
 		PublicDependencyModuleNames.AddRange(
-			new[]
-			{
+			new[] {
 				"Core",
 				"CoreUObject",
 				"Engine",
 				"InputCore",
 				"UMG",
 				"GameFeatures",
-				"ModularGameplayActors",
 				"ModularGameplay",
 				"GameplayAbilities",
 				"GameplayTags",
 				"GameplayTasks",
-                "AIModule",
-                "DataValidation",
-            }
+				"AIModule",
+				"DataValidation",
+			}
 		);
 
 		PrivateDependencyModuleNames.AddRange(
-			new[]
-			{
+			new[] {
 				"Slate",
 				"SlateCore",
 				"UnrealEd",
 				"EnhancedInput",
-				"UIExtension",
 				"CommonUI",
 				"CommonInput",
-				"CommonGame",
-				"GameplayMessageRuntime",
 				"GameplayMessageNodes",
-                "GameSettings",
-                "AsyncMixin",
-                "PocketWorlds",
-            }
+			}
 		);
 
-		PublicIncludePaths.AddRange(
+		// Plugins
+		PrivateDependencyModuleNames.AddRange(
+			new[] {
+				"AsyncMixin",
+				"CommonGame",
+				"CommonLoadingScreen",
+				"CommonUser",
+				"GameplayMessageRuntime",
+				"GameSettings",
+				"GameSubtitles",
+				"ModularGameplayActors",
+				"PocketWorlds",
+				"UIExtension",
+			}
+		);
+
+
+PublicIncludePaths.AddRange(
 			new[]
 			{
 				ModuleDirectory,
