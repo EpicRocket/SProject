@@ -14,25 +14,31 @@ public class SProject : ModuleRules
 				"CoreUObject",
 				"Engine",
 				"InputCore",
+				"SlateCore",
 				"UMG",
-				"GameFeatures",
-				"ModularGameplay",
-				"GameplayAbilities",
-				"GameplayTags",
-				"GameplayTasks",
 				"AIModule",
-				"DataValidation",
 			}
 		);
 
 		PrivateDependencyModuleNames.AddRange(
 			new[] {
+				"GameFeatures",
 				"Slate",
-				"SlateCore",
 				"UnrealEd",
 				"EnhancedInput",
 				"CommonUI",
 				"CommonInput",
+				"ModularGameplay",
+				"DataValidation",
+			}
+		);
+
+		// GameplayAbility
+		PrivateDependencyModuleNames.AddRange(
+			new[] {
+				"GameplayAbilities",
+				"GameplayTags",
+				"GameplayTasks",
 				"GameplayMessageNodes",
 			}
 		);

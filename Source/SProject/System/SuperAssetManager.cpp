@@ -4,7 +4,6 @@
 #include "Engine/Engine.h"
 #include "Misc/ScopedSlowTask.h"
 // include Project
-#include "UnitGameData.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(SuperAssetManager)
 
@@ -20,11 +19,6 @@ USuperAssetManager& USuperAssetManager::Get()
 	UE_LOG(LogCore, Fatal, TEXT("Invalid AssetManagerClassName in DefaultEngine.ini.  It must be set to USuperAssetManager!"));
 
 	return *NewObject<USuperAssetManager>();
-}
-
-const UUnitGameData& USuperAssetManager::GetGameData()
-{
-	return GetOrLoadTypedGameData<UUnitGameData>(UnitGameDataPath);
 }
 
 UPrimaryDataAsset* USuperAssetManager::LoadGameDataOfClass(TSubclassOf<UPrimaryDataAsset> DataClass, const TSoftObjectPtr<UPrimaryDataAsset>& DataClassPath, FPrimaryAssetType PrimaryAssetType)

@@ -5,8 +5,6 @@
 
 #include "SuperAssetManager.generated.h"
 
-class UUnitGameData;
-
 UCLASS(Config = SProject)
 class USuperAssetManager : public UAssetManager
 {
@@ -14,8 +12,6 @@ class USuperAssetManager : public UAssetManager
 
 public:
 	static USuperAssetManager& Get();
-
-	const UUnitGameData& GetGameData();
 
 protected:
 	template <typename GameDataClass>
@@ -33,9 +29,6 @@ protected:
 	UPrimaryDataAsset* LoadGameDataOfClass(TSubclassOf<UPrimaryDataAsset> DataClass, const TSoftObjectPtr<UPrimaryDataAsset>& DataClassPath, FPrimaryAssetType PrimaryAssetType);
 
 protected:
-	UPROPERTY(Config)
-	TSoftObjectPtr<UUnitGameData> UnitGameDataPath;
-
 	UPROPERTY(Transient)
 	TMap<TObjectPtr<UClass>, TObjectPtr<UPrimaryDataAsset>> GameDataMap;
 };
