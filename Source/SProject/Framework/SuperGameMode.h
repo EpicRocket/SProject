@@ -2,11 +2,12 @@
 
 #pragma once
 
-#include "GameFramework/GameMode.h"
+#include "ModularGameMode.h"
+
 #include "SuperGameMode.generated.h"
 
 UCLASS()
-class ASuperGameMode : public AGameMode
+class ASuperGameMode : public AModularGameModeBase
 {
     GENERATED_BODY()
 
