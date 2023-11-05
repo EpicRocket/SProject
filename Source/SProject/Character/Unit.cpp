@@ -15,6 +15,13 @@ AUnit::AUnit()
 	AbilitySystemComponent = CreateDefaultSubobject<USuperAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 }
 
+void AUnit::BeginDestroy()
+{
+	Super::BeginDestroy();
+
+
+}
+
 UAbilitySystemComponent* AUnit::GetAbilitySystemComponent() const
 {
 	return AbilitySystemComponent;
@@ -22,4 +29,15 @@ UAbilitySystemComponent* AUnit::GetAbilitySystemComponent() const
 
 void AUnit::GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const
 {
+}
+
+void AUnit::UnitInitailize()
+{
+	UnitId = FGuid::NewGuid();
+}
+
+// Utility
+bool IsValidUnit(AUnit* Unit)
+{
+	return IsValid(Unit) && Unit->UnitId.IsValid();
 }

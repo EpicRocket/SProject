@@ -19,15 +19,27 @@ class SPROJECT_API AUnit : public AModularCharacter, public IAbilitySystemInterf
 public:
 	AUnit();
 
-	//~ Begin IAbilitySystemInterface
-	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const;
-	//~ End IAbilitySystemInterface
+	// AActor
+	virtual void BeginDestroy() override;
+	//~ AActor
 
-	//~ Begin IAbilitySystemInterface
+	// IAbilitySystemInterface
+	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const;
+	//~ IAbilitySystemInterface
+
+	// IGameplayTagAssetInterface
 	virtual void GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const;
-	//~ End IAbilitySystemInterface
+	//~ IGameplayTagAssetInterface
+
+	virtual void UnitInitailize();
+
+public:
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
+	FGuid UnitId;
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AbilitySystem", meta = (AllowPrivateAccess = "true"))
 	USuperAbilitySystemComponent* AbilitySystemComponent;
 };
+
+bool IsValidUnit(AUnit* Unit);
