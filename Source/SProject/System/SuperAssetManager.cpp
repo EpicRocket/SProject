@@ -2,7 +2,12 @@
 #include "SuperAssetManager.h"
 // include Engine
 #include "Engine/Engine.h"
+#include "Engine/DataAsset.h"
 #include "Misc/ScopedSlowTask.h"
+#include "Misc/App.h"
+#if WITH_EDITOR
+#include "Stats/StatsMisc.h"
+#endif
 // include Project
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(SuperAssetManager)

@@ -5,8 +5,7 @@
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(WaypointPather)
 
-AWaypointPather::AWaypointPather(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
+AWaypointPather::AWaypointPather()
 {
 	SceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("SceneComponent"));
 

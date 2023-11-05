@@ -5,13 +5,12 @@
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(SuperGameState)
 
-ASuperGameState::ASuperGameState(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
+ASuperGameState::ASuperGameState()
 {
-	AbilitySystemComponent = ObjectInitializer.CreateDefaultSubobject<USuperAbilitySystemComponent>(this, TEXT("AbilitySystemComponent"));
+	AbilitySystemComponent = CreateDefaultSubobject<USuperAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 }
 
 UAbilitySystemComponent* ASuperGameState::GetAbilitySystemComponent() const
 {
-    return AbilitySystemComponent;
+	return AbilitySystemComponent;
 }

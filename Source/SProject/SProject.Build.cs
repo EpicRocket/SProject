@@ -7,6 +7,7 @@ public class SProject : ModuleRules
 {
 	public SProject(ReadOnlyTargetRules Target) : base(Target) {
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
+		PrivatePCHHeaderFile = "SProject.h";
 
 		PublicDependencyModuleNames.AddRange(
 			new[] {
@@ -30,7 +31,8 @@ public class SProject : ModuleRules
 				"CommonInput",
 				"ModularGameplay",
 				"DataValidation",
-			}
+                "DeveloperSettings",
+            }
 		);
 
 		// GameplayAbility

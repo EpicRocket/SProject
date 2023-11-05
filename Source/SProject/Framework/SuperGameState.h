@@ -14,7 +14,7 @@ class ASuperGameState : public AModularGameStateBase, public IAbilitySystemInter
 	GENERATED_BODY()
 
 public:
-	ASuperGameState(const FObjectInitializer& ObjectInitializer);
+	ASuperGameState();
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 

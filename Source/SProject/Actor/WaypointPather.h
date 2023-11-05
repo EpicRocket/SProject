@@ -11,7 +11,10 @@ class USplineComponent;
 UCLASS(BlueprintType, hideCategories = (Input, Rendering))
 class AWaypointPather : public AActor
 {
-	GENERATED_UCLASS_BODY()
+	GENERATED_BODY()
+
+public:
+	AWaypointPather();
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))

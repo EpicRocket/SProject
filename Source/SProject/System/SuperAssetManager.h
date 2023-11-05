@@ -5,6 +5,8 @@
 
 #include "SuperAssetManager.generated.h"
 
+class UPrimaryDataAsset;
+
 UCLASS(Config = SProject)
 class USuperAssetManager : public UAssetManager
 {

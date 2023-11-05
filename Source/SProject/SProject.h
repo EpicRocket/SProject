@@ -28,3 +28,13 @@ DECLARE_LOG_CATEGORY_EXTERN(Project, Log, All);
 #define VERIFY_EQUAL(Val1, Val2) verifyf(Val1 == Val2, TEXT("%s ASSERTION : %s != %s"), *CALLINFO_S, TEXT("'"#Val1"'"), TEXT("'"#Val2"'"));
 #define VERIFYF_EQUAL(Val1, Val2, Format, ...) verifyf(Val1 == Val2, TEXT("%s ASSERTION : %s != %s, %s"), *CALLINFO_S, TEXT("'"#Val1"'"), TEXT("'"#Val2"'"), *FString::Printf(TEXT(Format), ##__VA_ARGS__));
 
+
+namespace Global
+{
+template<typename T>
+const T& GetEmpty()
+{
+	static T Empty;
+	return Empty;
+}
+}
