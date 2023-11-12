@@ -5,7 +5,9 @@
 
 #include "MainGameStageComponent.generated.h"
 
+class AUnit;
 class AWaypointPather;
+class UAbilitySystemComponent;
 
 USTRUCT(BlueprintType)
 struct FMainGameStageData
@@ -15,6 +17,7 @@ struct FMainGameStageData
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     AWaypointPather* WaypointPather = nullptr;
 
+    bool IsValidData() const;
 };
 
 UCLASS(Blueprintable, Abstract, HideCategories = (Trigger, PhysicsVolume))
@@ -28,6 +31,13 @@ public:
 
     UFUNCTION(BlueprintPure)
     const FMainGameStageData& GetMainGameStageData(int32 GameStageId) const;
+
+    UFUNCTION(BlueprintCallable)
+    void SummonUnit(int32 GameStageId, TSubclassOf<AUnit> UnitClass);
+
+protected:
+    UFUNCTION(BlueprintImplementableEvent)
+    void OnSpawnedUnit(AUnit* Unit, UAbilitySystemComponent* AbilitySystem);
 
 public:
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)

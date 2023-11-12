@@ -16,6 +16,9 @@ class AWaypointPather : public AActor
 public:
 	AWaypointPather();
 
+	UFUNCTION(BlueprintPure)
+	FVector GetPathLocation(float Alpha) const;
+
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USceneComponent> SceneComponent;

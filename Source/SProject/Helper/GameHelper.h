@@ -15,6 +15,7 @@ class SPROJECT_API UGameHelper : public UBlueprintFunctionLibrary
 
 public:
 
-    AUnit* SpawnUnit() { return nullptr; }
+    UFUNCTION(BlueprintCallable, meta = (WorldContext = "WorldContextObject"))
+    AUnit* SummonUnitFromGameStage(const UObject* WorldContextObject, int32 GameStageId, int32 UnitId);
 
 };

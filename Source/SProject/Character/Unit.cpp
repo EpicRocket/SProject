@@ -15,13 +15,6 @@ AUnit::AUnit()
 	AbilitySystemComponent = CreateDefaultSubobject<USuperAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 }
 
-void AUnit::BeginDestroy()
-{
-	Super::BeginDestroy();
-
-
-}
-
 UAbilitySystemComponent* AUnit::GetAbilitySystemComponent() const
 {
 	return AbilitySystemComponent;

@@ -19,10 +19,6 @@ class SPROJECT_API AUnit : public AModularCharacter, public IAbilitySystemInterf
 public:
 	AUnit();
 
-	// AActor
-	virtual void BeginDestroy() override;
-	//~ AActor
-
 	// IAbilitySystemInterface
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const;
 	//~ IAbilitySystemInterface
