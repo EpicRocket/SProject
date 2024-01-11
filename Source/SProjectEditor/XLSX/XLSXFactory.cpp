@@ -425,8 +425,17 @@ UXLSXFactory::UXLSXFactory()
 
 UObject* UXLSXFactory::FactoryCreateFile(UClass* InClass, UObject* InParent, FName InName, EObjectFlags Flags, const FString& Filename, const TCHAR* Parms, FFeedbackContext* Warn, bool& bOutOperationCanceled)
 {
+	//UObject* ExistingAsset = StaticFindObject(nullptr, InParent, *InName.ToString());
+
+
+
+
 	TArray<XLSX::XLSXSheet> Sheets;
 	XLSX::GenerateXLSXSheet(Filename, Sheets);
+
+
+
+
 
 	UTableAsset* TableAsset = NewObject<UTableAsset>(InParent, InClass, InName, Flags);
 	if (TableAsset == nullptr)
