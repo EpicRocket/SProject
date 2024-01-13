@@ -11,6 +11,7 @@
 #include "Kismet2/StructureEditorUtils.h"
 #include "Kismet2/BlueprintEditorUtils.h"
 #include "Kismet2/EnumEditorUtils.h"
+#include "ObjectTools.h"
 
 #include "Helper/SStringHelper.h"
 #include "Table/TableAsset.h"
@@ -24,6 +25,8 @@
 #endif
 
 #define Dependency_Module_Name TEXT("/Script/SProject")
+
+DECLARE_LOG_CATEGORY_EXTERN(LogFactory, Log, All);
 
 namespace XLSX
 {
@@ -425,8 +428,28 @@ UXLSXFactory::UXLSXFactory()
 
 UObject* UXLSXFactory::FactoryCreateFile(UClass* InClass, UObject* InParent, FName InName, EObjectFlags Flags, const FString& Filename, const TCHAR* Parms, FFeedbackContext* Warn, bool& bOutOperationCanceled)
 {
-	//UObject* ExistingAsset = StaticFindObject(nullptr, InParent, *InName.ToString());
+	UTableAsset* TableAsset = Cast<UTableAsset>(StaticFindObject(nullptr, InParent, *InName.ToString()));
+	if (!TableAsset)
+	{
+		TableAsset = NewObject<UTableAsset>(InParent, InClass, InName, Flags);
+	}
+		
+	if (TableAsset->GetClass()->IsChildOf(InClass))
+	{
+		TableAsset = NewObject<UTableAsset>(InParent, InClass, InName, Flags, nullptr);
+	}
 
+	if (!ObjectTools::DeleteSingleObject(TableAsset))
+	{
+		UE_LOG(LogFactory, Warning, TEXT("Could not delete existing asset %s"), *TableAsset->GetFullName());
+		return nullptr;
+	}
+
+	if (TableAsset == nullptr)
+	{
+		UE_LOG(LogFactory, Error, TEXT("Failed to create table asset. [FileName:%s]"), *Filename);
+		return nullptr;
+	}
 
 
 
@@ -434,14 +457,5 @@ UObject* UXLSXFactory::FactoryCreateFile(UClass* InClass, UObject* InParent, FNa
 	XLSX::GenerateXLSXSheet(Filename, Sheets);
 
 
-
-
-
-	UTableAsset* TableAsset = NewObject<UTableAsset>(InParent, InClass, InName, Flags);
-	if (TableAsset == nullptr)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Failed to create table asset. [FileName:%s]"), *Filename);
-		return nullptr;
-	}
 	return TableAsset;
 }
