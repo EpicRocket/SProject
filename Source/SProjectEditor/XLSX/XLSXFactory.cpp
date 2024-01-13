@@ -1,6 +1,6 @@
 ﻿
 #include "XLSXFactory.h"
-
+// include Engine
 #include "HAL/FileManager.h"
 #include "DataTableEditorUtils.h"
 #include "Engine/UserDefinedEnum.h"
@@ -12,21 +12,27 @@
 #include "Kismet2/BlueprintEditorUtils.h"
 #include "Kismet2/EnumEditorUtils.h"
 #include "ObjectTools.h"
-
+#include "Misc/FileHelper.h"
+#include "Misc/ConfigCacheIni.h"
+#include "Factories/DataTableFactory.h"
+// include LiveCoding
+#include "ILiveCodingModule.h"
+// include Project
 #include "Helper/SStringHelper.h"
 #include "Table/TableAsset.h"
-
+// include api
 #include <exception>
 #include <ranges>
 #include <variant>
+#include <type_traits>
 #if PLATFORM_WINDOWS
 #include "OpenXLSX/OpenXLSX.hpp"
 #include "OpenXLSX/headers/XLCellValue.hpp"
 #endif
 
+#define Dependency_Module TEXT("SProject")
+#define Dependency_Module_API TEXT("SPROJECT_API")
 #define Dependency_Module_Name TEXT("/Script/SProject")
-
-DECLARE_LOG_CATEGORY_EXTERN(LogFactory, Log, All);
 
 namespace XLSX
 {
@@ -54,22 +60,17 @@ namespace XLSX
 	struct XLSXHeader
 	{
 		FString Name;
+		FString Type;
 		ECellType CellType = ECellType::None;
 		ECellType SubType;
-		std::variant<UEnum*, UClass*> SubType_Ptr;
 
 		int32 Index = INDEX_NONE;
 	};
 
-	struct IXLSXCell
+	struct XLSXCell
 	{
 		int32 HeaderIndex = INDEX_NONE;
-	};
-
-	template <typename T>
-	struct TXLSXCell : public IXLSXCell
-	{
-		T Value;
+		FString Value;
 	};
 
 	struct XLSXSheet
@@ -78,11 +79,125 @@ namespace XLSX
 		EAssetType AssetType;
 
 		TSortedMap<int32, XLSXHeader> Headers;
-		TMultiMap<int32, IXLSXCell> Cells;
+		TMultiMap<int32, XLSXCell> Cells;
 	};
+
+	TArray<XLSXSheet> CacheSheet;
+
+	template<typename T>
+	T GetXLSXValue(const OpenXLSX::XLCellValueProxy& Proxy)
+	{
+		switch (Proxy.type())
+		{
+		case OpenXLSX::XLValueType::Boolean: {
+			bool Value = Proxy.get<bool>();
+			if constexpr (std::is_same_v<T, bool>)
+			{
+				return Value;
+			}
+			else if constexpr (std::is_same_v<T, int32>)
+			{
+				return static_cast<int32>(Value);
+			}
+			else if constexpr (std::is_same_v<T, int64>)
+			{
+				return static_cast<int64>(Value);
+			}
+			else if constexpr (std::is_same_v<T, float>)
+			{
+				return static_cast<float>(Value);
+			}
+			else if constexpr (std::is_same_v<T, FString>)
+			{
+				return Value ? TEXT("TRUE") : TEXT("FALSE");
+			}
+		}
+										   break;
+
+		case OpenXLSX::XLValueType::Integer:
+		{
+			int Value = Proxy.get<int>();
+			if constexpr (std::is_same_v<T, bool>)
+			{
+				return static_cast<bool>(Value);
+			}
+			else if constexpr (std::is_same_v<T, int32>)
+			{
+				return static_cast<int32>(Value);
+			}
+			else if constexpr (std::is_same_v<T, int64>)
+			{
+				return static_cast<int64>(Value);
+			}
+			else if constexpr (std::is_same_v<T, float>)
+			{
+				return static_cast<float>(Value);
+			}
+			else if constexpr (std::is_same_v<T, FString>)
+			{
+				return FString::Printf(TEXT("%d"), static_cast<int32>(Value));
+			}
+		}
+		break;
+
+		case OpenXLSX::XLValueType::Float:
+		{
+			float Value = Proxy.get<float>();
+			if constexpr (std::is_same_v<T, bool>)
+			{
+				return !FMath::IsNearlyZero(Value);
+			}
+			else if constexpr (std::is_same_v<T, int32>)
+			{
+				return static_cast<int32>(Value);
+			}
+			else if constexpr (std::is_same_v<T, int64>)
+			{
+				return static_cast<int64>(Value);
+			}
+			else if constexpr (std::is_same_v<T, float>)
+			{
+				return static_cast<float>(Value);
+			}
+			else if constexpr (std::is_same_v<T, FString>)
+			{
+				return FString::Printf(TEXT("%f"), Value);
+			}
+		}
+		break;
+
+		case OpenXLSX::XLValueType::String:
+		{
+			FString Value = FString(Proxy.get<std::string>().c_str());
+			if constexpr (std::is_same_v<T, bool>)
+			{
+				return Value.Equals(TEXT("TRUE"), ESearchCase::IgnoreCase);
+			}
+			else if constexpr (std::is_same_v<T, int32>)
+			{
+				return FCString::Atoi(*Value);
+			}
+			else if constexpr (std::is_same_v<T, int64>)
+			{
+				return FCString::Atoi64(*Value);
+			}
+			else if constexpr (std::is_same_v<T, float>)
+			{
+				return FCString::Atof(*Value);
+			}
+			else if constexpr (std::is_same_v<T, FString>)
+			{
+				return Value;
+			}
+		}
+		break;
+	}
+		return T{};
+	}
 
 	void GenerateXLSXSheet(const FString& FileName, TArray<XLSXSheet>& OutResult)
 	{
+		OutResult.Empty();
 #if PLATFORM_WINDOWS
 		try
 		{
@@ -144,22 +259,27 @@ namespace XLSX
 
 						if (TypeName.Contains(TEXT("bool")))
 						{
+							XLSXHeader.Type = TEXT("bool");
 							XLSXHeader.CellType = ECellType::Bool;
 						}
 						else if (TypeName.Contains(TEXT("int32")))
 						{
+							XLSXHeader.Type = TEXT("int32");
 							XLSXHeader.CellType = ECellType::Int32;
 						}
 						else if (TypeName.Contains(TEXT("int64")))
 						{
+							XLSXHeader.Type = TEXT("int64");
 							XLSXHeader.CellType = ECellType::Int64;
 						}
 						else if (TypeName.Contains(TEXT("float")))
 						{
+							XLSXHeader.Type = TEXT("float");
 							XLSXHeader.CellType = ECellType::Float;
 						}
 						else if (TypeName.Contains(TEXT("string")))
 						{
+							XLSXHeader.Type = TEXT("FString");
 							XLSXHeader.CellType = ECellType::String;
 						}
 						else if (TypeName.Contains(TEXT("array")))
@@ -168,62 +288,28 @@ namespace XLSX
 							FString Param = Helper::ExtractSubstring(TypeName, TEXT("<"), TEXT(">"));
 							if (TypeName.Contains(TEXT("bool")))
 							{
+								XLSXHeader.Type = FString::Printf(TEXT("TArray<bool>"));
 								XLSXHeader.SubType = ECellType::Bool;
 							}
 							else if (TypeName.Contains(TEXT("int32")))
 							{
+								XLSXHeader.Type = FString::Printf(TEXT("TArray<int32>"));
 								XLSXHeader.SubType = ECellType::Int32;
 							}
 							else if (TypeName.Contains(TEXT("int64")))
 							{
+								XLSXHeader.Type = FString::Printf(TEXT("TArray<int64>"));
 								XLSXHeader.SubType = ECellType::Int64;
 							}
 							else if (TypeName.Contains(TEXT("float")))
 							{
+								XLSXHeader.Type = FString::Printf(TEXT("TArray<float>"));
 								XLSXHeader.SubType = ECellType::Float;
 							}
 							else if (TypeName.Contains(TEXT("string")))
 							{
+								XLSXHeader.Type = FString::Printf(TEXT("TArray<FString>"));
 								XLSXHeader.SubType = ECellType::String;
-							}
-							else if (TypeName.Contains(TEXT("enum")))
-							{
-								XLSXHeader.SubType = ECellType::Enum;
-
-								FTopLevelAssetPath AssetPath(Dependency_Module_Name, *Param);
-								UEnum* Enum = FindObject<UEnum>(AssetPath);
-								if (nullptr == Enum)
-								{
-									UE_LOG(LogTemp, Error, TEXT("Failed to find enum. [EnumName:%s]"), *Param);
-									continue;
-								}
-								XLSXHeader.SubType_Ptr = Enum;
-							}
-							else if (TypeName.Contains(TEXT("asset")))
-							{
-								XLSXHeader.SubType = ECellType::Asset;
-								FTopLevelAssetPath AssetPath(Dependency_Module_Name, *Param);
-
-								UObject* Asset = FindObject<UObject>(AssetPath);
-								if (nullptr == Asset)
-								{
-									UE_LOG(LogTemp, Error, TEXT("Failed to find asset. [AssetName:%s]"), *Param);
-									continue;
-								}
-								XLSXHeader.SubType_Ptr = Asset->GetClass();
-							}
-							else if (TypeName.Contains(TEXT("class")))
-							{
-								XLSXHeader.SubType = ECellType::Class;
-								FTopLevelAssetPath AssetPath(Dependency_Module_Name, *Param);
-
-								UObject* Asset = FindObject<UObject>(AssetPath);
-								if (Asset == nullptr)
-								{
-									UE_LOG(LogTemp, Error, TEXT("Failed to find class. [AssetName:%s]"), *Param);
-									continue;
-								}
-								XLSXHeader.SubType_Ptr = Asset->GetClass();
 							}
 							else
 							{
@@ -233,47 +319,21 @@ namespace XLSX
 						}
 						else if (TypeName.Contains(TEXT("enum")))
 						{
-							XLSXHeader.CellType = ECellType::Enum;
 							FString Param = Helper::ExtractSubstring(TypeName, TEXT("<"), TEXT(">"));
-
-							FTopLevelAssetPath AssetPath(Dependency_Module_Name, *FString::Printf(TEXT("E%s"), *Param));
-							UEnum* Enum = FindObject<UEnum>(AssetPath);
-							if (nullptr == Enum)
-							{
-								UE_LOG(LogTemp, Error, TEXT("Failed to find enum. [EnumName:%s]"), *Param);
-								continue;
-							}
-							XLSXHeader.SubType_Ptr = Enum;
+							XLSXHeader.Type = FString::Printf(TEXT("%s"), *Param);
+							XLSXHeader.CellType = ECellType::Enum;
 						}
 						else if (TypeName.Contains(TEXT("asset")))
 						{
-							XLSXHeader.CellType = ECellType::Asset;
 							FString Param = Helper::ExtractSubstring(TypeName, TEXT("<"), TEXT(">"));
-
-							FTopLevelAssetPath AssetPath(Dependency_Module_Name, *Param);
-
-							UObject* Asset = FindObject<UObject>(AssetPath);
-							if (nullptr == Asset)
-							{
-								UE_LOG(LogTemp, Error, TEXT("Failed to find class. [ClassName:%s]"), *FString::Printf(TEXT("U%s"), *Param));
-								continue;
-							}
-							XLSXHeader.SubType_Ptr = Asset->GetClass();
+							XLSXHeader.Type = FString::Printf(TEXT("%s"), *Param);
+							XLSXHeader.CellType = ECellType::Asset;
 						}
 						else if (TypeName.Contains(TEXT("class")))
 						{
-							XLSXHeader.CellType = ECellType::Class;
 							FString Param = Helper::ExtractSubstring(TypeName, TEXT("<"), TEXT(">"));
-
-							FTopLevelAssetPath AssetPath(Dependency_Module_Name, *Param);
-
-							UObject* Asset = FindObject<UObject>(AssetPath);
-							if (Asset == nullptr)
-							{
-								UE_LOG(LogTemp, Error, TEXT("Failed to find class. [AssetName:%s]"), *FString::Printf(TEXT("U%s"), *Param));
-								continue;
-							}
-							XLSXHeader.SubType_Ptr = Asset->GetClass();
+							XLSXHeader.Type = FString::Printf(TEXT("%s"), *Param);
+							XLSXHeader.CellType = ECellType::Class;
 						}
 						else
 						{
@@ -284,6 +344,7 @@ namespace XLSX
 					}
 				}	// ~헤더 정보 저장
 				
+				if(Sheet.AssetType != EAssetType::Enum)
 				{	// 값 정보 저장
 					int32 RowIndex = 0;
 					for (int32 i = ++RowStart; i <= RowCount; ++i, ++RowIndex)
@@ -299,105 +360,10 @@ namespace XLSX
 								continue;
 							}
 							const XLSXHeader& Header = Sheet.Headers[Index];
-
 							auto& RowData = DataRowIter->value();
-							switch (Header.CellType)
-							{
-							case ECellType::Bool:
-							{
-								TXLSXCell<bool> Cell{ .Value = RowData.get<bool>() };
-								Cell.HeaderIndex = Index;
-								Sheet.Cells.Emplace(RowIndex, Cell);
-							}
-							break;
 
-							case ECellType::Int32:
-							{
-								TXLSXCell<int32> Cell{ .Value = RowData.get<int32>() };
-								Cell.HeaderIndex = Index;
-								Sheet.Cells.Emplace(RowIndex, Cell);
-							}
-							break;
-
-							case ECellType::Int64:
-							{
-								TXLSXCell<int64> Cell{ .Value = RowData.get<int64>() };
-								Cell.HeaderIndex = Index;
-								Sheet.Cells.Emplace(RowIndex, Cell);
-							}
-							break;
-
-							case ECellType::Float:
-							{
-								TXLSXCell<float> Cell{ .Value = RowData.get<float>() };
-								Cell.HeaderIndex = Index;
-								Sheet.Cells.Emplace(RowIndex, Cell);
-							}
-							break;
-
-							case ECellType::String:
-							{
-								TXLSXCell<FString> Cell{ .Value = FString(RowData.get<std::string>().c_str()) };
-								Cell.HeaderIndex = Index;
-								Sheet.Cells.Emplace(RowIndex, Cell);
-							}
-							break;
-
-							case ECellType::TArray:
-							{
-								// TODO:
-							}
-							break;
-
-							case ECellType::Enum:
-							{
-								if (std::holds_alternative<UEnum*>(Header.SubType_Ptr))
-								{
-									auto Enum = std::get<UEnum*>(Header.SubType_Ptr);
-
-									auto EnumValue = Enum->GetValueByNameString(RowData.get<std::string>().c_str());
-									TXLSXCell<int64> Cell{ .Value = EnumValue };
-									Cell.HeaderIndex = Index;
-									Sheet.Cells.Emplace(RowIndex, Cell);
-								}
-							}
-							break;
-
-							case ECellType::Asset:
-							{
-								if (std::holds_alternative<UClass*>(Header.SubType_Ptr))
-								{
-									auto Class = std::get<UClass*>(Header.SubType_Ptr);
-
-									FTopLevelAssetPath AssetPath(Dependency_Module_Name, *FString(RowData.get<std::string>().c_str()));
-									if (UObject* DataAsset = StaticFindObject(Class, AssetPath, true))
-									{
-										TXLSXCell<TSoftObjectPtr<UObject>> Cell{ .Value = TSoftObjectPtr<UObject>(DataAsset->GetClass()) };
-										Cell.HeaderIndex = Index;
-										Sheet.Cells.Emplace(RowIndex, Cell);
-									}
-								}
-							}
-							break;
-
-							case ECellType::Class:
-							{
-								if (std::holds_alternative<UClass*>(Header.SubType_Ptr))
-								{
-									auto Class = std::get<UClass*>(Header.SubType_Ptr);
-
-									FTopLevelAssetPath AssetPath(Dependency_Module_Name, *FString(RowData.get<std::string>().c_str()));
-									if (UObject* DataAsset = StaticFindObject(Class, AssetPath, true))
-									{
-										TXLSXCell<TSoftClassPtr<UObject>> Cell{ .Value = TSoftClassPtr<UObject>(DataAsset->GetClass()) };
-										Cell.HeaderIndex = Index;
-										Sheet.Cells.Emplace(RowIndex, Cell);
-									}
-								}
-							}
-							break;
-
-							}
+							XLSXCell Cell{ .HeaderIndex = Index, .Value = GetXLSXValue<FString>(RowData) };
+							Sheet.Cells.Emplace(RowIndex, Cell);
 						}
 					}
 				}	// ~값 정보 저장
@@ -421,41 +387,244 @@ UXLSXFactory::UXLSXFactory()
 {
 	SupportedClass = UTableAsset::StaticClass();
 	Formats.Add(TEXT("xlsx;Microsoft Excel Spreadsheet"));
-	bEditAfterNew = true;
 	bEditorImport = true;
 	bText = false;
 }
 
 UObject* UXLSXFactory::FactoryCreateFile(UClass* InClass, UObject* InParent, FName InName, EObjectFlags Flags, const FString& Filename, const TCHAR* Parms, FFeedbackContext* Warn, bool& bOutOperationCanceled)
 {
-	UTableAsset* TableAsset = Cast<UTableAsset>(StaticFindObject(nullptr, InParent, *InName.ToString()));
+#if WITH_HOT_RELOAD && WITH_LIVE_CODING
+	ILiveCodingModule* LiveCoding = FModuleManager::GetModulePtr<ILiveCodingModule>(LIVE_CODING_MODULE_NAME);
+	if (LiveCoding == nullptr)
+	{
+		return nullptr;
+	}
+	if (LiveCoding->IsCompiling())
+	{
+		return nullptr;
+	}
+
+	UTableAsset* TableAsset = Cast<UTableAsset>(StaticFindObject(UTableAsset::StaticClass(), InParent, *InName.ToString()));
 	if (!TableAsset)
 	{
-		TableAsset = NewObject<UTableAsset>(InParent, InClass, InName, Flags);
-	}
-		
-	if (TableAsset->GetClass()->IsChildOf(InClass))
-	{
-		TableAsset = NewObject<UTableAsset>(InParent, InClass, InName, Flags, nullptr);
+		TableAsset = NewObject<UTableAsset>(InParent, InClass, InName, Flags | RF_Transactional);
 	}
 
-	if (!ObjectTools::DeleteSingleObject(TableAsset))
+	FString TablePath;
+	if (!GConfig->GetString(TEXT("/XLSX"), TEXT("TablePath"), TablePath, GEditorIni))
 	{
-		UE_LOG(LogFactory, Warning, TEXT("Could not delete existing asset %s"), *TableAsset->GetFullName());
+		UE_LOG(LogTemp, Error, TEXT("Failed to find table path. [Path:%s]"), *TablePath);
 		return nullptr;
 	}
 
-	if (TableAsset == nullptr)
+	XLSX::GenerateXLSXSheet(Filename, XLSX::CacheSheet);
+
+	if (XLSX::CacheSheet.Num() == 0)
 	{
-		UE_LOG(LogFactory, Error, TEXT("Failed to create table asset. [FileName:%s]"), *Filename);
+		UE_LOG(LogTemp, Error, TEXT("Failed to generate sheet. [Path:%s]"), *Filename);
 		return nullptr;
 	}
 
+	XLSX::CacheSheet.Sort([](XLSX::XLSXSheet const& A, XLSX::XLSXSheet const& B)
+		{
+			if (A.AssetType == XLSX::EAssetType::Enum && B.AssetType == XLSX::EAssetType::Struct)
+			{
+				return true;
+			}
+			else if (A.AssetType == XLSX::EAssetType::Struct && B.AssetType == XLSX::EAssetType::Enum)
+			{
+				return false;
+			}
+			else
+			{
+				return false;
+			}
+		});
 
+	FString TableDesc;
+	TableDesc += FString::Printf(TEXT("// File generate %s"), *FDateTime::Now().ToString());
+	TableDesc += TEXT("\n");
+	TableDesc += TEXT("#pragma once");
+	TableDesc += TEXT("\n\n");
+	TableDesc += TEXT("#include \"CoreMinimal.h\"");
+	TableDesc += TEXT("\n");
+	TableDesc += TEXT("#include \"Engine/DataTable.h\"");
+	TableDesc += TEXT("\n");
+	TableDesc += FString::Printf(TEXT("#include \"%s.generated.h\""), *InName.ToString());
+	TableDesc += TEXT("\n\n");
 
-	TArray<XLSX::XLSXSheet> Sheets;
-	XLSX::GenerateXLSXSheet(Filename, Sheets);
+	for (auto& Sheet : XLSX::CacheSheet)
+	{
+		switch (Sheet.AssetType)
+		{
+		case XLSX::EAssetType::Struct:
+		{
+			TableDesc += FString::Printf(TEXT("USTRUCT(BlueprintType)\n"));
+			TableDesc += FString::Printf(TEXT("struct %s F%sTableRow : public FTableRowBase\n"), Dependency_Module_API, *Sheet.Name);
+			TableDesc += TEXT("{\n");
+			TableDesc += TEXT("	GENERATED_BODY()\n");
+			TableDesc += TEXT("\n");
+			
+			for (auto& [Index, Header] : Sheet.Headers)
+			{
+				TableDesc += FString::Printf(TEXT("	UPROPERTY(EditAnywhere, BlueprintReadWrite)\n"));
+				TableDesc += FString::Printf(TEXT("	%s %s;"), *Header.Type, *Header.Name);
+				TableDesc += TEXT("\n\n");
+			}
 
+			TableDesc += TEXT("\n");
+			TableDesc += TEXT("};\n");
+		}
+		break;
+
+		case XLSX::EAssetType::Enum:
+		{
+			TableDesc += FString::Printf(TEXT("UENUM(BlueprintType)\n"));
+			TableDesc += FString::Printf(TEXT("enum class %s : uint8\n"), *Sheet.Name);
+			TableDesc += TEXT("{\n");
+			TableDesc += TEXT("	GENERATED_BODY()\n");
+			TableDesc += TEXT("\n");
+
+			for (auto& [Index, Header] : Sheet.Headers)
+			{
+				TableDesc += FString::Printf(TEXT("	%s,\n"), *Header.Name);
+			}
+			TableDesc += TEXT("};\n");
+		}
+		break;
+
+		}
+	}
+
+	FString AbsPath = FPaths::ProjectDir() / TEXT("Source") / Dependency_Module / TablePath;
+	if (!FPaths::DirectoryExists(AbsPath))
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to find module path. [Path:%s]"), *AbsPath);
+		return nullptr;
+	}
+	FString FilePath = AbsPath / FString::Printf(TEXT("%s.h"), *InName.ToString());
+
+	FFileHelper::SaveStringToFile(TableDesc, *FilePath);
+
+	if (ComplieHandle.IsValid())
+	{
+		LiveCoding->GetOnPatchCompleteDelegate().Remove(ComplieHandle);
+	}
+
+	ComplieHandle = LiveCoding->GetOnPatchCompleteDelegate().AddLambda(
+		[this, TableAsset, TablePath, Flags, InParent]()
+		{
+			IAssetTools& AssetTools = FModuleManager::GetModuleChecked<FAssetToolsModule>("AssetTools").Get();
+			ILiveCodingModule* LiveCoding = FModuleManager::GetModulePtr<ILiveCodingModule>(LIVE_CODING_MODULE_NAME);
+
+			LiveCoding->GetOnPatchCompleteDelegate().Remove(ComplieHandle);
+
+			if (!IsValid(TableAsset))
+			{
+				UE_LOG(LogTemp, Error, TEXT("TableAsset is not valid."));
+				return;
+			}
+
+			for (auto& Sheet : XLSX::CacheSheet)
+			{
+				if (Sheet.AssetType != XLSX::EAssetType::Struct)
+				{
+					continue;
+				}
+
+				FString DataTableName = FString::Printf(TEXT("DT_%s"), *Sheet.Name);
+				FString DataTablePath = TEXT("/Game") / TablePath;
+
+				if (UScriptStruct* RowStruct = FindObjectSafe<UScriptStruct>(FTopLevelAssetPath(Dependency_Module_Name, FName(FString::Printf(TEXT("%sTableRow"), *Sheet.Name)))))
+				{
+					UDataTableFactory* Factory = NewObject<UDataTableFactory>();
+					Factory->Struct = RowStruct;
+					UDataTable* NewDT = Cast<UDataTable>(AssetTools.CreateAsset(DataTableName, DataTablePath, UDataTable::StaticClass(), Factory));
+					TableAsset->Tables.Emplace(DataTableName, NewDT);
+
+					TArray<int32> Keys;
+					Sheet.Cells.GenerateKeyArray(Keys);
+					/*for (auto& Key : Keys)
+					{
+						TArray<XLSX::XLSXCell> Cells;
+						Sheet.Cells.MultiFind(Key, Cells, true);
+						for (auto& Cell : Cells)
+						{
+							uint8* RowPtr = FDataTableEditorUtils::AddRow(DataTable, FName(*FString::Printf(TEXT("%d"), Key)));
+							for (TFieldIterator<FProperty> It(DataTable->RowStruct); It; ++It)
+							{
+								FProperty* BaseProp = *It;
+								check(BaseProp);
+
+								XLSX::XLSXHeader& Header = Sheet.Headers[Cell.HeaderIndex];
+
+								switch (Header.CellType)
+								{
+								case XLSX::ECellType::Bool:
+								case XLSX::ECellType::Int32:
+								case XLSX::ECellType::Int64:
+								case XLSX::ECellType::Float:
+								case XLSX::ECellType::String:
+								case XLSX::ECellType::Enum:
+								case XLSX::ECellType::TArray:
+								{
+									DataTableUtils::AssignStringToProperty(Cell.Value, BaseProp, RowPtr);
+								}
+								break;
+
+								case XLSX::ECellType::Asset:
+								{
+									FSoftObjectPath	SoftObjectPath(Cell.Value);
+									DataTableUtils::AssignStringToProperty(SoftObjectPath.GetLongPackageName(), BaseProp, RowPtr);
+								}
+								break;
+
+								case XLSX::ECellType::Class:
+								{
+									FSoftClassPath	SoftClassPath(Cell.Value);
+									DataTableUtils::AssignStringToProperty(SoftClassPath.GetLongPackageName(), BaseProp, RowPtr);
+								}
+
+								break;
+								}
+							}
+						}
+					}*/
+
+					//FAssetRegistryModule::AssetCreated(DataTable);
+					//GEditor->BroadcastObjectReimported(DataTable);
+				}
+			};
+		}
+	);
+	
+	LiveCoding->Compile();
 
 	return TableAsset;
+#else
+	return nullptr;
+#endif
+}
+
+bool UXLSXFactory::CanReimport(UObject* Obj, TArray<FString>& OutFilenames)
+{
+	if (UTableAsset* TableAsset = Cast<UTableAsset>(Obj))
+	{
+		return true;
+	}
+	return false;
+}
+
+void UXLSXFactory::SetReimportPaths(UObject* Obj, const TArray<FString>& NewReimportPaths)
+{
+}
+
+EReimportResult::Type UXLSXFactory::Reimport(UObject* Obj)
+{
+	UTableAsset* TableAsset = Cast<UTableAsset>(Obj);
+	if (!TableAsset)
+	{
+		return EReimportResult::Failed;
+	}
+	return EReimportResult::Succeeded;
 }

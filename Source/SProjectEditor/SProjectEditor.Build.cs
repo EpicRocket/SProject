@@ -31,7 +31,9 @@ public class SProjectEditor : ModuleRules
 				"ToolMenus",
 				"AssetTools",
 				"BlueprintGraph",
-			}
+                "DeveloperSettings",
+                "LiveCoding",
+            }
 		);
 
 		PrivateDependencyModuleNames.AddRange(
