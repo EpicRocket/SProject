@@ -474,6 +474,20 @@ UObject* UXLSXFactory::FactoryCreateFile(UClass* InClass, UObject* InParent, FNa
 
 			TableDesc += TEXT("\n");
 			TableDesc += TEXT("};\n");
+
+			FString DataTableName = FString::Printf(TEXT("DT_%s"), *Sheet.Name);
+			FString DataTablePath = TEXT("/Game") / TablePath;
+
+			if (UScriptStruct* RowStruct = FindObjectSafe<UScriptStruct>(FTopLevelAssetPath(Dependency_Module_Name, FName(FString::Printf(TEXT("%sTableRow"), *Sheet.Name)))))
+			{
+				IAssetTools& AssetTools = FModuleManager::GetModuleChecked<FAssetToolsModule>("AssetTools").Get();
+
+				UDataTableFactory* Factory = NewObject<UDataTableFactory>();
+				Factory->Struct = RowStruct;
+				UDataTable* NewDT = Cast<UDataTable>(AssetTools.CreateAsset(DataTableName, DataTablePath, UDataTable::StaticClass(), Factory));
+				TableAsset->Tables.Emplace(DataTableName, NewDT);
+			}
+
 		}
 		break;
 
@@ -539,12 +553,12 @@ UObject* UXLSXFactory::FactoryCreateFile(UClass* InClass, UObject* InParent, FNa
 				{
 					UDataTableFactory* Factory = NewObject<UDataTableFactory>();
 					Factory->Struct = RowStruct;
-					UDataTable* NewDT = Cast<UDataTable>(AssetTools.CreateAsset(DataTableName, DataTablePath, UDataTable::StaticClass(), Factory));
+					UDataTable* NewDT = Cast<UDataTable>(AssetTools.CreateAsset(DataTableName, DataTablePath / DataTableName, UDataTable::StaticClass(), Factory));
 					TableAsset->Tables.Emplace(DataTableName, NewDT);
 
 					TArray<int32> Keys;
 					Sheet.Cells.GenerateKeyArray(Keys);
-					/*for (auto& Key : Keys)
+					/*for (auto& Key : Keys) 
 					{
 						TArray<XLSX::XLSXCell> Cells;
 						Sheet.Cells.MultiFind(Key, Cells, true);
@@ -598,7 +612,7 @@ UObject* UXLSXFactory::FactoryCreateFile(UClass* InClass, UObject* InParent, FNa
 		}
 	);
 	
-	LiveCoding->Compile();
+	//LiveCoding->Compile();
 
 	return TableAsset;
 #else
