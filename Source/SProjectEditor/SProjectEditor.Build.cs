@@ -33,6 +33,8 @@ public class SProjectEditor : ModuleRules
 				"BlueprintGraph",
                 "DeveloperSettings",
                 "LiveCoding",
+                "EditorSubsystem",
+                "ContentBrowser",
             }
 		);
 
