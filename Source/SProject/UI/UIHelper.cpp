@@ -1,74 +1,61 @@
-﻿
+
+
 #include "UIHelper.h"
 // include Engine
 #include "Engine/GameInstance.h"
 #include "CommonActivatableWidget.h"
-#include "CommonLocalPlayer.h"
 #include "NativeGameplayTags.h"
-#include "GameUIPolicy.h"
-#include "PrimaryGameLayout.h"
-#include "GameUIManagerSubsystem.h"
 #include "Widgets/CommonActivatableWidgetContainer.h"
+// include Plugin
+#include "GameFramework/GameplayMessageSubsystem.h"
+#include "GameUIManagerSubsystem.h"
+#include "GameUIPolicy.h"
+#include "CommonLocalPlayer.h"
+#include "PrimaryGameLayout.h"
 // include Project
-#include "UI/Interface/SubLayerContainerInterface.h"
+#include "GameplayMessage/WidgetLayerMessage.h"
+#include "UI/CustomActivatableWidget.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(UIHelper)
 
-UCommonActivatableWidgetContainerBase* UUIHelper::GetLayerContainer(const APlayerController* PlayerController, FGameplayTag LayerName)
+UCustomActivatableWidget* UUIHelper::PushContentToLayer_ForPlayer(APlayerController* PlayerController, UPARAM(meta = (Categories = "UI.Layer")) FGameplayTag LayerName, UPARAM(meta = (AllowAbstract = false)) TSubclassOf<UCustomActivatableWidget> WidgetClass)
 {
 	if (!ensure(PlayerController))
 	{
 		return nullptr;
 	}
 
-	if (const UGameUIManagerSubsystem* UIManager = PlayerController->GetGameInstance()->GetSubsystem<UGameUIManagerSubsystem>())
-	{
-		if (const UGameUIPolicy* Policy = UIManager->GetCurrentUIPolicy())
-		{
-			if (UPrimaryGameLayout* RootLayout = Policy->GetRootLayout(CastChecked<UCommonLocalPlayer>(PlayerController->GetLocalPlayer())))
-			{
-				return RootLayout->GetLayerWidget(LayerName);
-			}
-		}
-	}
-	return nullptr;
-}
-
-UCommonActivatableWidgetContainerBase* UUIHelper::GetSubLayerContainer(const APlayerController* PlayerController, FGameplayTag LayerName, FGameplayTag SubLayerName)
-{
-	if (!ensure(PlayerController))
+	if (!ensure(WidgetClass))
 	{
 		return nullptr;
 	}
 
-	if (UCommonActivatableWidgetContainerBase* LayerContainer = UUIHelper::GetLayerContainer(PlayerController, LayerName))
+	if (UPrimaryGameLayout* GameLayout = UPrimaryGameLayout::GetPrimaryGameLayout(PlayerController))
 	{
-		if (UCommonActivatableWidget* ActivatableWidget = LayerContainer->GetActiveWidget())
+		if (UCommonActivatableWidgetContainerBase* Layer = GameLayout->GetLayerWidget(LayerName))
 		{
-			if (ActivatableWidget->Implements<USubLayerContainerInterface>())
+			if (IActivatableWidgetContainerInterface* ILayer = Cast<IActivatableWidgetContainerInterface>(Layer))
 			{
-				return Cast<ISubLayerContainerInterface>(ActivatableWidget)->Execute_GetLayerSubContainer(ActivatableWidget, SubLayerName);
-			}
-		}
-	}
+				TScriptInterface<IActivatableWidgetContainerInterface> LayerInterface;
+				LayerInterface.SetObject(Layer);
+				LayerInterface.SetInterface(ILayer);
 
-	return nullptr;
-}
-
-UCommonActivatableWidget* UUIHelper::GetContentFromLayer(const APlayerController* PlayerController, FGameplayTag LayerName, TSubclassOf<UCommonActivatableWidget> WidgetClass)
-{
-	if (!ensure(PlayerController))
-	{
-		return nullptr;
-	}
-
-	if (UCommonActivatableWidgetContainerBase* Container = UUIHelper::GetLayerContainer(PlayerController, LayerName))
-	{
-		for (UCommonActivatableWidget* Widget : Container->GetWidgetList())
-		{
-			if (IsValid(Widget) && Widget->IsA(WidgetClass))
-			{
-				return Widget;
+				UCustomActivatableWidget* NewWidget = Layer->AddWidget<UCustomActivatableWidget>(WidgetClass, [LayerName](UCustomActivatableWidget& NewWidget)
+				{
+					NewWidget.LayerName = LayerName;
+				});
+				if (UGameplayMessageSubsystem* Subsystem = PlayerController->GetGameInstance()->GetSubsystem<UGameplayMessageSubsystem>())
+				{
+					Subsystem->BroadcastMessage(
+						LayerName,
+						FWidgetLayerMessage{
+							.GameplayTag = LayerName,
+							.Layer = LayerInterface,
+							.CurrentStack = Layer->GetNumWidgets(),
+							.CurrentWidget = NewWidget
+						});
+				}
+				return NewWidget;
 			}
 		}
 	}
@@ -76,152 +63,242 @@ UCommonActivatableWidget* UUIHelper::GetContentFromLayer(const APlayerController
 	return nullptr;
 }
 
-UCommonActivatableWidget* UUIHelper::GetContentFromSubLayer(const APlayerController* PlayerController, FGameplayTag LayerName, FGameplayTag SubLayerName, TSubclassOf<UCommonActivatableWidget> WidgetClass)
+UCustomActivatableWidget* UUIHelper::PushContentToSubLayer_ForPlayer(APlayerController* PlayerController, UPARAM(meta = (Categories = "UI.Layer")) FGameplayTag LayerName, UPARAM(meta = (Categories = "UI.SubLayer")) FGameplayTag SubLayerName, UPARAM(meta = (AllowAbstract = false)) TSubclassOf<UCustomActivatableWidget> WidgetClass)
 {
-	if (!ensure(PlayerController))
+	if (UPrimaryGameLayout* GameLayout = UPrimaryGameLayout::GetPrimaryGameLayout(PlayerController))
 	{
-		return nullptr;
-	}
-
-	if (UCommonActivatableWidgetContainerBase* Container = UUIHelper::GetSubLayerContainer(PlayerController, LayerName, SubLayerName))
-	{
-		for (UCommonActivatableWidget* Widget : Container->GetWidgetList())
+		if (UCommonActivatableWidgetContainerBase* Layer = GameLayout->GetLayerWidget(LayerName))
 		{
-			if (IsValid(Widget) && Widget->IsA(WidgetClass))
+			if (UCustomActivatableWidget* ParentWidget = Cast<UCustomActivatableWidget>(Layer->GetActiveWidget()))
 			{
-				return Widget;
+				return ParentWidget->PushWidgetToSubLayer(SubLayerName, WidgetClass, [](UCommonActivatableWidget&) {});
 			}
 		}
 	}
-
 	return nullptr;
 }
 
-UCommonActivatableWidget* UUIHelper::GetActiveContentFromLayer(const APlayerController* PlayerController, FGameplayTag LayerName)
-{
-	if (!ensure(PlayerController))
-	{
-		return nullptr;
-	}
-
-	if (UCommonActivatableWidgetContainerBase* Container = UUIHelper::GetLayerContainer(PlayerController, LayerName))
-	{
-		return Container->GetActiveWidget();
-	}
-
-	return nullptr;
-}
-
-UCommonActivatableWidget* UUIHelper::GetActiveContentFromSubLayer(const APlayerController* PlayerController, FGameplayTag LayerName, FGameplayTag SubLayerName)
-{
-	if (!ensure(PlayerController))
-	{
-		return nullptr;
-	}
-
-	if (UCommonActivatableWidgetContainerBase* Container = UUIHelper::GetSubLayerContainer(PlayerController, LayerName, SubLayerName))
-	{
-		return Container->GetActiveWidget();
-	}
-
-	return nullptr;
-}
-
-bool UUIHelper::ExistContentFromLayer(const APlayerController* PlayerController, FGameplayTag LayerName, TSubclassOf<UCommonActivatableWidget> WidgetClass)
-{
-	if (!ensure(PlayerController))
-	{
-		return false;
-	}
-
-	return IsValid(UUIHelper::GetContentFromLayer(PlayerController, LayerName, WidgetClass));
-}
-
-bool UUIHelper::ExistContentFromSubLayer(const APlayerController* PlayerController, FGameplayTag LayerName, FGameplayTag SubLayerName, TSubclassOf<UCommonActivatableWidget> WidgetClass)
-{
-	if (!ensure(PlayerController))
-	{
-		return false;
-	}
-
-	return IsValid(UUIHelper::GetContentFromSubLayer(PlayerController, LayerName, SubLayerName, WidgetClass));
-}
-
-UCommonActivatableWidget* UUIHelper::PushContentToSubLayer_ForPlayer(const APlayerController* PlayerController, FGameplayTag LayerName, FGameplayTag SubLayerName, TSubclassOf<UCommonActivatableWidget> WidgetClass)
-{
-	if (!ensure(PlayerController))
-	{
-		return nullptr;
-	}
-
-	if (UCommonActivatableWidgetContainerBase* Container = UUIHelper::GetSubLayerContainer(PlayerController, LayerName, SubLayerName))
-	{
-		return Container->AddWidget(WidgetClass);
-	}
-
-	return nullptr;
-}
-
-void UUIHelper::PopContentFromLayer(const APlayerController* PlayerController, FGameplayTag LayerName)
+void UUIHelper::RemoveContentToLayer_ForPlayer(APlayerController* PlayerController, UCustomActivatableWidget* RemoveToWidget)
 {
 	if (!ensure(PlayerController))
 	{
 		return;
 	}
 
-	if (UCommonActivatableWidgetContainerBase* Container = UUIHelper::GetLayerContainer(PlayerController, LayerName))
+	if (!ensure(RemoveToWidget))
 	{
-		if (Container->GetNumWidgets() > 0)
+		return;
+	}
+
+	if (UPrimaryGameLayout* GameLayout = UPrimaryGameLayout::GetPrimaryGameLayout(PlayerController))
+	{
+		FGameplayTag LayerName = RemoveToWidget->LayerName;
+		if (UCommonActivatableWidgetContainerBase* Layer = GameLayout->GetLayerWidget(LayerName))
 		{
-			if (UCommonActivatableWidget* ActiveWidget = Container->GetActiveWidget())
+			if (IActivatableWidgetContainerInterface* ILayer = Cast<IActivatableWidgetContainerInterface>(Layer))
 			{
-				Container->RemoveWidget(*ActiveWidget);
+				TScriptInterface<IActivatableWidgetContainerInterface> LayerInterface;
+				LayerInterface.SetObject(Layer);
+				LayerInterface.SetInterface(ILayer);
+
+				UCustomActivatableWidget* PrevWidget = nullptr;
+				for (UCommonActivatableWidget* Widget : Layer->GetWidgetList())
+				{
+					if (Widget == RemoveToWidget)
+					{
+						break;
+					}
+					PrevWidget = Cast<UCustomActivatableWidget>(Widget);
+				}
+
+				Layer->RemoveWidget(*RemoveToWidget);
+
+				if (UGameplayMessageSubsystem* Subsystem = PlayerController->GetGameInstance()->GetSubsystem<UGameplayMessageSubsystem>())
+				{
+					Subsystem->BroadcastMessage(
+						LayerName,
+						FWidgetLayerMessage{
+							.GameplayTag = LayerName,
+							.Layer = LayerInterface,
+							.CurrentStack = Layer->GetNumWidgets(),
+							.CurrentWidget = PrevWidget
+						});
+				}
 			}
 		}
 	}
 }
 
-void UUIHelper::PopContentFromSubLayer(const APlayerController* PlayerController, FGameplayTag LayerName, FGameplayTag SubLayerName)
+void UUIHelper::PopContentToLayer_ForPlayer(APlayerController* PlayerController, UPARAM(meta = (Categories = "UI.Layer")) FGameplayTag LayerName)
 {
 	if (!ensure(PlayerController))
 	{
 		return;
 	}
 
-	if (UCommonActivatableWidgetContainerBase* Container = UUIHelper::GetSubLayerContainer(PlayerController, LayerName, SubLayerName))
+	if (UPrimaryGameLayout* GameLayout = UPrimaryGameLayout::GetPrimaryGameLayout(PlayerController))
 	{
-		if (Container->GetNumWidgets() > 0)
+		if (UCommonActivatableWidgetContainerBase* Layer = GameLayout->GetLayerWidget(LayerName))
 		{
-			if (UCommonActivatableWidget* ActiveWidget = Container->GetActiveWidget())
+			if (IActivatableWidgetContainerInterface* ILayer = Cast<IActivatableWidgetContainerInterface>(Layer))
 			{
-				Container->RemoveWidget(*ActiveWidget);
+				TScriptInterface<IActivatableWidgetContainerInterface> LayerInterface;
+				LayerInterface.SetObject(Layer);
+				LayerInterface.SetInterface(ILayer);
+
+				if (UCustomActivatableWidget* ParentWidget = Cast<UCustomActivatableWidget>(Layer->GetActiveWidget()))
+				{
+					UCustomActivatableWidget* PrevWidget = nullptr;
+					for (UCommonActivatableWidget* Widget : Layer->GetWidgetList())
+					{
+						if (Widget == ParentWidget)
+						{
+							break;
+						}
+						PrevWidget = Cast<UCustomActivatableWidget>(Widget);
+					}
+
+					int32 WidgetNum = Layer->GetNumWidgets();
+					Layer->RemoveWidget(*ParentWidget);
+
+					if (UGameplayMessageSubsystem* Subsystem = PlayerController->GetGameInstance()->GetSubsystem<UGameplayMessageSubsystem>())
+					{
+						Subsystem->BroadcastMessage(
+							LayerName,
+							FWidgetLayerMessage{
+								.GameplayTag = LayerName,
+								.Layer = LayerInterface,
+								.CurrentStack = WidgetNum - 1,
+								.CurrentWidget = PrevWidget
+							});
+					}
+				}
 			}
 		}
 	}
 }
 
-void UUIHelper::ClearContentFromLayer(const APlayerController* PlayerController, FGameplayTag LayerName)
+void UUIHelper::PopContentToTopSubLayer_ForPlayer(APlayerController * PlayerController, UPARAM(meta = (Categories = "UI.Layer")) FGameplayTag LayerName, UPARAM(meta = (Categories = "UI.SubLayer")) FGameplayTag SubLayerName)
 {
 	if (!ensure(PlayerController))
 	{
 		return;
 	}
 
-	if (UCommonActivatableWidgetContainerBase* Container = UUIHelper::GetLayerContainer(PlayerController, LayerName))
+	if (UPrimaryGameLayout* GameLayout = UPrimaryGameLayout::GetPrimaryGameLayout(PlayerController))
 	{
-		Container->ClearWidgets();
+		if (UCommonActivatableWidgetContainerBase* Layer = GameLayout->GetLayerWidget(LayerName))
+		{
+			if (UCustomActivatableWidget* ParnetWidget = Cast<UCustomActivatableWidget>(Layer->GetActiveWidget()))
+			{
+				if (TScriptInterface<IActivatableWidgetContainerInterface> SubLayer = ParnetWidget->GetSubLayer(SubLayerName))
+				{
+					if (UCustomActivatableWidget* ChildWidget = Cast<UCustomActivatableWidget>(Layer->GetActiveWidget()))
+					{
+						ParnetWidget->RemoveWidgetToSubLayer(ChildWidget);
+					}
+				}
+			}
+		}
 	}
 }
 
-void UUIHelper::ClearContentFromSubLayer(const APlayerController* PlayerController, FGameplayTag LayerName, FGameplayTag SubLayerName)
+void UUIHelper::ClearLayer_ForPlayer(APlayerController* PlayerController, UPARAM(meta = (Categories = "UI.Layer")) FGameplayTagContainer LayerNames)
 {
 	if (!ensure(PlayerController))
 	{
 		return;
 	}
 
-	if (UCommonActivatableWidgetContainerBase* Container = UUIHelper::GetSubLayerContainer(PlayerController, LayerName, SubLayerName))
+	if (UPrimaryGameLayout* GameLayout = UPrimaryGameLayout::GetPrimaryGameLayout(PlayerController))
 	{
-		Container->ClearWidgets();
+		for (const FGameplayTag& LayerName : LayerNames)
+		{
+			if (UCommonActivatableWidgetContainerBase* Layer = GameLayout->GetLayerWidget(LayerName))
+			{
+				if (IActivatableWidgetContainerInterface* ILayer = Cast<IActivatableWidgetContainerInterface>(Layer))
+				{
+					TScriptInterface<IActivatableWidgetContainerInterface> LayerInterface;
+					LayerInterface.SetObject(Layer);
+					LayerInterface.SetInterface(ILayer);
+
+					Layer->ClearWidgets();
+					if (UGameplayMessageSubsystem* Subsystem = PlayerController->GetGameInstance()->GetSubsystem<UGameplayMessageSubsystem>())
+					{
+						Subsystem->BroadcastMessage(
+							LayerName,
+							FWidgetLayerMessage{
+								.GameplayTag = LayerName,
+								.Layer = LayerInterface,
+								.CurrentStack = 0,
+								.CurrentWidget = nullptr
+							});
+					}
+				}
+			}
+		}
 	}
+}
+
+void UUIHelper::ClearTopSubLayer_ForPlayer(APlayerController* PlayerController, UPARAM(meta = (Categories = "UI.Layer")) FGameplayTag LayerName, UPARAM(meta = (Categories = "UI.SubLayer")) FGameplayTagContainer SubLayerNames)
+{
+	if (!ensure(PlayerController))
+	{
+		return;
+	}
+
+	if (UPrimaryGameLayout* GameLayout = UPrimaryGameLayout::GetPrimaryGameLayout(PlayerController))
+	{
+		if (UCommonActivatableWidgetContainerBase* Layer = GameLayout->GetLayerWidget(LayerName))
+		{
+			if (UCustomActivatableWidget* ParentWidget = Cast<UCustomActivatableWidget>(Layer->GetActiveWidget()))
+			{
+				ParentWidget->ClearSubLayer(SubLayerNames);
+			}
+		}
+	}
+}
+
+FText UUIHelper::FormatWithSuffix(int64 Value, int32 FractionalDigits)
+{
+	static const FString Suffixes[] = { TEXT(""), TEXT("K"), TEXT("M"), TEXT("G"), TEXT("T"), TEXT("P") };
+	static const int32 NumSuffixes = sizeof(Suffixes) / sizeof(*Suffixes);
+
+	static FNumberFormattingOptions NumberFormattingOptions =
+		FNumberFormattingOptions()
+		.SetAlwaysSign(false)
+		.SetUseGrouping(true)
+		.SetRoundingMode(ERoundingMode::HalfToEven)
+		.SetMinimumIntegralDigits(0)
+		.SetMaximumIntegralDigits(TNumericLimits<int32>::Max())
+		.SetMaximumFractionalDigits(TNumericLimits<int32>::Max());
+
+	int32 SuffixIndex = 0;
+	double DoubleValue = FMath::Abs(static_cast<double>(Value));
+
+	while (DoubleValue >= 1000.0 && SuffixIndex < NumSuffixes - 1)
+	{
+		DoubleValue /= 1000.0;
+		++SuffixIndex;
+	}
+
+	if (Value < 0)
+	{
+		DoubleValue *= -1.0;
+	}
+
+	if (FMath::Abs(DoubleValue) >= 100.0)
+	{
+		NumberFormattingOptions.SetMinimumFractionalDigits(FMath::Max(0, FractionalDigits - 2));
+	}
+	else if (FMath::Abs(DoubleValue) >= 10.0)
+	{
+		NumberFormattingOptions.SetMinimumFractionalDigits(FMath::Max(0, FractionalDigits - 1));
+	}
+	else
+	{
+		NumberFormattingOptions.SetMinimumFractionalDigits(FMath::Max(0, FractionalDigits));
+	}
+
+	return FText::Format(FTextFormat::FromString(TEXT("{0}{1}")), FText::AsNumber(DoubleValue, &NumberFormattingOptions), FText::FromString(Suffixes[SuffixIndex]));
 }
