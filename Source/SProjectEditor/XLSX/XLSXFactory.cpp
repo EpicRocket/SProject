@@ -560,6 +560,7 @@ FString UXLSXFactory::GenerateTableDesc(FString const& Filename)
 
 			for (auto& [Index, Header] : Sheet.Headers)
 			{
+				// FIXME: 코드 실수함
 				TableDesc += FString::Printf(TEXT("	%s,\n"), *Header.Name);
 			}
 			TableDesc += TEXT("};\n");
