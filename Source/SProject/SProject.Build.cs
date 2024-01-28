@@ -5,7 +5,8 @@ using System.IO;
 
 public class SProject : ModuleRules
 {
-	public SProject(ReadOnlyTargetRules Target) : base(Target) {
+	public SProject(ReadOnlyTargetRules Target) : base(Target)
+	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 		PrivatePCHHeaderFile = "SProject.h";
 
@@ -31,8 +32,8 @@ public class SProject : ModuleRules
 				"CommonInput",
 				"ModularGameplay",
 				"DataValidation",
-                "DeveloperSettings",
-            }
+				"DeveloperSettings",
+			}
 		);
 
 		// GameplayAbility
@@ -62,9 +63,8 @@ public class SProject : ModuleRules
 		);
 
 
-PublicIncludePaths.AddRange(
-			new[]
-			{
+		PublicIncludePaths.AddRange(
+			new[] {
 				ModuleDirectory,
 			}
 		);

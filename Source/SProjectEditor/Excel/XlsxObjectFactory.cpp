@@ -99,10 +99,10 @@ struct FSheetData
 
 UXlsxObjectFactory::UXlsxObjectFactory()
 {
-	SupportedClass = UXlsxObject::StaticClass();
+	/*SupportedClass = UXlsxObject::StaticClass();
 	Formats.Add(TEXT("xlsx;Microsoft Excel Spreadsheet"));
 	bEditorImport = true;
-	bText = false;
+	bText = false;*/
 }
 
 UObject* UXlsxObjectFactory::FactoryCreateFile(UClass* InClass, UObject* InParent, FName InName, EObjectFlags Flags, const FString& Filename, const TCHAR* Parms, FFeedbackContext* Warn, bool& bOutOperationCanceled)

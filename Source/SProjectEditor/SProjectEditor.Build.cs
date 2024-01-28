@@ -34,6 +34,19 @@ public class SProjectEditor : ModuleRules
 			}
 		);
 
+		PrivateDependencyModuleNames.AddRange(
+			new []
+			{
+				"SProject",
+			}
+		);
+
+		PublicIncludePaths.AddRange(
+			new[] {
+				ModuleDirectory,
+			}
+		);
+
         if (Target.Platform == UnrealTargetPlatform.Win64)
 		{
 			PublicDependencyModuleNames.Add("OpenXLSX");
