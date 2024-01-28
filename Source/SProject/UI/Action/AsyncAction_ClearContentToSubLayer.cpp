@@ -15,8 +15,6 @@
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(AsyncAction_ClearContentToSubLayer)
 
-UE_DISABLE_OPTIMIZATION
-
 UAsyncAction_ClearContentToSubLayer* UAsyncAction_ClearContentToSubLayer::ClearContentToSubLayer(UCustomActivatableWidget* ParentWidget, UPARAM(meta = (Categories = "UI.SubLayer")) FGameplayTagContainer InSubLayerNames)
 {
 	if (UWorld* World = GEngine->GetWorldFromContextObject(ParentWidget, EGetWorldErrorMode::LogAndReturnNull))
