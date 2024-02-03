@@ -5,13 +5,13 @@
 #include "CoreMinimal.h"
 #include "CommonUserWidget.h"
 
-#include "CustomUserWidget.generated.h"
+#include "SubUserWidget.generated.h"
 
 UCLASS(Abstract, meta = (Category = "Project Only"))
-class UCustomUserWidget : public UCommonUserWidget
+class USubUserWidget : public UCommonUserWidget
 {
     GENERATED_BODY()
 
 public:
-    UCustomUserWidget();
+    USubUserWidget();
 };

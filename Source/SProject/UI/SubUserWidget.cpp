@@ -1,10 +1,10 @@
 
 
-#include "CustomUserWidget.h"
+#include "SubUserWidget.h"
 
-#include UE_INLINE_GENERATED_CPP_BY_NAME(CustomUserWidget)
+#include UE_INLINE_GENERATED_CPP_BY_NAME(SubUserWidget)
 
-UCustomUserWidget::UCustomUserWidget()
+USubUserWidget::USubUserWidget()
     : Super(FObjectInitializer::Get())
 {
 #if WITH_EDITOR
