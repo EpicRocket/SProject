@@ -541,7 +541,14 @@ FString UXLSXFactory::GenerateTableDesc(FString const& Filename)
 			for (auto& [Index, Header] : Sheet.Headers)
 			{
 				TableDesc += FString::Printf(TEXT("	UPROPERTY(EditAnywhere, BlueprintReadWrite)\n"));
-				TableDesc += FString::Printf(TEXT("	%s %s;"), *Header.Type, *Header.Name);
+				if (Header.CellType == ECellType::Asset || Header.CellType == ECellType::Class)
+				{
+					TableDesc += FString::Printf(TEXT("%s %s;"), *Header.Type, *Header.Name);
+				}
+				else
+				{
+					TableDesc += FString::Printf(TEXT("%s* %s;"), *Header.Type, *Header.Name);
+				}
 				TableDesc += TEXT("\n\n");
 			}
 
@@ -554,14 +561,10 @@ FString UXLSXFactory::GenerateTableDesc(FString const& Filename)
 		{
 			TableDesc += FString::Printf(TEXT("UENUM(BlueprintType)\n"));
 			TableDesc += FString::Printf(TEXT("enum class %s : uint8\n"), *Sheet.Name);
-			TableDesc += TEXT("{\n");
-			TableDesc += TEXT("	GENERATED_BODY()\n");
-			TableDesc += TEXT("\n");
 
 			for (auto& [Index, Header] : Sheet.Headers)
 			{
-				// FIXME: 코드 실수함
-				TableDesc += FString::Printf(TEXT("	%s,\n"), *Header.Name);
+				TableDesc += FString::Printf(TEXT("%s,\n"), *Header.Name);
 			}
 			TableDesc += TEXT("};\n");
 		}
