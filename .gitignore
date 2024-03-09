@@ -82,3 +82,5 @@ Content/Collections
 
 # Exclustion Plugins
 Plugins/RTSUnitTemplate
+/.vscode/**
+/*.code-workspace

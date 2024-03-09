@@ -11,7 +11,7 @@
 
 class USuperAbilitySystemComponent;
 
-UCLASS()
+UCLASS(Abstract, ClassGroup = Unit, Category = Unit)
 class SPROJECT_API AUnit : public AModularCharacter, public IAbilitySystemInterface, public IGameplayTagAssetInterface
 {
 	GENERATED_BODY()
