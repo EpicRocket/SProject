@@ -1,8 +1,10 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+
 
 #pragma once
 
 #include "CoreMinimal.h"
+
+#define MY_API SPROJECT_API
 
 DECLARE_LOG_CATEGORY_EXTERN(Project, Log, All);
 

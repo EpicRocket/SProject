@@ -1,77 +1,76 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+
 
 using UnrealBuildTool;
 using System.IO;
 
 public class SProject : ModuleRules
 {
-	public SProject(ReadOnlyTargetRules Target) : base(Target)
-	{
-		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-		PrivatePCHHeaderFile = "SProject.h";
+    public SProject(ReadOnlyTargetRules Target) : base(Target)
+    {
+        PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
+        PrivatePCHHeaderFile = "SProject.h";
 
-		PublicDependencyModuleNames.AddRange(
-			new[] {
-				"Core",
-				"CoreUObject",
-				"Engine",
-				"InputCore",
-				"SlateCore",
-				"UMG",
-				"AIModule",
-			}
-		);
+        PublicDependencyModuleNames.AddRange(
+            new[] {
+                "Core",
+                "CoreUObject",
+                "Engine",
+                "InputCore",
+                "SlateCore",
+                "UMG",
+                "AIModule",
+            }
+        );
 
-		PrivateDependencyModuleNames.AddRange(
-			new[] {
-				"GameFeatures",
-				"Slate",
-				"UnrealEd",
-				"EnhancedInput",
-				"CommonUI",
-				"CommonInput",
-				"ModularGameplay",
-				"DataValidation",
-				"DeveloperSettings",
-			}
-		);
+        PrivateDependencyModuleNames.AddRange(
+            new[] {
+                "GameFeatures",
+                "Slate",
+                "UnrealEd",
+                "EnhancedInput",
+                "DataValidation",
+                "DeveloperSettings",
+            }
+        );
 
-		// GameplayAbility
-		PrivateDependencyModuleNames.AddRange(
-			new[] {
-				"GameplayAbilities",
-				"GameplayTags",
-				"GameplayTasks",
-				"GameplayMessageNodes",
-			}
-		);
+        // Common UI
+        PrivateDependencyModuleNames.AddRange(
+            new[] {
+                "CommonUI",
+                "CommonInput",
+            }
+        );
 
-		// Plugins
-		PrivateDependencyModuleNames.AddRange(
-			new[] {
-				"AsyncMixin",
-				"CommonGame",
-				"CommonLoadingScreen",
-				"CommonUser",
-				"GameplayMessageRuntime",
-				"GameSettings",
-				"GameSubtitles",
-				"ModularGameplayActors",
-				"PocketWorlds",
-				"UIExtension",
-			}
-		);
+        // GameplayAbility
+        PrivateDependencyModuleNames.AddRange(
+            new[] {
+                "GameplayAbilities",
+                "GameplayTags",
+                "GameplayTasks",
+            }
+        );
 
+        // Plugins
+        PrivateDependencyModuleNames.AddRange(
+            new[] {
+                "GameplayMessageRuntime",
+            }
+        );
 
-		PublicIncludePaths.AddRange(
-			new[] {
-				ModuleDirectory,
-			}
-		);
+        PublicIncludePaths.AddRange(
+            new[] {
+                ModuleDirectory,
+            }
+        );
 
-		// Uncomment if you are using online features
-		// PrivateDependencyModuleNames.Add("OnlineSubsystem");
+        // Generate compile errors if using DrawDebug functions in test/shipping builds.
+        PublicDefinitions.Add("SHIPPING_DRAW_DEBUG_ERROR=1");
 
-		// To include OnlineSubsystemSteam, add it to the plugins section in your uproject file with the Enabled attribute set to true
-	}
+        SetupGameplayDebuggerSupport(Target);
+
+        // Uncomment if you are using online features
+        // PrivateDependencyModuleNames.Add("OnlineSubsystem");
+
+        // To include OnlineSubsystemSteam, add it to the plugins section in your uproject file with the Enabled attribute set to true
+    }
 }

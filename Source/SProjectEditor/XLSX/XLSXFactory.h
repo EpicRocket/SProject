@@ -7,6 +7,12 @@
 
 #include "XLSXFactory.generated.h"
 
+UCLASS(BlueprintType)
+class UTempTableAsset : public UObject
+{
+	GENERATED_BODY()
+};
+
 UCLASS()
 class UXLSXFactory : public UFactory
 {

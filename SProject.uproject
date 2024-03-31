@@ -1,18 +1,13 @@
 {
 	"FileVersion": 3,
-	"EngineAssociation": "{1AD6E2C4-4EEF-D723-7B9D-239495BB1F86}",
+	"EngineAssociation": "{EB7B26F3-4397-7512-6DBA-2FA73C82E3CF}",
 	"Category": "",
 	"Description": "",
 	"Modules": [
 		{
 			"Name": "SProject",
 			"Type": "Runtime",
-			"LoadingPhase": "Default",
-			"AdditionalDependencies": [
-				"Engine",
-				"CommonUI",
-				"EnhancedInput"
-			]
+			"LoadingPhase": "Default"
 		},
 		{
 			"Name": "SProjectEditor",
@@ -22,34 +17,47 @@
 	],
 	"Plugins": [
 		{
-			"Name": "ModelingToolsEditorMode",
-			"Enabled": true,
-			"TargetAllowList": [
-				"Editor"
-			]
+			"Name": "CLionSourceCodeAccess",
+			"Enabled": false
 		},
 		{
-			"Name": "GameFeatures",
+			"Name": "AnimationLocomotionLibrary",
 			"Enabled": true
 		},
 		{
-			"Name": "AbilitySystemGameFeatureActions",
+			"Name": "ActorPalette",
 			"Enabled": true
 		},
 		{
-			"Name": "OnlineFramework",
+			"Name": "GameplayInsights",
 			"Enabled": true
 		},
 		{
-			"Name": "PCG",
+			"Name": "AssetSearch",
 			"Enabled": true
 		},
 		{
-			"Name": "PCGGeometryScriptInterop",
+			"Name": "BlueprintStats",
 			"Enabled": true
 		},
 		{
-			"Name": "UIExtension",
+			"Name": "CommonUI",
+			"Enabled": true
+		},
+		{
+			"Name": "GameplayAbilities",
+			"Enabled": true
+		},
+		{
+			"Name": "GameplayGraph",
+			"Enabled": true
+		},
+		{
+			"Name": "GameplayBehaviorSmartObjects",
+			"Enabled": true
+		},
+		{
+			"Name": "GameplayInteractions",
 			"Enabled": true
 		},
 		{
@@ -57,13 +65,32 @@
 			"Enabled": true
 		},
 		{
-			"Name": "MortarPlugin",
-			"Enabled": true,
-			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/c7d15c6abe2d49d08130c643b455fd4a"
-		},
-		{
-			"Name": "MessagingDebugger",
+			"Name": "GizmoEdMode",
 			"Enabled": true
 		},
+		{
+			"Name": "LandscapePatch",
+			"Enabled": true
+		},
+		{
+			"Name": "MassEntity",
+			"Enabled": true
+		},
+		{
+			"Name": "MassAI",
+			"Enabled": true
+		},
+		{
+			"Name": "MassCrowd",
+			"Enabled": true
+		},
+		{
+			"Name": "MassGameplay",
+			"Enabled": true
+		},
+		{
+			"Name": "ModelViewViewModel",
+			"Enabled": true
+		}
 	]
 }

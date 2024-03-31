@@ -20,7 +20,6 @@
 #include "ILiveCodingModule.h"
 // include Project
 #include "Helper/SStringHelper.h"
-#include "Table/TableAsset.h"
 // include api
 #include <exception>
 #include <ranges>
@@ -161,7 +160,7 @@ FString PackageName;
 
 UXLSXFactory::UXLSXFactory()
 {
-	SupportedClass = UTableAsset::StaticClass();
+	SupportedClass = UTempTableAsset::StaticClass();
 	Formats.Add(TEXT("xlsx;Microsoft Excel Spreadsheet"));
 	bEditorImport = true;
 	bText = false;
@@ -229,7 +228,7 @@ UObject* UXLSXFactory::FactoryCreateFile(UClass* InClass, UObject* InParent, FNa
 		));
 	}
 
-	CacheTableAsset = NewObject<UTableAsset>(InParent, InClass, InName, Flags);
+	CacheTableAsset = NewObject<UTempTableAsset>(InParent, InClass, InName, Flags);
 	return CacheTableAsset;
 }
 
