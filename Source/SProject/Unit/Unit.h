@@ -3,7 +3,6 @@
 #pragma once
 
 #include "GameFramework/Character.h"
-// #include "GameplayCueInterface.h"
 #include "Unit.generated.h"
 
 class UMyAbilitySystemComponent;
@@ -12,6 +11,8 @@ UCLASS(Abstract, ClassGroup = Unit, Category = Unit)
 class AUnit : public ACharacter
 {
 	GENERATED_BODY()
+
+	static FName ASCName;
 
 public:
 	AUnit();

@@ -1,32 +1,26 @@
 
 #include "UnitAnimInstance.h"
-//#include "AbilitySystemGlobals.h"
 
-// UUnitAnimInstance::UUnitAnimInstance()
-// {
-// }
+#include "AbilitySystemComponent.h"
+#include "AbilitySystemGlobals.h"
 
-// void UUnitAnimInstance::InitializeWithAbilitySystem(UAbilitySystemComponent* ASC)
-// {
-// 	check(ASC);
+#include UE_INLINE_GENERATED_CPP_BY_NAME(UnitAnimInstance)
 
-// 	GameplayTagPropertyMap.Initialize(this, ASC);
-// }
+void UUnitAnimInstance::InitializeWithAbilitySystem(UAbilitySystemComponent* ASC)
+{
+	if (ensure(ASC))
+	{
+		GameplayTagPropertyMap.Initialize(this, ASC);
+	}
+}
 
-// void UUnitAnimInstance::NativeInitializeAnimation()
-// {
-// 	Super::NativeInitializeAnimation();
-
-// 	if (AActor* OwningActor = GetOwningActor())
-// 	{
-// 		if (UAbilitySystemComponent* ASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(OwningActor))
-// 		{
-// 			InitializeWithAbilitySystem(ASC);
-// 		}
-// 	}
-// }
-
-// void UUnitAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
-// {
-// 	Super::NativeUpdateAnimation(DeltaSeconds);
-// }
+void UUnitAnimInstance::NativeInitializeAnimation()
+{
+	if (AActor* OwningActor = GetOwningActor())
+	{
+		if (UAbilitySystemComponent* ASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(OwningActor))
+		{
+			InitializeWithAbilitySystem(ASC);
+		}
+	}
+}
