@@ -6,6 +6,7 @@
 #include "Unit.generated.h"
 
 class UMyAbilitySystemComponent;
+class UUnitAttributeSet;
 
 UCLASS(Abstract, ClassGroup = Unit, Category = Unit)
 class AUnit : public ACharacter
@@ -13,6 +14,7 @@ class AUnit : public ACharacter
 	GENERATED_BODY()
 
 	static FName ASCName;
+	static FName UnitSetName;
 
 public:
 	AUnit();
@@ -24,4 +26,7 @@ public:
 private:
 	UPROPERTY(VisibleAnywhere, meta = (AllowPrivateAccess = true))
 	TObjectPtr<UMyAbilitySystemComponent> AbilitySystemComponent;
+
+	UPROPERTY()
+	TObjectPtr<UUnitAttributeSet> UnitSet;
 };

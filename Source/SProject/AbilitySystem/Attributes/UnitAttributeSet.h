@@ -20,12 +20,12 @@ public:
 
 
 private:
-    UPROPERTY(BlueprintReadOnly, Meta = (AllowPrivateAccess = true))
+    UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
     FGameplayAttributeData Life = 1.0F;
 
-    UPROPERTY(BlueprintReadOnly, Meta = (AllowPrivateAccess = true))
+    UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
     FGameplayAttributeData Damage = 0.0F;
 
-    UPROPERTY(BlueprintReadOnly, Meta = (AllowPrivateAccess = true))
+    UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
     FGameplayAttributeData Armor = 0.0F;
 };
