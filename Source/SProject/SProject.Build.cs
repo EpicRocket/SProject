@@ -10,6 +10,12 @@ public class SProject : ModuleRules
         PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
         PrivatePCHHeaderFile = "SProject.h";
 
+        PublicIncludePaths.AddRange(
+            new[] {
+                ModuleDirectory,
+            }
+        );
+
         PublicDependencyModuleNames.AddRange(
             new[] {
                 "Core",
@@ -54,12 +60,6 @@ public class SProject : ModuleRules
         PrivateDependencyModuleNames.AddRange(
             new[] {
                 "GameplayMessageRuntime",
-            }
-        );
-
-        PublicIncludePaths.AddRange(
-            new[] {
-                ModuleDirectory,
             }
         );
 

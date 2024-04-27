@@ -20,7 +20,7 @@ public:
 	virtual bool ShouldCreateSubsystem(UObject* Outer) const override;
 
     UFUNCTION(BlueprintCallable, Category = "UI")
-    UGameUIPolicy* GetCurrentUIPolicy() const { return Policy; }
+    UMyUIPolicy* GetCurrentUIPolicy() const { return Policy; }
 
 	virtual void NotifyPlayerAdded(UMyLocalPlayer* LocalPlayer);
 	virtual void NotifyPlayerRemoved(UMyLocalPlayer* LocalPlayer);

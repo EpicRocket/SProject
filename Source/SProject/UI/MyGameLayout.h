@@ -15,7 +15,7 @@ enum class EAsyncWidgetLayerState : uint8
 	AfterPush
 };
 
-UCLASS(Abstract, Blueprintable, Within = GameUIManagerSubsystem)
+UCLASS(Abstract, Blueprintable, Within = MyUISubsystem)
 class SPROJECT_API UMyGameLayout : public UCommonActivatableWidget
 {
     GENERATED_BODY()
