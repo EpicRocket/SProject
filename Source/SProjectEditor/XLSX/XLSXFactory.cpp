@@ -16,8 +16,10 @@
 #include "Misc/ConfigCacheIni.h"
 #include "Factories/DataTableFactory.h"
 #include "Containers/Ticker.h"
+#if PLATFORM_WINDOWS
 // include LiveCoding
 #include "ILiveCodingModule.h"
+#endif
 // include Project
 #include "Helper/SStringHelper.h"
 // include api
@@ -170,6 +172,7 @@ UXLSXFactory::UXLSXFactory()
 
 UObject* UXLSXFactory::FactoryCreateFile(UClass* InClass, UObject* InParent, FName InName, EObjectFlags Flags, const FString& Filename, const TCHAR* Parms, FFeedbackContext* Warn, bool& bOutOperationCanceled)
 {
+#if PLATFORM_WINDOWS
 	if (IsCompileOnImportEnabled())
 	{
 		UE_LOG(LogTemp, Error, TEXT("Failed to import. [Reason:Compiling]"));
@@ -232,6 +235,9 @@ UObject* UXLSXFactory::FactoryCreateFile(UClass* InClass, UObject* InParent, FNa
 
 	CacheTableAsset = NewObject<UTempTableAsset>(InParent, InClass, InName, Flags);
 	return CacheTableAsset;
+#else
+	return nullptr;
+#endif
 }
 
 void UXLSXFactory::OnComplete()

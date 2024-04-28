@@ -7,9 +7,9 @@ public class SProjectEditor : ModuleRules
 	public SProjectEditor(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-	
+
 		PublicDependencyModuleNames.AddRange(
-			new [] 
+			new[]
 			{
 				"Core",
 				"CoreUObject",
@@ -19,7 +19,7 @@ public class SProjectEditor : ModuleRules
 		);
 
 		PrivateDependencyModuleNames.AddRange(
-			new []
+			new[]
 			{
 				"UnrealEd",
 				"Slate",
@@ -31,15 +31,14 @@ public class SProjectEditor : ModuleRules
 				"ToolMenus",
 				"AssetTools",
 				"BlueprintGraph",
-                "DeveloperSettings",
-                "LiveCoding",
-                "EditorSubsystem",
-                "ContentBrowser",
-            }
+				"DeveloperSettings",
+				"EditorSubsystem",
+				"ContentBrowser",
+			}
 		);
 
 		PrivateDependencyModuleNames.AddRange(
-			new []
+			new[]
 			{
 				"SProject",
 			}
@@ -51,10 +50,15 @@ public class SProjectEditor : ModuleRules
 			}
 		);
 
-        if (Target.Platform == UnrealTargetPlatform.Win64)
+		if (Target.Platform == UnrealTargetPlatform.Win64)
 		{
-			PublicDependencyModuleNames.Add("OpenXLSX");
+			PublicDependencyModuleNames.AddRange(
+				new[]
+				{
+					"OpenXLSX",
+					"LiveCoding",
+				}
+			);
 		}
-
 	}
 }
