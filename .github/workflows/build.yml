@@ -47,7 +47,7 @@ jobs:
         
         $projectFilePath = Join-Path (Get-Location) "SProject.uproject"
         try {
-            & cmd /c "`"$batchFilePath`" -projectfiles -project=`"$projectFilePath`" -game -engine -progress
+            & cmd /c "`"$batchFilePath`" -projectfiles -project=`"$projectFilePath`" -game -engine -progress"
         } catch {
             Write-Error "An error occurred: $_"
             exit 1
