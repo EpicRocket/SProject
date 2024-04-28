@@ -36,6 +36,7 @@
 
 namespace XLSX
 {
+#if PLATFORM_WINDOWS
 template<typename T>
 T GetXLSXValue(const OpenXLSX::XLCellValueProxy& Proxy)
 {
@@ -146,6 +147,7 @@ T GetXLSXValue(const OpenXLSX::XLCellValueProxy& Proxy)
 	}
 	return T{};
 }
+#endif
 } // XLSX
 
 TArray<UXLSXFactory::XLSXSheet> CacheSheet;
