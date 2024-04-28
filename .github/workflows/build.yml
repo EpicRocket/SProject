@@ -46,7 +46,6 @@ jobs:
         }
         
         $projectFilePath = Join-Path (Get-Location) "SProject.uproject"
-
         try {
             & cmd /c "`"$batchFilePath`" -projectfiles -project=`"$projectFilePath`" -game -engine -progress
         } catch {
