@@ -71,7 +71,7 @@ jobs:
 
         $projectFilePath = Join-Path (Get-Location) "SProject.uproject"
         try {
-            & cmd /c "`"$batchFilePath`" -Target="SProjectEditor Win64 Development -Project=`"$projectFilePath`""
+            & cmd /c "`"$batchFilePath`" -Target="SProjectEditor Win64 Development -Project=`"`"$projectFilePath`"`""
             & cmd /c "`"$batchFilePath`" -Target=`"ShaderCompileWorker Win64 Development -Quiet`" -WaitMutex -FromMsBuild"
             exit $LASTEXITCODE
         } catch {
