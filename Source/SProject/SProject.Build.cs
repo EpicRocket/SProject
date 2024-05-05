@@ -30,7 +30,6 @@ public class SProject : ModuleRules
 
         PrivateDependencyModuleNames.AddRange(
             new[] {
-                "GameFeatures",
                 "Slate",
                 "UnrealEd",
                 "EnhancedInput",

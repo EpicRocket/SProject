@@ -1,1 +1,1 @@
-"C:/UnrealEngine5/Engine/Build/BatchFiles/Build.bat" -projectfiles -project="%~dp0SProject.uproject" -game -engine -progress
+"C:/UnrealEngine/Engine/Build/BatchFiles/Build.bat" -projectfiles -project="%~dp0SProject.uproject" -game -engine -progress
