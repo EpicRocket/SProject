@@ -95,8 +95,17 @@ jobs:
       run: |
         $ErrorActionPreference = "Stop"
 
+        $binariesPath = Join-Path (Get-Location).Path "Binaries"
+        if (Test-Path $binariesPath) {
         # delete *pdb files
-        Get-ChildItem -Path "$deployPath" -Filter *.pdb -Recurse | Remove-Item -Force
+            Get-ChildItem -Path "$binariesPath" -Filter *.pdb -Recurse | Remove-Item -Force
+        }
+
+        $pluginsPath = Join-Path (Get-Location).Path "Plugins"
+        if (Test-Path $pluginsPath) {
+            # delete *pdb files
+            Get-ChildItem -Path "$pluginsPath" -Filter *.pdb -Recurse | Remove-Item -Force
+        }
 
   Deploy:
     needs: [Clean-up]
