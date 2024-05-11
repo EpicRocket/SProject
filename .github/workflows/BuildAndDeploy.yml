@@ -7,8 +7,15 @@ on:
   # Triggers the workflow on push or pull request events but only for the "release" branch
   push:
     branches: [ "main" ]
+    paths: 
+      - 'SProject/Source/**'
+      - 'SProject/Plugins/**'
+    
   pull_request:
     branches: [ "main" ]
+    paths: 
+      - 'SProject/Source/**'
+      - 'SProject/Plugins/**'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -78,3 +85,20 @@ jobs:
             Write-Error "An error occurred: $_"
             exit 1
         }
+
+  Deploy:
+    needs: [Build]
+    runs-on: self-hosted
+
+    steps:
+    - name: Deploy
+      run: | 
+        $ErrorActionPreference = "Stop"
+        
+        Set-Location -Path "$env:GITHUB_WORKSPACE"
+        cd ..
+
+        Push-Location -Path "uploader"
+        
+        $uploadListPath = Join-Path (Get-Location).Path "uploadList.yaml"
+        cmd.exe /c "ncuploader.exe $uploadListPath"
