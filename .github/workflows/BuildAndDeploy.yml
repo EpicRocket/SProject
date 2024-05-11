@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: Build
+name: BuildAndDeploy
 
 # Controls when the workflow will run
 on:
@@ -86,8 +86,20 @@ jobs:
             exit 1
         }
 
-  Deploy:
+  Clean-up:
     needs: [Build]
+    runs-on: self-hosted
+
+    steps:
+    - name: Clean-up
+      run: |
+        $ErrorActionPreference = "Stop"
+
+        # delete *pdb files
+        Get-ChildItem -Path "$deployPath" -Filter *.pdb -Recurse | Remove-Item -Force
+
+  Deploy:
+    needs: [Clean-up]
     runs-on: self-hosted
 
     steps:
