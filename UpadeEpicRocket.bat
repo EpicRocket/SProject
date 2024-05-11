@@ -1,8 +1,9 @@
-﻿setlocal
+﻿
+setlocal
 
 SET SP_CONFIG=%~dp0SProjectConfig.yaml
 
-IF NOT EXIST "%UE_CONFIG%" (
+IF NOT EXIST "%SP_CONFIG%" (
     ECHO UnrealEngineConfig.yaml not found. Please run EpicRocket.bat to generate it.
     GOTO :EOF
 )
