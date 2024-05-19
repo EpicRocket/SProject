@@ -25,6 +25,7 @@ public class SProject : ModuleRules
                 "SlateCore",
                 "UMG",
                 "AIModule",
+                "GGameCore"
             }
         );
 
