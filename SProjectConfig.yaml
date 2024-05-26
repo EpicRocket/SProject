@@ -1,0 +1,7 @@
+﻿Region: kr-standard
+AccessKeyID: 
+SecretKey: 
+EndPoint: https://kr.object.ncloudstorage.com
+Bucket: epicrocket
+ObjectRoot: SProject
+DownloadPath: 

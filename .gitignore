@@ -84,3 +84,6 @@ Content/Collections
 Plugins/RTSUnitTemplate
 /.vscode/**
 /*.code-workspace
+
+# EpicRocket 다운로드 파일 예외
+!ncdownloader.exe
