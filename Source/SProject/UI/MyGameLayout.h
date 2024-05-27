@@ -1,22 +1,12 @@
 ﻿
 #pragma once
 
-// Use CommonWidget Plugins...
-
-#include "CommonActivatableWidget.h"
+#include "UI/PrimaryGameLayout.h"
 
 #include "MyGameLayout.generated.h"
 
-
-enum class EAsyncWidgetLayerState : uint8
-{
-	Canceled,
-	Initialize,
-	AfterPush
-};
-
-UCLASS(Abstract, Blueprintable, Within = MyUISubsystem)
-class SPROJECT_API UMyGameLayout : public UCommonActivatableWidget
+UCLASS()
+class SPROJECT_API UMyGameLayout : public UPrimaryGameLayout
 {
     GENERATED_BODY()
 
