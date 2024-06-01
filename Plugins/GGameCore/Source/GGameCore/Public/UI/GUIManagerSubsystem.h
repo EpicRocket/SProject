@@ -15,8 +15,10 @@ class GGAMECORE_API UGUIManagerSubsystem : public UGameInstanceSubsystem
     GENERATED_BODY()
 
 public:
+    virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+    virtual void Deinitialize() override;
     virtual bool ShouldCreateSubsystem(UObject* Outer) const override;
-    
+
     void NotifyPlayerAdded(UGLocalPlayer* LocalPlayer);
     void NotifyPlayerRemoved(UGLocalPlayer* LocalPlayer);
     void NotifyPlayerDestroyed(UGLocalPlayer* LocalPlayer);
@@ -26,5 +28,8 @@ public:
 
 private:
     UPROPERTY(Transient)
-    TObjectPtr<UGUIPolicy> Policy;
+    TObjectPtr<UGUIPolicy> GUIPolicy;
+
+    UPROPERTY(config, EditAnywhere)
+    TSoftClassPtr<UGUIPolicy> GUIPolicyClassPtr;
 };

@@ -5,9 +5,13 @@
 
 #include "MyGameLayout.generated.h"
 
-UCLASS()
+class UCommonActivatableWidgetContainerBase;
+
+UCLASS(Abstract, meta = (DisableNativeTick))
 class SPROJECT_API UMyGameLayout : public UPrimaryGameLayout
 {
     GENERATED_BODY()
 
+public:
+	virtual void OnWidgetStackTransitioning(UCommonActivatableWidgetContainerBase* Widget, bool bIsTransitioning) override;
 };

@@ -6,6 +6,24 @@
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(GUIManagerSubsystem)
 
+void UGUIManagerSubsystem::Initialize(FSubsystemCollectionBase& Collection)
+{
+	Super::Initialize(Collection);
+
+	if (!GUIPolicyClassPtr.IsNull())
+	{
+		TSubclassOf<UGUIPolicy> GUIPolicyClass = GUIPolicyClassPtr.LoadSynchronous();
+		GUIPolicy = NewObject<UGUIPolicy>(this, GUIPolicyClass);
+	}
+}
+
+void UGUIManagerSubsystem::Deinitialize()
+{
+	Super::Deinitialize();
+
+	GUIPolicy = nullptr;
+}
+
 bool UGUIManagerSubsystem::ShouldCreateSubsystem(UObject* Outer) const
 {
 	if (!CastChecked<UGameInstance>(Outer)->IsDedicatedServerInstance())
@@ -20,29 +38,29 @@ bool UGUIManagerSubsystem::ShouldCreateSubsystem(UObject* Outer) const
 
 void UGUIManagerSubsystem::NotifyPlayerAdded(UGLocalPlayer* LocalPlayer)
 {
-	if (IsValid(Policy))
+	if (IsValid(GUIPolicy))
 	{
-		Policy->NotifyPlayerAdded(LocalPlayer);
+		GUIPolicy->NotifyPlayerAdded(LocalPlayer);
 	}
 }
 
 void UGUIManagerSubsystem::NotifyPlayerRemoved(UGLocalPlayer* LocalPlayer)
 {
-	if (IsValid(Policy))
+	if (IsValid(GUIPolicy))
 	{
-		Policy->NotifyPlayerRemoved(LocalPlayer);
+		GUIPolicy->NotifyPlayerRemoved(LocalPlayer);
 	}
 }
 
 void UGUIManagerSubsystem::NotifyPlayerDestroyed(UGLocalPlayer* LocalPlayer)
 {
-	if (IsValid(Policy))
+	if (IsValid(GUIPolicy))
 	{
-		Policy->NotifyPlayerDestroyed(LocalPlayer);
+		GUIPolicy->NotifyPlayerDestroyed(LocalPlayer);
 	}
 }
 
 UGUIPolicy* UGUIManagerSubsystem::GetPolicy() const
 {
-	return Policy;
+	return GUIPolicy;
 }

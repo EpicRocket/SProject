@@ -37,10 +37,17 @@ public:
 	void NotifyPlayerRemoved(UGLocalPlayer* LocalPlayer);
 	void NotifyPlayerDestroyed(UGLocalPlayer* LocalPlayer);
 
+	UPrimaryGameLayout* GetRootLayout(const UGLocalPlayer* LocalPlayer);
+
 protected:
 	void AddLayoutToViewport(UGLocalPlayer* LocalPlayer, UPrimaryGameLayout* Layout);
+	void RemoveLayoutFromViewport(UGLocalPlayer* LocalPlayer, UPrimaryGameLayout* Layout);
 
 	void CreateLayoutWidget(UGLocalPlayer* LocalPlayer);
+
+	virtual void OnRootLayoutAddedToViewport(UGLocalPlayer* LocalPlayer, UPrimaryGameLayout* Layout);
+	virtual void OnRootLayoutRemovedFromViewport(UGLocalPlayer* LocalPlayer, UPrimaryGameLayout* Layout);
+	virtual void OnRootLayoutReleased(UGLocalPlayer* LocalPlayer, UPrimaryGameLayout* Layout);
 
 private:
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = true))

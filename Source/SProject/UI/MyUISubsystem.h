@@ -8,7 +8,7 @@
 class UMyUIPolicy;
 class UMyLocalPlayer;
 
-UCLASS(Abstract, Config = SProject)
+UCLASS(Config = SProject)
 class SPROJECT_API UMyUISubsystem : public UGUIManagerSubsystem
 {
     GENERATED_BODY()
