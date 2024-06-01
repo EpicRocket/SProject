@@ -6,14 +6,8 @@ name: BuildAndDeploy
 on:
   # Triggers the workflow on push or pull request events but only for the "release" branch
   push:
-    branches: [ "main" ]
-    paths: 
-      - 'SProject/Source/**'
-      - 'SProject/Plugins/**'
-    
-  pull_request:
-    branches: [ "main" ]
-    paths: 
+    branches:
+      - main
       - 'SProject/Source/**'
       - 'SProject/Plugins/**'
 
