@@ -14,4 +14,5 @@ class SPROJECT_API UMyUISubsystem : public UGUIManagerSubsystem
     GENERATED_BODY()
 
 public:
+    static UMyUISubsystem* Get(const UObject* WorldContextObject);
 };
