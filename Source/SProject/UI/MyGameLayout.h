@@ -8,6 +8,7 @@
 #include "MyGameLayout.generated.h"
 
 class UCommonActivatableWidgetContainerBase;
+class APlayerController;
 
 UCLASS(Abstract, meta = (DisableNativeTick))
 class SPROJECT_API UMyGameLayout : public UPrimaryGameLayout
@@ -31,5 +32,5 @@ public:
     static void ResumeInputForPlayer(ULocalPlayer* LocalPlayer, FName SuspendToken);
 
     UFUNCTION(BlueprintCallable, Category = "UI", meta = (DisplayName = "Push Content To Layer", DeterminesOutputType = WidgetClass))
-    static UCommonActivatableWidget* BP_PushContentToLayer(const ULocalPlayer* LocalPlayer, UPARAM(meta = (Categories = "UI.Layer")) FGameplayTag LayerName, UPARAM(meta = (AllowAbstract = false)) TSubclassOf<UCommonActivatableWidget> WidgetClass);
+    static UCommonActivatableWidget* BP_PushContentToLayer(const APlayerController* PlayerController, UPARAM(meta = (Categories = "UI.Layer")) FGameplayTag LayerName, UPARAM(meta = (AllowAbstract = false)) TSubclassOf<UCommonActivatableWidget> WidgetClass);
 };

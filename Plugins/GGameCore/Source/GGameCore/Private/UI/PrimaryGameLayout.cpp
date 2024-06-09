@@ -17,7 +17,7 @@ UCommonActivatableWidgetContainerBase* UPrimaryGameLayout::GetLayer(FGameplayTag
 
 void UPrimaryGameLayout::RegisterLayer(UPARAM(meta = (Categories = "UI.Layer")) FGameplayTag LayerName, UCommonActivatableWidgetContainerBase* Layer)
 {
-	if (!IsDesignTime())
+	if (IsDesignTime())
 	{
 		return;
 	}

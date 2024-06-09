@@ -7,7 +7,7 @@
 #include "MyUIPolicy.h"
 #include "MyUISubsystem.h"
 #include "GameFramework/MyLocalPlayer.h"
-
+#include "GameFramework/MyPlayerController.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(MyGameLayout)
 
@@ -78,9 +78,15 @@ void UMyGameLayoutHelper::ResumeInputForPlayer(ULocalPlayer* LocalPlayer, FName 
 	}
 }
 
-UCommonActivatableWidget* UMyGameLayoutHelper::BP_PushContentToLayer(const ULocalPlayer* LocalPlayer, UPARAM(meta = (Categories = "UI.Layer")) FGameplayTag LayerName, UPARAM(meta = (AllowAbstract = false)) TSubclassOf<UCommonActivatableWidget> WidgetClass)
+UCommonActivatableWidget* UMyGameLayoutHelper::BP_PushContentToLayer(const APlayerController* PlayerController, UPARAM(meta = (Categories = "UI.Layer")) FGameplayTag LayerName, UPARAM(meta = (AllowAbstract = false)) TSubclassOf<UCommonActivatableWidget> WidgetClass)
 {
-	if (!ensure(LocalPlayer) || !ensure(WidgetClass != nullptr))
+	if (!ensure(PlayerController) || !ensure(WidgetClass != nullptr))
+	{
+		return nullptr;
+	}
+
+	ULocalPlayer const* LocalPlayer = PlayerController->GetLocalPlayer();
+	if (!ensure(LocalPlayer))
 	{
 		return nullptr;
 	}
