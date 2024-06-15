@@ -15,6 +15,17 @@ UCommonActivatableWidgetContainerBase* UPrimaryGameLayout::GetLayer(FGameplayTag
 	return nullptr;
 }
 
+TArray<UCommonActivatableWidgetContainerBase*> UPrimaryGameLayout::GetLayers()
+{
+	TArray<UCommonActivatableWidgetContainerBase*> Result;
+	for (auto& Layer : Layers)
+	{
+		Result.Emplace(Layer.Value);
+	}
+	return Result;
+}
+
+
 void UPrimaryGameLayout::RegisterLayer(UPARAM(meta = (Categories = "UI.Layer")) FGameplayTag LayerName, UCommonActivatableWidgetContainerBase* Layer)
 {
 	if (IsDesignTime())
@@ -25,8 +36,4 @@ void UPrimaryGameLayout::RegisterLayer(UPARAM(meta = (Categories = "UI.Layer")) 
 	Layer->OnTransitioningChanged.AddUObject(this, &UPrimaryGameLayout::OnWidgetStackTransitioning);
 	Layer->SetTransitionDuration(0.0F);
 	Layers.Emplace(LayerName, Layer);
-}
-
-void UPrimaryGameLayout::OnWidgetStackTransitioning(UCommonActivatableWidgetContainerBase* Widget, bool bIsTransitioning)
-{
 }

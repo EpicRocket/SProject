@@ -13,6 +13,10 @@
 
 int32 InputSuspensionCount = 0;
 
+//////////////////////////////////////////////////////////////////////////
+// UMyGameLayout
+//////////////////////////////////////////////////////////////////////////
+
 UMyGameLayout* UMyGameLayout::Get(const ULocalPlayer* LocalPlayer)
 {
 	UMyUISubsystem* UISubsystem = UMyUISubsystem::Get(LocalPlayer);
@@ -44,6 +48,10 @@ void UMyGameLayout::OnWidgetStackTransitioning(UCommonActivatableWidgetContainer
 		}
 	}
 }
+
+//////////////////////////////////////////////////////////////////////////
+// UMyGameLayoutHelper
+//////////////////////////////////////////////////////////////////////////
 
 FName UMyGameLayoutHelper::SuspendInputForPlayer(ULocalPlayer* LocalPlayer, FName SuspendReason)
 {
@@ -80,7 +88,17 @@ void UMyGameLayoutHelper::ResumeInputForPlayer(ULocalPlayer* LocalPlayer, FName 
 
 UCommonActivatableWidget* UMyGameLayoutHelper::BP_PushContentToLayer(const APlayerController* PlayerController, UPARAM(meta = (Categories = "UI.Layer")) FGameplayTag LayerName, UPARAM(meta = (AllowAbstract = false)) TSubclassOf<UCommonActivatableWidget> WidgetClass)
 {
-	if (!ensure(PlayerController) || !ensure(WidgetClass != nullptr))
+	if (!ensure(PlayerController))
+	{
+		return nullptr;
+	}
+
+	if (!ensure(LayerName.IsValid()))
+	{
+		return nullptr;
+	}
+
+	if (!ensure(WidgetClass != nullptr))
 	{
 		return nullptr;
 	}
@@ -104,4 +122,130 @@ UCommonActivatableWidget* UMyGameLayoutHelper::BP_PushContentToLayer(const APlay
 	}
 
 	return Layer->AddWidget(WidgetClass);
+}
+
+void UMyGameLayoutHelper::RemoveContentFromLayer(const APlayerController* PlayerController, UPARAM(meta = (Categories = "UI.Layer")) FGameplayTag LayerName, UCommonActivatableWidget* WidgetToRemove)
+{
+	if (!ensure(PlayerController))
+	{
+		return;
+	}
+
+	if (!ensure(LayerName.IsValid()))
+	{
+		return;
+	}
+
+	if (!ensure(WidgetToRemove))
+	{
+		return;
+	}
+
+	ULocalPlayer const* LocalPlayer = PlayerController->GetLocalPlayer();
+	if (!ensure(LocalPlayer))
+	{
+		return;
+	}
+
+	auto GameLayout = UMyGameLayout::Get(LocalPlayer);
+	if (!ensure(GameLayout))
+	{
+		return;
+	}
+
+	auto Layer = GameLayout->GetLayer(LayerName);
+	if (!ensure(Layer))
+	{
+		return;
+	}
+
+	Layer->RemoveWidget(*WidgetToRemove);
+}
+
+void UMyGameLayoutHelper::RemoveContent(const APlayerController* PlayerController, UCommonActivatableWidget* WidgetToRemove)
+{
+	if (!ensure(PlayerController))
+	{
+		return;
+	}
+
+	if (!ensure(WidgetToRemove))
+	{
+		return;
+	}
+
+	ULocalPlayer const* LocalPlayer = PlayerController->GetLocalPlayer();
+	if (!ensure(LocalPlayer))
+	{
+		return;
+	}
+
+	auto GameLayout = UMyGameLayout::Get(LocalPlayer);
+	if (!ensure(GameLayout))
+	{
+		return;
+	}
+
+	for (auto Layer : GameLayout->GetLayers())
+	{
+		Layer->RemoveWidget(*WidgetToRemove);
+	}
+}
+
+void UMyGameLayoutHelper::ClearContentFromLayer(const APlayerController* PlayerController, UPARAM(meta = (Categories = "UI.Layer")) FGameplayTag LayerName)
+{
+	if (!ensure(PlayerController))
+	{
+		return;
+	}
+
+	if (!ensure(LayerName.IsValid()))
+	{
+		return;
+	}
+
+	ULocalPlayer const* LocalPlayer = PlayerController->GetLocalPlayer();
+	if (!ensure(LocalPlayer))
+	{
+		return;
+	}
+
+	auto GameLayout = UMyGameLayout::Get(LocalPlayer);
+	if (!ensure(GameLayout))
+	{
+		return;
+	}
+
+	auto Layer = GameLayout->GetLayer(LayerName);
+	if (!ensure(Layer))
+	{
+		return;
+	}
+
+	Layer->ClearWidgets();
+}
+
+void UMyGameLayoutHelper::ClearContent(const APlayerController* PlayerController)
+{
+	if (!ensure(PlayerController))
+	{
+		return;
+	}
+
+	ULocalPlayer const* LocalPlayer = PlayerController->GetLocalPlayer();
+	if (!ensure(LocalPlayer))
+	{
+		return;
+	}
+
+	auto GameLayout = UMyGameLayout::Get(LocalPlayer);
+	if (!ensure(GameLayout))
+	{
+		return;
+	}
+
+	for (auto Layer : GameLayout->GetLayers())
+	{
+		Layer->ClearWidgets();
+	}
 }
