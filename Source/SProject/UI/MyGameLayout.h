@@ -32,7 +32,7 @@ public:
     static void ResumeInputForPlayer(ULocalPlayer* LocalPlayer, FName SuspendToken);
 
     UFUNCTION(BlueprintCallable, Category = "UI", meta = (DeterminesOutputType = WidgetClass))
-    static UCommonActivatableWidget* BP_PushContentToLayer(const APlayerController* PlayerController, UPARAM(meta = (Categories = "UI.Layer")) FGameplayTag LayerName, UPARAM(meta = (AllowAbstract = false)) TSubclassOf<UCommonActivatableWidget> WidgetClass);
+    static UCommonActivatableWidget* PushContentToLayer(const APlayerController* PlayerController, UPARAM(meta = (Categories = "UI.Layer")) FGameplayTag LayerName, UPARAM(meta = (AllowAbstract = false)) TSubclassOf<UCommonActivatableWidget> WidgetClass);
 
     UFUNCTION(BlueprintCallable, Category = "UI")
     static void RemoveContentFromLayer(const APlayerController* PlayerController, UPARAM(meta = (Categories = "UI.Layer")) FGameplayTag LayerName, UCommonActivatableWidget* WidgetToRemove);

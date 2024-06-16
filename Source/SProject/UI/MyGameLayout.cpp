@@ -86,7 +86,7 @@ void UMyGameLayoutHelper::ResumeInputForPlayer(ULocalPlayer* LocalPlayer, FName 
 	}
 }
 
-UCommonActivatableWidget* UMyGameLayoutHelper::BP_PushContentToLayer(const APlayerController* PlayerController, UPARAM(meta = (Categories = "UI.Layer")) FGameplayTag LayerName, UPARAM(meta = (AllowAbstract = false)) TSubclassOf<UCommonActivatableWidget> WidgetClass)
+UCommonActivatableWidget* UMyGameLayoutHelper::PushContentToLayer(const APlayerController* PlayerController, UPARAM(meta = (Categories = "UI.Layer")) FGameplayTag LayerName, UPARAM(meta = (AllowAbstract = false)) TSubclassOf<UCommonActivatableWidget> WidgetClass)
 {
 	if (!ensure(PlayerController))
 	{
