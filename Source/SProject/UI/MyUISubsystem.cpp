@@ -1,33 +1,26 @@
+
 #include "MyUISubsystem.h"
+#include "Engine/World.h"
+#include "Engine/GameInstance.h"
 
-void UMyUISubsystem::Initialize(FSubsystemCollectionBase& Collection)
+UMyUISubsystem* UMyUISubsystem::Get(const UObject* WorldContextObject)
 {
-    Super::Initialize(Collection);
-
-    if (!Policy && !PolicyClass.IsNull())
+    if (!ensure(WorldContextObject))
     {
-        
+        return nullptr;
     }
-}
 
-void UMyUISubsystem::Deinitialize()
-{
-    Super::Deinitialize();
-}
+    UWorld* World = WorldContextObject->GetWorld();
+    if (World == nullptr)
+    {
+        return nullptr;
+    }
 
-bool UMyUISubsystem::ShouldCreateSubsystem(UObject* Outer) const
-{
-	return false;
-}
+    UGameInstance* GameInstance = World->GetGameInstance();
+    if (GameInstance == nullptr)
+	{
+		return nullptr;
+	}
 
-void UMyUISubsystem::NotifyPlayerAdded(UMyLocalPlayer* LocalPlayer)
-{
-}
-
-void UMyUISubsystem::NotifyPlayerRemoved(UMyLocalPlayer* LocalPlayer)
-{
-}
-
-void UMyUISubsystem::NotifyPlayerDestroyed(UMyLocalPlayer* LocalPlayer)
-{
+    return GameInstance->GetSubsystem<UMyUISubsystem>();
 }
