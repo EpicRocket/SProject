@@ -455,35 +455,33 @@ bool UXLSXFactory::GenerateXLSXSheet(const FString& FileName)
 				}
 			}	// ~헤더 정보 저장
 
-			if (Sheet.AssetType != EAssetType::Enum)
-			{	// 값 정보 저장
-				for (int32 i = ++RowStart; i <= RowCount; ++i)
-				{
-					OpenXLSX::XLRow DataRow = WorkSheet.row(i);
-					auto DataRowIter = DataRow.cells().begin();
+			// 데이터 저장
+			for (int32 i = ++RowStart; i <= RowCount; ++i)
+			{
+				OpenXLSX::XLRow DataRow = WorkSheet.row(i);
+				auto DataRowIter = DataRow.cells().begin();
 
-					TArray<TTuple<int32, FString>> Datas;
-					Datas.Reserve(Sheet.Headers.Num());
-					for (int32 Index = 0; DataRowIter != DataRow.cells().end(); ++Index, ++DataRowIter)
+				TArray<TTuple<int32, FString>> Datas;
+				Datas.Reserve(Sheet.Headers.Num());
+				for (int32 Index = 0; DataRowIter != DataRow.cells().end(); ++Index, ++DataRowIter)
+				{
+					// 헤더에 미포함된 데이터 값
+					if (!Sheet.Headers.Contains(Index))
 					{
-						// 헤더에 미포함된 데이터 값
-						if (!Sheet.Headers.Contains(Index))
-						{
-							continue;
-						}
-						const XLSXHeader& Header = Sheet.Headers[Index];
-						auto& RowData = DataRowIter->value();
-						FString Value = XLSX::GetXLSXValue<FString>(RowData);
-					
-						if (Header.CellType == ECellType::TArray)
-						{
-							Value = FString::Printf(TEXT("(%s)"), *Value);
-						}
-						Datas.Emplace(TTuple<int32, FString>{Index, Value});
+						continue;
 					}
-					Sheet.Datas.Emplace(Datas);
+					const XLSXHeader& Header = Sheet.Headers[Index];
+					auto& RowData = DataRowIter->value();
+					FString Value = XLSX::GetXLSXValue<FString>(RowData);
+
+					if (Header.CellType == ECellType::TArray)
+					{
+						Value = FString::Printf(TEXT("(%s)"), *Value);
+					}
+					Datas.Emplace(TTuple<int32, FString>{Index, Value});
 				}
-			}	// ~값 정보 저장
+				Sheet.Datas.Emplace(Datas);
+			}
 
 			CacheSheet.Emplace(Sheet);
 		}
@@ -528,6 +526,8 @@ FString UXLSXFactory::GenerateTableDesc(FString const& Filename)
 	TableDesc += TEXT("\n\n");
 	TableDesc += TEXT("#include \"CoreMinimal.h\"");
 	TableDesc += TEXT("\n");
+	TableDesc += TEXT("#include \"Misc/EnumRange.h\"");
+	TableDesc += TEXT("\n");
 	TableDesc += TEXT("#include \"Engine/DataTable.h\"");
 	TableDesc += TEXT("\n");
 	TableDesc += FString::Printf(TEXT("#include \"%s.generated.h\""), *Filename);
@@ -543,24 +543,40 @@ FString UXLSXFactory::GenerateTableDesc(FString const& Filename)
 			TableDesc += FString::Printf(TEXT("struct %s F%sTableRow : public FTableRowBase\n"), Dependency_Module_API, *Sheet.Name);
 			TableDesc += TEXT("{\n");
 			TableDesc += TEXT("	GENERATED_BODY()\n");
-			TableDesc += TEXT("\n");
 
 			for (auto& [Index, Header] : Sheet.Headers)
 			{
+				TableDesc += TEXT("\n");
 				TableDesc += FString::Printf(TEXT("	UPROPERTY(EditAnywhere, BlueprintReadWrite)\n"));
 				if (Header.CellType == ECellType::Asset || Header.CellType == ECellType::Class)
 				{
-					TableDesc += FString::Printf(TEXT("%s %s;"), *Header.Type, *Header.Name);
+					TableDesc += FString::Printf(TEXT("	%s* %s;"), *Header.Type, *Header.Name);
 				}
 				else
 				{
-					TableDesc += FString::Printf(TEXT("%s* %s;"), *Header.Type, *Header.Name);
-				}
-				TableDesc += TEXT("\n\n");
-			}
+					FString InitailzieValue;
+					switch (Header.CellType)
+					{
+						case ECellType::Bool: InitailzieValue = TEXT("false"); break;
+						case ECellType::Int32: InitailzieValue = TEXT("0"); break;
+						case ECellType::Int64: InitailzieValue = TEXT("0"); break;
+						case ECellType::Float: InitailzieValue = TEXT("0.0F"); break;
+						case ECellType::Enum: InitailzieValue = FString::Printf(TEXT("%s::Max"), *Header.Type); break;
+					}
 
-			TableDesc += TEXT("\n");
+					if (InitailzieValue.IsEmpty())
+					{
+						TableDesc += FString::Printf(TEXT("	%s %s;"), *Header.Type, *Header.Name);
+					}
+					else
+					{
+						TableDesc += FString::Printf(TEXT("	%s %s = %s;"), *Header.Type, *Header.Name, *InitailzieValue);
+					}
+				}
+				TableDesc += TEXT("\n");
+			}
 			TableDesc += TEXT("};\n");
+			TableDesc += TEXT("\n");
 		}
 		break;
 
@@ -568,12 +584,33 @@ FString UXLSXFactory::GenerateTableDesc(FString const& Filename)
 		{
 			TableDesc += FString::Printf(TEXT("UENUM(BlueprintType)\n"));
 			TableDesc += FString::Printf(TEXT("enum class %s : uint8\n"), *Sheet.Name);
+			TableDesc += TEXT("{\n");
 
-			for (auto& [Index, Header] : Sheet.Headers)
+			for (int32 Index = 0; Index < Sheet.Datas.Num(); ++Index)
 			{
-				TableDesc += FString::Printf(TEXT("%s,\n"), *Header.Name);
+				auto& Datas = Sheet.Datas[Index];
+				FString Value, Name;
+
+				int32 Count = 0;
+				for (auto& [_, Data] : Datas)
+				{
+					if (Count == 0)
+					{
+						Value = Data;
+					}
+					else if (Count == 1)
+					{
+						Name = Data;
+						break;
+					}
+					Count++;
+				}
+				TableDesc += FString::Printf(TEXT("	%s = %s,\n"), *Name, *Value);
 			}
+			TableDesc += TEXT("	Max UMETA(Hidden)\n");
 			TableDesc += TEXT("};\n");
+			TableDesc += FString::Printf(TEXT("ENUM_RANGE_BY_COUNT(%s, %s::Max)\n"), *Sheet.Name, *Sheet.Name);
+			TableDesc += TEXT("\n");
 		}
 		break;
 
