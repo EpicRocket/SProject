@@ -4,7 +4,7 @@
 #include "CoreMinimal.h"
 #include "UObject/ObjectMacros.h"
 #include "Engine/EngineTypes.h"
-#include "GameFramework/GameStateBase.h"
+#include "GameFramework/GameState.h"
 #include "AbilitySystemInterface.h"
 
 #include "MyGameState.generated.h"
@@ -12,7 +12,7 @@
 class UMyAbilitySystemComponent;
 
 UCLASS(BlueprintType, Blueprintable)
-class SPROJECT_API AMyGameState : public AGameStateBase, public IAbilitySystemInterface
+class SPROJECT_API AMyGameState : public AGameState, public IAbilitySystemInterface
 {
     GENERATED_BODY()
 
