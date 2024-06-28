@@ -36,6 +36,7 @@ public class SProject : ModuleRules
                 "EnhancedInput",
                 "DataValidation",
                 "DeveloperSettings",
+                "AssetRegistry",
             }
         );
 

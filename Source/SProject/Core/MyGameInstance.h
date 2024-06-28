@@ -11,5 +11,6 @@ class SPROJECT_API UMyGameInstance : public UGGameInstance
     GENERATED_BODY()
 
 public:
-    
+    virtual void Init() override;
+
 };
