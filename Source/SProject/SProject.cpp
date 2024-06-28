@@ -5,4 +5,4 @@
 
 IMPLEMENT_PRIMARY_GAME_MODULE( FDefaultGameModuleImpl, SProject, "SProject" );
 
-DEFINE_LOG_CATEGORY(Project)
+DEFINE_LOG_CATEGORY(LogProject)
