@@ -67,7 +67,7 @@ T GetXLSXValue(const OpenXLSX::XLCellValueProxy& Proxy)
 			return Value ? TEXT("TRUE") : TEXT("FALSE");
 		}
 	}
-									   break;
+	break;
 
 	case OpenXLSX::XLValueType::Integer:
 	{
@@ -153,6 +153,7 @@ T GetXLSXValue(const OpenXLSX::XLCellValueProxy& Proxy)
 } // XLSX
 
 TArray<UXLSXFactory::XLSXSheet> CacheSheet;
+TSet<FString> ForwardDeclarations;
 FDelegateHandle CompileHandle;
 FTSTicker::FDelegateHandle NextTickHandle;
 UObject* CacheTableAsset;
@@ -309,6 +310,7 @@ void UXLSXFactory::OnComplete()
 bool UXLSXFactory::GenerateXLSXSheet(const FString& FileName)
 {
 	CacheSheet.Empty();
+	ForwardDeclarations.Empty();
 #if PLATFORM_WINDOWS
 	try
 	{
@@ -433,18 +435,24 @@ bool UXLSXFactory::GenerateXLSXSheet(const FString& FileName)
 						FString Param = Helper::ExtractSubstring(TypeName, TEXT("<"), TEXT(">"));
 						XLSXHeader.Type = FString::Printf(TEXT("%s"), *Param);
 						XLSXHeader.CellType = ECellType::Enum;
+
+						ForwardDeclarations.Emplace(FString::Printf(TEXT("enum class %s : uint8"), *XLSXHeader.Type));
 					}
 					else if (TypeName.Contains(TEXT("asset")))
 					{
 						FString Param = Helper::ExtractSubstring(TypeName, TEXT("<"), TEXT(">"));
 						XLSXHeader.Type = FString::Printf(TEXT("%s"), *Param);
 						XLSXHeader.CellType = ECellType::Asset;
+
+						ForwardDeclarations.Emplace(FString::Printf(TEXT("class %s"), *XLSXHeader.Type));
 					}
 					else if (TypeName.Contains(TEXT("class")))
 					{
 						FString Param = Helper::ExtractSubstring(TypeName, TEXT("<"), TEXT(">"));
 						XLSXHeader.Type = FString::Printf(TEXT("%s"), *Param);
 						XLSXHeader.CellType = ECellType::Class;
+
+						ForwardDeclarations.Emplace(FString::Printf(TEXT("class %s"), *XLSXHeader.Type));
 					}
 					else
 					{
@@ -520,7 +528,7 @@ bool UXLSXFactory::GenerateXLSXSheet(const FString& FileName)
 FString UXLSXFactory::GenerateTableDesc(FString const& Filename)
 {
 	FString TableDesc;
-	TableDesc += FString::Printf(TEXT("// File generate"));
+	TableDesc += FString::Printf(TEXT("// File generate: %s"), *FDateTime::Now().ToString());
 	TableDesc += TEXT("\n");
 	TableDesc += TEXT("#pragma once");
 	TableDesc += TEXT("\n\n");
@@ -532,6 +540,12 @@ FString UXLSXFactory::GenerateTableDesc(FString const& Filename)
 	TableDesc += TEXT("\n");
 	TableDesc += FString::Printf(TEXT("#include \"%s.generated.h\""), *Filename);
 	TableDesc += TEXT("\n\n");
+
+	for (auto& ForwardDeclaration : ForwardDeclarations)
+	{
+		TableDesc += FString::Printf(TEXT("%s;\n"), *ForwardDeclaration);
+	}
+	TableDesc += TEXT("\n");
 
 	for (auto& Sheet : CacheSheet)
 	{
@@ -550,7 +564,7 @@ FString UXLSXFactory::GenerateTableDesc(FString const& Filename)
 				TableDesc += FString::Printf(TEXT("	UPROPERTY(EditAnywhere, BlueprintReadWrite)\n"));
 				if (Header.CellType == ECellType::Asset || Header.CellType == ECellType::Class)
 				{
-					TableDesc += FString::Printf(TEXT("	%s* %s;"), *Header.Type, *Header.Name);
+					TableDesc += FString::Printf(TEXT("%s* %s = nullptr;"), *Header.Type, *Header.Name);
 				}
 				else
 				{
@@ -561,7 +575,7 @@ FString UXLSXFactory::GenerateTableDesc(FString const& Filename)
 						case ECellType::Int32: InitailzieValue = TEXT("0"); break;
 						case ECellType::Int64: InitailzieValue = TEXT("0"); break;
 						case ECellType::Float: InitailzieValue = TEXT("0.0F"); break;
-						case ECellType::Enum: InitailzieValue = FString::Printf(TEXT("%s::Max"), *Header.Type); break;
+						case ECellType::Enum: InitailzieValue = FString::Printf(TEXT("static_cast<%s>(0)"), *Header.Type); break;
 					}
 
 					if (InitailzieValue.IsEmpty())
