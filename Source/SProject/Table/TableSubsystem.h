@@ -12,6 +12,9 @@
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTable, Log, All);
 
+/*
+ * 테이터 테이블 시스템
+ */
 UCLASS(config = SProject)
 class SPROJECT_API UTableSubsystem : public UEngineSubsystem
 {
