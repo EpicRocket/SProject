@@ -267,18 +267,18 @@ void UXLSXFactory::OnComplete()
 
 		UPackage* Pkg = CreatePackage(*(PackageName / DataTableName));
 		UDataTable* DT = Cast<UDataTable>(StaticFindObject(UObject::StaticClass(), Pkg, *DataTableName));
-		if (!DT)
+		if (DT)
 		{
-			IAssetTools& AssetTools = FModuleManager::GetModuleChecked<FAssetToolsModule>("AssetTools").Get();
-			UDataTableFactory* Factory = NewObject<UDataTableFactory>();
-			Factory->Struct = RowStruct;
-			DT = Cast<UDataTable>(AssetTools.CreateAsset(DataTableName, PackageName, UDataTable::StaticClass(), Factory));
+			if (ObjectTools::DeleteSingleObject(DT))
+			{
+				CollectGarbage(GARBAGE_COLLECTION_KEEPFLAGS);
+			}
 		}
-		else
-		{
-			DT->EmptyTable();
-			DT->RowStruct = RowStruct;
-		}
+
+		IAssetTools& AssetTools = FModuleManager::GetModuleChecked<FAssetToolsModule>("AssetTools").Get();
+		UDataTableFactory* Factory = NewObject<UDataTableFactory>();
+		Factory->Struct = RowStruct;
+		DT = Cast<UDataTable>(AssetTools.CreateAsset(DataTableName, PackageName, UDataTable::StaticClass(), Factory));
 
 		if (Sheet.IsEmpty())
 		{
@@ -528,7 +528,7 @@ bool UXLSXFactory::GenerateXLSXSheet(const FString& FileName)
 FString UXLSXFactory::GenerateTableDesc(FString const& Filename)
 {
 	FString TableDesc;
-	TableDesc += FString::Printf(TEXT("// File generate: %s"), *FDateTime::Now().ToString());
+	TableDesc += FString::Printf(TEXT("// This is an automatically generated file. Do not modify it manually."));
 	TableDesc += TEXT("\n");
 	TableDesc += TEXT("#pragma once");
 	TableDesc += TEXT("\n\n");
@@ -562,9 +562,13 @@ FString UXLSXFactory::GenerateTableDesc(FString const& Filename)
 			{
 				TableDesc += TEXT("\n");
 				TableDesc += FString::Printf(TEXT("	UPROPERTY(EditAnywhere, BlueprintReadWrite)\n"));
-				if (Header.CellType == ECellType::Asset || Header.CellType == ECellType::Class)
+				if (Header.CellType == ECellType::Asset)
 				{
-					TableDesc += FString::Printf(TEXT("%s* %s = nullptr;"), *Header.Type, *Header.Name);
+					TableDesc += FString::Printf(TEXT("	TSoftObjectPtr<%s> %s = nullptr;"), *Header.Type, *Header.Name);
+				}
+				else if (Header.CellType == ECellType::Class)
+				{
+					TableDesc += FString::Printf(TEXT("	TSoftClassPtr<%s> %s = nullptr;"), *Header.Type, *Header.Name);
 				}
 				else
 				{
