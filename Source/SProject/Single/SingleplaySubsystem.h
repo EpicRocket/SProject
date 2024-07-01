@@ -17,5 +17,13 @@ class SPROJECT_API USingleplaySubsystem : public UGameInstanceSubsystem
     GENERATED_BODY()
 
 public:
-    TObjectPtr<USingleplaySaveGame> SingleplaySaveGame;
+    virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+
+    UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "싱글플레이")
+    void LoadSaveGames();
+
+private:
+    TArray<USingleplaySaveGame> SaveGames;
+
+    TObjectPtr<USingleplaySaveGame> SelectedSaveGame;
 };
