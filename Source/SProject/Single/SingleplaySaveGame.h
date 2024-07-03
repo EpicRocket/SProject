@@ -11,7 +11,7 @@
 
 /** 싱글플레이 세이브 게임 */
 UCLASS()
-class SPROJECT_API USingleplaySaveGame : public USaveGame
+class USingleplaySaveGame : public USaveGame
 {
     GENERATED_BODY()
 
@@ -30,4 +30,34 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FDomainBuilding> DomainBuildings;
+};
+
+/** 싱글플레이 세이브 게임 유틸 클래스 */
+UCLASS(BlueprintType, MinimalAPI)
+class USingleplaySaveGameContext : public UObject
+{
+	GENERATED_BODY()
+
+public:
+	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "싱글플레이")
+	bool IsExistSaveGame() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "싱글플레이")
+	void InitSingleplay();
+
+	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "싱글플레이")
+	bool LoadSingleplay();
+
+	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "싱글플레이")
+	bool SaveSingleplay();
+
+	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "싱글플레이")
+	void DeleteSignleplay();
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FString SlotName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	USingleplaySaveGame* SaveGame;
 };
