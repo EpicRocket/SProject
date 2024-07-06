@@ -5,8 +5,10 @@
 #include "Kismet/GameplayStatics.h"
 // include Project
 #include "SingleplaySubsystem.h"
+#include "Types/FetchDocument.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(SingleplaySaveGame)
+
 
 bool USingleplaySaveGameContext::IsExistSaveGame() const
 {
@@ -50,4 +52,22 @@ void USingleplaySaveGameContext::DeleteSignleplay()
 		UGameplayStatics::DeleteGameInSlot(SlotName, 0);
 	}
 	SaveGame = nullptr;
+}
+
+FFetchDocument USingleplaySaveGameContext::FetchDocument()
+{
+	FFetchDocument Document;
+	if (!IsValid(SaveGame))
+	{
+		return Document;
+	}
+
+	// NOTE: 저장 정보가 추가 될 때 마다 추가
+	Document.UserInfo = SaveGame->UserInfo;
+	Document.Gold = SaveGame->Gold;
+	Document.Cash = SaveGame->Cash;
+	Document.Items = SaveGame->Items;
+	Document.DomainBuildings = SaveGame->DomainBuildings;
+
+	return Document;
 }

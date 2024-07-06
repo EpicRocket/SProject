@@ -1,0 +1,27 @@
+﻿
+#pragma once
+
+#include "CoreMinimal.h"
+#include "Misc/Optional.h"
+// include Project
+#include "Document.h"
+
+#include "FetchDocument.generated.h"
+
+USTRUCT()
+struct FFetchDocument
+{
+    GENERATED_BODY()
+
+    // UserDocument
+	TOptional<FUserInfo> UserInfo;
+
+	TOptional<int64> Gold = 0;
+
+	TOptional<int32> Cash = 0;
+
+	TOptional<TArray<FItem>> Items;
+
+	TOptional<TArray<FDomainBuilding>> DomainBuildings;
+    // ~UserDocument
+};

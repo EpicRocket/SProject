@@ -1,6 +1,8 @@
 ﻿
 #include "SingleplaySubsystem.h"
 // include Engine
+#include "Engine/World.h"
+#include "Engine/GameInstance.h"
 #include "Kismet/GameplayStatics.h"
 // include Project
 #include "SingleplaySaveGame.h"
@@ -10,70 +12,58 @@
 DEFINE_LOG_CATEGORY(LogSingleplay)
 
 FString USingleplaySubsystem::SLOT_NAME = TEXT("Singleplay");
-int32 USingleplaySubsystem::SLOT_START_INDEX = 0;
-int32 USingleplaySubsystem::SLOT_MAX_COUNT = 5;
+
+USingleplaySubsystem* USingleplaySubsystem::Get(const UObject* WorldContextObject)
+{
+	if (!IsValid(WorldContextObject))
+	{
+		return nullptr;
+	}
+
+	UWorld* World = WorldContextObject->GetWorld();
+	if (!IsValid(World))
+	{
+		return nullptr;
+	}
+
+	UGameInstance* GameInstance = World->GetGameInstance();
+	if (!IsValid(GameInstance))
+	{
+		return nullptr;
+	}
+
+	return GameInstance->GetSubsystem<USingleplaySubsystem>();
+}
 
 void USingleplaySubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
 
-}
-
-void USingleplaySubsystem::LoadSaveGames()
-{
-	for (int32 Index = USingleplaySubsystem::SLOT_START_INDEX; Index < SLOT_MAX_COUNT; ++Index)
+	LoadedSaveGame = NewObject<USingleplaySaveGameContext>(this, USingleplaySaveGameContext::StaticClass());
+	if (!IsValid(LoadedSaveGame))
 	{
-		auto NewContext = NewObject<USingleplaySaveGameContext>(this, USingleplaySaveGameContext::StaticClass());
-		if (!IsValid(NewContext))
-		{
-			UE_LOG(LogSingleplay, Error, TEXT("SaveGameContext 생성에 실패하였습니다."));
-			return;
-		}
-		NewContext->SlotName = FString::Printf(TEXT("%s_%d"), *USingleplaySubsystem::SLOT_NAME, Index);
-		Contexts.Emplace(NewContext);
-
-		if (UGameplayStatics::DoesSaveGameExist(NewContext->SlotName, 0))
-		{
-			if (!NewContext->LoadSingleplay())
-			{
-				UE_LOG(LogSingleplay, Error, TEXT("SaveGame 로드에 실패하였습니다."))
-			}
-		}
-	}
-}
-
-void USingleplaySubsystem::SaveSelectedSaveGame()
-{
-	if (!IsValid(SelectedSaveGame))
-	{
-		UE_LOG(LogSingleplay, Warning, TEXT("저장할 SaveGame이 선택되지 않았습니다."))
+		UE_LOG(LogSingleplay, Error, TEXT("SaveGameContext 생성에 실패하였습니다."));
 		return;
 	}
 
-	if (!SelectedSaveGame->SaveSingleplay())
+	LoadedSaveGame->SlotName = USingleplaySubsystem::SLOT_NAME;
+
+	if (UGameplayStatics::DoesSaveGameExist(USingleplaySubsystem::SLOT_NAME, 0))
 	{
-		UE_LOG(LogSingleplay, Warning, TEXT("SaveGame 저장에 실패하였습니다."))
-			return;
+		LoadedSaveGame->LoadSingleplay();
 	}
 }
 
-TArray<USingleplaySaveGameContext*> USingleplaySubsystem::GetSaveGames() const
+bool USingleplaySubsystem::ShouldCreateSubsystem(UObject* Outer) const
 {
-	return Contexts;
+#if ALLOW_SINGLEPLAY
+	return true;
+#else
+	return false;
+#endif
 }
 
-void USingleplaySubsystem::DeleteSaveGame(USingleplaySaveGameContext* DeleteSaveGame)
+USingleplaySaveGameContext* USingleplaySubsystem::GetSaveGame() const
 {
-	if (!IsValid(DeleteSaveGame))
-	{
-		UE_LOG(LogSingleplay, Warning, TEXT("삭제할 SaveGame이 선택되지 않았습니다."))
-		return;
-	}
-
-	DeleteSaveGame->DeleteSignleplay();
-}
-
-void USingleplaySubsystem::SelectSaveGame(USingleplaySaveGameContext* SelecteSaveGame)
-{
-	SelectedSaveGame = SelecteSaveGame;
+	return LoadedSaveGame;
 }

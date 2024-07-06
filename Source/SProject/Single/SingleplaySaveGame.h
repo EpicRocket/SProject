@@ -8,6 +8,7 @@
 
 #include "SingleplaySaveGame.generated.h"
 
+struct FFetchDocument;
 
 /** 싱글플레이 세이브 게임 */
 UCLASS()
@@ -53,6 +54,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "싱글플레이")
 	void DeleteSignleplay();
+
+	FFetchDocument FetchDocument();
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

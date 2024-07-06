@@ -18,29 +18,17 @@ class SPROJECT_API USingleplaySubsystem : public UGameInstanceSubsystem
     GENERATED_BODY()
 
     static FString SLOT_NAME;
-    static int32 SLOT_START_INDEX;
-    static int32 SLOT_MAX_COUNT;
 
 public:
+    static USingleplaySubsystem* Get(const UObject* WorldContextObject);
+
     virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
-    UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "싱글플레이")
-    void LoadSaveGames();
+    virtual bool ShouldCreateSubsystem(UObject* Outer) const;
 
-    UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "싱글플레이")
-    void SaveSelectedSaveGame();
-
-    UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "싱그플레이")
-    TArray<USingleplaySaveGameContext*> GetSaveGames() const;
-
-    UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "싱그플레이")
-    void DeleteSaveGame(USingleplaySaveGameContext* DeleteSaveGame);
-
-    UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "싱그플레이")
-    void SelectSaveGame(USingleplaySaveGameContext* SelecteSaveGame);
+    UFUNCTION(BlueprintCallable, Category = "Singleplay")
+    USingleplaySaveGameContext* GetSaveGame() const;
 
 private:
-    TArray<USingleplaySaveGameContext*> Contexts;
-
-    TObjectPtr<USingleplaySaveGameContext> SelectedSaveGame;
+    TObjectPtr<USingleplaySaveGameContext> LoadedSaveGame;
 };
