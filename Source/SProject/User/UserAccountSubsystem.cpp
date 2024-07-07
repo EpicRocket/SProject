@@ -54,7 +54,6 @@ bool UUserAccountSubsystem::Connect(FOnUserConnectedEvent ConnectEvent)
 	if (!IsValid(LocalPlayer))
 	{
 		UE_LOG(LogCore, Error, TEXT("로컬 플레이어를 찾을 수 없습니다."));
-		ConnectEvent.ExecuteIfBound(static_cast<int32>(EGameErrCode::NotFoundLocalPlayer));
 		return false;
 	}
 
@@ -65,7 +64,6 @@ bool UUserAccountSubsystem::Connect(FOnUserConnectedEvent ConnectEvent)
 	if (!IsValid(SingleplaySubsystem))
 	{
 		UE_LOG(LogCore, Error, TEXT("싱글플레이 서브시스템을 찾을 수 없습니다."));
-		ConnectEvent.ExecuteIfBound(static_cast<int32>(EGameErrCode::NotFoundSignleplaySubsystem));
 		return false;
 	}
 
@@ -74,7 +72,6 @@ bool UUserAccountSubsystem::Connect(FOnUserConnectedEvent ConnectEvent)
 	{
 		// NOTE: 싱글플레이 서브시스템을 사용하지 못하는 상태다.
 		UE_LOG(LogCore, Error, TEXT("싱글플레이 정보를 찾을 수 없습니다."));
-		ConnectEvent.ExecuteIfBound(static_cast<int32>(EGameErrCode::NotFoundSingleplayContext));
 		return false;
 	}
 
@@ -84,7 +81,6 @@ bool UUserAccountSubsystem::Connect(FOnUserConnectedEvent ConnectEvent)
 	if (!FetchDocument.IsValid())
 	{
 		UE_LOG(LogCore, Error, TEXT("사용자 정보를 찾을 수 없습니다."));
-		ConnectEvent.ExecuteIfBound(static_cast<int32>(EGameErrCode::UserDocumentUnpatchable));
 		return false;
 	}
 
@@ -107,5 +103,6 @@ bool UUserAccountSubsystem::Connect(FOnUserConnectedEvent ConnectEvent)
 		Middleware->FinalizeUserDocumentUpdate(FetchDocument);
 	}
 
-	return false;
+	ConnectEvent.ExecuteIfBound(static_cast<int32>(EGameErrCode::None));
+	return true;
 }
