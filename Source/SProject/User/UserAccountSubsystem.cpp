@@ -24,7 +24,15 @@ UUserAccountSubsystem* UUserAccountSubsystem::Get(const ULocalPlayer* InLocalPla
 	return InLocalPlayer->GetSubsystem<UUserAccountSubsystem>();
 }
 
-void UUserAccountSubsystem::BindUserDocumentMiddleware(IUserDocumentMiddleware* Middleware)
+void UUserAccountSubsystem::Initialize(FSubsystemCollectionBase& Collection)
+{
+	Super::Initialize(Collection);
+
+	UserDocumentMiddlewares.Empty();
+	FetchDocument = nullptr;
+}
+
+void UUserAccountSubsystem::BindUserDocumentMiddleware(TScriptInterface<IUserDocumentMiddleware> Middleware)
 {
 	if (Middleware)
 	{
@@ -36,7 +44,7 @@ void UUserAccountSubsystem::BindUserDocumentMiddleware(IUserDocumentMiddleware* 
 	}
 }
 
-void UUserAccountSubsystem::UnbindUserDocumentMiddleware(IUserDocumentMiddleware* Middleware)
+void UUserAccountSubsystem::UnbindUserDocumentMiddleware(TScriptInterface<IUserDocumentMiddleware> Middleware)
 {
 	if (Middleware)
 	{
@@ -57,7 +65,7 @@ bool UUserAccountSubsystem::Connect(FOnUserConnectedEvent ConnectEvent)
 		return false;
 	}
 
-	TSharedPtr<FFetchDocument> FetchDocument = nullptr;
+	FetchDocument = nullptr;
 
 #if ALLOW_SINGLEPLAY
 	auto SingleplaySubsystem = USingleplaySubsystem::Get(this);
@@ -84,6 +92,19 @@ bool UUserAccountSubsystem::Connect(FOnUserConnectedEvent ConnectEvent)
 		return false;
 	}
 
+	OnFetchDocument();
+
+	ConnectEvent.ExecuteIfBound(static_cast<int32>(EGameErrCode::None));
+	return true;
+}
+
+void UUserAccountSubsystem::OnFetchDocument()
+{
+	if (!FetchDocument.IsValid())
+	{
+		return;
+	}
+
 	// Apply FetchDocument
 	for (auto Middleware : UserDocumentMiddlewares)
 	{
@@ -102,7 +123,4 @@ bool UUserAccountSubsystem::Connect(FOnUserConnectedEvent ConnectEvent)
 	{
 		Middleware->FinalizeUserDocumentUpdate(FetchDocument);
 	}
-
-	ConnectEvent.ExecuteIfBound(static_cast<int32>(EGameErrCode::None));
-	return true;
 }

@@ -30,5 +30,6 @@ public:
     USingleplaySaveGameContext* GetSaveGame() const;
 
 private:
+    UPROPERTY()
     TObjectPtr<USingleplaySaveGameContext> LoadedSaveGame;
 };

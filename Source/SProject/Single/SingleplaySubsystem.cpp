@@ -4,6 +4,7 @@
 #include "Engine/World.h"
 #include "Engine/GameInstance.h"
 #include "Kismet/GameplayStatics.h"
+#include "UObject/Package.h"
 // include Project
 #include "SingleplaySaveGame.h"
 
