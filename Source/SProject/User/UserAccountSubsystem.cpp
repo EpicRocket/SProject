@@ -6,11 +6,8 @@
 #include "Types/GameErrCode.h"
 #include "Types/FetchDocument.h"
 #include "Interface/UserDocumentMiddleware.h"
-
-#if ALLOW_SINGLEPLAY
 #include "Single/SingleplaySubsystem.h"
 #include "Single/SingleplaySaveGame.h"
-#endif
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(UserAccountSubsystem)
 
@@ -67,7 +64,6 @@ bool UUserAccountSubsystem::Connect(FOnUserConnectedEvent ConnectEvent)
 
 	FetchDocument = nullptr;
 
-#if ALLOW_SINGLEPLAY
 	auto SingleplaySubsystem = USingleplaySubsystem::Get(this);
 	if (!IsValid(SingleplaySubsystem))
 	{
@@ -84,7 +80,6 @@ bool UUserAccountSubsystem::Connect(FOnUserConnectedEvent ConnectEvent)
 	}
 
 	FetchDocument =  MakeShared<FFetchDocument>(Context->FetchDocument());
-#endif
 
 	if (!FetchDocument.IsValid())
 	{

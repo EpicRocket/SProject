@@ -55,15 +55,6 @@ void USingleplaySubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	}
 }
 
-bool USingleplaySubsystem::ShouldCreateSubsystem(UObject* Outer) const
-{
-#if ALLOW_SINGLEPLAY
-	return true;
-#else
-	return false;
-#endif
-}
-
 USingleplaySaveGameContext* USingleplaySubsystem::GetSaveGame() const
 {
 	return LoadedSaveGame;

@@ -24,8 +24,6 @@ public:
 
     virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
-    virtual bool ShouldCreateSubsystem(UObject* Outer) const;
-
     UFUNCTION(BlueprintCallable, Category = "Singleplay")
     USingleplaySaveGameContext* GetSaveGame() const;
 
