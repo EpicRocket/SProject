@@ -49,6 +49,14 @@ void UInventorySubsystem::ApplyUserDocumentChanges(const TSharedRef<FFetchDocume
     {
         Cash = FetchDocument->Cash.GetValue();
     }
+
+    if (FetchDocument->Items.IsSet())
+    {
+        for(auto const& FetchItem : FetchDocument->Items.GetValue())
+		{
+            GetItem(FetchItem.Key).Get() = FetchItem;
+		}
+    }
 }
 
 int64 UInventorySubsystem::GetGold() const
@@ -59,4 +67,20 @@ int64 UInventorySubsystem::GetGold() const
 int32 UInventorySubsystem::GetCash() const
 {
     return Cash;
+}
+
+FItem UInventorySubsystem::Get(int32 Key) const
+{
+    return GetItem(Key).Get();
+}
+
+TSharedRef<FItem> UInventorySubsystem::GetItem(int32 Key) const
+{
+    if (!Items.Contains(Key))
+    {
+        auto NewItem = MakeShared<FItem>();
+        NewItem->Key = Key;
+        Items.Emplace(Key, NewItem);
+    }
+    return Items[Key].ToSharedRef();
 }

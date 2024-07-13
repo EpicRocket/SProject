@@ -17,6 +17,9 @@ class USingleplaySaveGame : public USaveGame
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FUserAccount UserAccount;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FUserDocument UserDocument;
 };
 
@@ -25,6 +28,9 @@ UCLASS(BlueprintType, MinimalAPI)
 class USingleplaySaveGameContext : public UObject
 {
 	GENERATED_BODY()
+
+public:
+	static FString Token;
 
 public:
 	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "싱글플레이")
@@ -45,7 +51,7 @@ public:
 	FFetchDocument FetchDocument();
 
 private:
-	TSharedRef<FUserDocument> GetUserDocument();
+	TSharedRef<FUserDocument> GetUserDocument() const;
 
 	void OnUpdateUserDocument();
 
@@ -57,5 +63,5 @@ public:
 	USingleplaySaveGame* SaveGame;
 
 private:
-	TSharedPtr<FUserDocument> UserDocumentPtr;
+	mutable TSharedPtr<FUserDocument> UserDocumentPtr;
 };

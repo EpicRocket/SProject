@@ -10,6 +10,8 @@
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(SingleplaySaveGame)
 
+FString USingleplaySaveGameContext::Token = TEXT("SINGLE_PLAY");
+
 
 bool USingleplaySaveGameContext::IsExistSaveGame() const
 {
@@ -138,7 +140,7 @@ FFetchDocument USingleplaySaveGameContext::FetchDocument()
 	return Document;
 }
 
-TSharedRef<FUserDocument> USingleplaySaveGameContext::GetUserDocument()
+TSharedRef<FUserDocument> USingleplaySaveGameContext::GetUserDocument() const
 {
 	if (!UserDocumentPtr.IsValid())
 	{

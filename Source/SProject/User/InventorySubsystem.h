@@ -33,10 +33,16 @@ public:
     UFUNCTION(BlueprintCallable, Category = "인벤토리")
     int32 GetCash() const;
 
+    UFUNCTION(BlueprintCallable, Category = "인벤토리", meta = (ShortToolTip = "인벤토리에서 아이템을 찾습니다."))
+    FItem Get(int32 Key) const;
+
+private:
+    TSharedRef<FItem> GetItem(int32 Key) const;
+
 private:
     int64 Gold = 0;
 
     int32 Cash = 0;
 
-    TMap<int32, TSharedPtr<FItem>> Items;
+    mutable TMap<int32, TSharedPtr<FItem>> Items;
 };
