@@ -20,4 +20,6 @@ struct SPROJECT_API FUserInfo
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     int32 Level = 0;
+
+    auto operator<=>(const FUserInfo&) const = default;
 };

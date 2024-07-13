@@ -17,4 +17,6 @@ struct SPROJECT_API FItem
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     int32 Count = 0;
+
+    auto operator<=>(const FItem&) const = default;
 };

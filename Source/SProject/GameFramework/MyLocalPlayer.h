@@ -11,4 +11,5 @@ class UMyLocalPlayer : public UGLocalPlayer
     GENERATED_BODY()
 
 public:
+    
 };

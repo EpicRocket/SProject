@@ -101,11 +101,11 @@ void UUserAccountSubsystem::OnFetchDocument()
 	}
 
 	// Apply FetchDocument
-	for (auto Middleware : UserDocumentMiddlewares)
+	for (auto& Middleware : UserDocumentMiddlewares)
 	{
 		if (Middleware)
 		{
-			Middleware->ApplyUserDocumentChanges(FetchDocument);
+			Middleware->ApplyUserDocumentChanges(FetchDocument.ToSharedRef());
 		}
 		else
 		{
@@ -114,8 +114,8 @@ void UUserAccountSubsystem::OnFetchDocument()
 	}
 
 	// Finalize FetchDocument
-	for (auto Middleware : UserDocumentMiddlewares)
+	for (auto& Middleware : UserDocumentMiddlewares)
 	{
-		Middleware->FinalizeUserDocumentUpdate(FetchDocument);
+		Middleware->FinalizeUserDocumentUpdate(FetchDocument.ToSharedRef());
 	}
 }

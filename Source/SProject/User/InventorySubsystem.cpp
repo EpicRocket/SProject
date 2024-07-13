@@ -38,6 +38,19 @@ void UInventorySubsystem::Deinitialize()
     Super::Deinitialize();
 }
 
+void UInventorySubsystem::ApplyUserDocumentChanges(const TSharedRef<FFetchDocument> FetchDocument)
+{
+    if (FetchDocument->Gold.IsSet())
+    {
+        Gold = FetchDocument->Gold.GetValue();
+    }
+
+    if (FetchDocument->Cash.IsSet())
+    {
+        Cash = FetchDocument->Cash.GetValue();
+    }
+}
+
 int64 UInventorySubsystem::GetGold() const
 {
     return Gold;

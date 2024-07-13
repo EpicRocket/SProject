@@ -13,4 +13,6 @@ struct SPROJECT_API FDomainBuilding
     
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     int32 Key = 0;
+
+    auto operator<=>(const FDomainBuilding&) const = default;
 };

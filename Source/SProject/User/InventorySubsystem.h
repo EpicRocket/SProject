@@ -24,8 +24,7 @@ public:
     virtual void Deinitialize() override;
 
     // IUserDocumentMiddleware
-    virtual void ApplyUserDocumentChanges(const TSharedPtr<FFetchDocument> FetchDocument) override { /*구현 해야함*/ }
-    virtual void FinalizeUserDocumentUpdate(const TSharedPtr<FFetchDocument> FetchDocument) override { /*구현 해야함*/ }
+    virtual void ApplyUserDocumentChanges(const TSharedRef<FFetchDocument> FetchDocument) override;
     // ~IUserDocumentMiddleware
 
     UFUNCTION(BlueprintCallable, Category = "인벤토리")
