@@ -12,7 +12,7 @@ struct FGameplayAbilitySpecHandle;
 
 class AActor;
 class AController;
-class AUnit;
+class AUnitCharacter;
 class AMyPlayerController;
 class APlayerController;
 class FText;
@@ -111,7 +111,7 @@ public:
 	AController* GetControllerFromActorInfo() const;
 
 	UFUNCTION(BlueprintCallable, Category = "My|Ability")
-	AUnit* GetUnitFromActorInfo() const;
+	AUnitCharacter* GetUnitFromActorInfo() const;
 
 	EMyAbilityActivationPolicy GetActivationPolicy() const { return ActivationPolicy; }
 	EMyAbilityActivationGroup GetActivationGroup() const { return ActivationGroup; }

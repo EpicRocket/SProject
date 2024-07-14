@@ -3,7 +3,7 @@
 // include Engine
 #include "Engine/LocalPlayer.h"
 // include Project
-#include "Types/FetchDocument.h"
+#include "Types/FetchDocumentTypes.h"
 #include "UserAccountSubsystem.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(DomainSubsystem)

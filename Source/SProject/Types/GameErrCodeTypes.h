@@ -3,7 +3,7 @@
 
 #include "CoreMinimal.h"
 
-#include "GameErrCode.generated.h"
+#include "GameErrCodeTypes.generated.h"
 
 UENUM()
 enum class EGameErrCode : int32

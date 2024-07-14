@@ -4,8 +4,8 @@
 #include "Engine/LocalPlayer.h"
 #include "Kismet/KismetSystemLibrary.h"
 // include Project
-#include "Types/GameErrCode.h"
-#include "Types/FetchDocument.h"
+#include "Types/GameErrCodeTypes.h"
+#include "Types/FetchDocumentTypes.h"
 #include "Interface/UserDocumentMiddleware.h"
 #include "Single/SingleplaySubsystem.h"
 #include "Single/SingleplaySaveGame.h"

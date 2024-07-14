@@ -4,9 +4,9 @@
 #include "CoreMinimal.h"
 #include "Misc/Optional.h"
 // include Project
-#include "Document.h"
+#include "DocumentTypes.h"
 
-#include "FetchDocument.generated.h"
+#include "FetchDocumentTypes.generated.h"
 
 USTRUCT()
 struct SPROJECT_API FFetchDocument
@@ -23,5 +23,9 @@ struct SPROJECT_API FFetchDocument
 	TOptional<TArray<FItem>> Items;
 
 	TOptional<TArray<FDomainBuilding>> DomainBuildings;
+
+	TOptional<FStage> Stage;
+
+	TOptional<TArray<FStageDetail>> StageDetails;
     // ~UserDocument
 };

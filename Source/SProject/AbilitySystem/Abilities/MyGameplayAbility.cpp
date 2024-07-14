@@ -6,7 +6,7 @@
 #include "AbilitySystem/MyAbilitySystemComponent.h"
 #include "AbilitySystemLog.h"
 #include "GameFramework/MyPlayerController.h"
-#include "Unit/Unit.h"
+#include "Unit/UnitCharacter.h"
 #include "MyAbilityCost.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemGlobals.h"
@@ -87,9 +87,9 @@ AController* UMyGameplayAbility::GetControllerFromActorInfo() const
 	return nullptr;
 }
 
-AUnit* UMyGameplayAbility::GetUnitFromActorInfo() const
+AUnitCharacter* UMyGameplayAbility::GetUnitFromActorInfo() const
 {
-	return (CurrentActorInfo ? Cast<AUnit>(CurrentActorInfo->AvatarActor.Get()) : nullptr);
+	return (CurrentActorInfo ? Cast<AUnitCharacter>(CurrentActorInfo->AvatarActor.Get()) : nullptr);
 }
 
 void UMyGameplayAbility::NativeOnAbilityFailedToActivate(const FGameplayTagContainer& FailedReason) const

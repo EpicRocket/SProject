@@ -3,7 +3,7 @@
 
 #include "CoreMinimal.h"
 
-#include "Domain.generated.h"
+#include "DomainTypes.generated.h"
 
 /** 영지 건물 정보 */
 USTRUCT(BlueprintType)

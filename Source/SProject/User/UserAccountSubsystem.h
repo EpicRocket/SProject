@@ -43,7 +43,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "사용자 계정", meta = (ReturnDisplayName="Success"))
 	bool Connect(FOnUserConnectedEvent ConnectEvent);
 
-	UFUNCTION(BlueprintCallable, cATEGORY = "사용자 계정")
+	UFUNCTION(BlueprintCallable, Category = "사용자 계정")
 	bool IsLogin() const;
 
 private:

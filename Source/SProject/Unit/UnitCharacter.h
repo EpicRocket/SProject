@@ -3,13 +3,13 @@
 #pragma once
 
 #include "GameFramework/Character.h"
-#include "Unit.generated.h"
+#include "UnitCharacter.generated.h"
 
 class UMyAbilitySystemComponent;
 class UUnitAttributeSet;
 
-UCLASS(Abstract, ClassGroup = Unit, Category = Unit)
-class AUnit : public ACharacter
+UCLASS(Abstract, ClassGroup = "Unit", Category = "РЏДж")
+class SPROJECT_API AUnitCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
@@ -17,7 +17,7 @@ class AUnit : public ACharacter
 	static FName UnitSetName;
 
 public:
-	AUnit();
+	AUnitCharacter();
 
 public:
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)

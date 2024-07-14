@@ -3,7 +3,7 @@
 
 #include "CoreMinimal.h"
 
-#include "Resource.generated.h"
+#include "ResourceTypes.generated.h"
 
 
 /** 아이템 정보 */

@@ -20,6 +20,7 @@ class SPROJECT_API UUserSubsystem : public ULocalPlayerSubsystem, public IUserDo
 public:
     static UUserSubsystem* Get(const ULocalPlayer* InLocalPlayer);
 
+public:
     virtual void Initialize(FSubsystemCollectionBase& Collection) override;
     virtual void Deinitialize() override;
 

@@ -3,7 +3,7 @@
 
 #include "GameFramework/SaveGame.h"
 #include "Templates/SharedPointer.h"
-#include "Types/Document.h"
+#include "Types/DocumentTypes.h"
 
 #include "SingleplaySaveGame.generated.h"
 

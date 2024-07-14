@@ -3,7 +3,7 @@
 
 #include "CoreMinimal.h"
 
-#include "User.generated.h"
+#include "UserTypes.generated.h"
 
 /*
  * 지원하는 유저 로그인 타입

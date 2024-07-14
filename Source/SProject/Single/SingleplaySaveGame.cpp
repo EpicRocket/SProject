@@ -5,7 +5,7 @@
 #include "Kismet/GameplayStatics.h"
 // include Project
 #include "SingleplaySubsystem.h"
-#include "Types/FetchDocument.h"
+#include "Types/FetchDocumentTypes.h"
 #include "SingleplaySettings.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(SingleplaySaveGame)
@@ -131,6 +131,54 @@ FFetchDocument USingleplaySaveGameContext::FetchDocument()
 			{
 				Document.DomainBuildings = SrcUserDocument.DomainBuildings;
 				break;
+			}
+		}
+	}
+
+	// 스테이지 정보
+	if(SrcUserDocument.Stage.Level != DestDocument.Stage.Level)
+	{
+		Document.Stage = SrcUserDocument.Stage;
+	}
+
+
+	// 스테이지 상세 정보
+	if (SrcUserDocument.StageDetails.Num() != DestDocument.StageDetails.Num())
+	{
+		Document.StageDetails = SrcUserDocument.StageDetails;
+	}
+	else
+	{
+		for (int32 Index = 0; Index < SrcUserDocument.StageDetails.Num(); ++Index)
+		{
+			if (SrcUserDocument.StageDetails[Index].Level != DestDocument.StageDetails[Index].Level)
+			{
+				Document.StageDetails = SrcUserDocument.StageDetails;
+				break;
+			}
+
+			if (SrcUserDocument.StageDetails[Index].Towers.Num() != DestDocument.StageDetails[Index].Towers.Num())
+			{
+				Document.StageDetails = SrcUserDocument.StageDetails;
+				break;
+			}
+			else
+			{
+				bool bIsDifferent = false;
+				for (int32 TowerIndex = 0; TowerIndex < SrcUserDocument.StageDetails[Index].Towers.Num(); ++TowerIndex)
+				{
+					if (SrcUserDocument.StageDetails[Index].Towers[TowerIndex] != DestDocument.StageDetails[Index].Towers[TowerIndex])
+					{
+						Document.StageDetails = SrcUserDocument.StageDetails;
+						bIsDifferent = true;
+						break;
+					}
+				}
+
+				if (bIsDifferent)
+				{
+					break;
+				}
 			}
 		}
 	}

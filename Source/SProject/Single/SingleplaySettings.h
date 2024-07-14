@@ -2,7 +2,7 @@
 #pragma once
 
 #include "Engine/DeveloperSettings.h"
-#include "Types/Document.h"
+#include "Types/DocumentTypes.h"
 
 #include "SingleplaySettings.generated.h"
 
