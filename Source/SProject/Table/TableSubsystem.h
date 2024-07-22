@@ -7,10 +7,14 @@
 #include "UObject/UnrealType.h"
 #include "UObject/ScriptMacros.h"
 #include "UObject/Script.h"
+#include <type_traits>
 
 #include "TableSubsystem.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTable, Log, All);
+
+template<typename T>
+concept DerivedFromFTableRowBase = std::is_base_of<FTableRowBase, T>::value;
 
 /*
  * 테이터 테이블 시스템
@@ -37,10 +41,10 @@ public:
         return Tables[HashKey];
     }
 
-    template<typename DataT>
+    template<DerivedFromFTableRowBase DataT>
     DataT const* GetTableData(int32 Key) const
     {
-        UDataTable const* Table = GetTable(GetTypeHash(DataT::StaticStruct()->GetName()));
+        UDataTable const* Table = GetTable(GetTypeHash(DataT::StaticStruct()));
         if (!Table)
         {
             return nullptr;
@@ -51,10 +55,10 @@ public:
         return Data;
     }
 
-    template<typename DataT>
+    template<DerivedFromFTableRowBase DataT>
     TArray<DataT*> const GetTableDatas() const
 	{
-        UDataTable const* Table = GetTable(GetTypeHash(DataT::StaticStruct()->GetName()));
+        UDataTable const* Table = GetTable(GetTypeHash(DataT::StaticStruct()));
 		if (!Table)
 		{
 			return TArray<DataT*>{};

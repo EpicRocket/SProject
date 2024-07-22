@@ -1,6 +1,6 @@
 {
 	"FileVersion": 3,
-	"EngineAssociation": "{}",
+	"EngineAssociation": "{70A6466A-4454-13D3-E6A5-838D28276CC4}",
 	"Category": "",
 	"Description": "",
 	"Modules": [
@@ -90,6 +90,10 @@
 		},
 		{
 			"Name": "ModelViewViewModel",
+			"Enabled": true
+		},
+		{
+			"Name": "PCG",
 			"Enabled": true
 		}
 	]
