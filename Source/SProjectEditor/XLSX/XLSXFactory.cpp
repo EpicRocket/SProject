@@ -174,11 +174,11 @@ UXLSXFactory::UXLSXFactory()
 UObject* UXLSXFactory::FactoryCreateFile(UClass* InClass, UObject* InParent, FName InName, EObjectFlags Flags, const FString& Filename, const TCHAR* Parms, FFeedbackContext* Warn, bool& bOutOperationCanceled)
 {
 #if PLATFORM_WINDOWS
-	if (IsCompileOnImportEnabled())
-	{
-		UE_LOG(LogTemp, Error, TEXT("Failed to import. [Reason:Compiling]"));
-		return nullptr;
-	}
+	//if (IsCompileOnImportEnabled())
+	//{
+	//	UE_LOG(LogTemp, Error, TEXT("Failed to import. [Reason:Compiling]"));
+	//	return nullptr;
+	//}
 
 	if (!GenerateXLSXSheet(Filename))
 	{
@@ -195,13 +195,8 @@ UObject* UXLSXFactory::FactoryCreateFile(UClass* InClass, UObject* InParent, FNa
 
 	FString FilePath = AbsPath / FString::Printf(TEXT("%s.h"), *InName.ToString());
 
-	FString PreviousDesc;
-	FFileHelper::LoadFileToString(PreviousDesc, *FilePath);
-
 	FString ChangeToDesc = GenerateTableDesc(InName.ToString());
 	FFileHelper::SaveStringToFile(ChangeToDesc, *FilePath);
-
-	bool Unchanged = PreviousDesc.Equals(ChangeToDesc);
 
 	PackageName = InParent->GetName();
 	int32 LastSlashIndex = INDEX_NONE;
@@ -209,30 +204,16 @@ UObject* UXLSXFactory::FactoryCreateFile(UClass* InClass, UObject* InParent, FNa
 		PackageName = PackageName.Left(LastSlashIndex + 1);
 	}
 
-	if (!Unchanged)
-	{
-		ILiveCodingModule* LiveCoding = FModuleManager::GetModulePtr<ILiveCodingModule>(LIVE_CODING_MODULE_NAME);
-		CompileHandle.Reset();
-		CompileHandle = LiveCoding->GetOnPatchCompleteDelegate().AddLambda(
-			[]()
-		{
-			OnComplete();
-		});
-		LiveCoding->Compile();
-	}
-	else
-	{
-		NextTickHandle.Reset();
-		NextTickHandle = FTSTicker::GetCoreTicker().AddTicker(
-			FTickerDelegate::CreateLambda(
-				[](float) -> bool
+	NextTickHandle.Reset();
+	NextTickHandle = FTSTicker::GetCoreTicker().AddTicker(
+		FTickerDelegate::CreateLambda(
+			[](float) -> bool
 			{
 				NextTickHandle.Reset();
 				OnComplete();
 				return true;
 			}
-		));
-	}
+	));
 
 	CacheTableAsset = NewObject<UTempTableAsset>(InParent, InClass, InName, Flags);
 	return CacheTableAsset;
