@@ -1,5 +1,5 @@
 ﻿
-#include "StagePawn.h"
+#include "StagePlayerPawn.h"
 // include Engine
 #include "GameFramework/Controller.h"
 // include Plugin
@@ -8,10 +8,10 @@
 // include Project
 #include "StageGameplayTags.h"
 
-#include UE_INLINE_GENERATED_CPP_BY_NAME(StagePawn)
+#include UE_INLINE_GENERATED_CPP_BY_NAME(StagePlayerPawn)
 
 
-void AStagePawn::PossessedBy(AController* NewController)
+void AStagePlayerPawn::PossessedBy(AController* NewController)
 {
     Super::PossessedBy(NewController);
 
@@ -25,14 +25,15 @@ void AStagePawn::PossessedBy(AController* NewController)
     FGameplayMessageListenerParams<FStageRequestBuildMessage> RequestBuildMessage{
         .MatchType = EGameplayMessageMatch::ExactMatch,
         .OnMessageReceivedCallback = [](auto Tag, auto Message) -> void {
-
+            
         }
     };
-
     GameplayMessageListenerHandles.Emplace(GameplayMessageSubsystem.RegisterListener(Stage::Tag_Gameplay_Stage_Request_Build, RequestBuildMessage));
+
+    OnUpdateState();
 }
 
-void AStagePawn::UnPossessed()
+void AStagePlayerPawn::UnPossessed()
 {
     Super::UnPossessed();
 
@@ -41,4 +42,10 @@ void AStagePawn::UnPossessed()
         Handle.Unregister();
 	}
     GameplayMessageListenerHandles.Empty();
+
+    OnUpdateState();
+}
+
+void AStagePlayerPawn::OnUpdateState()
+{
 }
