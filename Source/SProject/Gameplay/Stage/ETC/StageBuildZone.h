@@ -3,10 +3,10 @@
 
 #include "GameFramework/Actor.h"
 
-#include "BuildZone.generated.h"
+#include "StageBuildZone.generated.h"
 
 UCLASS(Abstract, BlueprintType, Blueprintable)
-class SPROJECT_API ABuildZone : public AActor
+class MY_API AStageBuildZone : public AActor
 {
     GENERATED_BODY()
 

@@ -8,7 +8,7 @@
 
 
 UCLASS(Config = Game, DefaultConfig, meta = (DisplayName = "싱글플레이"))
-class SPROJECT_API USingleplaySettings : public UDeveloperSettings
+class MY_API USingleplaySettings : public UDeveloperSettings
 {
     GENERATED_BODY()
 

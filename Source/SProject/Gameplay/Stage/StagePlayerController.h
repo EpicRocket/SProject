@@ -16,7 +16,7 @@ enum class EStagePlayerControllerMode : uint8
 };
 
 UCLASS(Abstract)
-class SPROJECT_API AStagePlayerController : public AMyPlayerController
+class MY_API AStagePlayerController : public AMyPlayerController
 {
     GENERATED_BODY()
 
@@ -29,7 +29,7 @@ protected:
 };
 
 UCLASS()
-class SPROJECT_API UStagePlayerControllerHelper : public UBlueprintFunctionLibrary
+class MY_API UStagePlayerControllerHelper : public UBlueprintFunctionLibrary
 {
     GENERATED_BODY()
 

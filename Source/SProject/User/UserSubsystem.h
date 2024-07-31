@@ -13,7 +13,7 @@ class ULocalPlayer;
 
 /** 유저 정보 관리 시스템 */
 UCLASS()
-class SPROJECT_API UUserSubsystem : public ULocalPlayerSubsystem, public IUserDocumentMiddleware
+class MY_API UUserSubsystem : public ULocalPlayerSubsystem, public IUserDocumentMiddleware
 {
     GENERATED_BODY()
     

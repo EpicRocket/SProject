@@ -13,7 +13,7 @@
 
 /** 기본적으로 사용자에게 필요한 정보 그룹 */
 USTRUCT(BlueprintType)
-struct SPROJECT_API FUserDocument
+struct MY_API FUserDocument
 {
     GENERATED_BODY()
 

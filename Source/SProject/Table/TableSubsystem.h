@@ -20,7 +20,7 @@ concept DerivedFromFTableRowBase = std::is_base_of<FTableRowBase, T>::value;
  * 테이터 테이블 시스템
  */
 UCLASS(config = SProject)
-class SPROJECT_API UTableSubsystem : public UEngineSubsystem
+class MY_API UTableSubsystem : public UEngineSubsystem
 {
     GENERATED_BODY()
 

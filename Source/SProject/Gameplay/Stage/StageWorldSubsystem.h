@@ -8,17 +8,20 @@
 class AStageLevel;
 
 UCLASS()
-class SPROJECT_API UStageWorldSubsystem : public UWorldSubsystem
+class MY_API UStageWorldSubsystem : public UWorldSubsystem
 {
     GENERATED_BODY()
 
 public:
+	UFUNCTION(BlueprintCallable, Category = "스테이지")
+    void AddLevel(int32 StageKey, AStageLevel* Level);
 
+    UFUNCTION(BlueprintCallable, Category = "스테이지")
+    void RemoevLevel(int32 StageKey);
 
 public:
-    UPROPERTY(Transient, BlueprintReadOnly, Category = "스테이지")
-    TWeakObjectPtr<AStageLevel> CurrentLevel;
+    //UPROPERTY(Transient, BlueprintReadOnly, Category = "스테이지")
+    //TWeakObjectPtr<AStageLevel> CurrentLevel;
         
-    UPROPERTY(Transient)
     TMap<int32, TWeakObjectPtr<AStageLevel>> ActivatableLevels;
 };

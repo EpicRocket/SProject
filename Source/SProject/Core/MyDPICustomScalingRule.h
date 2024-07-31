@@ -7,7 +7,7 @@
 #include "MyDPICustomScalingRule.generated.h"
 
 UCLASS()
-class SPROJECT_API UMyDPICustomScalingRule : public UDPICustomScalingRule
+class MY_API UMyDPICustomScalingRule : public UDPICustomScalingRule
 {
     GENERATED_BODY()
 

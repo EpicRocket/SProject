@@ -13,7 +13,7 @@ DECLARE_LOG_CATEGORY_EXTERN(LogSingleplay, Log, All);
  * 싱글플레이 서브시스템
  */
 UCLASS()
-class SPROJECT_API USingleplaySubsystem : public UGameInstanceSubsystem
+class MY_API USingleplaySubsystem : public UGameInstanceSubsystem
 {
     GENERATED_BODY()
 

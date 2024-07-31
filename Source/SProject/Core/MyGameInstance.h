@@ -6,7 +6,7 @@
 #include "MyGameInstance.generated.h"
 
 UCLASS()
-class SPROJECT_API UMyGameInstance : public UGGameInstance
+class MY_API UMyGameInstance : public UGGameInstance
 {
     GENERATED_BODY()
 

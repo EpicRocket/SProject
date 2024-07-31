@@ -8,8 +8,8 @@
 class UMyAbilitySystemComponent;
 class UUnitAttributeSet;
 
-UCLASS(Abstract, ClassGroup = "Unit", Category = "À¯´Ö")
-class SPROJECT_API AUnitCharacter : public ACharacter
+UCLASS(Abstract, ClassGroup = "Unit", Category = "ï¿½ï¿½ï¿½ï¿½")
+class MY_API AUnitCharacter : public ACharacter
 {
 	GENERATED_BODY()
 

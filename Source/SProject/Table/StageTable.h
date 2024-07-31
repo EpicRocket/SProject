@@ -9,7 +9,7 @@
 class UWorld;
 
 USTRUCT(BlueprintType)
-struct SPROJECT_API FStageTableRow : public FTableRowBase
+struct MY_API FStageTableRow : public FTableRowBase
 {
 	GENERATED_BODY()
 

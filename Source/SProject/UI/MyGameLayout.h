@@ -11,7 +11,7 @@ class UCommonActivatableWidgetContainerBase;
 class APlayerController;
 
 UCLASS(Abstract, meta = (DisableNativeTick))
-class SPROJECT_API UMyGameLayout : public UPrimaryGameLayout
+class MY_API UMyGameLayout : public UPrimaryGameLayout
 {
     GENERATED_BODY()
 
@@ -22,7 +22,7 @@ public:
 };
 
 UCLASS()
-class SPROJECT_API UMyGameLayoutHelper : public UBlueprintFunctionLibrary
+class MY_API UMyGameLayoutHelper : public UBlueprintFunctionLibrary
 {
     GENERATED_BODY()
 

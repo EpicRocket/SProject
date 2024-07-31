@@ -10,12 +10,12 @@ struct FFetchDocument;
 
 
 UINTERFACE(BlueprintType, meta = (CannotImplementInterfaceInBlueprint))
-class SPROJECT_API UUserDocumentMiddleware : public UInterface
+class MY_API UUserDocumentMiddleware : public UInterface
 {
 	GENERATED_BODY()
 };
 
-class SPROJECT_API IUserDocumentMiddleware
+class MY_API IUserDocumentMiddleware
 {
 	GENERATED_BODY()
 

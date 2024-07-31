@@ -9,7 +9,7 @@ class ULocalPlayer;
 class UMyGameLayout;
 
 UCLASS(Abstract, meta = (DisableNativeTick))
-class SPROJECT_API UMyUIPolicy : public UGUIPolicy
+class MY_API UMyUIPolicy : public UGUIPolicy
 {
     GENERATED_BODY()
 

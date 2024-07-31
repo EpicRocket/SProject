@@ -8,7 +8,7 @@
 
 /** 아이템 정보 */
 USTRUCT(BlueprintType)
-struct SPROJECT_API FItem
+struct MY_API FItem
 {
     GENERATED_BODY()
 

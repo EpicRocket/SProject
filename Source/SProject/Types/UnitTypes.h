@@ -7,13 +7,13 @@
 
 
 USTRUCT(BlueprintType)
-struct SPROJECT_API FUnit
+struct MY_API FUnit
 {
     GENERATED_BODY()
 };
 
 USTRUCT(BlueprintType)
-struct SPROJECT_API FTower
+struct MY_API FTower
 {
     GENERATED_BODY()
 

@@ -12,7 +12,7 @@ class ULevelStreaming;
 struct FLatentActionInfo;
 
 UCLASS()
-class SPROJECT_API UGameWorldSubsystem : public UWorldSubsystem
+class MY_API UGameWorldSubsystem : public UWorldSubsystem
 {
     GENERATED_BODY()
 

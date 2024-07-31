@@ -14,7 +14,7 @@ struct FItem;
  * 유저의 자원을 관리하는 시스템
  */
 UCLASS()
-class SPROJECT_API UInventorySubsystem : public ULocalPlayerSubsystem, public IUserDocumentMiddleware
+class MY_API UInventorySubsystem : public ULocalPlayerSubsystem, public IUserDocumentMiddleware
 {
     GENERATED_BODY()
     

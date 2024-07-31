@@ -17,7 +17,7 @@ enum class EUserLoginType : uint8
 };
 
 USTRUCT(BlueprintType)
-struct SPROJECT_API FUserAccount
+struct MY_API FUserAccount
 {
     GENERATED_BODY()
 
@@ -30,7 +30,7 @@ struct SPROJECT_API FUserAccount
 
 /** 유저 정보 */
 USTRUCT(BlueprintType)
-struct SPROJECT_API FUserInfo
+struct MY_API FUserInfo
 {
     GENERATED_BODY()
 

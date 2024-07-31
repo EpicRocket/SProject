@@ -16,7 +16,7 @@ enum class EStagePlayerFlag : uint8
 };
 
 UCLASS(Abstract, BlueprintType, Blueprintable, hideCategories=(Navigation))
-class SPROJECT_API AStagePlayerPawn : public APawn
+class MY_API AStagePlayerPawn : public APawn
 {
     GENERATED_BODY()
 

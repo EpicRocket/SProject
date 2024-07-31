@@ -17,7 +17,7 @@ class ULocalPlayer;
  * 유저의 영지 시스템을 관리하는 서브시스템 클래스
  */
 UCLASS()
-class SPROJECT_API UDomainSubsystem : public ULocalPlayerSubsystem, public IUserDocumentMiddleware
+class MY_API UDomainSubsystem : public ULocalPlayerSubsystem, public IUserDocumentMiddleware
 {
     GENERATED_BODY()
 

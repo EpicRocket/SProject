@@ -9,7 +9,7 @@
 class ULocalPlayer;
 
 UCLASS()
-class SPROJECT_API UMyUIHelper : public UBlueprintFunctionLibrary
+class MY_API UMyUIHelper : public UBlueprintFunctionLibrary
 {
     GENERATED_BODY()
 

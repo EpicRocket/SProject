@@ -7,7 +7,7 @@
 
 /** 영지 건물 정보 */
 USTRUCT(BlueprintType)
-struct SPROJECT_API FDomainBuilding
+struct MY_API FDomainBuilding
 {
     GENERATED_BODY()
     

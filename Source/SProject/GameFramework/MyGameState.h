@@ -12,7 +12,7 @@
 class UMyAbilitySystemComponent;
 
 UCLASS(BlueprintType, Blueprintable)
-class SPROJECT_API AMyGameState : public AGameState, public IAbilitySystemInterface
+class MY_API AMyGameState : public AGameState, public IAbilitySystemInterface
 {
     GENERATED_BODY()
 

@@ -8,7 +8,7 @@
 
 
 USTRUCT(BlueprintType)
-struct SPROJECT_API FTowerTableRow : public FTableRowBase
+struct MY_API FTowerTableRow : public FTableRowBase
 {
 	GENERATED_BODY()
 

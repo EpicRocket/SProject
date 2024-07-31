@@ -8,7 +8,7 @@
 #include "MyAssetManager.generated.h"
 
 UCLASS(Config = SProject)
-class SPROJECT_API UMyAssetManager : public UAssetManager
+class MY_API UMyAssetManager : public UAssetManager
 {
     GENERATED_BODY()
 

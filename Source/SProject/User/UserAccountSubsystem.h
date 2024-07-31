@@ -18,7 +18,7 @@ DECLARE_DYNAMIC_DELEGATE_OneParam(FOnUserConnectedEvent, int32, ErrCode);
 
 /** 사용자 계정 관리 시스템*/
 UCLASS()
-class SPROJECT_API UUserAccountSubsystem : public ULocalPlayerSubsystem
+class MY_API UUserAccountSubsystem : public ULocalPlayerSubsystem
 {
 	GENERATED_BODY()
 

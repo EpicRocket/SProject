@@ -9,7 +9,7 @@
 #include "FetchDocumentTypes.generated.h"
 
 USTRUCT()
-struct SPROJECT_API FFetchDocument
+struct MY_API FFetchDocument
 {
     GENERATED_BODY()
 

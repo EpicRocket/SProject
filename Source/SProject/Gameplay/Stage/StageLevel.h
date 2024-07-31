@@ -5,13 +5,27 @@
 
 #include "StageLevel.generated.h"
 
-class ABuildZone;
+class AStageBuildZone;
+namespace EEndPlayReason {
+    enum Type : int;
+}
 
 UCLASS()
-class SPROJECT_API AStageLevel : public ALevelScriptActor
+class MY_API AStageLevel : public ALevelScriptActor
 {
     GENERATED_BODY()
 
+protected:
+    virtual void BeginPlay() override;
+    virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
 public:
-    TMap<int32, TWeakObjectPtr<ABuildZone>> BuildZones;
+    UFUNCTION(BlueprintCallable)
+	void AddBuildZone(AStageBuildZone* BuildZone);
+
+protected:
+
+
+public:
+    TMap<int32, TWeakObjectPtr<AStageBuildZone>> BuildZones;
 };

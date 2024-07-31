@@ -14,10 +14,8 @@ struct FStage;
 struct FStageDetail;
 struct FTower;
 
-DECLARE_LOG_CATEGORY_EXTERN(LogStage, Log, All);
-
 USTRUCT(BlueprintType)
-struct SPROJECT_API FStageDetailSpec
+struct MY_API FStageDetailSpec
 {
     GENERATED_BODY()
 
@@ -30,7 +28,7 @@ struct SPROJECT_API FStageDetailSpec
  * 유저의 스테이지 별 정보를 관리하는 서브시스템
  */
 UCLASS()
-class SPROJECT_API UStageSubsystem : public ULocalPlayerSubsystem, public IUserDocumentMiddleware
+class MY_API UStageSubsystem : public ULocalPlayerSubsystem, public IUserDocumentMiddleware
 {
     GENERATED_BODY()
 
@@ -71,7 +69,7 @@ private:
 
 
 UCLASS()
-class SPROJECT_API UStageSubsystemHelper : public UBlueprintFunctionLibrary
+class MY_API UStageSubsystemHelper : public UBlueprintFunctionLibrary
 {
     GENERATED_BODY()
 

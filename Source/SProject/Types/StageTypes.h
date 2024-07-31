@@ -10,7 +10,7 @@ struct FStageDetail;
 
 /** 스테이지 정보 */
 USTRUCT(BlueprintType)
-struct SPROJECT_API FStage
+struct MY_API FStage
 {
     GENERATED_BODY()
 
@@ -21,7 +21,7 @@ struct SPROJECT_API FStage
 
 /** 스테이지 별 상세 정보 */
 USTRUCT(BlueprintType)
-struct SPROJECT_API FStageDetail
+struct MY_API FStageDetail
 {
     GENERATED_BODY()
     
