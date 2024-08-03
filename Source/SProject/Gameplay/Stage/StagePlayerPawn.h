@@ -6,6 +6,7 @@
 #include "StagePlayerPawn.generated.h"
 
 class AController;
+class AStageLevel;
 struct FGameplayMessageListenerHandle;
 
 UENUM(BlueprintType, meta = (Bitflags))
@@ -26,6 +27,10 @@ public:
 
 private:
     void OnUpdateState();
+
+protected:
+    UPROPERTY(Transient, BlueprintReadOnly)
+    TWeakObjectPtr<AStageLevel> CurrentLevel;
 
 private:
     UPROPERTY(Transient)

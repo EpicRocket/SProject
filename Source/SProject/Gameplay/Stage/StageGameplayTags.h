@@ -8,7 +8,8 @@
 
 namespace Stage
 {
-    UE_DECLARE_GAMEPLAY_TAG_EXTERN(Tag_Gameplay_Stage_Request_Build)
+    UE_DECLARE_GAMEPLAY_TAG_EXTERN(Tag_Gameplay_Stage_Request_Build);
+    UE_DECLARE_GAMEPLAY_TAG_EXTERN(Tag_Gameplay_Stage_Request_Build_Select);
 }
 
 USTRUCT(BlueprintType)

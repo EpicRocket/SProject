@@ -8,7 +8,7 @@
 class UMyAbilitySystemComponent;
 class UUnitAttributeSet;
 
-UCLASS(Abstract, ClassGroup = "Unit", Category = "����")
+UCLASS(Abstract, ClassGroup = "Unit", Category = "Unit")
 class MY_API AUnitCharacter : public ACharacter
 {
 	GENERATED_BODY()

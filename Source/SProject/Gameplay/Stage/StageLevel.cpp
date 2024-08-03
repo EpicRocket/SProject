@@ -10,12 +10,15 @@ void AStageLevel::BeginPlay()
 {
 	Super::BeginPlay();
 
+	OnInitailize();
+
 	// TODO:
 }
 
 void AStageLevel::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	// TODO:
+	BuildZones.Empty();
 
 	Super::EndPlay(EndPlayReason);
 }
@@ -36,31 +39,7 @@ void AStageLevel::AddBuildZone(AStageBuildZone* BuildZone)
 		return;
 	}
 
-	int32 Position = INDEX_NONE;
-	for (const auto& Tag : BuildZonePtr->Tags)
-	{
-		FString TagString = Tag.ToString();
-		FString* Left = nullptr;
-		FString* Right = nullptr;
-		if (!TagString.Split(TEXT("."), Left, Right))
-		{
-			continue;
-		}
-
-		if (Left == nullptr || Right == nullptr)
-		{
-			continue;
-		}
-
-		if (!Left->Contains(TEXT("Position")))
-		{
-			continue;
-		}
-
-		Position = FCString::Atoi(**Right);
-		break;
-	}
-
+	int32 Position = BuildZone->GetPosition();
 	if (Position == INDEX_NONE)
 	{
 		UE_LOG(LogStage, Warning, TEXT("BuildZone(%s)에 Position 태그가 없습니다."), *BuildZonePtr->GetFName().ToString());
@@ -73,4 +52,27 @@ void AStageLevel::AddBuildZone(AStageBuildZone* BuildZone)
 	}
 
 	BuildZones.Emplace(Position, BuildZonePtr);
+}
+
+AStageBuildZone* AStageLevel::GetBuildZone(int32 Position) const
+{
+	if (!BuildZones.Contains(Position))
+	{
+		UE_LOG(LogStage, Warning, TEXT("BuildZone을 찾지 못하였습니다. [Level: %s][Position: %d]"), *GetFName().ToString(), Position);
+		return nullptr;
+	}
+
+	auto& BuildZone = BuildZones[Position];
+	if (!BuildZone.IsValid())
+	{
+		UE_LOG(LogStage, Warning, TEXT("BuildZone이 유효하지 않습니다. [Level: %s][Position: %d]"), *GetFName().ToString(), Position);
+		return nullptr;
+	}
+
+	return BuildZone.Get();
+}
+
+ATowerBase* AStageLevel::GetTower(int32 Position) const
+{
+	return nullptr;
 }

@@ -6,6 +6,7 @@
 #include "StageLevel.generated.h"
 
 class AStageBuildZone;
+class ATowerBase;
 namespace EEndPlayReason {
     enum Type : int;
 }
@@ -23,8 +24,15 @@ public:
     UFUNCTION(BlueprintCallable)
 	void AddBuildZone(AStageBuildZone* BuildZone);
 
-protected:
+    UFUNCTION(BlueprintCallable)
+    AStageBuildZone* GetBuildZone(int32 Position) const;
 
+    UFUNCTION(BlueprintCallable)
+    ATowerBase* GetTower(int32 Position) const;
+
+protected:
+    UFUNCTION(BlueprintImplementableEvent)
+    void OnInitailize();
 
 public:
     TMap<int32, TWeakObjectPtr<AStageBuildZone>> BuildZones;
