@@ -34,6 +34,7 @@ public:
 		Int64,
 		Float,
 		String,
+		Text,
 		TArray,
 		Enum,
 		Asset,

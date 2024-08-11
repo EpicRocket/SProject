@@ -371,10 +371,15 @@ bool UXLSXFactory::GenerateXLSXSheet(const FString& FileName)
 						XLSXHeader.Type = TEXT("float");
 						XLSXHeader.CellType = ECellType::Float;
 					}
-					else if (TypeName.Contains(TEXT("string")))
+					else if (TypeName.Contains(TEXT("FString")))
 					{
 						XLSXHeader.Type = TEXT("FString");
 						XLSXHeader.CellType = ECellType::String;
+					}
+					else if (TypeName.Contains("FText"))
+					{
+						XLSXHeader.Type = TEXT("FText");
+						XLSXHeader.CellType = ECellType::Text;
 					}
 					else if (TypeName.Contains(TEXT("array")))
 					{
@@ -400,10 +405,15 @@ bool UXLSXFactory::GenerateXLSXSheet(const FString& FileName)
 							XLSXHeader.Type = FString::Printf(TEXT("TArray<float>"));
 							XLSXHeader.SubType = ECellType::Float;
 						}
-						else if (TypeName.Contains(TEXT("string")))
+						else if (TypeName.Contains(TEXT("FString")))
 						{
 							XLSXHeader.Type = FString::Printf(TEXT("TArray<FString>"));
 							XLSXHeader.SubType = ECellType::String;
+						}
+						else if (TypeName.Contains("FText"))
+						{
+							XLSXHeader.Type = TEXT("FText");
+							XLSXHeader.SubType = ECellType::Text;
 						}
 						else
 						{
