@@ -2,6 +2,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include <tuple>
 
 #include "UserTypes.generated.h"
 
@@ -26,6 +27,18 @@ struct MY_API FUserAccount
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     FString Token;
+
+    bool operator==(const FUserAccount& Other) const
+    {
+        return std::tie(ID, Token) ==
+			std::tie(Other.ID, Other.Token);
+    }
+
+    bool operator<(const FUserAccount& Other) const
+    {
+        return std::tie(ID, Token) <
+            std::tie(Other.ID, Other.Token);
+    }
 };
 
 /** 유저 정보 */
@@ -43,5 +56,15 @@ struct MY_API FUserInfo
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     int32 Level = 0;
 
-    auto operator<=>(const FUserInfo&) const = default;
+    bool operator==(const FUserInfo& Other) const
+	{
+		return std::tie(Name, Tag, Level) ==
+            std::tie(Other.Name, Other.Tag, Other.Level);
+	}
+
+    bool operator<(const FUserInfo& Other) const
+    {
+        return std::tie(Name, Tag, Level) <
+            std::tie(Other.Name, Other.Tag, Other.Level);
+    }
 };
