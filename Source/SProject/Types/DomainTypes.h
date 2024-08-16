@@ -2,6 +2,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include <tuple>
 
 #include "DomainTypes.generated.h"
 
@@ -14,5 +15,13 @@ struct MY_API FDomainBuilding
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     int32 Key = 0;
 
-    auto operator<=>(const FDomainBuilding&) const = default;
+    bool operator==(const FDomainBuilding& Other) const {
+		return std::tie(Key) == 
+            std::tie(Other.Key);
+    }
+
+    bool operator<(const FDomainBuilding& Other) const {
+        return std::tie(Key) <
+			std::tie(Other.Key);
+    }
 };

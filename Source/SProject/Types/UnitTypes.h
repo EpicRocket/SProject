@@ -2,6 +2,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include <tuple>
 
 #include "UnitTypes.generated.h"
 
@@ -26,5 +27,13 @@ struct MY_API FTower
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     int32 Location = INDEX_NONE;
 
-    auto operator<=>(const FTower&) const = default;
+    bool operator==(const FTower& Other) const {
+		return std::tie(Key, Level, Location) ==
+			std::tie(Other.Key, Other.Level, Other.Location);
+    }
+
+    bool operator<(const FTower& Other) const {
+		return std::tie(Key, Level, Location) <
+			std::tie(Other.Key, Other.Level, Other.Location);
+    }
 };

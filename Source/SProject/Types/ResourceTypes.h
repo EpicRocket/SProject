@@ -2,6 +2,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include <tuple>
 
 #include "ResourceTypes.generated.h"
 
@@ -18,5 +19,13 @@ struct MY_API FItem
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     int32 Count = 0;
 
-    auto operator<=>(const FItem&) const = default;
+    bool operator==(const FItem& Other) const {
+		return std::tie(Key, Count) ==
+			std::tie(Other.Key, Other.Count);
+    }
+
+	bool operator<(const FItem& Other) const {
+		return std::tie(Key, Count) <
+			std::tie(Other.Key, Other.Count);
+	}
 };
