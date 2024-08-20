@@ -20,8 +20,5 @@ public:
     void RemoevLevel(int32 StageKey);
 
 public:
-    //UPROPERTY(Transient, BlueprintReadOnly, Category = "스테이지")
-    //TWeakObjectPtr<AStageLevel> CurrentLevel;
-        
     TMap<int32, TWeakObjectPtr<AStageLevel>> ActivatableLevels;
 };
