@@ -7,6 +7,7 @@
 #include "UObject/UnrealType.h"
 #include "UObject/ScriptMacros.h"
 #include "UObject/Script.h"
+#include "NativeGameplayTags.h"
 #include <type_traits>
 
 #include "TableSubsystem.generated.h"

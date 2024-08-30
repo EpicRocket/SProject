@@ -3,11 +3,26 @@
 // include Engine
 #include "Engine/World.h"
 // include Project
-#include "StageLogging.h"
-#include "StageLevel.h"
+#include "Gameplay/Stage/StageLogging.h"
+#include "Gameplay/Stage/StageLevel.h"
+#include "Gameplay/Stage/Interface/StageLevelInterface.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(StageWorldSubsystem)
 
+
+bool UStageWorldSubsystem::ShouldCreateSubsystem(UObject* Outer) const
+{
+	if (!Super::ShouldCreateSubsystem(Outer))
+	{
+		return false;
+	}
+	return Outer->Implements<UStageLevelInterface>();
+}
+
+bool UStageWorldSubsystem::DoesSupportWorldType(const EWorldType::Type WorldType) const
+{
+	return (WorldType == EWorldType::Game || WorldType == EWorldType::PIE);
+}
 
 void UStageWorldSubsystem::AddLevel(int32 StageKey, AStageLevel* Level)
 {

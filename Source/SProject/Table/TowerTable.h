@@ -2,8 +2,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Misc/EnumRange.h"
 #include "Engine/DataTable.h"
+
 #include "TowerTable.generated.h"
 
 class UTexture2D;
