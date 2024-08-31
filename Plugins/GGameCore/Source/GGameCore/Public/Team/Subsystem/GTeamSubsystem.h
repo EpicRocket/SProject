@@ -14,6 +14,9 @@ class GGAMECORE_API UGTeamSubsystem : public UWorldSubsystem
 {
     GENERATED_BODY()
 
+protected:
+    virtual bool DoesSupportWorldType(const EWorldType::Type WorldType) const override;
+
 public:
     UFUNCTION(BlueprintCallable)
     void RegisterTeams(const TArray<FGTeamTracker>& InTeams);
@@ -29,6 +32,6 @@ class GGAMECORE_API UGTeamHelper : public UBlueprintFunctionLibrary
     GENERATED_BODY()
 
 public:
-    UFUNCTION(BlueprintCallable, Category = "Team")
+    UFUNCTION(BlueprintCallable, Category = "Team", meta = ())
     static void LoadTeamTableRows(UDataTable* Table, TArray<FGTeamTracker>& Teams);
 };

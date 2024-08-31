@@ -2,7 +2,7 @@
 #pragma once
 
 #include "Subsystems/LocalPlayerSubsystem.h"
-#include "Interface/UserDocumentMiddleware.h"
+#include "UserDocumentMiddleware.h"
 
 #include "UserSubsystem.generated.h"
 

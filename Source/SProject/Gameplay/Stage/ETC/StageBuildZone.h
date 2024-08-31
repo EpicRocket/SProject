@@ -5,8 +5,6 @@
 
 #include "StageBuildZone.generated.h"
 
-class ATowerBase;
-
 UCLASS(Abstract, BlueprintType, Blueprintable)
 class MY_API AStageBuildZone : public AActor
 {
@@ -24,12 +22,6 @@ public:
 
     UFUNCTION(BlueprintCallable)
     void Deselect();
-    
-    UFUNCTION(BlueprintCallable)
-    void Build(TSubclassOf<ATowerBase> TowerClass);
-
-    UFUNCTION(BlueprintCallable)
-    ATowerBase* GetSpawendTower() const;
 
 protected:
     UFUNCTION(BlueprintImplementableEvent)
@@ -41,10 +33,10 @@ protected:
     UFUNCTION(BlueprintImplementableEvent)
     void OnDeselect();
 
-    UFUNCTION(BlueprintImplementableEvent)
-    void OnBuild(ATowerBase* Tower);
+    //UFUNCTION(BlueprintImplementableEvent)
+    //void OnBuild(ATowerBase* Tower);
 
 private:
-    UPROPERTY(Transient)
-    TObjectPtr<ATowerBase> SpawendTower;
+    //UPROPERTY(Transient)
+    //TObjectPtr<ATowerBase> SpawendTower;
 };

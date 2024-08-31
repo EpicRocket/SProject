@@ -6,7 +6,7 @@
 #include "StageLevel.generated.h"
 
 class AStageBuildZone;
-class ATowerBase;
+
 namespace EEndPlayReason {
     enum Type : int;
 }
@@ -27,8 +27,8 @@ public:
     UFUNCTION(BlueprintCallable)
     AStageBuildZone* GetBuildZone(int32 Position) const;
 
-    UFUNCTION(BlueprintCallable)
-    ATowerBase* GetTower(int32 Position) const;
+    //UFUNCTION(BlueprintCallable)
+    //ATowerBase* GetTower(int32 Position) const;
 
 protected:
     UFUNCTION(BlueprintImplementableEvent)

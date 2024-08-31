@@ -3,6 +3,11 @@
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(GTeamSubsystem)
 
+bool UGTeamSubsystem::DoesSupportWorldType(const EWorldType::Type WorldType) const
+{
+    return WorldType == EWorldType::Game || WorldType == EWorldType::PIE;
+}
+
 void UGTeamSubsystem::RegisterTeams(const TArray<FGTeamTracker>& InTeams)
 {
 }

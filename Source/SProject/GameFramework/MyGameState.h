@@ -9,7 +9,7 @@
 
 #include "MyGameState.generated.h"
 
-class UMyAbilitySystemComponent;
+class UGAbilitySystemComponent;
 
 UCLASS(BlueprintType, Blueprintable)
 class MY_API AMyGameState : public AGameState, public IAbilitySystemInterface
@@ -26,5 +26,5 @@ public:
     //~End of IAbilitySystemInterface
 
 private:
-    TObjectPtr<UMyAbilitySystemComponent> AbilitySystemComponent;
+    TObjectPtr<UGAbilitySystemComponent> AbilitySystemComponent;
 };

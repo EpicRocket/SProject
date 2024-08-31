@@ -3,7 +3,7 @@
 
 #include "Subsystems/LocalPlayerSubsystem.h"
 #include "Templates/SharedPointer.h"
-#include "Interface/UserDocumentMiddleware.h"
+#include "UserDocumentMiddleware.h"
 
 #include "InventorySubsystem.generated.h"
 

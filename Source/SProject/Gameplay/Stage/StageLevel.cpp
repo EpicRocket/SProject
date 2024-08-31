@@ -72,7 +72,7 @@ AStageBuildZone* AStageLevel::GetBuildZone(int32 Position) const
 	return BuildZone.Get();
 }
 
-ATowerBase* AStageLevel::GetTower(int32 Position) const
-{
-	return nullptr;
-}
+//ATowerBase* AStageLevel::GetTower(int32 Position) const
+//{
+//	return nullptr;
+//}

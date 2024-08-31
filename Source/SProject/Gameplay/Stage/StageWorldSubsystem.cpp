@@ -3,9 +3,9 @@
 // include Engine
 #include "Engine/World.h"
 // include Project
-#include "Gameplay/Stage/StageLogging.h"
-#include "Gameplay/Stage/StageLevel.h"
-#include "Gameplay/Stage/Interface/StageLevelInterface.h"
+#include "StageLogging.h"
+#include "StageLevel.h"
+#include "StageLevelInterface.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(StageWorldSubsystem)
 

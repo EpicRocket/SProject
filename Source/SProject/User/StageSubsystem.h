@@ -4,7 +4,7 @@
 #include "Subsystems/LocalPlayerSubsystem.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "Templates/SharedPointer.h"
-#include "Interface/UserDocumentMiddleware.h"
+#include "UserDocumentMiddleware.h"
 
 #include "StageSubsystem.generated.h"
 

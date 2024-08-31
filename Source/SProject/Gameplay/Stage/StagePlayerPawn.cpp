@@ -10,7 +10,6 @@
 #include "StageGameplayTags.h"
 #include "StageLevel.h"
 #include "ETC/StageBuildZone.h"
-#include "Unit/Tower/TowerBase.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(StagePlayerPawn)
 
