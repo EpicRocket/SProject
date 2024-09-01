@@ -51,16 +51,16 @@ class UMyGlobalAbilitySystem : public UWorldSubsystem
 public:
 	UMyGlobalAbilitySystem();
 
-	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="My")
+	UFUNCTION(BlueprintCallable, Category="My")
 	void ApplyAbilityToAll(TSubclassOf<UGameplayAbility> Ability);
 
-	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="My")
+	UFUNCTION(BlueprintCallable, Category="My")
 	void ApplyEffectToAll(TSubclassOf<UGameplayEffect> Effect);
 
-	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "My")
+	UFUNCTION(BlueprintCallable, Category = "My")
 	void RemoveAbilityFromAll(TSubclassOf<UGameplayAbility> Ability);
 
-	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "My")
+	UFUNCTION(BlueprintCallable, Category = "My")
 	void RemoveEffectFromAll(TSubclassOf<UGameplayEffect> Effect);
 
 	/** Register an ASC with global system and apply any active global effects/abilities. */

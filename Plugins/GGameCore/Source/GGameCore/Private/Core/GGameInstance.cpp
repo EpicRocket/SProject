@@ -12,35 +12,42 @@
 int32 UGGameInstance::AddLocalPlayer(ULocalPlayer* NewPlayer, FPlatformUserId UserId)
 {
 	UGLocalPlayer* GPlayer = Cast<UGLocalPlayer>(NewPlayer);
+	uint8 ReservedId = 255;
 	if (GPlayer)
 	{
-		GPlayer->UniqueId = 255;
+		GPlayer->UniqueId = ReservedId;
 		for (auto& [Id, Player] : LocalPlayers)
 		{
 			if (!Player.IsValid())
 			{
-				GPlayer->UniqueId = Id;
+				GPlayer->UniqueId = ReservedId = Id;
+				Player = GPlayer;
 			}
 		}
 
 		if (GPlayer->UniqueId == 255)
 		{
-			GPlayer->UniqueId = LocalPlayers.Num();
-			LocalPlayers.Emplace(GPlayer->UniqueId, nullptr);
+			GPlayer->UniqueId = ReservedId = LocalPlayers.Num();
+			LocalPlayers.Emplace(GPlayer->UniqueId, GPlayer);
 		}
 	}
 
 	int32 ReturnVal = Super::AddLocalPlayer(NewPlayer, UserId);
 	if (ReturnVal != INDEX_NONE)
 	{
-		LocalPlayers[GPlayer->UniqueId] = GPlayer;
-
 		if (GPlayer->UniqueId == 0)
 		{
 			UE_LOG(LogTemp, Log, TEXT("AddLocalPlayer: Set %s to Primary Player"), *NewPlayer->GetName());
 		}
 
 		GetSubsystem<UGUIManagerSubsystem>()->NotifyPlayerAdded(GPlayer);
+	}
+	else
+	{
+		if (LocalPlayers.Contains(ReservedId))
+		{
+			LocalPlayers[ReservedId].Reset();
+		}
 	}
 	return ReturnVal;
 }
