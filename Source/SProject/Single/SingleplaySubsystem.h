@@ -1,7 +1,7 @@
 ﻿
 #pragma once
 
-#include "Subsystems/LocalPlayerSubsystem.h"
+#include "Subsystems/GameInstanceSubsystem.h"
 
 #include "SingleplaySubsystem.generated.h"
 
@@ -14,14 +14,14 @@ DECLARE_LOG_CATEGORY_EXTERN(LogSingleplay, Log, All);
  * 싱글플레이 서브시스템
  */
 UCLASS()
-class MY_API USingleplaySubsystem : public ULocalPlayerSubsystem
+class MY_API USingleplaySubsystem : public UGameInstanceSubsystem
 {
     GENERATED_BODY()
 
     static FString SLOT_NAME;
 
 public:
-    static USingleplaySubsystem* Get(const ULocalPlayer* LocalPlayer);
+    static USingleplaySubsystem* Get(const UObject* WorldContextObject);
 
     virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 

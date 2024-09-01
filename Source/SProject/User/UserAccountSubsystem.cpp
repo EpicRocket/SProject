@@ -1,6 +1,7 @@
 ﻿
 #include "UserAccountSubsystem.h"
 // include Engine
+#include "Engine/GameInstance.h"
 #include "Engine/LocalPlayer.h"
 #include "Kismet/KismetSystemLibrary.h"
 // include Project
@@ -53,6 +54,13 @@ void UUserAccountSubsystem::UnbindUserDocumentMiddleware(TScriptInterface<IUserD
 
 bool UUserAccountSubsystem::Login(EUserLoginType Type, FOnUserLoginEvent LoginEvent)
 {
+	auto LocalPlayer = GetLocalPlayer();
+	if (!IsValid(LocalPlayer))
+	{
+		UE_LOG(LogCore, Error, TEXT("로컬 플레이어를 찾을 수 없습니다."));
+		return false;
+	}
+
 	if (IsLogin())
 	{
 		UE_LOG(LogCore, Error, TEXT("이미 로그인 상태입니다."));
@@ -68,8 +76,14 @@ bool UUserAccountSubsystem::Login(EUserLoginType Type, FOnUserLoginEvent LoginEv
 		GetUserAccount()->ID = UKismetSystemLibrary::GetDeviceId();
 		GetUserAccount()->Token = USingleplaySaveGameContext::Token;
 
-		auto SingleplaySubsystem = USingleplaySubsystem::Get(GetLocalPlayer());
+		auto GameInstance = LocalPlayer->GetGameInstance();
+		if (!IsValid(GameInstance))
+		{
+			UE_LOG(LogCore, Error, TEXT("게임 인스턴스를 찾을 수 없습니다."));
+			return false;
+		}
 
+		auto SingleplaySubsystem = GameInstance->GetSubsystem<USingleplaySubsystem>();
 		if (!IsValid(SingleplaySubsystem))
 		{
 			UE_LOG(LogCore, Error, TEXT("싱글플레이 서브시스템을 찾을 수 없습니다."));

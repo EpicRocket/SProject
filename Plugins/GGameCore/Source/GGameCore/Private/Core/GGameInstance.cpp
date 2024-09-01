@@ -35,7 +35,7 @@ int32 UGGameInstance::AddLocalPlayer(ULocalPlayer* NewPlayer, FPlatformUserId Us
 	int32 ReturnVal = Super::AddLocalPlayer(NewPlayer, UserId);
 	if (ReturnVal != INDEX_NONE)
 	{
-		if (GPlayer->UniqueId == 0)
+		if (GPlayer && GPlayer->UniqueId == 0)
 		{
 			UE_LOG(LogTemp, Log, TEXT("AddLocalPlayer: Set %s to Primary Player"), *NewPlayer->GetName());
 		}
@@ -65,7 +65,7 @@ bool UGGameInstance::RemoveLocalPlayer(ULocalPlayer* ExistingPlayer)
 		}
 	}
 
-	if (GPlayer->UniqueId == 0)
+	if (GPlayer && GPlayer->UniqueId == 0)
 	{
 		UE_LOG(LogTemp, Log, TEXT("RemoveLocalPlayer: Unsetting Primary Player from %s"), *ExistingPlayer->GetName());
 	}
