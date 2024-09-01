@@ -12,5 +12,8 @@ struct FGGameplayMessage
     GENERATED_BODY()
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<UObject> Instigator;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
     FGErrorInfo ErrorInfo;
 };

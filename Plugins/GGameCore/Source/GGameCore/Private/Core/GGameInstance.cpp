@@ -2,7 +2,7 @@
 #include "Core/GGameInstance.h"
 // Engine
 #include "Engine/LocalPlayer.h"
-// My
+
 #include "UI/GUIManagerSubsystem.h"
 #include "Core/GLocalPlayer.h"
 
@@ -11,15 +11,33 @@
 
 int32 UGGameInstance::AddLocalPlayer(ULocalPlayer* NewPlayer, FPlatformUserId UserId)
 {
+	UGLocalPlayer* GPlayer = Cast<UGLocalPlayer>(NewPlayer);
+	if (GPlayer)
+	{
+		GPlayer->UniqueId = 255;
+		for (auto& [Id, Player] : LocalPlayers)
+		{
+			if (!Player.IsValid())
+			{
+				GPlayer->UniqueId = Id;
+			}
+		}
+
+		if (GPlayer->UniqueId == 255)
+		{
+			GPlayer->UniqueId = LocalPlayers.Num();
+			LocalPlayers.Emplace(GPlayer->UniqueId, nullptr);
+		}
+	}
+
 	int32 ReturnVal = Super::AddLocalPlayer(NewPlayer, UserId);
 	if (ReturnVal != INDEX_NONE)
 	{
-		UGLocalPlayer* GPlayer = Cast<UGLocalPlayer>(NewPlayer);
+		LocalPlayers[GPlayer->UniqueId] = GPlayer;
 
-		if (!PrimaryPlayer.IsValid())
+		if (GPlayer->UniqueId == 0)
 		{
 			UE_LOG(LogTemp, Log, TEXT("AddLocalPlayer: Set %s to Primary Player"), *NewPlayer->GetName());
-			PrimaryPlayer = GPlayer;
 		}
 
 		GetSubsystem<UGUIManagerSubsystem>()->NotifyPlayerAdded(GPlayer);
@@ -30,9 +48,18 @@ int32 UGGameInstance::AddLocalPlayer(ULocalPlayer* NewPlayer, FPlatformUserId Us
 bool UGGameInstance::RemoveLocalPlayer(ULocalPlayer* ExistingPlayer)
 {
 	UGLocalPlayer* GPlayer = Cast<UGLocalPlayer>(ExistingPlayer);
-	if (PrimaryPlayer == GPlayer)
+
+	for (auto& [Id, Player] : LocalPlayers)
 	{
-		PrimaryPlayer.Reset();
+		if (Player == GPlayer)
+		{
+			Player.Reset();
+			break;
+		}
+	}
+
+	if (GPlayer->UniqueId == 0)
+	{
 		UE_LOG(LogTemp, Log, TEXT("RemoveLocalPlayer: Unsetting Primary Player from %s"), *ExistingPlayer->GetName());
 	}
 	GetSubsystem<UGUIManagerSubsystem>()->NotifyPlayerDestroyed(GPlayer);
@@ -42,5 +69,14 @@ bool UGGameInstance::RemoveLocalPlayer(ULocalPlayer* ExistingPlayer)
 
 UGLocalPlayer* UGGameInstance::GetPrimaryPlayer() const
 {
-	return PrimaryPlayer.Get();
+	return GetLocalPlayer(0);
+}
+
+UGLocalPlayer* UGGameInstance::GetLocalPlayer(uint8 UniqueId) const
+{
+	if (LocalPlayers.Contains(UniqueId))
+	{
+		return LocalPlayers[UniqueId].Get();
+	}
+	return nullptr;
 }

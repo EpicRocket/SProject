@@ -20,6 +20,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	UGLocalPlayer* GetPrimaryPlayer() const;
 
+	UFUNCTION(BlueprintCallable)
+	UGLocalPlayer* GetLocalPlayer(uint8 UniqueId) const;
+
 private:
-	TWeakObjectPtr<UGLocalPlayer> PrimaryPlayer;
+	TSortedMap<uint8, TWeakObjectPtr<UGLocalPlayer>> LocalPlayers;
 };

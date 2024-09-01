@@ -68,6 +68,21 @@ bool UUserAccountSubsystem::Login(EUserLoginType Type, FOnUserLoginEvent LoginEv
 		GetUserAccount()->ID = UKismetSystemLibrary::GetDeviceId();
 		GetUserAccount()->Token = USingleplaySaveGameContext::Token;
 
+		auto SingleplaySubsystem = USingleplaySubsystem::Get(GetLocalPlayer());
+
+		if (!IsValid(SingleplaySubsystem))
+		{
+			UE_LOG(LogCore, Error, TEXT("싱글플레이 서브시스템을 찾을 수 없습니다."));
+			return false;
+		}
+
+		if (SingleplaySubsystem->GetSaveGame() == nullptr)
+		{
+			UE_LOG(LogCore, Error, TEXT("싱글플레이 정보를 찾을 수 없습니다."));
+			return false;
+		}
+
+		SingleplaySubsystem->Load();
 		LoginEvent.ExecuteIfBound(static_cast<int32>(EGameErrCode::None));
 	}
 	break;
@@ -172,7 +187,7 @@ bool UUserAccountSubsystem::Connect(FOnUserConnectedEvent ConnectEvent)
 	{
 	case EUserLoginType::Singleplay:
 	{
-		auto SingleplaySubsystem = USingleplaySubsystem::Get(this);
+		auto SingleplaySubsystem = USingleplaySubsystem::Get(GetLocalPlayer());
 		if (!IsValid(SingleplaySubsystem))
 		{
 			UE_LOG(LogCore, Error, TEXT("싱글플레이 서브시스템을 찾을 수 없습니다."));

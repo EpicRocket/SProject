@@ -72,8 +72,8 @@ public:
 	}
 
     UFUNCTION(BlueprintPure, CustomThunk, Category = "Table", meta = (CustomStructureParam = "Data", DisplayName = "GetTableData"))
-    void BP_GetTableData(FTableRowBase& Data, int32 Key);
-    DECLARE_FUNCTION(execBP_GetTableData)
+    void K2_GetTableData(FTableRowBase& Data, int32 Key);
+    DECLARE_FUNCTION(execK2_GetTableData)
     {
         Stack.MostRecentPropertyAddress = nullptr;
         Stack.StepCompiledIn<FStructProperty>(nullptr);

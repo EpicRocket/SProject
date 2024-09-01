@@ -23,4 +23,8 @@ public:
 
     DECLARE_MULTICAST_DELEGATE_TwoParams(FPlayerPawnSetDelegate, UGLocalPlayer* LocalPlayer, APawn* Pawn);
     FPlayerPawnSetDelegate OnPlayerPawnSet;
+
+public:
+    UPROPERTY(BlueprintReadOnly)
+    uint8 UniqueId = 255;
 };
