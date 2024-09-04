@@ -41,7 +41,7 @@ public:
 		Class,
 	};
 
-	struct XLSXHeader
+	struct FXLSXHeader
 	{
 		FString Name;
 		FString Type;
@@ -51,18 +51,13 @@ public:
 		int32 Index = INDEX_NONE;
 	};
 
-	struct XLSXCell
-	{
-		FString Value;
-	};
-
-	struct XLSXSheet
+	struct FXLSXSheet
 	{
 		FString Name;
 		EAssetType AssetType;
 
-		TSortedMap<int32, XLSXHeader> Headers;
-		TArray<TArray<TTuple<int32, FString>>> Datas;
+		TArray<FXLSXHeader> Headers;
+		TArray<TArray<FString>> Datas;
 
 		bool IsEmpty() const
 		{

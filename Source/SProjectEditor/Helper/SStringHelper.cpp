@@ -48,11 +48,11 @@ namespace Helper
 	FString ExtractSubstring(const FString& FullString, const FString& StartDelimiter, const FString& EndDelimiter)
 	{
 		FString Result;
-		int32 StartIndex = FullString.Find(StartDelimiter);
+		int32 StartIndex = FullString.Find(StartDelimiter, ESearchCase::IgnoreCase, ESearchDir::FromStart);
 		if (StartIndex != INDEX_NONE)
 		{
 			StartIndex += StartDelimiter.Len();
-			int32 EndIndex = FullString.Find(EndDelimiter, ESearchCase::IgnoreCase, ESearchDir::FromStart, StartIndex);
+			int32 EndIndex = FullString.Find(EndDelimiter, ESearchCase::IgnoreCase, ESearchDir::FromEnd, StartIndex);
 			if (EndIndex != INDEX_NONE)
 			{
 				Result = FullString.Mid(StartIndex, EndIndex - StartIndex);

@@ -152,7 +152,7 @@ T GetXLSXValue(const OpenXLSX::XLCellValueProxy& Proxy)
 #endif
 } // XLSX
 
-TArray<UXLSXFactory::XLSXSheet> CacheSheet;
+TArray<UXLSXFactory::FXLSXSheet> CacheSheet;
 TSet<FString> ForwardDeclarations;
 FDelegateHandle CompileHandle;
 FTSTicker::FDelegateHandle NextTickHandle;
@@ -269,11 +269,12 @@ void UXLSXFactory::OnComplete()
 		for (int32 Index = 0; Index < Sheet.Datas.Num(); ++Index)
 		{
 			auto& Datas = Sheet.Datas[Index];
-			uint8* RowPtr = FDataTableEditorUtils::AddRow(DT, FName(*Datas[0].Get<1>()));
+			auto& Data = Datas[0];
+			uint8* RowPtr = FDataTableEditorUtils::AddRow(DT, FName(*Data));
 			int32 RowIndex = 0;
 			for (TFieldIterator<FProperty> It(DT->RowStruct); It && RowIndex < Datas.Num(); ++It, ++RowIndex)
 			{
-				auto& [HeaderIndex, Value] = Datas[RowIndex];
+				auto& Value = Datas[RowIndex];
 				FProperty* BaseProp = *It;
 				DataTableUtils::AssignStringToProperty(Value, BaseProp, RowPtr);
 			}
@@ -306,7 +307,7 @@ bool UXLSXFactory::GenerateXLSXSheet(const FString& FileName)
 
 		for (auto const& SheetName : WorkBook.sheetNames())
 		{
-			XLSXSheet Sheet{ .Name = Helper::UTF8ToTCHARString(SheetName) };
+			FXLSXSheet Sheet{ .Name = Helper::UTF8ToTCHARString(SheetName) };
 			FString TypeDelimiters = Sheet.Name.Left(1);
 
 			if (TypeDelimiters.Equals(TEXT("!")))
@@ -332,14 +333,22 @@ bool UXLSXFactory::GenerateXLSXSheet(const FString& FileName)
 				continue;
 			}
 
+			
+			TArray<FString> HeaderNames;
+			TMap<FString, FXLSXHeader> Headers;
+			TArray<TMap<FString, FString>> HeaderValues;
+
+			// 헤더 정보 저장
 			uint32_t RowStart = 0;
-			{	// 헤더 정보 저장
+			{
 				OpenXLSX::XLRow HeaderRow = WorkSheet.row(++RowStart);
 				OpenXLSX::XLRow TypeRow = WorkSheet.row(++RowStart);
 				auto HeaderRowIter = HeaderRow.cells().begin();
 				auto TypeRowIter = TypeRow.cells().begin();
 
-				Sheet.Headers.Reserve(static_cast<int32>(HeaderRow.cellCount()));
+				//Sheet.Headers.Reserve(static_cast<int32>(HeaderRow.cellCount()));
+				HeaderNames.Reserve(static_cast<int32>(HeaderRow.cellCount()));
+				Headers.Reserve(static_cast<int32>(HeaderRow.cellCount()));
 
 				for (int32 Index = 0; HeaderRowIter != HeaderRow.cells().end(); ++Index, ++HeaderRowIter, ++TypeRowIter)
 				{
@@ -349,7 +358,13 @@ bool UXLSXFactory::GenerateXLSXSheet(const FString& FileName)
 					FString HeaderName = Helper::UTF8ToTCHARString(Header.get<std::string>());
 					FString TypeName = Helper::UTF8ToTCHARString(Type.get<std::string>());
 
-					XLSXHeader XLSXHeader{ .Name = HeaderName, .Index = Index };
+					if (Headers.Contains(HeaderName))
+					{
+						// NOTE: 배열일 수도 있다.
+						continue;
+					}
+
+					FXLSXHeader XLSXHeader{ .Name = HeaderName, .Index = Index };
 
 					if (TypeName.Contains(TEXT("bool")))
 					{
@@ -381,46 +396,6 @@ bool UXLSXFactory::GenerateXLSXSheet(const FString& FileName)
 						XLSXHeader.Type = TEXT("FText");
 						XLSXHeader.CellType = ECellType::Text;
 					}
-					else if (TypeName.Contains(TEXT("array")))
-					{
-						XLSXHeader.CellType = ECellType::TArray;
-						FString Param = Helper::ExtractSubstring(TypeName, TEXT("<"), TEXT(">"));
-						if (TypeName.Contains(TEXT("bool")))
-						{
-							XLSXHeader.Type = FString::Printf(TEXT("TArray<bool>"));
-							XLSXHeader.SubType = ECellType::Bool;
-						}
-						else if (TypeName.Contains(TEXT("int32")))
-						{
-							XLSXHeader.Type = FString::Printf(TEXT("TArray<int32>"));
-							XLSXHeader.SubType = ECellType::Int32;
-						}
-						else if (TypeName.Contains(TEXT("int64")))
-						{
-							XLSXHeader.Type = FString::Printf(TEXT("TArray<int64>"));
-							XLSXHeader.SubType = ECellType::Int64;
-						}
-						else if (TypeName.Contains(TEXT("float")))
-						{
-							XLSXHeader.Type = FString::Printf(TEXT("TArray<float>"));
-							XLSXHeader.SubType = ECellType::Float;
-						}
-						else if (TypeName.Contains(TEXT("FString")))
-						{
-							XLSXHeader.Type = FString::Printf(TEXT("TArray<FString>"));
-							XLSXHeader.SubType = ECellType::String;
-						}
-						else if (TypeName.Contains("FText"))
-						{
-							XLSXHeader.Type = TEXT("FText");
-							XLSXHeader.SubType = ECellType::Text;
-						}
-						else
-						{
-							UE_LOG(LogTemp, Error, TEXT("array in array [TypeName:%s]"), *TypeName);
-							continue;
-						}
-					}
 					else if (TypeName.Contains(TEXT("enum")))
 					{
 						FString Param = Helper::ExtractSubstring(TypeName, TEXT("<"), TEXT(">"));
@@ -445,41 +420,141 @@ bool UXLSXFactory::GenerateXLSXSheet(const FString& FileName)
 
 						ForwardDeclarations.Emplace(FString::Printf(TEXT("class %s"), *XLSXHeader.Type));
 					}
+					else if (TypeName.Contains(TEXT("array")))
+					{
+						XLSXHeader.CellType = ECellType::TArray;
+						FString Param = Helper::ExtractSubstring(TypeName, TEXT("<"), TEXT(">"));
+
+						if (Param.Contains(TEXT("bool")))
+						{
+							XLSXHeader.Type = FString::Printf(TEXT("TArray<%s>"), *Param);
+							XLSXHeader.SubType = ECellType::Bool;
+						}
+						else if (Param.Contains(TEXT("int32")))
+						{
+							XLSXHeader.Type = FString::Printf(TEXT("TArray<%s>"), *Param);
+							XLSXHeader.SubType = ECellType::Int32;
+						}
+						else if (Param.Contains(TEXT("int64")))
+						{
+							XLSXHeader.Type = FString::Printf(TEXT("TArray<%s>"), *Param);
+							XLSXHeader.SubType = ECellType::Int64;
+						}
+						else if (Param.Contains(TEXT("float")))
+						{
+							XLSXHeader.Type = FString::Printf(TEXT("TArray<%s>"), *Param);
+							XLSXHeader.SubType = ECellType::Float;
+						}
+						else if (Param.Contains(TEXT("FString")))
+						{
+							XLSXHeader.Type = FString::Printf(TEXT("TArray<%s>"), *Param);
+							XLSXHeader.SubType = ECellType::String;
+						}
+						else if (Param.Contains("FText"))
+						{
+							XLSXHeader.Type = FString::Printf(TEXT("TArray<%s>"), *Param);
+							XLSXHeader.SubType = ECellType::Text;
+						}
+						else if (Param.Contains(TEXT("enum")))
+						{
+							auto SubParam = Helper::ExtractSubstring(Param, TEXT("<"), TEXT(">"));
+							XLSXHeader.Type = FString::Printf(TEXT("TArray<%s>"), *SubParam);
+							XLSXHeader.CellType = ECellType::Asset;
+							ForwardDeclarations.Emplace(FString::Printf(TEXT("enum class %s : uint8"), *SubParam));
+						}
+						else if (Param.Contains(TEXT("asset")))
+						{
+							auto SubParam = Helper::ExtractSubstring(Param, TEXT("<"), TEXT(">"));
+							XLSXHeader.Type = FString::Printf(TEXT("TArray<%s>"), *SubParam);
+							XLSXHeader.CellType = ECellType::Asset;
+							ForwardDeclarations.Emplace(FString::Printf(TEXT("class %s"), *SubParam));
+						}
+						else if (Param.Contains(TEXT("class")))
+						{
+							auto SubParam = Helper::ExtractSubstring(Param, TEXT("<"), TEXT(">"));
+							XLSXHeader.Type = FString::Printf(TEXT("TArray<%s>"), *SubParam);
+							XLSXHeader.CellType = ECellType::Class;
+							ForwardDeclarations.Emplace(FString::Printf(TEXT("class %s"), *SubParam));
+						}
+						else
+						{
+							continue;
+						}
+					}
 					else
 					{
 						continue;
 					}
 
-					Sheet.Headers.Emplace(Index, XLSXHeader);
+					HeaderNames.Emplace(HeaderName);
+					Headers.Emplace(HeaderName, XLSXHeader);
+					//Sheet.Headers.Emplace(Index, XLSXHeader);
 				}
 			}	// ~헤더 정보 저장
 
 			// 데이터 저장
+			HeaderValues.Reserve(RowCount);
+
 			for (int32 i = ++RowStart; i <= RowCount; ++i)
 			{
 				OpenXLSX::XLRow DataRow = WorkSheet.row(i);
 				auto DataRowIter = DataRow.cells().begin();
 
-				TArray<TTuple<int32, FString>> Datas;
-				Datas.Reserve(Sheet.Headers.Num());
+				//auto& CellDatas = HeaderValues
+				//TArray<FString> Datas;
+				//Datas.Reserve(Headers.Num());
+				TMap<FString, FString> Datas;
 				for (int32 Index = 0; DataRowIter != DataRow.cells().end(); ++Index, ++DataRowIter)
 				{
 					// 헤더에 미포함된 데이터 값
-					if (!Sheet.Headers.Contains(Index))
+					if (!HeaderNames.IsValidIndex(Index))
 					{
 						continue;
 					}
-					const XLSXHeader& Header = Sheet.Headers[Index];
+					auto const& HeaderName = HeaderNames[Index];
+					auto const& Header = Headers[HeaderName];
+					auto& HeaderValue = Datas.FindOrAdd(HeaderName, FString{});
+
 					auto& RowData = DataRowIter->value();
 					FString Value = XLSX::GetXLSXValue<FString>(RowData);
-
 					if (Header.CellType == ECellType::TArray)
 					{
-						Value = FString::Printf(TEXT("(%s)"), *Value);
+						HeaderValue = FString::Join(TArray<FString>{ HeaderValue, Value }, TEXT(","));
 					}
-					Datas.Emplace(TTuple<int32, FString>{Index, Value});
+					else
+					{
+						HeaderValue = Value;
+					}
+
+					//const FXLSXHeader& Header = Sheet.Headers[Index];
+					//Datas.Emplace(TTuple<int32, FString>{Index, Value});
 				}
-				Sheet.Datas.Emplace(Datas);
+				HeaderValues.Emplace(Datas);
+				//Sheet.Datas.Emplace(Datas);
+			}
+			
+			for (auto& [Name, Header] : Headers)
+			{
+				Sheet.Headers.Emplace(Header);
+			}
+
+			for (auto const& Datas : HeaderValues)
+			{
+				TArray<FString> Values;
+				Values.Reserve(Datas.Num());
+				for (auto& [Name, Value] : Datas)
+				{
+					auto const& Header = Headers[Name];
+					if (Header.CellType == ECellType::TArray)
+					{
+						Values.Emplace(FString::Printf(TEXT("(%s)"), *Value));
+					}
+					else
+					{
+						Values.Emplace(Value);
+					}
+				}
+				Sheet.Datas.Emplace(Values);
 			}
 
 			CacheSheet.Emplace(Sheet);
@@ -495,7 +570,7 @@ bool UXLSXFactory::GenerateXLSXSheet(const FString& FileName)
 		return false;
 	}
 
-	CacheSheet.Sort([](XLSXSheet const& A, XLSXSheet const& B)
+	CacheSheet.Sort([](FXLSXSheet const& A, FXLSXSheet const& B)
 	{
 		if (A.AssetType == EAssetType::Enum && B.AssetType == EAssetType::Struct)
 		{
@@ -549,7 +624,7 @@ FString UXLSXFactory::GenerateTableDesc(FString const& Filename)
 			TableDesc += TEXT("{\n");
 			TableDesc += TEXT("	GENERATED_BODY()\n");
 
-			for (auto& [Index, Header] : Sheet.Headers)
+			for (auto& Header : Sheet.Headers)
 			{
 				TableDesc += TEXT("\n");
 				TableDesc += FString::Printf(TEXT("	UPROPERTY(EditAnywhere, BlueprintReadWrite)\n"));
@@ -601,7 +676,7 @@ FString UXLSXFactory::GenerateTableDesc(FString const& Filename)
 				FString Value, Name;
 
 				int32 Count = 0;
-				for (auto& [_, Data] : Datas)
+				for (auto& Data : Datas)
 				{
 					if (Count == 0)
 					{
