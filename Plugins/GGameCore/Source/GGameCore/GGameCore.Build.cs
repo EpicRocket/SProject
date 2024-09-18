@@ -29,7 +29,9 @@ public class GGameCore : ModuleRules
 				"SlateCore",
 				"UMG",
 				"Core",
-			}
+                "RenderCore",
+                "DeveloperSettings",
+            }
 		);
 
 		// GameplayAbility
@@ -48,5 +50,12 @@ public class GGameCore : ModuleRules
 				"CommonInput",
 			}
 		);
-	}
+
+		// Loading
+		PublicDependencyModuleNames.AddRange(
+			new[] {
+				"PreLoadScreen",
+			}
+		);
+    }
 }
