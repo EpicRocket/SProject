@@ -9,12 +9,12 @@
 UCLASS()
 class GGAMECORE_API AUnitCharacter : public ACharacter, public IGTeamAgentInterface
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
 public:
-    AUnitCharacter();
+	AUnitCharacter();
 
 public:
-    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
-    FGuid UnitId;
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
+	FGuid UnitId;
 };

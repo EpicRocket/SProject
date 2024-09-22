@@ -1,5 +1,4 @@
-
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
