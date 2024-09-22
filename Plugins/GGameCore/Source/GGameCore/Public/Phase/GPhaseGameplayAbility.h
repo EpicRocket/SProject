@@ -6,7 +6,7 @@
 #include "GPhaseGameplayAbility.generated.h"
 
 UCLASS(Abstract, HideCategories = "Input")
-class GGAMECORE_API UGPhaseGameplayAbility : public UGameplayAbility
+class GGAMECORE_API UGPhaseGameplayAbility : public UGGameplayAbility
 {
     GENERATED_BODY()
 

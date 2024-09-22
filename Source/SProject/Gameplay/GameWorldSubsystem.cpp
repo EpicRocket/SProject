@@ -15,6 +15,26 @@
 DEFINE_LOG_CATEGORY(LogGameplay);
 
 
+void UGameWorldSubsystem::OnWorldBeginPlay(UWorld& InWorld)
+{
+	StreamingLevels.Empty();
+	ScheduledLoadedLevels.Empty();
+	ScheduledUnloadedLevels.Empty();
+
+	for (ULevelStreaming* LevelStreaming : InWorld.GetStreamingLevels())
+	{
+		if (!LevelStreaming)
+		{
+			continue;
+		}
+
+		LevelStreaming->OnLevelLoaded.AddDynamic(this, &UGameWorldSubsystem::OnLevelLoaded);
+		LevelStreaming->OnLevelUnloaded.AddDynamic(this, &UGameWorldSubsystem::OnLevelUnloaded);
+
+		StreamingLevels.Emplace(LevelStreaming);
+	}
+}
+
 bool UGameWorldSubsystem::RequestLoadGameWorld(const TSoftObjectPtr<UWorld> Level, bool bMakeVisibleAfterLoad, bool bShouldBlockOnLoad, FLatentActionInfo LatentInfo)
 {
 	auto World = GetWorld();
@@ -58,6 +78,8 @@ bool UGameWorldSubsystem::RequestLoadGameWorld(const TSoftObjectPtr<UWorld> Leve
 		return false;
 	}
 
+	ScheduledLoadedLevels.Emplace(LevelStreaming);
+
 	FStreamLevelAction* NewAction = new FStreamLevelAction(true, LevelName, bMakeVisibleAfterLoad, bShouldBlockOnLoad, LatentInfo, World);
 	LatentManager.AddNewAction(LatentInfo.CallbackTarget, LatentInfo.UUID, NewAction);
 
@@ -66,7 +88,27 @@ bool UGameWorldSubsystem::RequestLoadGameWorld(const TSoftObjectPtr<UWorld> Leve
 
 bool UGameWorldSubsystem::IsExistsLoadedGameWorld() const
 {
-	return false;
+	int32 LoadedLevelCount = 0;
+
+	for (const auto& LevelStreaming : StreamingLevels)
+	{
+		if (LevelStreaming.IsValid() && LevelStreaming->IsLevelLoaded())
+		{
+			LoadedLevelCount++;
+		}
+	}
+
+	return LoadedLevelCount > 0;
+}
+
+bool UGameWorldSubsystem::IsDoingLoadGameWorld() const
+{
+	return ScheduledLoadedLevels.Num() > 0;
+}
+
+bool UGameWorldSubsystem::IsDoingUnloadGameWorld() const
+{
+	return ScheduledUnloadedLevels.Num() > 0;
 }
 
 FString UGameWorldSubsystem::MakeSafeLevelName(const FName& LevelName) const
@@ -124,4 +166,46 @@ ULevelStreaming* UGameWorldSubsystem::FindAndCacheLevelStreamingObject(const FNa
 	}
 
 	return nullptr;
+}
+
+void UGameWorldSubsystem::OnLevelLoaded()
+{
+	for (const auto& LevelStreaming : StreamingLevels)
+	{
+		if (!LevelStreaming.IsValid())
+		{
+			continue;
+		}
+
+		if (!LevelStreaming->IsLevelLoaded())
+		{
+			continue;
+		}
+
+		if (ScheduledLoadedLevels.Contains(LevelStreaming))
+		{
+			ScheduledLoadedLevels.Remove(LevelStreaming);
+		}
+	}
+}
+
+void UGameWorldSubsystem::OnLevelUnloaded()
+{
+	for (const auto& LevelStreaming : StreamingLevels)
+	{
+		if (!LevelStreaming.IsValid())
+		{
+			continue;
+		}
+
+		if (LevelStreaming->IsLevelLoaded())
+		{
+			continue;
+		}
+
+		if (ScheduledUnloadedLevels.Contains(LevelStreaming))
+		{
+			ScheduledUnloadedLevels.Remove(LevelStreaming);
+		}
+	}
 }
