@@ -17,6 +17,10 @@ protected:
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 public:
+	// IGLoadingProcessInterface
+    virtual bool ShouldShowLoadingScreen(FString& OutReason) const override;
+    // ~IGLoadingProcessInterface
+
     UFUNCTION(BlueprintCallable)
 	void AddBuildZone(AStageBuildZone* BuildZone);
 

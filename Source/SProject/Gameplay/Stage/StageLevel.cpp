@@ -23,6 +23,12 @@ void AStageLevel::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 }
 
+bool AStageLevel::ShouldShowLoadingScreen(FString& OutReason) const
+{
+
+	return false;
+}
+
 void AStageLevel::AddBuildZone(AStageBuildZone* BuildZone)
 {
 	TWeakObjectPtr<AStageBuildZone> BuildZonePtr = BuildZone;

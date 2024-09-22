@@ -8,7 +8,6 @@ FName AMyGameState::AbilitySystemComponentName = TEXT("AbilitySystemComponent");
 
 AMyGameState::AMyGameState()
 {
-	
 	AbilitySystemComponent = FObjectInitializer::Get().CreateDefaultSubobject<UGAbilitySystemComponent>(this, AMyGameState::AbilitySystemComponentName);
 	AbilitySystemComponent->SetIsReplicated(false);
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
