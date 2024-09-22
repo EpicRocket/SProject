@@ -5,7 +5,7 @@
 
 #include "Kismet/BlueprintFunctionLibrary.h"
 
-#include "System/GErrorTypes.h"
+#include "Error/GErrorTypes.h"
 
 #include "GErrorManager.generated.h"
 

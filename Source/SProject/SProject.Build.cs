@@ -25,7 +25,6 @@ public class SProject : ModuleRules
                 "SlateCore",
                 "UMG",
                 "AIModule",
-                "GGameCore"
             }
         );
 
@@ -57,10 +56,12 @@ public class SProject : ModuleRules
             }
         );
 
-        // Plugins
+        // Plugins ETC
         PrivateDependencyModuleNames.AddRange(
             new[] {
+                "GGameCore",
                 "GameplayMessageRuntime",
+                "ModularGameplay"
             }
         );
 

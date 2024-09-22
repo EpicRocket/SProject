@@ -2,7 +2,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "System/GErrorTypes.h"
+#include "Error/GErrorTypes.h"
 
 #include "GGameplayMessage.generated.h"
 

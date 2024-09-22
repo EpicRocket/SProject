@@ -4,10 +4,12 @@
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "Tickable.h"
 #include "UObject/WeakInterfacePtr.h"
+#include "UObject/ScriptInterface.h"
 
 #include "GLoadingManager.generated.h"
 
 class IGLoadingProcessInterface;
+class ILoadingProcessInterface;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogLoading, Log, All);
 
@@ -27,6 +29,15 @@ public:
 	virtual TStatId GetStatId() const override;
 	virtual UWorld* GetTickableGameObjectWorld() const override;
     // ~FTickableObjectBase
+
+    UFUNCTION(BlueprintCallable, Category = "로딩")
+    FString GetDebugReasonForShowingOrHidingLoadingScreen() const;
+
+    bool GetLoadingScreenDisplayStatus() const;
+
+    void RegisterLoadingProcessor(TScriptInterface<IGLoadingProcessInterface> Interface);
+
+    void UnregisterLoadingProcessor(TScriptInterface<IGLoadingProcessInterface> Interface);
 
 private:
     // 맵 로드 전

@@ -1,5 +1,5 @@
 ﻿
-#include "System/GLoadingProcessInterface.h"
+#include "Loading/Interface/GLoadingProcessInterface.h"
 
 /*static*/ bool IGLoadingProcessInterface::ShouldShowLoadingScreen(UObject* TestObject, FString& OutReason)
 {

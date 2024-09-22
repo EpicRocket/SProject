@@ -1,5 +1,5 @@
 ﻿
-#include "System/GLoadingManager.h"
+#include "Loading/GLoadingManager.h"
 // Include Engine
 #include "Engine/Engine.h"
 #include "Engine/GameInstance.h"
@@ -15,7 +15,7 @@
 #include "ShaderPipelineCache.h"
 // include GGameCore
 #include "GLoadingManagerSettings.h"
-#include "System/GLoadingProcessInterface.h"
+#include "Loading/Interface/GLoadingProcessInterface.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(GLoadingManager)
 
@@ -84,6 +84,33 @@ TStatId UGLoadingManager::GetStatId() const
 UWorld* UGLoadingManager::GetTickableGameObjectWorld() const
 {
 	return GetGameInstance()->GetWorld();
+}
+
+FString UGLoadingManager::GetDebugReasonForShowingOrHidingLoadingScreen() const
+{
+	return DebugReasonForShowingOrHidingLoadingScreen;
+}
+
+bool UGLoadingManager::GetLoadingScreenDisplayStatus() const
+{
+	return bCurrentlyShowingLoadingScreen;
+}
+
+void UGLoadingManager::RegisterLoadingProcessor(TScriptInterface<IGLoadingProcessInterface> Interface)
+{
+	if (Interface.GetObject() != nullptr)
+	{
+		ExternalLoadingProcessors.Emplace(Interface.GetObject());
+	}
+}
+
+void UGLoadingManager::UnregisterLoadingProcessor(TScriptInterface<IGLoadingProcessInterface> Interface)
+{
+	if (Interface.GetObject() != nullptr)
+	{
+		ExternalLoadingProcessors.Remove(Interface.GetObject());
+	}
+
 }
 
 void UGLoadingManager::HandlePreLoadMap(const FWorldContext& WorldContext, const FString& MapName)

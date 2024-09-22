@@ -57,5 +57,12 @@ public class GGameCore : ModuleRules
 				"PreLoadScreen",
 			}
 		);
+
+        // 2D
+        PublicDependencyModuleNames.AddRange(
+            new[] {
+                "Paper2D",
+            }
+        );
     }
 }

@@ -64,6 +64,11 @@ bool UGameWorldSubsystem::RequestLoadGameWorld(const TSoftObjectPtr<UWorld> Leve
 	return true;
 }
 
+bool UGameWorldSubsystem::IsExistsLoadedGameWorld() const
+{
+	return false;
+}
+
 FString UGameWorldSubsystem::MakeSafeLevelName(const FName& LevelName) const
 {
 	auto World = GetWorld();

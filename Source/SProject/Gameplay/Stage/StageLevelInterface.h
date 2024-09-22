@@ -5,7 +5,7 @@
 
 #include "StageLevelInterface.generated.h"
 
-UINTERFACE(MinimalAPI)
+UINTERFACE(BlueprintType, MinimalAPI, Category = "스테이지")
 class UStageLevelInterface : public UInterface
 {
     GENERATED_BODY()
