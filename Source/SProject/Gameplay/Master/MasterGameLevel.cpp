@@ -10,26 +10,6 @@
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(MasterGameLevel)
 
-void AMasterGameLevel::BeginPlay()
-{
-	Super::BeginPlay();
-
-	auto LoadingManager = UGameInstance::GetSubsystem<UGLoadingManager>(GetGameInstance());
-	check(LoadingManager);
-
-	LoadingManager->RegisterLoadingProcessor(this);
-}
-
-void AMasterGameLevel::EndPlay(const EEndPlayReason::Type EndPlayReason)
-{
-	if (auto LoadingManager = UGameInstance::GetSubsystem<UGLoadingManager>(GetGameInstance()))
-	{
-		LoadingManager->UnregisterLoadingProcessor(this);
-	}
-	
-	Super::EndPlay(EndPlayReason);
-}
-
 bool AMasterGameLevel::ShouldShowLoadingScreen(FString& OutReason) const
 {
 	auto GameWorldSubsystem = UWorld::GetSubsystem<UGameWorldSubsystem>(GetWorld());

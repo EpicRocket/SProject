@@ -1,18 +1,14 @@
 ﻿
 #pragma once
 
-#include "Engine/LevelScriptActor.h"
+#include "Gameplay/MyGameLevel.h"
 
 #include "StageLevel.generated.h"
 
 class AStageBuildZone;
 
-namespace EEndPlayReason {
-    enum Type : int;
-}
-
 UCLASS()
-class MY_API AStageLevel : public ALevelScriptActor
+class MY_API AStageLevel : public AMyGameLevel
 {
     GENERATED_BODY()
 
