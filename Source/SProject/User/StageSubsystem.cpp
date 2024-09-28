@@ -8,7 +8,6 @@
 #include "UserLogging.h"
 #include "Types/FetchDocumentTypes.h"
 #include "Table/TableSubsystem.h"
-#include "Table/StageTable.h"
 #include "UserAccountSubsystem.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(StageSubsystem)
@@ -151,26 +150,5 @@ TSharedRef<FTower> UStageSubsystem::GetTower(int32 Level, int32 Key) const
 
 TSoftObjectPtr<UWorld> UStageSubsystemHelper::GetStageMap(int32 Level)
 {
-	UTableSubsystem* TableSubsystem = UTableSubsystem::Get();
-	if (!IsValid(TableSubsystem))
-	{
-		UE_LOG(LogUser, Error, TEXT("[LoadStageLevel] TableSubsystem is nullptr."));
-		return nullptr;
-	}
-
-	auto StageData = TableSubsystem->GetTableData<FStageTableRow>(Level);
-	if (nullptr == StageData)
-	{
-		UE_LOG(LogUser, Error, TEXT("[LoadStageLevel] 테이블에서 Stage 데이터를 찾지 못하였습니다. [Level: %d]"), Level);
-		return nullptr;
-	}
-
-	auto& MapPtr = StageData->Map;
-	if (MapPtr.IsNull())
-	{
-		UE_LOG(LogUser, Error, TEXT("[LoadStageLevel] Stage 데이터에 Map이 연결되어 있지 않습니다.. [Level: %d]"), Level);
-		return nullptr;
-	}
-
-	return StageData->Map;
+	return nullptr;
 }

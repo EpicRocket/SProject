@@ -5,7 +5,6 @@
 // include Project
 #include "Types/FetchDocumentTypes.h"
 #include "UserAccountSubsystem.h"
-#include "Table/TowerTable.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(DomainSubsystem)
 
@@ -37,10 +36,4 @@ void UDomainSubsystem::Deinitialize()
     }
 
     Super::Deinitialize();
-}
-
-bool UDomainSubsystem::IsBuildableTower(const FTowerTableRow& TowerData) const
-{
-    // TODO: 구현 필요
-    return true;
 }

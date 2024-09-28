@@ -10,7 +10,6 @@ enum class EDomainType : uint8;
 
 struct FFetchDocument;
 struct FDomainBuilding;
-struct FTowerTableRow;
 
 class ULocalPlayer;
 
@@ -31,10 +30,6 @@ public:
     // IUserDocumentMiddleware
     virtual void ApplyUserDocumentChanges(const TSharedRef<FFetchDocument> FetchDocument) override { /*구현 해야함*/ }
     // ~IUserDocumentMiddleware
-
-public:
-    UFUNCTION(BlueprintCallable, Category = "타워", meta = (ShortTooltip = "건설 가능한 타워인지 판별 합니다."))
-    bool IsBuildableTower(const FTowerTableRow& TowerData) const;
 
 private:
     TMap<EDomainType, TSharedPtr<FDomainBuilding>> DomainBuildings;

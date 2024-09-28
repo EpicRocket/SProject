@@ -2,6 +2,7 @@
 #pragma once
 
 #include "Subsystems/EngineSubsystem.h"
+#include "Kismet/BlueprintFunctionLibrary.h"
 #include "Engine/DataTable.h"
 #include "UObject/ObjectMacros.h"
 #include "UObject/UnrealType.h"
@@ -123,4 +124,33 @@ private:
     FString RootTableRelativePath;
 
     TMap<uint32, UDataTable*> Tables;
+};
+
+UCLASS()
+class MY_API UTableHelper : public UBlueprintFunctionLibrary
+{
+    GENERATED_BODY()
+
+public:
+    template<typename T>
+    static T const* GetData(int32 Key)
+    {
+        auto Subsystem = UTableSubsystem::Get();
+        if (Subsystem == nullptr)
+        {
+            return nullptr;
+        }
+		return Subsystem->GetTableData<T>(Key);
+    }
+
+	template<typename T>
+	static TArray<T*> const GetDatas()
+	{
+		auto Subsystem = UTableSubsystem::Get();
+		if (Subsystem == nullptr)
+		{
+			return TArray<T*>{};
+		}
+		return Subsystem->GetTableDatas<T>();
+	}
 };
