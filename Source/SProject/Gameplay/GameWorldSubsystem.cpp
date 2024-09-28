@@ -4,10 +4,10 @@
 #include "Engine/Engine.h"
 #include "Engine/World.h"
 #include "Engine/LevelStreaming.h"
+#include "Engine/LevelStreamingDynamic.h"
 #include "GameFramework/PlayerController.h"
 #include "Misc/PackageName.h"
 #include "Kismet/KismetSystemLibrary.h"
-
 // include Project
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(GameWorldSubsystem)
@@ -33,6 +33,24 @@ void UGameWorldSubsystem::OnWorldBeginPlay(UWorld& InWorld)
 
 		StreamingLevels.Emplace(LevelStreaming);
 	}
+}
+
+ULevelStreamingDynamic* UGameWorldSubsystem::GetLevelStreamingDynamic(TSoftObjectPtr<UWorld> Level) const
+{
+	for (const auto& LevelStreaming : StreamingLevels)
+	{
+		if (!LevelStreaming.IsValid())
+		{
+			continue;
+		}
+
+		if (LevelStreaming->GetWorldAsset() == Level)
+		{
+			return Cast<ULevelStreamingDynamic>(LevelStreaming.Get());
+		}
+	}
+
+	return nullptr;
 }
 
 bool UGameWorldSubsystem::RequestLoadGameWorld(const TSoftObjectPtr<UWorld> Level, bool bMakeVisibleAfterLoad, bool bShouldBlockOnLoad, FLatentActionInfo LatentInfo)

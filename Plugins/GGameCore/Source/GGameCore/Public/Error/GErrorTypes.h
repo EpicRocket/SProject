@@ -20,6 +20,15 @@ struct FGErrorInfo : public FTableRowBase
 {
     GENERATED_BODY()
 
+    FGErrorInfo() {}
+
+	FGErrorInfo(EGErrType InErrType, const FString& InErrCode, const FText& InDescription)
+		: ErrType(InErrType)
+		, ErrCode(InErrCode)
+		, Description(InDescription)
+	{
+	}
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     EGErrType ErrType = EGErrType::None;
 

@@ -10,6 +10,7 @@ DECLARE_LOG_CATEGORY_EXTERN(LogGameplay, Log, All);
 class UWorld;
 class ULevelStreaming;
 class AMyGameLevel;
+class ULevelStreamingDynamic;
 struct FLatentActionInfo;
 
 UCLASS()
@@ -19,6 +20,8 @@ class MY_API UGameWorldSubsystem : public UWorldSubsystem
 
 public:
     virtual void OnWorldBeginPlay(UWorld& InWorld) override;
+
+	ULevelStreamingDynamic* GetLevelStreamingDynamic(TSoftObjectPtr<UWorld> Level) const;
 
     UFUNCTION(BlueprintCallable, Category = "게임플레이", meta = (Latent = "", LatentInfo = "LatentInfo", ReturnDisplayName = "Request Success"))
     bool RequestLoadGameWorld(const TSoftObjectPtr<UWorld> Level, bool bMakeVisibleAfterLoad, bool bShouldBlockOnLoad, FLatentActionInfo LatentInfo);
