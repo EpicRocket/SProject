@@ -366,37 +366,40 @@ bool UXLSXFactory::GenerateXLSXSheet(const FString& FileName)
 
 					FXLSXHeader XLSXHeader{ .Name = HeaderName, .Index = Index };
 
-					if (TypeName.Contains(TEXT("bool")))
+					int32 StartIndex = TypeName.Find(TEXT("<"), ESearchCase::IgnoreCase, ESearchDir::FromStart);
+					FString ExactTypeName = StartIndex == INDEX_NONE ? TypeName : TypeName.Left(StartIndex);
+
+					if (ExactTypeName.Contains(TEXT("bool")))
 					{
 						XLSXHeader.Type = TEXT("bool");
 						XLSXHeader.CellType = ECellType::Bool;
 					}
-					else if (TypeName.Contains(TEXT("int32")))
+					else if (ExactTypeName.Contains(TEXT("int32")))
 					{
 						XLSXHeader.Type = TEXT("int32");
 						XLSXHeader.CellType = ECellType::Int32;
 					}
-					else if (TypeName.Contains(TEXT("int64")))
+					else if (ExactTypeName.Contains(TEXT("int64")))
 					{
 						XLSXHeader.Type = TEXT("int64");
 						XLSXHeader.CellType = ECellType::Int64;
 					}
-					else if (TypeName.Contains(TEXT("float")))
+					else if (ExactTypeName.Contains(TEXT("float")))
 					{
 						XLSXHeader.Type = TEXT("float");
 						XLSXHeader.CellType = ECellType::Float;
 					}
-					else if (TypeName.Contains(TEXT("FString")))
+					else if (ExactTypeName.Contains(TEXT("FString")))
 					{
 						XLSXHeader.Type = TEXT("FString");
 						XLSXHeader.CellType = ECellType::String;
 					}
-					else if (TypeName.Contains("FText"))
+					else if (ExactTypeName.Contains("FText"))
 					{
 						XLSXHeader.Type = TEXT("FText");
 						XLSXHeader.CellType = ECellType::Text;
 					}
-					else if (TypeName.Contains(TEXT("enum")))
+					else if (ExactTypeName.Contains(TEXT("enum")))
 					{
 						FString Param = Helper::ExtractSubstring(TypeName, TEXT("<"), TEXT(">"));
 						XLSXHeader.Type = FString::Printf(TEXT("%s"), *Param);
@@ -404,7 +407,7 @@ bool UXLSXFactory::GenerateXLSXSheet(const FString& FileName)
 
 						ForwardDeclarations.Emplace(FString::Printf(TEXT("enum class %s : uint8"), *XLSXHeader.Type));
 					}
-					else if (TypeName.Contains(TEXT("asset")))
+					else if (ExactTypeName.Contains(TEXT("asset")))
 					{
 						FString Param = Helper::ExtractSubstring(TypeName, TEXT("<"), TEXT(">"));
 						XLSXHeader.Type = FString::Printf(TEXT("%s"), *Param);
@@ -412,7 +415,7 @@ bool UXLSXFactory::GenerateXLSXSheet(const FString& FileName)
 
 						ForwardDeclarations.Emplace(FString::Printf(TEXT("class %s"), *XLSXHeader.Type));
 					}
-					else if (TypeName.Contains(TEXT("class")))
+					else if (ExactTypeName.Contains(TEXT("class")))
 					{
 						FString Param = Helper::ExtractSubstring(TypeName, TEXT("<"), TEXT(">"));
 						XLSXHeader.Type = FString::Printf(TEXT("%s"), *Param);
@@ -420,7 +423,7 @@ bool UXLSXFactory::GenerateXLSXSheet(const FString& FileName)
 
 						ForwardDeclarations.Emplace(FString::Printf(TEXT("class %s"), *XLSXHeader.Type));
 					}
-					else if (TypeName.Contains(TEXT("array")))
+					else if (ExactTypeName.Contains(TEXT("array")))
 					{
 						XLSXHeader.CellType = ECellType::TArray;
 						FString Param = Helper::ExtractSubstring(TypeName, TEXT("<"), TEXT(">"));
@@ -488,7 +491,6 @@ bool UXLSXFactory::GenerateXLSXSheet(const FString& FileName)
 
 					HeaderNames.Emplace(HeaderName);
 					Headers.Emplace(HeaderName, XLSXHeader);
-					//Sheet.Headers.Emplace(Index, XLSXHeader);
 				}
 			}	// ~헤더 정보 저장
 
@@ -500,9 +502,6 @@ bool UXLSXFactory::GenerateXLSXSheet(const FString& FileName)
 				OpenXLSX::XLRow DataRow = WorkSheet.row(i);
 				auto DataRowIter = DataRow.cells().begin();
 
-				//auto& CellDatas = HeaderValues
-				//TArray<FString> Datas;
-				//Datas.Reserve(Headers.Num());
 				TMap<FString, FString> Datas;
 				for (int32 Index = 0; DataRowIter != DataRow.cells().end(); ++Index, ++DataRowIter)
 				{
@@ -526,11 +525,8 @@ bool UXLSXFactory::GenerateXLSXSheet(const FString& FileName)
 						HeaderValue = Value;
 					}
 
-					//const FXLSXHeader& Header = Sheet.Headers[Index];
-					//Datas.Emplace(TTuple<int32, FString>{Index, Value});
 				}
 				HeaderValues.Emplace(Datas);
-				//Sheet.Datas.Emplace(Datas);
 			}
 			
 			for (auto& [Name, Header] : Headers)

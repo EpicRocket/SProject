@@ -51,11 +51,10 @@ namespace Helper
 		int32 StartIndex = FullString.Find(StartDelimiter, ESearchCase::IgnoreCase, ESearchDir::FromStart);
 		if (StartIndex != INDEX_NONE)
 		{
-			StartIndex += StartDelimiter.Len();
-			int32 EndIndex = FullString.Find(EndDelimiter, ESearchCase::IgnoreCase, ESearchDir::FromEnd, StartIndex);
+			int32 EndIndex = FullString.Find(EndDelimiter, ESearchCase::IgnoreCase, ESearchDir::FromEnd);
 			if (EndIndex != INDEX_NONE)
 			{
-				Result = FullString.Mid(StartIndex, EndIndex - StartIndex);
+				Result = FullString.Mid(StartIndex + 1, EndIndex - (StartIndex + 1));
 			}
 		}
 		return Result;
