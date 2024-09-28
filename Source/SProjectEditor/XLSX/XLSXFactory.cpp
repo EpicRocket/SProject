@@ -361,6 +361,7 @@ bool UXLSXFactory::GenerateXLSXSheet(const FString& FileName)
 					if (Headers.Contains(HeaderName))
 					{
 						// NOTE: 배열일 수도 있다.
+						HeaderNames.Emplace(HeaderName);
 						continue;
 					}
 
@@ -503,7 +504,7 @@ bool UXLSXFactory::GenerateXLSXSheet(const FString& FileName)
 				auto DataRowIter = DataRow.cells().begin();
 
 				TMap<FString, FString> Datas;
-				for (int32 Index = 0; DataRowIter != DataRow.cells().end(); ++Index, ++DataRowIter)
+				for (int32 Index = 0; DataRowIter != DataRow.cells().end(); ++DataRowIter, ++Index)
 				{
 					// 헤더에 미포함된 데이터 값
 					if (!HeaderNames.IsValidIndex(Index))
@@ -516,7 +517,7 @@ bool UXLSXFactory::GenerateXLSXSheet(const FString& FileName)
 
 					auto& RowData = DataRowIter->value();
 					FString Value = XLSX::GetXLSXValue<FString>(RowData);
-					if (Header.CellType == ECellType::TArray)
+					if (Header.CellType == ECellType::TArray && !HeaderValue.IsEmpty())
 					{
 						HeaderValue = FString::Join(TArray<FString>{ HeaderValue, Value }, TEXT(","));
 					}
@@ -524,7 +525,6 @@ bool UXLSXFactory::GenerateXLSXSheet(const FString& FileName)
 					{
 						HeaderValue = Value;
 					}
-
 				}
 				HeaderValues.Emplace(Datas);
 			}
