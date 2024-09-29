@@ -3,12 +3,15 @@
 // include Engine
 #include "Engine/Engine.h"
 #include "Engine/World.h"
+#include "Engine/LatentActionManager.h"
 #include "Engine/LevelStreaming.h"
 #include "Engine/LevelStreamingDynamic.h"
+#include "Engine/Level.h"
 #include "GameFramework/PlayerController.h"
 #include "Misc/PackageName.h"
 #include "Kismet/KismetSystemLibrary.h"
 // include Project
+#include "MyGameLevel.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(GameWorldSubsystem)
 
@@ -33,24 +36,6 @@ void UGameWorldSubsystem::OnWorldBeginPlay(UWorld& InWorld)
 
 		StreamingLevels.Emplace(LevelStreaming);
 	}
-}
-
-ULevelStreamingDynamic* UGameWorldSubsystem::GetLevelStreamingDynamic(TSoftObjectPtr<UWorld> Level) const
-{
-	for (const auto& LevelStreaming : StreamingLevels)
-	{
-		if (!LevelStreaming.IsValid())
-		{
-			continue;
-		}
-
-		if (LevelStreaming->GetWorldAsset() == Level)
-		{
-			return Cast<ULevelStreamingDynamic>(LevelStreaming.Get());
-		}
-	}
-
-	return nullptr;
 }
 
 bool UGameWorldSubsystem::RequestLoadGameWorld(const TSoftObjectPtr<UWorld> Level, bool bMakeVisibleAfterLoad, bool bShouldBlockOnLoad, FLatentActionInfo LatentInfo)
@@ -127,6 +112,31 @@ bool UGameWorldSubsystem::IsDoingLoadGameWorld() const
 bool UGameWorldSubsystem::IsDoingUnloadGameWorld() const
 {
 	return ScheduledUnloadedLevels.Num() > 0;
+}
+
+AMyGameLevel* UGameWorldSubsystem::FindLoadedLevel(TSoftObjectPtr<UWorld> Level)
+{
+	AMyGameLevel* LoadedLevel = nullptr;
+	for (auto& StreamingLevel : StreamingLevels)
+	{
+		if (!StreamingLevel.IsValid())
+		{
+			continue;
+		}
+
+		if (!StreamingLevel->IsLevelLoaded())
+		{
+			continue;
+		}
+
+		if (StreamingLevel->GetWorldAsset() == Level)
+		{
+			LoadedLevel = Cast<AMyGameLevel>(StreamingLevel->GetLoadedLevel());
+			break;
+		}
+	}
+
+	return LoadedLevel;
 }
 
 FString UGameWorldSubsystem::MakeSafeLevelName(const FName& LevelName) const

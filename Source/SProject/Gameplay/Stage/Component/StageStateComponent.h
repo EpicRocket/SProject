@@ -9,33 +9,54 @@
 
 class UStageDataAsset;
 class AStageLevel;
+class UWorld;
 struct FGErrorInfo;
+struct FLatentActionInfo;
 
 UCLASS()
 class MY_API UStageStateComponent : public UGameStateComponent, public IGLoadingProcessInterface
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
 public:
-    virtual void InitializeComponent() override;
-    
-    virtual void BeginPlay() override;
-
-    // IGLoadingProcessInterface
-    virtual bool ShouldShowLoadingScreen(FString& OutReason) const override;
-    // ~IGLoadingProcessInterface
+	virtual void InitializeComponent() override;
+	
+	// IGLoadingProcessInterface
+	virtual bool ShouldShowLoadingScreen(FString& OutReason) const override;
+	// ~IGLoadingProcessInterface
 
 public:
 	UFUNCTION(BlueprintCallable)
-    FGErrorInfo SetLevel(int32 Level);
+	FGErrorInfo SetLevel(int32 Level);
+
+protected:
+	UFUNCTION(BlueprintCallable, meta = (Latent, LatentInfo = "LatentInfo"))
+	FGErrorInfo OnLoadStage(FLatentActionInfo LatentInfo);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnLoadStreaming();
+
+	UFUNCTION(BlueprintCallable)
+	void FailLoadLevel();
+
+	UFUNCTION(BlueprintCallable)
+	void SuccessLoadLevel();
+
+	void OnLoadLevelCompleted();
+	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "OnLoadCompleted"))
+	void K2_OnLoadLevelCompleted();
 
 public:
-    UPROPERTY(EditDefaultsOnly, Category = "에셋")
-    TSoftObjectPtr<UStageDataAsset> StageDataAsset;
+	UPROPERTY(EditDefaultsOnly, Category = "에셋")
+	TSoftObjectPtr<UStageDataAsset> StageDataAsset;
 
 	UPROPERTY(Transient, BlueprintReadOnly)
-    TWeakObjectPtr<AStageLevel> TargetStage;
+	TWeakObjectPtr<AStageLevel> TargetStage;
+
+protected:
+	UPROPERTY(Transient, BlueprintReadOnly)
+	TSoftObjectPtr<UWorld> LoadLevel;
 
 private:
-    bool bLoadCompleted = false;
+	bool bLoadCompleted = false;
 };

@@ -11,7 +11,7 @@ class UGAbilitySystemComponent;
 enum class EGameplayEffectReplicationMode : uint8;
 
 UCLASS(BlueprintType, Blueprintable)
-class GGAMECORE_API AGGameState : public AGameStateBase, public IAbilitySystemInterface
+class GGAMECORE_API AGGameState : public AGameState, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 
