@@ -131,7 +131,7 @@ AMyGameLevel* UGameWorldSubsystem::FindLoadedLevel(TSoftObjectPtr<UWorld> Level)
 
 		if (StreamingLevel->GetWorldAsset() == Level)
 		{
-			LoadedLevel = Cast<AMyGameLevel>(StreamingLevel->GetLoadedLevel());
+			LoadedLevel = Cast<AMyGameLevel>(StreamingLevel->GetLevelScriptActor());
 			break;
 		}
 	}
