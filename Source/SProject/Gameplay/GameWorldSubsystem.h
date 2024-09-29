@@ -5,8 +5,6 @@
 
 #include "GameWorldSubsystem.generated.h"
 
-DECLARE_LOG_CATEGORY_EXTERN(LogGameplay, Log, All);
-
 class UWorld;
 class ULevelStreaming;
 class AMyGameLevel;

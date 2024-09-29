@@ -126,10 +126,28 @@ FGErrorInfo UStageStateComponent::OnLoadStage(FLatentActionInfo LatentInfo)
 		return FGErrorInfo(EGErrType::Warning, TEXT(""), FText{});
 	}
 
-	FStageLoadAction* NewAction = new FStageLoadAction(LatentInfo, GetWorld(), [] {}, [] {});
+	FGErrorInfo ErrorInfo;
+
+	auto OnSuccess = [&ErrorInfo, ThisPtr = TWeakObjectPtr<UStageStateComponent>(this)]
+		{
+			if (ThisPtr.IsValid())
+			{
+				
+			}
+		};
+
+	auto OnFailed = [&ErrorInfo, ThisPtr = TWeakObjectPtr<UStageStateComponent>(this)]
+		{
+			if (ThisPtr.IsValid())
+			{
+				ErrorInfo.ErrType = EGErrType::Error;
+			}
+		};
+
+	FStageLoadAction* NewAction = new FStageLoadAction(LatentInfo, GetWorld(), OnSuccess, OnFailed);
 	LatentManager.AddNewAction(LatentInfo.CallbackTarget, LatentInfo.UUID, NewAction);
 
-	return FGErrorInfo{};
+	return ErrorInfo;
 }
 
 void UStageStateComponent::FailLoadLevel()
@@ -163,5 +181,7 @@ void UStageStateComponent::SuccessLoadLevel()
 
 void UStageStateComponent::OnLoadLevelCompleted()
 {
+
+
 	K2_OnLoadLevelCompleted();
 }

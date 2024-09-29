@@ -3,6 +3,7 @@
 // include Project
 #include "StageLogging.h"
 #include "ETC/StageBuildZone.h"
+#include "StagePlayerPawn.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(StageLevel)
 
@@ -76,6 +77,11 @@ AStageBuildZone* AStageLevel::GetBuildZone(int32 Position) const
 	}
 
 	return BuildZone.Get();
+}
+
+void AStageLevel::SetPlayerPawn(AStagePlayerPawn* InPlayerPawn)
+{
+	PlayerPawn = InPlayerPawn;
 }
 
 //ATowerBase* AStageLevel::GetTower(int32 Position) const

@@ -6,6 +6,7 @@
 #include "StageLevel.generated.h"
 
 class AStageBuildZone;
+class AStagePlayerPawn;
 
 UCLASS()
 class MY_API AStageLevel : public AMyGameLevel
@@ -27,8 +28,8 @@ public:
     UFUNCTION(BlueprintCallable)
     AStageBuildZone* GetBuildZone(int32 Position) const;
 
-    //UFUNCTION(BlueprintCallable)
-    //ATowerBase* GetTower(int32 Position) const;
+	UFUNCTION(BlueprintCallable)
+	void SetPlayerPawn(AStagePlayerPawn* InPlayerPawn);
 
 protected:
     UFUNCTION(BlueprintImplementableEvent)
@@ -36,4 +37,7 @@ protected:
 
 public:
     TMap<int32, TWeakObjectPtr<AStageBuildZone>> BuildZones;
+
+    UPROPERTY(Transient, BlueprintReadOnly)
+	TWeakObjectPtr<AStagePlayerPawn> PlayerPawn;
 };

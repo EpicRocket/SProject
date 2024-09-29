@@ -12,10 +12,9 @@
 #include "Kismet/KismetSystemLibrary.h"
 // include Project
 #include "MyGameLevel.h"
+#include "GameplayLogging.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(GameWorldSubsystem)
-
-DEFINE_LOG_CATEGORY(LogGameplay);
 
 
 void UGameWorldSubsystem::OnWorldBeginPlay(UWorld& InWorld)
