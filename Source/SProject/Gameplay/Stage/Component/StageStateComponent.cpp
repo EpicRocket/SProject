@@ -4,11 +4,10 @@
 #include "Engine/World.h"
 #include "Engine/LevelStreamingDynamic.h"
 #include "Engine/LatentActionManager.h"
-#include "LatentActions.h"
 #include "Kismet/KismetSystemLibrary.h"
-#include "GameFramework/PlayerController.h"
 // include GameCore
 #include "Error/GErrorManager.h"
+#include "Core/GGameLoadAction.h"
 // include Project
 #include "Table/TableSubsystem.h"
 #include "Table/StageInfoTable.h"
@@ -19,64 +18,6 @@
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(StageStateComponent)
 
-//////////////////////////////////////////////////////////////////////////
-class FStageLoadAction : public FPendingLatentAction
-{
-public:
-	FLatentActionInfo LatentInfo;
-	TWeakObjectPtr<UWorld> WorldPtr;
-	TFunction<void()> OnCompleted;
-	TFunction<void()> OnFailed;
-
-	FStageLoadAction(const FLatentActionInfo& InLatentInfo, UWorld* World, TFunction<void()> CompletedCallback, TFunction<void()> FailedCallback)
-		: LatentInfo(InLatentInfo)
-		, WorldPtr(World)
-		, OnCompleted(CompletedCallback)
-		, OnFailed(FailedCallback)
-	{
-	}
-
-	virtual void UpdateOperation(FLatentResponse& Response) override
-	{
-		if (!WorldPtr.IsValid())
-		{
-			OnFailed();
-			Response.FinishAndTriggerIf(true, LatentInfo.ExecutionFunction, LatentInfo.Linkage, LatentInfo.CallbackTarget);
-			return;
-		}
-		
-		auto FirstPC = WorldPtr->GetFirstPlayerController();
-		if (!FirstPC)
-		{
-			return;
-		}
-		else if (!FirstPC->HasActorBegunPlay())
-		{
-			return;
-		}
-
-		auto MyPC = Cast<AMyPlayerController>(FirstPC);
-		if (!MyPC)
-		{
-			OnFailed();
-			Response.FinishAndTriggerIf(true, LatentInfo.ExecutionFunction, LatentInfo.Linkage, LatentInfo.CallbackTarget);
-			return;
-		}
-
-		OnCompleted();
-		Response.FinishAndTriggerIf(true, LatentInfo.ExecutionFunction, LatentInfo.Linkage, LatentInfo.CallbackTarget);
-	}
-
-#if WITH_EDITOR
-	virtual FString GetDescription() const override
-	{
-		return TEXT("스테이지 로드 중...");
-	}
-#endif
-};
-
-
-//////////////////////////////////////////////////////////////////////////
 
 void UStageStateComponent::InitializeComponent()
 {
@@ -120,7 +61,7 @@ FGErrorInfo UStageStateComponent::OnLoadStage(FLatentActionInfo LatentInfo)
 	}
 
 	FLatentActionManager& LatentManager = World->GetLatentActionManager();
-	if (LatentManager.FindExistingAction<FStageLoadAction>(LatentInfo.CallbackTarget, LatentInfo.UUID) != nullptr)
+	if (LatentManager.FindExistingAction<FGGameLoadAction>(LatentInfo.CallbackTarget, LatentInfo.UUID) != nullptr)
 	{
 		UKismetSystemLibrary::DelayUntilNextTick(World, LatentInfo);
 		return FGErrorInfo(EGErrType::Warning, TEXT(""), FText{});
@@ -144,7 +85,7 @@ FGErrorInfo UStageStateComponent::OnLoadStage(FLatentActionInfo LatentInfo)
 			}
 		};
 
-	FStageLoadAction* NewAction = new FStageLoadAction(LatentInfo, GetWorld(), OnSuccess, OnFailed);
+	FGGameLoadAction* NewAction = new FGGameLoadAction(LatentInfo, GetWorld(), OnSuccess, OnFailed);
 	LatentManager.AddNewAction(LatentInfo.CallbackTarget, LatentInfo.UUID, NewAction);
 
 	return ErrorInfo;
