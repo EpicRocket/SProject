@@ -6,8 +6,8 @@
 
 #include "MyUIPolicy.h"
 #include "MyUISubsystem.h"
-#include "GameFramework/MyLocalPlayer.h"
-#include "GameFramework/MyPlayerController.h"
+#include "Core/MyLocalPlayer.h"
+#include "Core/MyPlayerController.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(MyGameLayout)
 

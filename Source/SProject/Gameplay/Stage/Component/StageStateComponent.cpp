@@ -5,6 +5,7 @@
 #include "Engine/LevelStreamingDynamic.h"
 #include "Engine/LatentActionManager.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "GameFramework/PlayerController.h"
 // include GameCore
 #include "Error/GErrorManager.h"
 #include "Core/GGameLoadAction.h"
@@ -14,7 +15,6 @@
 #include "Gameplay/Stage/StageLevel.h"
 #include "Gameplay/Stage/Error/StageTableError.h"
 #include "Gameplay/GameWorldSubsystem.h"
-#include "GameFramework/MyPlayerController.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(StageStateComponent)
 
@@ -69,12 +69,14 @@ FGErrorInfo UStageStateComponent::OnLoadStage(FLatentActionInfo LatentInfo)
 
 	FGErrorInfo ErrorInfo;
 
-	auto OnSuccess = [&ErrorInfo, ThisPtr = TWeakObjectPtr<UStageStateComponent>(this)]
+	auto OnSuccess = [this, World, &ErrorInfo, ThisPtr = TWeakObjectPtr<UStageStateComponent>(this)](APlayerController* PrimaryPlayerController)
 		{
-			if (ThisPtr.IsValid())
+			if (!ThisPtr.IsValid())
 			{
-				
+				return;
 			}
+			
+			PrimaryPC = PrimaryPlayerController;
 		};
 
 	auto OnFailed = [&ErrorInfo, ThisPtr = TWeakObjectPtr<UStageStateComponent>(this)]
@@ -122,7 +124,5 @@ void UStageStateComponent::SuccessLoadLevel()
 
 void UStageStateComponent::OnLoadLevelCompleted()
 {
-
-
 	K2_OnLoadLevelCompleted();
 }

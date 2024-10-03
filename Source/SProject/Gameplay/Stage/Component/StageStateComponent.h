@@ -10,6 +10,7 @@
 class UStageDataAsset;
 class AStageLevel;
 class UWorld;
+class APlayerController;
 struct FGErrorInfo;
 struct FLatentActionInfo;
 
@@ -42,7 +43,9 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void SuccessLoadLevel();
 
+	UFUNCTION()
 	void OnLoadLevelCompleted();
+	
 	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "OnLoadCompleted"))
 	void K2_OnLoadLevelCompleted();
 
@@ -51,12 +54,16 @@ public:
 	TSoftObjectPtr<UStageDataAsset> StageDataAsset;
 
 	UPROPERTY(Transient, BlueprintReadOnly)
+	TWeakObjectPtr<APlayerController> PrimaryPC;
+
+	UPROPERTY(Transient, BlueprintReadOnly)
 	TWeakObjectPtr<AStageLevel> TargetStage;
 
 protected:
 	UPROPERTY(Transient, BlueprintReadOnly)
 	TSoftObjectPtr<UWorld> LoadLevel;
 
-private:
+	// 로딩 완료 여부 테스트를 위해 우선 UPROPERTY로 뺌
+	UPROPERTY(Transient, BlueprintReadWrite)
 	bool bLoadCompleted = false;
 };

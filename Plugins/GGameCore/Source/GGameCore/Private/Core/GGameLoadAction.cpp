@@ -33,7 +33,7 @@ void FGGameLoadAction::UpdateOperation(FLatentResponse& Response)
 		return;
 	}
 
-	OnCompleted();
+	OnCompleted(PrimaryController);
 	Response.FinishAndTriggerIf(true, LatentInfo.ExecutionFunction, LatentInfo.Linkage, LatentInfo.CallbackTarget);
 }
 

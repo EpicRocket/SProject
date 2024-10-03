@@ -1,7 +1,7 @@
 ﻿
 #pragma once
 
-#include "GameFramework/MyPlayerController.h"
+#include "Core/MyPlayerController.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 
 #include "StagePlayerController.generated.h"

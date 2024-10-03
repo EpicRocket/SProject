@@ -115,27 +115,20 @@ bool UGameWorldSubsystem::IsDoingUnloadGameWorld() const
 
 AMyGameLevel* UGameWorldSubsystem::FindLoadedLevel(TSoftObjectPtr<UWorld> Level)
 {
-	AMyGameLevel* LoadedLevel = nullptr;
-	for (auto& StreamingLevel : StreamingLevels)
+	const FName LevelName = FName(*FPackageName::ObjectPathToPackageName(Level.ToString()));
+	auto LevelStreaming = FindAndCacheLevelStreamingObject(LevelName);
+
+	if (LevelStreaming == nullptr)
 	{
-		if (!StreamingLevel.IsValid())
-		{
-			continue;
-		}
-
-		if (!StreamingLevel->IsLevelLoaded())
-		{
-			continue;
-		}
-
-		if (StreamingLevel->GetWorldAsset() == Level)
-		{
-			LoadedLevel = Cast<AMyGameLevel>(StreamingLevel->GetLevelScriptActor());
-			break;
-		}
+		return nullptr;
 	}
 
-	return LoadedLevel;
+	if (!LevelStreaming->IsLevelLoaded())
+	{
+		return nullptr;
+	}
+
+	return Cast<AMyGameLevel>(LevelStreaming->GetLevelScriptActor());
 }
 
 FString UGameWorldSubsystem::MakeSafeLevelName(const FName& LevelName) const
