@@ -5,6 +5,20 @@
 
 #include "StageBuildZone.generated.h"
 
+struct FBuildStageTower;
+
+USTRUCT(BlueprintType)
+struct MY_API FStageBuildContent
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    int32 Kind = 0;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    int32 Level = 0;
+};
+
 UCLASS(Abstract, BlueprintType, Blueprintable)
 class MY_API AStageBuildZone : public AActor
 {
@@ -23,6 +37,9 @@ public:
     UFUNCTION(BlueprintCallable)
     void Deselect();
 
+    UFUNCTION(BlueprintPure)
+    TArray<FBuildStageTower> GetBuildTower();
+
 protected:
     UFUNCTION(BlueprintImplementableEvent)
     void OnReset();
@@ -36,7 +53,7 @@ protected:
     //UFUNCTION(BlueprintImplementableEvent)
     //void OnBuild(ATowerBase* Tower);
 
-private:
-    //UPROPERTY(Transient)
-    //TObjectPtr<ATowerBase> SpawendTower;
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	TArray<FStageBuildContent> BuildContents;
 };

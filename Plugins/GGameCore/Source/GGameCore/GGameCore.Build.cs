@@ -29,6 +29,7 @@ public class GGameCore : ModuleRules
 				"SlateCore",
 				"UMG",
 				"Core",
+                "InputCore",
                 "RenderCore",
                 "DeveloperSettings",
             }

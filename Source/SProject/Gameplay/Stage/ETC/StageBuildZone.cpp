@@ -2,6 +2,7 @@
 #include "StageBuildZone.h"
 // include Project
 #include "Gameplay/GameplayFunctionLibrary.h"
+#include "TableRepository/StageTableRepository.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(StageBuildZone)
 
@@ -42,6 +43,18 @@ void AStageBuildZone::Select()
 void AStageBuildZone::Deselect()
 {
 	OnDeselect();
+}
+
+TArray<FBuildStageTower> AStageBuildZone::GetBuildTower()
+{
+	TArray<FBuildStageTower> Result;
+
+	for (auto& Content : BuildContents)
+	{
+		
+	}
+
+	return Result;
 }
 
 //void AStageBuildZone::Build(TSubclassOf<ATowerBase> TowerClass)
