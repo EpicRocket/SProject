@@ -4,6 +4,7 @@
 #include "Engine/Engine.h"
 #include "Engine/Texture2D.h"
 // include Project
+#include "Table/TableSubsystem.h"
 #include "Table/TowerTable.h"
 #include "TableTypes/StageTableTypes.h"
 
@@ -20,12 +21,15 @@ UStageTableRepository* UStageTableRepository::Get()
 
 void UStageTableRepository::Load()
 {
-	// TODO:	
+	auto TableSubsystem = UTableSubsystem::Get();
+
+
+
 }
 
 void UStageTableRepository::Unload()
 {
-	// TODO:
+	TowerTableRows.Empty();
 }
 
 bool UStageTableHelper::GetBuildStageTower(int32 Kind, int32 Level, FBuildStageTower& Result)
