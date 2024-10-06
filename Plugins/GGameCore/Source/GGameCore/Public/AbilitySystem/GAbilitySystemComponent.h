@@ -2,7 +2,7 @@
 #pragma once
 
 #include "AbilitySystemComponent.h"
-#include "AbilitySystem/GGameplayAbility.h"
+#include "AbilitySystem/Abilities/GGameplayAbility.h"
 #include "NativeGameplayTags.h"
 
 #include "GAbilitySystemComponent.generated.h"
@@ -24,6 +24,9 @@ public:
     void CancelAbilitiesByFunc(TShouldCancelAbilityFunc ShouldCancelFunc, bool bReplicateCancelAbility);
 
     bool IsActivationGroupBlocked(EGAbilityActivationGroup Group) const;
+    void AddAbilityToActivationGroup(EGAbilityActivationGroup Group, UGGameplayAbility* LyraAbility);
+    void RemoveAbilityFromActivationGroup(EGAbilityActivationGroup Group, UGGameplayAbility* LyraAbility);
+    void CancelActivationGroupAbilities(EGAbilityActivationGroup Group, UGGameplayAbility* IgnoreLyraAbility, bool bReplicateCancelAbility);
 
     /** Gets the ability target data associated with the given ability handle and activation info */
     void GetAbilityTargetData(const FGameplayAbilitySpecHandle AbilityHandle, FGameplayAbilityActivationInfo ActivationInfo, FGameplayAbilityTargetDataHandle& OutTargetDataHandle);

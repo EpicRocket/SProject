@@ -1,11 +1,14 @@
 ﻿
-#include "AbilitySystem/GGameplayAbility.h"
+#include "AbilitySystem/Abilities/GGameplayAbility.h"
+#include "GLogChannels.h"
 #include "AbilitySystem/GAbilitySystemComponent.h"
+#include "AbilitySystemLog.h"
 #include "Unit/UnitCharacter.h"
 #include "GGameplayTags.h"
-#include "AbilitySystem/GAbilityCost.h"
+#include "AbilitySystem/Abilities/GAbilityCost.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystem/GAbilitySourceInterface.h"
+#include "AbilitySystem/GGamePlayEffectContext.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(GGameplayAbility)
 
@@ -69,6 +72,59 @@ void UGGameplayAbility::TryActivateAbilityOnSpawn(const FGameplayAbilityActorInf
 	}
 }
 
+bool UGGameplayAbility::CanChangeActivationGroup(EGAbilityActivationGroup NewGroup) const
+{
+	if (!IsInstantiated() || !IsActive())
+	{
+		return false;
+	}
+
+	if (ActivationGroup == NewGroup)
+	{
+		return true;
+	}
+
+	UGAbilitySystemComponent* GASC = GetGAbilitySystemComponentFromActorInfo();
+	check(GASC);
+
+	if ((ActivationGroup != EGAbilityActivationGroup::Exclusive_Blocking) && GASC->IsActivationGroupBlocked(NewGroup))
+	{
+		// This ability can't change groups if it's blocked (unless it is the one doing the blocking).
+		return false;
+	}
+
+	if ((NewGroup == EGAbilityActivationGroup::Exclusive_Replaceable) && !CanBeCanceled())
+	{
+		// This ability can't become replaceable if it can't be canceled.
+		return false;
+	}
+
+	return true;
+}
+
+bool UGGameplayAbility::ChangeActivationGroup(EGAbilityActivationGroup NewGroup)
+{
+	ENSURE_ABILITY_IS_INSTANTIATED_OR_RETURN(ChangeActivationGroup, false);
+
+	if (!CanChangeActivationGroup(NewGroup))
+	{
+		return false;
+	}
+
+	if (ActivationGroup != NewGroup)
+	{
+		UGAbilitySystemComponent* GASC = GetGAbilitySystemComponentFromActorInfo();
+		check(GASC);
+
+		GASC->RemoveAbilityFromActivationGroup(ActivationGroup, this);
+		GASC->AddAbilityToActivationGroup(NewGroup, this);
+
+		ActivationGroup = NewGroup;
+	}
+
+	return true;
+}
+
 void UGGameplayAbility::NativeOnAbilityFailedToActivate(const FGameplayTagContainer& FailedReason) const
 {
 	
@@ -106,7 +162,7 @@ void UGGameplayAbility::SetCanBeCanceled(bool bCanBeCanceled)
 	// The ability can not block canceling if it's replaceable.
 	if (!bCanBeCanceled && (ActivationGroup == EGAbilityActivationGroup::Exclusive_Replaceable))
 	{
-		//UE_LOG(LogLyraAbilitySystem, Error, TEXT("SetCanBeCanceled: Ability [%s] can not block canceling because its activation group is replaceable."), *GetName());
+		UE_LOG(LogGAbilitySystem, Error, TEXT("SetCanBeCanceled: Ability [%s] can not block canceling because its activation group is replaceable."), *GetName());
 		return;
 	}
 
@@ -217,6 +273,31 @@ void UGGameplayAbility::ApplyCost(const FGameplayAbilitySpecHandle Handle, const
 	}
 }
 
+FGameplayEffectContextHandle UGGameplayAbility::MakeEffectContext(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo) const
+{
+	FGameplayEffectContextHandle ContextHandle = Super::MakeEffectContext(Handle, ActorInfo);
+
+	FGGameplayEffectContext* EffectContext = FGGameplayEffectContext::ExtractEffectContext(ContextHandle);
+	check(EffectContext);
+
+	check(ActorInfo);
+
+	AActor* EffectCauser = nullptr;
+	const IGAbilitySourceInterface* AbilitySource = nullptr;
+	float SourceLevel = 0.0f;
+	GetAbilitySource(Handle, ActorInfo, /*out*/ SourceLevel, /*out*/ AbilitySource, /*out*/ EffectCauser);
+
+	UObject* SourceObject = GetSourceObject(Handle, ActorInfo);
+
+	AActor* Instigator = ActorInfo ? ActorInfo->OwnerActor.Get() : nullptr;
+
+	EffectContext->SetAbilitySource(AbilitySource, SourceLevel);
+	EffectContext->AddInstigator(Instigator, EffectCauser);
+	EffectContext->AddSourceObject(SourceObject);
+
+	return ContextHandle;
+}
+
 void UGGameplayAbility::OnPawnAvatarSet()
 {
 	K2_OnPawnAvatarSet();
@@ -235,4 +316,3 @@ void UGGameplayAbility::GetAbilitySource(FGameplayAbilitySpecHandle Handle, cons
 
 	OutAbilitySource = Cast<IGAbilitySourceInterface>(SourceObject);
 }
-	
