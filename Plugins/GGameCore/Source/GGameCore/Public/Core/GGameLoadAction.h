@@ -22,7 +22,7 @@ public:
 
 #if WITH_EDITOR
 	virtual FString GetDescription() const override;
-#endif;
+#endif
 
 private:
 	FLatentActionInfo LatentInfo;
