@@ -7,6 +7,7 @@
 #include "GGameplayTags.h"
 #include "AbilitySystem/Abilities/GAbilityCost.h"
 #include "AbilitySystemBlueprintLibrary.h"
+#include "AbilitySystem/Abilities/GAbilitySimpleFailureMessage.h"
 #include "AbilitySystem/GAbilitySourceInterface.h"
 #include "AbilitySystem/GGamePlayEffectContext.h"
 
@@ -127,7 +128,7 @@ bool UGGameplayAbility::ChangeActivationGroup(EGAbilityActivationGroup NewGroup)
 
 void UGGameplayAbility::NativeOnAbilityFailedToActivate(const FGameplayTagContainer& FailedReason) const
 {
-	
+	// TODO
 }
 
 
