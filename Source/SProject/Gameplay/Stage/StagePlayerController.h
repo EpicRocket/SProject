@@ -6,8 +6,6 @@
 
 #include "StagePlayerController.generated.h"
 
-struct FTowerTableRow;
-
 UENUM(BlueprintType)
 enum class EStagePlayerControllerMode : uint8
 {

@@ -7,12 +7,21 @@
 
 class UTexture2D;
 
+UENUM(BlueprintType)
+enum class EStageTowerType : uint8
+{
+    Normal = 0 UMETA(DisplayName = "일반"),
+};
+
 USTRUCT(BlueprintType)
 struct MY_API FBuildStageTower
 {
     GENERATED_BODY()
 
 public:
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    EStageTowerType TowerType = EStageTowerType::Normal;
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     int32 Index = 0;
 

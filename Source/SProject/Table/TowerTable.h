@@ -1,4 +1,4 @@
-// This is an automatically generated file. Do not modify it manually.
+// This is an automatically generated file. Do not modify it manually. [2024.10.12-19.39.27]
 #pragma once
 
 #include "CoreMinimal.h"
@@ -10,7 +10,7 @@ enum class EAttackType : uint8;
 class UTexture2D;
 
 USTRUCT(BlueprintType)
-struct SPROJECT_API FTowerTableRow : public FTableRowBase
+struct SPROJECT_API FNormalTowerTableRow : public FTableRowBase
 {
 	GENERATED_BODY()
 

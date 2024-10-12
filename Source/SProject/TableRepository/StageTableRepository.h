@@ -7,8 +7,9 @@
 
 #include "StageTableRepository.generated.h"
 
-struct FTowerTableRow;
+struct FNormalTowerTableRow;
 struct FBuildStageTower;
+enum class EStageTowerType : uint8;
 
 UCLASS()
 class MY_API UStageTableRepository : public UEngineSubsystem
@@ -24,7 +25,7 @@ public:
     void Unload();
 
 private:
-	TMap<int32/*Kind*/, TMap<int32/*Level*/, TSharedPtr<FTowerTableRow>>> TowerTableRows;
+	TMap<int32/*Kind*/, TMap<int32/*Level*/, TSharedPtr<FNormalTowerTableRow>>> NormalTowerTableRows;
 };
 
 UCLASS()
@@ -34,5 +35,5 @@ class MY_API UStageTableHelper : public UBlueprintFunctionLibrary
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "스테이지|타워|건설", meta = (ReturnDisplayName = "Find"))
-    bool GetBuildStageTower(int32 Kind, int32 Level, FBuildStageTower& Result);
+    bool GetBuildStageTower(EStageTowerType TowerType, int32 Kind, int32 Level, FBuildStageTower& Result);
 };

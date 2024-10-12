@@ -590,7 +590,7 @@ bool UXLSXFactory::GenerateXLSXSheet(const FString& FileName)
 FString UXLSXFactory::GenerateTableDesc(FString const& Filename)
 {
 	FString TableDesc;
-	TableDesc += FString::Printf(TEXT("// This is an automatically generated file. Do not modify it manually."));
+	TableDesc += FString::Printf(TEXT("// This is an automatically generated file. Do not modify it manually. [%s]"), *FDateTime::Now().ToString());
 	TableDesc += TEXT("\n");
 	TableDesc += TEXT("#pragma once");
 	TableDesc += TEXT("\n\n");

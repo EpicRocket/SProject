@@ -10,6 +10,9 @@
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(StageTableRepository)
 
+//////////////////////////////////////////////////////////////////////////
+// UStageTableRepository
+//////////////////////////////////////////////////////////////////////////
 UStageTableRepository* UStageTableRepository::Get()
 {
 	if (GEngine == NULL)
@@ -22,17 +25,35 @@ UStageTableRepository* UStageTableRepository::Get()
 void UStageTableRepository::Load()
 {
 	auto TableSubsystem = UTableSubsystem::Get();
+	if (!TableSubsystem)
+	{
+		return;
+	}
 
+	for (auto Row : TableSubsystem->GetTableDatas<FNormalTowerTableRow>())
+	{
+		if (Row == nullptr)
+		{
+			continue;
+		}
 
-
+		auto& Datas = NormalTowerTableRows.FindOrAdd(Row->Kind);
+		if (!Datas.Contains(Row->Level))
+		{
+			Datas.Emplace(Row->Level, MakeShared<FNormalTowerTableRow>(*Row));
+		}
+	}
 }
 
 void UStageTableRepository::Unload()
 {
-	TowerTableRows.Empty();
+	NormalTowerTableRows.Empty();
 }
 
-bool UStageTableHelper::GetBuildStageTower(int32 Kind, int32 Level, FBuildStageTower& Result)
+//////////////////////////////////////////////////////////////////////////
+// UStageTableHelper
+//////////////////////////////////////////////////////////////////////////
+bool UStageTableHelper::GetBuildStageTower(EStageTowerType TowerType, int32 Kind, int32 Level, FBuildStageTower& Result)
 {
 	auto Repository = UStageTableRepository::Get();
 	if (!Repository)
@@ -40,24 +61,32 @@ bool UStageTableHelper::GetBuildStageTower(int32 Kind, int32 Level, FBuildStageT
 		return false;
 	}
 
-	auto KindTable = Repository->TowerTableRows.Find(Kind);
-	if (!KindTable)
+	switch (TowerType)
 	{
-		return false;
-	}
+	case EStageTowerType::Normal:
+		auto KindTable = Repository->NormalTowerTableRows.Find(Kind);
+		if (!KindTable)
+		{
+			return false;
+		}
 
-	auto TowerRow = KindTable->Find(Level);
-	if (!TowerRow)
-	{
-		return false;
-	}
+		auto TowerRow = KindTable->Find(Level);
+		if (!TowerRow)
+		{
+			return false;
+		}
 
-	auto& TowerPtr = *TowerRow;
-	Result.Index = TowerPtr->Index;
-	Result.Kind = TowerPtr->Kind;
-	Result.Level = TowerPtr->Level;
-	Result.Name = TowerPtr->Name;
-	Result.Icon = TowerPtr->IconPath.LoadSynchronous();
+		auto& TowerPtr = *TowerRow;
+		Result.Index = TowerPtr->Index;
+		Result.Kind = TowerPtr->Kind;
+		Result.Level = TowerPtr->Level;
+		Result.Name = TowerPtr->Name;
+		// FIXME: 텍스쳐 로드는 로딩에서 미리 해둬야 함.
+		Result.Icon = TowerPtr->IconPath.LoadSynchronous();
+		break;
+
+	default: return false;
+	}
 
 	return true;
 }
