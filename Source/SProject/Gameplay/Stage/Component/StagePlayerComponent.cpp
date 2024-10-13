@@ -66,3 +66,23 @@ void UStagePlayerComponent::InteractionMouseEvent()
 		OnInteractionActor(HitActor);
 	}
 }
+
+void UStagePlayerComponent::SetHealth(int NewHealth)
+{
+	if (NewHealth < 0) {
+		Health = 0;
+	}
+	else {
+		Health = NewHealth;
+	}
+}
+
+void UStagePlayerComponent::SetUsePoint(int NewUsePoint)
+{
+	if (NewUsePoint < 0) {
+		UsePoint = 0;
+	}
+	else{
+		UsePoint = NewUsePoint;
+	}
+}

@@ -6,6 +6,7 @@
 // include Project
 #include "Table/TableSubsystem.h"
 #include "Table/TowerTable.h"
+#include "Table/StageInfoTable.h"
 #include "TableTypes/StageTableTypes.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(StageTableRepository)
@@ -43,11 +44,22 @@ void UStageTableRepository::Load()
 			Datas.Emplace(Row->Level, MakeShared<FNormalTowerTableRow>(*Row));
 		}
 	}
+
+	for (auto Row : TableSubsystem->GetTableDatas<FStageTableRow>())
+	{
+		if (Row == nullptr)
+		{
+			continue;
+		}
+
+		StageTableRows.Emplace(Row->Level, MakeShared<FStageTableRow>(*Row));
+	}
 }
 
 void UStageTableRepository::Unload()
 {
 	NormalTowerTableRows.Empty();
+	StageTableRows.Empty();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -89,6 +101,27 @@ bool UStageTableHelper::GetBuildStageTower(EStageTowerType TowerType, int32 Kind
 
 	default: return false;
 	}
+
+	return true;
+}
+
+bool UStageTableHelper::GetStageTableInfo(int32 Level, FStageTableRow& Result)
+{
+	auto Repository = UStageTableRepository::Get();
+	if (!Repository)
+	{
+		return false;
+	}
+
+	auto StageInfoRow = Repository->StageTableRows.Find(Level);
+	if (!StageInfoRow)
+	{
+		return false;
+	}
+
+	auto& StageInfoPtr = *StageInfoRow;
+	Result.Level = StageInfoPtr->Level;
+	Result.UsePoint = StageInfoPtr->UsePoint;
 
 	return true;
 }
