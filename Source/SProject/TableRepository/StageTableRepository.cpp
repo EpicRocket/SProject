@@ -64,6 +64,7 @@ bool UStageTableHelper::GetBuildStageTower(EStageTowerType TowerType, int32 Kind
 	switch (TowerType)
 	{
 	case EStageTowerType::Normal:
+	{
 		auto KindTable = Repository->NormalTowerTableRows.Find(Kind);
 		if (!KindTable)
 		{
@@ -83,7 +84,8 @@ bool UStageTableHelper::GetBuildStageTower(EStageTowerType TowerType, int32 Kind
 		Result.Name = TowerPtr->Name;
 		// FIXME: 텍스쳐 로드는 로딩에서 미리 해둬야 함.
 		Result.Icon = TowerPtr->IconPath.LoadSynchronous();
-		break;
+	}
+	break;
 
 	default: return false;
 	}
