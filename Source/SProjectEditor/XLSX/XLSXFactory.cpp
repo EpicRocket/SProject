@@ -309,6 +309,7 @@ bool UXLSXFactory::GenerateXLSXSheet(const FString& FileName)
 		{
 			FXLSXSheet Sheet{ .Name = Helper::UTF8ToTCHARString(SheetName) };
 			FString TypeDelimiters = Sheet.Name.Left(1);
+			Sheet.Name = Sheet.Name.RightChop(1);
 
 			if (TypeDelimiters.Equals(TEXT("!")))
 			{
@@ -317,6 +318,17 @@ bool UXLSXFactory::GenerateXLSXSheet(const FString& FileName)
 			else if (TypeDelimiters.Equals(TEXT("@")))
 			{
 				Sheet.AssetType = EAssetType::Enum;
+			}
+			else if(TypeDelimiters.Equals(TEXT("#")))
+			{
+				if (!GenerateConst(WorkBook.worksheet(SheetName), Sheet))
+				{
+					UE_LOG(LogTemp, Error, TEXT("Failed to generate const. [SheetName:%s]"), *Sheet.Name);
+					continue;
+				}
+				Sheet.AssetType = EAssetType::Constant;
+				CacheSheet.Emplace(Sheet);
+				continue;
 			}
 			else
 			{
@@ -587,21 +599,127 @@ bool UXLSXFactory::GenerateXLSXSheet(const FString& FileName)
 #endif
 }
 
+bool UXLSXFactory::GenerateConst(OpenXLSX::XLWorksheet WorkSheet, FXLSXSheet& Sheet)
+{
+	int32 RowCount = WorkSheet.rowCount();
+
+	if (RowCount < 2)
+	{
+		UE_LOG(LogTemp, Error, TEXT("sheet's row size is %d"), RowCount);
+		return false;
+	}
+
+	bool bValidKey = false;
+	bool bValidType = false;
+	bool bValidValue = false;
+
+	TMap<int32, FString> Keys;
+
+	uint32_t RowStart = 0;
+	{
+		OpenXLSX::XLRow ConstRow = WorkSheet.row(++RowStart);
+		auto ConstRowIter = ConstRow.cells().begin();
+
+		int32 Index = 0;
+		for (auto Iter = ConstRow.cells().begin(); Iter != ConstRow.cells().end(); ++Iter, ++Index)
+		{
+			auto& Cell = Iter->value();
+			auto HeaderName = Helper::UTF8ToTCHARString(Cell.get<std::string>());
+
+			if (HeaderName.Equals("Key"))
+			{
+				Keys.Emplace(Index, HeaderName);
+				bValidKey = true;
+			}
+			else if (HeaderName.Equals("Type"))
+			{
+				Keys.Emplace(Index, HeaderName);
+				bValidType = true;
+			}
+			else if (HeaderName.Equals("Value"))
+			{
+				Keys.Emplace(Index, HeaderName);
+				bValidValue = true;
+			}
+			else
+			{
+				continue;
+			}
+		}
+	}
+
+	bool bSuccess = true;
+	if (!bValidKey)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to find key header"));
+		bSuccess = false;
+	}
+	if (!bValidType)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to find type header"));
+		bSuccess = false;
+	}
+	if (!bValidValue)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to find value header"));
+		bSuccess = false;
+	}
+
+	if (!bSuccess)
+	{
+		return false;
+	}
+
+	for (int32 i = ++RowStart; i <= RowCount; ++i)
+	{
+		OpenXLSX::XLRow ConstRow = WorkSheet.row(i);
+		FXLSXConst ConstSheet;
+
+		int32 Index = 0;
+		for (auto Iter = ConstRow.cells().begin(); Iter != ConstRow.cells().end(); ++Iter, ++Index)
+		{
+			if (!Keys.Contains(Index))
+			{
+				continue;
+			}
+
+			auto& Cell = Iter->value();
+			auto CellValue = XLSX::GetXLSXValue<FString>(Cell);
+
+			if (Keys[Index].Equals(TEXT("Key")))
+			{
+				ConstSheet.Key = CellValue;
+			}
+			else if (Keys[Index].Equals(TEXT("Type")))
+			{
+				ConstSheet.Type = CellValue;
+			}
+			else if (Keys[Index].Equals(TEXT("Value")))
+			{
+				ConstSheet.Value = CellValue;
+			}
+		}
+
+		Sheet.Consts.Emplace(ConstSheet);
+	}
+
+	return true;
+}
+
 FString UXLSXFactory::GenerateTableDesc(FString const& Filename)
 {
 	FString TableDesc;
+	TArray<FString> Includes;
+	TArray<FString> Structs;
+	TArray<FString> Enums;
+	TArray<FString> Constants;
+
 	TableDesc += FString::Printf(TEXT("// This is an automatically generated file. Do not modify it manually. [%s]"), *FDateTime::Now().ToString());
 	TableDesc += TEXT("\n");
 	TableDesc += TEXT("#pragma once");
 	TableDesc += TEXT("\n\n");
 	TableDesc += TEXT("#include \"CoreMinimal.h\"");
 	TableDesc += TEXT("\n");
-	TableDesc += TEXT("#include \"Misc/EnumRange.h\"");
-	TableDesc += TEXT("\n");
-	TableDesc += TEXT("#include \"Engine/DataTable.h\"");
-	TableDesc += TEXT("\n");
-	TableDesc += FString::Printf(TEXT("#include \"%s.generated.h\""), *Filename);
-	TableDesc += TEXT("\n\n");
 
 	for (auto& ForwardDeclaration : ForwardDeclarations)
 	{
@@ -615,22 +733,24 @@ FString UXLSXFactory::GenerateTableDesc(FString const& Filename)
 		{
 		case EAssetType::Struct:
 		{
-			TableDesc += FString::Printf(TEXT("USTRUCT(BlueprintType)\n"));
-			TableDesc += FString::Printf(TEXT("struct %s F%sTableRow : public FTableRowBase\n"), Dependency_Module_API, *Sheet.Name);
-			TableDesc += TEXT("{\n");
-			TableDesc += TEXT("	GENERATED_BODY()\n");
+			FString Desc;
+
+			Desc += FString::Printf(TEXT("USTRUCT(BlueprintType)\n"));
+			Desc += FString::Printf(TEXT("struct %s F%sTableRow : public FTableRowBase\n"), Dependency_Module_API, *Sheet.Name);
+			Desc += TEXT("{\n");
+			Desc += TEXT("	GENERATED_BODY()\n");
 
 			for (auto& Header : Sheet.Headers)
 			{
-				TableDesc += TEXT("\n");
-				TableDesc += FString::Printf(TEXT("	UPROPERTY(EditAnywhere, BlueprintReadWrite)\n"));
+				Desc += TEXT("\n");
+				Desc += FString::Printf(TEXT("	UPROPERTY(EditAnywhere, BlueprintReadWrite)\n"));
 				if (Header.CellType == ECellType::Asset)
 				{
-					TableDesc += FString::Printf(TEXT("	TSoftObjectPtr<%s> %s = nullptr;"), *Header.Type, *Header.Name);
+					Desc += FString::Printf(TEXT("	TSoftObjectPtr<%s> %s = nullptr;"), *Header.Type, *Header.Name);
 				}
 				else if (Header.CellType == ECellType::Class)
 				{
-					TableDesc += FString::Printf(TEXT("	TSoftClassPtr<%s> %s = nullptr;"), *Header.Type, *Header.Name);
+					Desc += FString::Printf(TEXT("	TSoftClassPtr<%s> %s = nullptr;"), *Header.Type, *Header.Name);
 				}
 				else
 				{
@@ -646,25 +766,30 @@ FString UXLSXFactory::GenerateTableDesc(FString const& Filename)
 
 					if (InitailzieValue.IsEmpty())
 					{
-						TableDesc += FString::Printf(TEXT("	%s %s;"), *Header.Type, *Header.Name);
+						Desc += FString::Printf(TEXT("	%s %s;"), *Header.Type, *Header.Name);
 					}
 					else
 					{
-						TableDesc += FString::Printf(TEXT("	%s %s = %s;"), *Header.Type, *Header.Name, *InitailzieValue);
+						Desc += FString::Printf(TEXT("	%s %s = %s;"), *Header.Type, *Header.Name, *InitailzieValue);
 					}
 				}
-				TableDesc += TEXT("\n");
+				Desc += TEXT("\n");
 			}
-			TableDesc += TEXT("};\n");
-			TableDesc += TEXT("\n");
+			Desc += TEXT("};\n");
+			Desc += TEXT("\n");
+
+			Structs.Emplace(Desc);
+
 		}
 		break;
 
 		case EAssetType::Enum:
 		{
-			TableDesc += FString::Printf(TEXT("UENUM(BlueprintType)\n"));
-			TableDesc += FString::Printf(TEXT("enum class %s : uint8\n"), *Sheet.Name);
-			TableDesc += TEXT("{\n");
+			FString Desc;
+
+			Desc += FString::Printf(TEXT("UENUM(BlueprintType)\n"));
+			Desc += FString::Printf(TEXT("enum class %s : uint8\n"), *Sheet.Name);
+			Desc += TEXT("{\n");
 
 			for (int32 Index = 0; Index < Sheet.Datas.Num(); ++Index)
 			{
@@ -685,15 +810,155 @@ FString UXLSXFactory::GenerateTableDesc(FString const& Filename)
 					}
 					Count++;
 				}
-				TableDesc += FString::Printf(TEXT("	%s = %s,\n"), *Name, *Value);
+				Desc += FString::Printf(TEXT("	%s = %s,\n"), *Name, *Value);
 			}
-			TableDesc += TEXT("	Max UMETA(Hidden)\n");
-			TableDesc += TEXT("};\n");
-			TableDesc += FString::Printf(TEXT("ENUM_RANGE_BY_COUNT(%s, %s::Max)\n"), *Sheet.Name, *Sheet.Name);
-			TableDesc += TEXT("\n");
+			Desc += TEXT("	Max UMETA(Hidden)\n");
+			Desc += TEXT("};\n");
+			Desc += FString::Printf(TEXT("ENUM_RANGE_BY_COUNT(%s, %s::Max)\n"), *Sheet.Name, *Sheet.Name);
+			Desc += TEXT("\n");
+
+			Enums.Emplace(Desc);
 		}
 		break;
 
+		case EAssetType::Constant:
+		{
+			FString Desc;
+
+			Desc += FString::Printf(TEXT("UCLASS(Config=%s)"), Dependency_Module);
+			Desc += TEXT("\n");
+			Desc += FString::Printf(TEXT("class %s U%sSettings : public UDeveloperSettings\n"), Dependency_Module_API, *Sheet.Name);
+			Desc += TEXT("{\n");
+			Desc += TEXT("	GENERATED_BODY()\n");
+			Desc += TEXT("\n");
+			Desc += TEXT("public:");
+
+			for (auto& Const : Sheet.Consts)
+			{
+				Desc += TEXT("\n");
+				Desc += FString::Printf(TEXT("	UPROPERTY(Config, VisibleDefaultsOnly, BlueprintReadOnly, Category = \"Table\")\n"));
+				Desc += FString::Printf(TEXT("	%s %s;"), *Const.Type, *Const.Key, *Const.Value);
+				Desc += TEXT("\n");
+			}
+
+			Desc += TEXT("};\n");
+			Desc += TEXT("\n");
+
+			Constants.Emplace(Desc);
+		}
+		break;
+
+		}
+	}
+
+	if (Enums.Num() > 0)
+	{
+		TableDesc += TEXT("#include \"Misc/EnumRange.h\"");
+		TableDesc += TEXT("\n");
+	}
+
+	if (Structs.Num() > 0)
+	{
+		TableDesc += TEXT("#include \"Engine/DataTable.h\"");
+		TableDesc += TEXT("\n");
+	}
+
+	if (Constants.Num() > 0)
+	{
+		TableDesc += TEXT("#include \"Engine/DeveloperSettings.h\"");
+		TableDesc += TEXT("\n");
+	}
+
+	TableDesc += FString::Printf(TEXT("#include \"%s.generated.h\""), *Filename);
+	TableDesc += TEXT("\n\n");
+
+	for (auto& Desc : Enums)
+	{
+		TableDesc += Desc;
+	}
+
+	for (auto& Desc : Structs)
+	{
+		TableDesc += Desc;
+	}
+
+	for (auto& Desc : Constants)
+	{
+		TableDesc += Desc;
+	}
+
+	auto ModuleIni = FPaths::ProjectConfigDir() / FString::Printf(TEXT("Default%s.ini"), Dependency_Module);
+
+	for (auto& Sheet : CacheSheet)
+	{
+		auto Section = FString::Printf(TEXT("/Script/%s.U%sSettings"), Dependency_Module, *Sheet.Name);
+		GConfig->EmptySection(*Section, ModuleIni);
+
+		for (auto& Const : Sheet.Consts)
+		{
+			if (Const.Type.Contains(TEXT("bool")))
+			{
+				GConfig->SetBool(
+					*Section,
+					*Const.Key,
+					Const.Value.ToBool(),
+					ModuleIni
+				);
+			}
+			else if (Const.Type.Contains(TEXT("int32")))
+			{
+				GConfig->SetInt(
+					*Section,
+					*Const.Key,
+					FCString::Atoi(*Const.Value),
+					ModuleIni
+				);
+			}
+			else if (Const.Type.Contains(TEXT("int64")))
+			{
+				GConfig->SetInt(
+					*Section,
+					*Const.Key,
+					FCString::Atoi(*Const.Value),
+					ModuleIni
+				);
+			}
+			else if (Const.Type.Contains(TEXT("float")))
+			{
+				GConfig->SetFloat(
+					*Section,
+					*Const.Key,
+					FCString::Atof(*Const.Value),
+					ModuleIni
+				);
+			}
+			else if (Const.Type.Contains(TEXT("double")))
+			{
+				GConfig->SetDouble(
+					*Section,
+					*Const.Key,
+					FCString::Atod(*Const.Value),
+					ModuleIni
+				);
+			}
+			else if (Const.Type.Contains(TEXT("FString")))
+			{
+				GConfig->SetString(
+					*Section,
+					*Const.Key,
+					*Const.Value,
+					ModuleIni
+				);
+			}
+			else if (Const.Type.Contains(TEXT("FText")))
+			{
+				GConfig->SetText(
+					*Section,
+					*Const.Key,
+					FText::FromString(Const.Value),
+					ModuleIni
+				);
+			}
 		}
 	}
 
