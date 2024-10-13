@@ -36,6 +36,20 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "입력|이벤트")
 	void InteractionMouseEvent();
 
+public:
+	UFUNCTION(BlueprintCallable)
+	void SetHealth(int NewHealth);
+
+	UFUNCTION(BlueprintCallable)
+	void SetUsePoint(int NewUsePoint);
+
+protected:
+	UPROPERTY(BlueprintReadWrite, Category = "스테이지|자원")
+	int Health;
+
+	UPROPERTY(BlueprintReadWrite, Category = "스테이지|자원")
+	int UsePoint;
+
 protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnInteractionActor(AActor* HitActor);
