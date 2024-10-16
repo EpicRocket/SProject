@@ -7,6 +7,10 @@
 
 #include "XLSXFactory.generated.h"
 
+namespace OpenXLSX {
+	class XLWorksheet;
+}
+
 UCLASS(BlueprintType)
 class UTempTableAsset : public UObject
 {
@@ -24,6 +28,7 @@ public:
 		None,
 		Struct,
 		Enum,
+		Constant,
 	};
 
 	enum class ECellType : uint8
@@ -51,6 +56,13 @@ public:
 		int32 Index = INDEX_NONE;
 	};
 
+	struct FXLSXConst
+	{
+		FString Key;
+		FString Type;
+		FString Value;
+	};
+
 	struct FXLSXSheet
 	{
 		FString Name;
@@ -58,6 +70,7 @@ public:
 
 		TArray<FXLSXHeader> Headers;
 		TArray<TArray<FString>> Datas;
+		TArray<FXLSXConst> Consts;
 
 		bool IsEmpty() const
 		{
@@ -74,6 +87,8 @@ private:
 	static void OnComplete();
 
 	bool GenerateXLSXSheet(const FString& FileName);
+
+	bool GenerateConst(OpenXLSX::XLWorksheet WorkSheet, FXLSXSheet& Sheet);
 
 	FString GenerateTableDesc(FString const& Filename);
 
