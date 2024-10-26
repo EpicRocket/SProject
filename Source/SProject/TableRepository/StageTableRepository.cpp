@@ -68,10 +68,7 @@ void UStageTableRepository::Unload()
 bool UStageTableHelper::GetBuildStageTower(EStageTowerType TowerType, int32 Kind, int32 Level, FBuildStageTower& Result)
 {
 	auto Repository = UStageTableRepository::Get();
-	if (!Repository)
-	{
-		return false;
-	}
+	check(Repository);
 
 	switch (TowerType)
 	{
@@ -80,12 +77,14 @@ bool UStageTableHelper::GetBuildStageTower(EStageTowerType TowerType, int32 Kind
 		auto KindTable = Repository->NormalTowerTableRows.Find(Kind);
 		if (!KindTable)
 		{
+            UE_LOG(LogTable, Warning, TEXT("NormalTowerTable을 찾지 못하였습니다. [Kind: %d]"), Kind);
 			return false;
 		}
 
 		auto TowerRow = KindTable->Find(Level);
 		if (!TowerRow)
 		{
+			UE_LOG(LogTable, Warning, TEXT("NormalTowerTable을 찾지 못하였습니다. [Kind: %d, Level: %d]"), Kind, Level);
 			return false;
 		}
 
@@ -99,7 +98,10 @@ bool UStageTableHelper::GetBuildStageTower(EStageTowerType TowerType, int32 Kind
 	}
 	break;
 
-	default: return false;
+	default: {
+		UE_LOG(LogTable, Warning, TEXT("타워 타입이 잘못되었습니다. [TowerType: %s]"), *UEnum::GetValueAsString(TowerType));
+		return false;
+	}
 	}
 
 	return true;

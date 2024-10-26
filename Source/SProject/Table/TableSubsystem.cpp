@@ -75,5 +75,6 @@ bool UTableSubsystem::LoadTable()
 
 	CollectGarbage(GARBAGE_COLLECTION_KEEPFLAGS);
 
+	TableLoadCompleted.Broadcast(this);
 	return true;
 }

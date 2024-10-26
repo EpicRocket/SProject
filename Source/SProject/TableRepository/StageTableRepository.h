@@ -37,7 +37,7 @@ class MY_API UStageTableHelper : public UBlueprintFunctionLibrary
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "스테이지|타워|건설", meta = (ReturnDisplayName = "Find"))
-    bool GetBuildStageTower(EStageTowerType TowerType, int32 Kind, int32 Level, FBuildStageTower& Result);
+    static bool GetBuildStageTower(EStageTowerType TowerType, int32 Kind, int32 Level, FBuildStageTower& Result);
 
     UFUNCTION(BlueprintCallable, Category = "스테이지|정보", meta = (ReturnDisplayName = "Find"))
     static bool GetStageTableInfo(int32 Level, FStageTableRow& Result);

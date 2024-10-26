@@ -29,6 +29,9 @@ class MY_API UTableSubsystem : public UEngineSubsystem
 public:
     static UTableSubsystem* Get();
 
+    DECLARE_MULTICAST_DELEGATE_OneParam(FTableLoadCompleted, const UTableSubsystem*);
+	FTableLoadCompleted TableLoadCompleted;
+
     virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
     UFUNCTION(BlueprintCallable, Category = "Table")

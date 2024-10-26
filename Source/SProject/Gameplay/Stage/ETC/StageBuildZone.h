@@ -2,10 +2,12 @@
 #pragma once
 
 #include "GameFramework/Actor.h"
+#include "Engine/DataAsset.h"
 
 #include "StageBuildZone.generated.h"
 
 struct FBuildStageTower;
+enum class EStageTowerType : uint8;
 
 USTRUCT(BlueprintType)
 struct MY_API FStageBuildContent
@@ -13,10 +15,23 @@ struct MY_API FStageBuildContent
     GENERATED_BODY()
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    EStageTowerType TowerType = static_cast<EStageTowerType>(0);
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
     int32 Kind = 0;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     int32 Level = 0;
+};
+
+UCLASS(BlueprintType)
+class MY_API UStageBuildZoneData : public UDataAsset
+{
+    GENERATED_BODY()
+
+public:
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+    TArray<FStageBuildContent> BuildContents;
 };
 
 UCLASS(Abstract, BlueprintType, Blueprintable)
@@ -29,6 +44,9 @@ public:
     int32 GetPosition() const;
 
     UFUNCTION(BlueprintCallable)
+    TArray<FBuildStageTower> GetBuildTower() const;
+
+    UFUNCTION(BlueprintCallable)
     void Reset();
 
     UFUNCTION(BlueprintCallable)
@@ -36,9 +54,6 @@ public:
 
     UFUNCTION(BlueprintCallable)
     void Deselect();
-
-    UFUNCTION(BlueprintPure)
-    TArray<FBuildStageTower> GetBuildTower();
 
 protected:
     UFUNCTION(BlueprintImplementableEvent)
@@ -53,7 +68,7 @@ protected:
     //UFUNCTION(BlueprintImplementableEvent)
     //void OnBuild(ATowerBase* Tower);
 
-protected:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	TArray<FStageBuildContent> BuildContents;
+public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TObjectPtr<UStageBuildZoneData> BuildZoneData;
 };

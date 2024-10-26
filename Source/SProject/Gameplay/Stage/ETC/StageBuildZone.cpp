@@ -2,6 +2,8 @@
 #include "StageBuildZone.h"
 // include Project
 #include "Gameplay/GameplayFunctionLibrary.h"
+#include "Gameplay/GameplayLogging.h"
+#include "Table/TableSubsystem.h"
 #include "TableRepository/StageTableRepository.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(StageBuildZone)
@@ -30,6 +32,29 @@ int32 AStageBuildZone::GetPosition() const
 	return Position;
 }
 
+TArray<FBuildStageTower> AStageBuildZone::GetBuildTower() const
+{
+	TArray<FBuildStageTower> Result;
+
+	if (!BuildZoneData)
+	{
+		UE_LOG(LogGameplay, Warning, TEXT("Actor(%s)의 BuildZoneData를 찾을 수 없습니다."), *GetFName().ToString());
+		return Result;
+	}
+
+	for (auto& Content : BuildZoneData->BuildContents)
+	{
+		FBuildStageTower Tower;
+		if (!UStageTableHelper::GetBuildStageTower(Content.TowerType, Content.Kind, Content.Level, Tower))
+		{
+			continue;
+		}
+		Result.Emplace(Tower);
+	}
+
+	return Result;
+}
+
 void AStageBuildZone::Reset()
 {
 	OnReset();
@@ -43,18 +68,6 @@ void AStageBuildZone::Select()
 void AStageBuildZone::Deselect()
 {
 	OnDeselect();
-}
-
-TArray<FBuildStageTower> AStageBuildZone::GetBuildTower()
-{
-	TArray<FBuildStageTower> Result;
-
-	for (auto& Content : BuildContents)
-	{
-		
-	}
-
-	return Result;
 }
 
 //void AStageBuildZone::Build(TSubclassOf<ATowerBase> TowerClass)
