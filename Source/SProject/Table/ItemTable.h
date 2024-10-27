@@ -1,13 +1,13 @@
-// This is an automatically generated file. Do not modify it manually. [2024.10.27-17.39.55]
+// This is an automatically generated file. Do not modify it manually.
 #pragma once
 
 #include "CoreMinimal.h"
-enum class EItemType : uint8;
-enum class EUseType : uint8;
-class UTexture2D;
-
+#include "Misc/EnumRange.h"
 #include "Engine/DataTable.h"
 #include "ItemTable.generated.h"
+
+enum class EItemType : uint8;
+enum class EUseType : uint8;
 
 USTRUCT(BlueprintType)
 struct SPROJECT_API FItemInfoTableRow : public FTableRowBase
@@ -30,9 +30,9 @@ struct SPROJECT_API FItemInfoTableRow : public FTableRowBase
 	EUseType UseType = static_cast<EUseType>(0);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TSoftObjectPtr<UTexture2D> Icon = nullptr;
+	FString Icon;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<int32> Value;
+	int32 Value = 0;
 };
 
