@@ -856,12 +856,6 @@ FString UXLSXFactory::GenerateTableDesc(FString const& Filename)
 		}
 	}
 
-	for (auto& ForwardDeclaration : ForwardDeclarations)
-	{
-		TableDesc += FString::Printf(TEXT("%s;\n"), *ForwardDeclaration);
-	}
-	TableDesc += TEXT("\n");
-
 	if (Enums.Num() > 0)
 	{
 		TableDesc += TEXT("#include \"Misc/EnumRange.h\"");
@@ -881,6 +875,12 @@ FString UXLSXFactory::GenerateTableDesc(FString const& Filename)
 	}
 
 	TableDesc += FString::Printf(TEXT("#include \"%s.generated.h\""), *Filename);
+	TableDesc += TEXT("\n\n");
+
+	for (auto& ForwardDeclaration : ForwardDeclarations)
+	{
+		TableDesc += FString::Printf(TEXT("%s;\n"), *ForwardDeclaration);
+	}
 	TableDesc += TEXT("\n\n");
 
 	for (auto& Desc : Enums)

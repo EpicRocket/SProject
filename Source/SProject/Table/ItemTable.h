@@ -1,12 +1,13 @@
-// This is an automatically generated file. Do not modify it manually. [2024.10.27-18.37.25]
+// This is an automatically generated file. Do not modify it manually. [2024.10.27-18.47.37]
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Engine/DataTable.h"
+#include "ItemTable.generated.h"
+
 enum class EItemType : uint8;
 enum class EUseType : uint8;
 
-#include "Engine/DataTable.h"
-#include "ItemTable.generated.h"
 
 USTRUCT(BlueprintType)
 struct SPROJECT_API FItemInfoTableRow : public FTableRowBase
