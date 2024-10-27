@@ -1,4 +1,4 @@
-// This is an automatically generated file. Do not modify it manually. [2024.10.27-17.27.08]
+// This is an automatically generated file. Do not modify it manually. [2024.10.27-17.37.19]
 #pragma once
 
 #include "CoreMinimal.h"
@@ -7,24 +7,24 @@
 #include "EnumTable.generated.h"
 
 UENUM(BlueprintType)
-enum class ItemType : uint8
+enum class EItemType : uint8
 {
 	None = 0,
 	Gold = 1,
 	Max UMETA(Hidden)
 };
-ENUM_RANGE_BY_COUNT(ItemType, ItemType::Max)
+ENUM_RANGE_BY_COUNT(EItemType, EItemType::Max)
 
 UENUM(BlueprintType)
-enum class UseType : uint8
+enum class EUseType : uint8
 {
 	None = 0,
 	Max UMETA(Hidden)
 };
-ENUM_RANGE_BY_COUNT(UseType, UseType::Max)
+ENUM_RANGE_BY_COUNT(EUseType, EUseType::Max)
 
 UENUM(BlueprintType)
-enum class AttackType : uint8
+enum class EAttackType : uint8
 {
 	None = 0,
 	TowerNomalAttack = 1,
@@ -36,5 +36,5 @@ enum class AttackType : uint8
 	SupportAttack = 7,
 	Max UMETA(Hidden)
 };
-ENUM_RANGE_BY_COUNT(AttackType, AttackType::Max)
+ENUM_RANGE_BY_COUNT(EAttackType, EAttackType::Max)
 

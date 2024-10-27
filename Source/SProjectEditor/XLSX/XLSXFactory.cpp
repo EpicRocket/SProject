@@ -342,7 +342,6 @@ bool UXLSXFactory::GenerateXLSXSheet(const FString& FileName)
 			{
 				continue; // Unknown type
 			}
-			Sheet.Name = Sheet.Name.RightChop(1);
 
 			OpenXLSX::XLWorksheet WorkSheet = WorkBook.worksheet(SheetName);
 			int32 RowCount = WorkSheet.rowCount();
