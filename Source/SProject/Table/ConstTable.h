@@ -1,4 +1,4 @@
-// This is an automatically generated file. Do not modify it manually. [2024.10.13-18.26.33]
+// This is an automatically generated file. Do not modify it manually. [2024.10.27-17.47.50]
 #pragma once
 
 #include "CoreMinimal.h"
@@ -14,5 +14,8 @@ class SPROJECT_API UConstSettings : public UDeveloperSettings
 public:
 	UPROPERTY(Config, VisibleDefaultsOnly, BlueprintReadOnly, Category = "Table")
 	int32 UserHp;
+
+	UPROPERTY(Config, VisibleDefaultsOnly, BlueprintReadOnly, Category = "Table")
+	int32 StageUsePoint;
 };
 
