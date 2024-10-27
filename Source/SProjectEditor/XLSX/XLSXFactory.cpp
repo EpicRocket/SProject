@@ -37,10 +37,12 @@
 #define Dependency_Module_Name TEXT("/Script/SProject")
 
 #if PLATFORM_MAC
-class XLWorksheet {
-};
+namespace OpenXLSX {
+	class XLWorksheet {
+		XLWorksheet() = default;
+	};
+}
 #endif
-
 
 namespace XLSX
 {
