@@ -902,7 +902,7 @@ FString UXLSXFactory::GenerateTableDesc(FString const& Filename)
 
 	for (auto& Sheet : CacheSheet)
 	{
-		auto Section = FString::Printf(TEXT("/Script/%s.U%sSettings"), Dependency_Module, *Sheet.Name);
+		auto Section = FString::Printf(TEXT("/Script/%s.%sSettings"), Dependency_Module, *Sheet.Name);
 		GConfig->EmptySection(*Section, ModuleIni);
 
 		for (auto& Const : Sheet.Consts)
