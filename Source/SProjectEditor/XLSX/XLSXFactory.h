@@ -92,7 +92,5 @@ private:
 
 	FString GenerateTableDesc(FString const& Filename);
 
-	bool IsCompileOnImportEnabled() const;
-
 	FString GetTablePath() const;
 };

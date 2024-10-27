@@ -36,6 +36,12 @@
 #define Dependency_Module_API TEXT("SPROJECT_API")
 #define Dependency_Module_Name TEXT("/Script/SProject")
 
+#if PLATFORM_MAC
+class XLWorksheet {
+};
+#endif
+
+
 namespace XLSX
 {
 #if PLATFORM_WINDOWS
@@ -601,6 +607,7 @@ bool UXLSXFactory::GenerateXLSXSheet(const FString& FileName)
 
 bool UXLSXFactory::GenerateConst(OpenXLSX::XLWorksheet WorkSheet, FXLSXSheet& Sheet)
 {
+#if PLATFORM_WINDOWS
 	int32 RowCount = WorkSheet.rowCount();
 
 	if (RowCount < 2)
@@ -704,6 +711,9 @@ bool UXLSXFactory::GenerateConst(OpenXLSX::XLWorksheet WorkSheet, FXLSXSheet& Sh
 	}
 
 	return true;
+#else
+	return false;
+#endif
 }
 
 FString UXLSXFactory::GenerateTableDesc(FString const& Filename)
@@ -963,22 +973,6 @@ FString UXLSXFactory::GenerateTableDesc(FString const& Filename)
 	}
 
 	return TableDesc;
-}
-
-bool UXLSXFactory::IsCompileOnImportEnabled() const
-{
-#if WITH_HOT_RELOAD && WITH_LIVE_CODING
-	ILiveCodingModule* LiveCoding = FModuleManager::GetModulePtr<ILiveCodingModule>(LIVE_CODING_MODULE_NAME);
-	if (!LiveCoding)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Failed to find LiveCoding module."));
-		return true;
-	}
-
-	return LiveCoding->IsCompiling();
-#else
-	return true;
-#endif
 }
 
 FString UXLSXFactory::GetTablePath() const
