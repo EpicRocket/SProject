@@ -353,7 +353,7 @@ bool UXLSXFactory::GenerateXLSXSheet(const FString& FileName)
 			}
 
 			
-			TArray<FString> HeaderNames;
+			TMap<int32, FString> HeaderNames;
 			TMap<FString, FXLSXHeader> Headers;
 			TArray<TMap<FString, FString>> HeaderValues;
 
@@ -380,7 +380,7 @@ bool UXLSXFactory::GenerateXLSXSheet(const FString& FileName)
 					if (Headers.Contains(HeaderName))
 					{
 						// NOTE: 배열일 수도 있다.
-						HeaderNames.Emplace(HeaderName);
+						HeaderNames.Emplace(Index, HeaderName);
 						continue;
 					}
 
@@ -509,7 +509,7 @@ bool UXLSXFactory::GenerateXLSXSheet(const FString& FileName)
 						continue;
 					}
 
-					HeaderNames.Emplace(HeaderName);
+					HeaderNames.Emplace(Index, HeaderName);
 					Headers.Emplace(HeaderName, XLSXHeader);
 				}
 			}	// ~헤더 정보 저장
@@ -521,12 +521,12 @@ bool UXLSXFactory::GenerateXLSXSheet(const FString& FileName)
 			{
 				OpenXLSX::XLRow DataRow = WorkSheet.row(i);
 				auto DataRowIter = DataRow.cells().begin();
-
+				 
 				TMap<FString, FString> Datas;
 				for (int32 Index = 0; DataRowIter != DataRow.cells().end(); ++DataRowIter, ++Index)
 				{
 					// 헤더에 미포함된 데이터 값
-					if (!HeaderNames.IsValidIndex(Index))
+					if (!HeaderNames.Contains(Index))
 					{
 						continue;
 					}
@@ -732,12 +732,6 @@ FString UXLSXFactory::GenerateTableDesc(FString const& Filename)
 	TableDesc += TEXT("#include \"CoreMinimal.h\"");
 	TableDesc += TEXT("\n");
 
-	for (auto& ForwardDeclaration : ForwardDeclarations)
-	{
-		TableDesc += FString::Printf(TEXT("%s;\n"), *ForwardDeclaration);
-	}
-	TableDesc += TEXT("\n");
-
 	for (auto& Sheet : CacheSheet)
 	{
 		switch (Sheet.AssetType)
@@ -883,6 +877,12 @@ FString UXLSXFactory::GenerateTableDesc(FString const& Filename)
 	TableDesc += FString::Printf(TEXT("#include \"%s.generated.h\""), *Filename);
 	TableDesc += TEXT("\n\n");
 
+	for (auto& ForwardDeclaration : ForwardDeclarations)
+	{
+		TableDesc += FString::Printf(TEXT("%s;\n"), *ForwardDeclaration);
+	}
+	TableDesc += TEXT("\n\n");
+
 	for (auto& Desc : Enums)
 	{
 		TableDesc += Desc;
@@ -902,7 +902,7 @@ FString UXLSXFactory::GenerateTableDesc(FString const& Filename)
 
 	for (auto& Sheet : CacheSheet)
 	{
-		auto Section = FString::Printf(TEXT("/Script/%s.U%sSettings"), Dependency_Module, *Sheet.Name);
+		auto Section = FString::Printf(TEXT("/Script/%s.%sSettings"), Dependency_Module, *Sheet.Name);
 		GConfig->EmptySection(*Section, ModuleIni);
 
 		for (auto& Const : Sheet.Consts)
