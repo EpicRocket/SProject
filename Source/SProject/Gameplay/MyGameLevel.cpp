@@ -3,6 +3,7 @@
 // include Engine
 #include "Engine/World.h"
 #include "Engine/GameInstance.h"
+#include "Engine/Level.h"
 // include GameCore
 #include "Loading/GLoadingManager.h"
 
@@ -31,4 +32,23 @@ void AMyGameLevel::EndPlay(const EEndPlayReason::Type EndPlayReason)
 bool AMyGameLevel::ShouldShowLoadingScreen(FString& OutReason) const
 {
 	return false;
+}
+
+void AMyGameLevel::GetActorsByClass(TSubclassOf<AActor> ActorClass, TArray<AActor*>& OutActors) const
+{
+	OutActors.Empty();
+
+	auto Level = Cast<ULevel>(GetOuter());
+	if (!Level)
+	{
+		return;
+	}
+
+	for (auto& Actor : Level->Actors)
+	{
+		if (Actor->IsA(ActorClass))
+		{
+			OutActors.Add(Actor);
+		}
+	}
 }

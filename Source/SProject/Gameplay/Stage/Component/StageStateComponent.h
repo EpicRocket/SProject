@@ -35,6 +35,9 @@ protected:
 	FGErrorInfo OnLoadStage(FLatentActionInfo LatentInfo);
 
 	UFUNCTION(BlueprintImplementableEvent)
+	void OnLoadCompleted();
+
+	UFUNCTION(BlueprintImplementableEvent)
 	void OnLoadStreaming();
 
 	UFUNCTION(BlueprintCallable)
@@ -46,7 +49,7 @@ protected:
 	UFUNCTION()
 	void OnLoadLevelCompleted();
 	
-	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "OnLoadCompleted"))
+	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "OnLoadLevelCompleted"))
 	void K2_OnLoadLevelCompleted();
 
 public:

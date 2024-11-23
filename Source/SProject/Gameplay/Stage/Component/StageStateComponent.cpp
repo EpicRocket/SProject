@@ -77,6 +77,7 @@ FGErrorInfo UStageStateComponent::OnLoadStage(FLatentActionInfo LatentInfo)
 			}
 			
 			PrimaryPC = PrimaryPlayerController;
+			OnLoadCompleted();
 		};
 
 	auto OnFailed = [&ErrorInfo, ThisPtr = TWeakObjectPtr<UStageStateComponent>(this)]

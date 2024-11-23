@@ -19,4 +19,7 @@ public:
     // IGLoadingProcessInterface
     virtual bool ShouldShowLoadingScreen(FString& OutReason) const override;
     // ~IGLoadingProcessInterface
+
+    UFUNCTION(BlueprintCallable, meta = (DeterminesOutputType = "ActorClass", DynamicOutputParam = "OutActors"))
+    void GetActorsByClass(TSubclassOf<AActor> ActorClass, TArray<AActor*>& OutActors) const;
 };
