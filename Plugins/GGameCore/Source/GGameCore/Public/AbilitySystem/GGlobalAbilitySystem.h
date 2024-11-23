@@ -1,21 +1,17 @@
-
-
 #pragma once
 
 #include "ActiveGameplayEffectHandle.h"
 #include "Subsystems/WorldSubsystem.h"
 #include "GameplayAbilitySpecHandle.h"
-#include "Templates/SubclassOf.h"
 
-#include "MyGlobalAbilitySystem.generated.h"
+#include "GGlobalAbilitySystem.generated.h"
 
 class UGameplayAbility;
 class UGameplayEffect;
-class UMyAbilitySystemComponent;
+class UGAbilitySystemComponent;
 class UObject;
-struct FActiveGameplayEffectHandle;
-struct FFrame;
 struct FGameplayAbilitySpecHandle;
+
 
 USTRUCT()
 struct FGlobalAppliedAbilityList
@@ -23,10 +19,10 @@ struct FGlobalAppliedAbilityList
 	GENERATED_BODY()
 
 	UPROPERTY()
-	TMap<TObjectPtr<UMyAbilitySystemComponent>, FGameplayAbilitySpecHandle> Handles;
+	TMap<TObjectPtr<UGAbilitySystemComponent>, FGameplayAbilitySpecHandle> Handles;
 
-	void AddToASC(TSubclassOf<UGameplayAbility> Ability, UMyAbilitySystemComponent* ASC);
-	void RemoveFromASC(UMyAbilitySystemComponent* ASC);
+	void AddToASC(TSubclassOf<UGameplayAbility> Ability, UGAbilitySystemComponent* ASC);
+	void RemoveFromASC(UGAbilitySystemComponent* ASC);
 	void RemoveFromAll();
 };
 
@@ -36,38 +32,38 @@ struct FGlobalAppliedEffectList
 	GENERATED_BODY()
 
 	UPROPERTY()
-	TMap<TObjectPtr<UMyAbilitySystemComponent>, FActiveGameplayEffectHandle> Handles;
+	TMap<TObjectPtr<UGAbilitySystemComponent>, FActiveGameplayEffectHandle> Handles;
 
-	void AddToASC(TSubclassOf<UGameplayEffect> Effect, UMyAbilitySystemComponent* ASC);
-	void RemoveFromASC(UMyAbilitySystemComponent* ASC);
+	void AddToASC(TSubclassOf<UGameplayEffect> Effect, UGAbilitySystemComponent* ASC);
+	void RemoveFromASC(UGAbilitySystemComponent* ASC);
 	void RemoveFromAll();
 };
 
 UCLASS()
-class UMyGlobalAbilitySystem : public UWorldSubsystem
+class UGGlobalAbilitySystem : public UWorldSubsystem
 {
 	GENERATED_BODY()
 
 public:
-	UMyGlobalAbilitySystem();
+	UGGlobalAbilitySystem();
 
-	UFUNCTION(BlueprintCallable, Category="My")
+	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "GameCore")
 	void ApplyAbilityToAll(TSubclassOf<UGameplayAbility> Ability);
 
-	UFUNCTION(BlueprintCallable, Category="My")
+	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Lyra")
 	void ApplyEffectToAll(TSubclassOf<UGameplayEffect> Effect);
 
-	UFUNCTION(BlueprintCallable, Category = "My")
+	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Lyra")
 	void RemoveAbilityFromAll(TSubclassOf<UGameplayAbility> Ability);
 
-	UFUNCTION(BlueprintCallable, Category = "My")
+	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Lyra")
 	void RemoveEffectFromAll(TSubclassOf<UGameplayEffect> Effect);
 
 	/** Register an ASC with global system and apply any active global effects/abilities. */
-	void RegisterASC(UMyAbilitySystemComponent* ASC);
+	void RegisterASC(UGAbilitySystemComponent* ASC);
 
 	/** Removes an ASC from the global system, along with any active global effects/abilities. */
-	void UnregisterASC(UMyAbilitySystemComponent* ASC);
+	void UnregisterASC(UGAbilitySystemComponent* ASC);
 
 private:
 	UPROPERTY()
@@ -77,5 +73,5 @@ private:
 	TMap<TSubclassOf<UGameplayEffect>, FGlobalAppliedEffectList> AppliedEffects;
 
 	UPROPERTY()
-	TArray<TObjectPtr<UMyAbilitySystemComponent>> RegisteredASCs;
+	TArray<TObjectPtr<UGAbilitySystemComponent>> RegisteredASCs;
 };

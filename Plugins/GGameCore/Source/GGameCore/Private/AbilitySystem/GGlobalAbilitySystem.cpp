@@ -1,12 +1,10 @@
+#include "AbilitySystem/GGlobalAbilitySystem.h"
 
+#include "AbilitySystem/GAbilitySystemComponent.h"
 
-#include "MyGlobalAbilitySystem.h"
+#include UE_INLINE_GENERATED_CPP_BY_NAME(GGlobalAbilitySystem)
 
-#include "AbilitySystem/MyAbilitySystemComponent.h"
-
-#include UE_INLINE_GENERATED_CPP_BY_NAME(MyGlobalAbilitySystem)
-
-void FGlobalAppliedAbilityList::AddToASC(TSubclassOf<UGameplayAbility> Ability, UMyAbilitySystemComponent* ASC)
+void FGlobalAppliedAbilityList::AddToASC(TSubclassOf<UGameplayAbility> Ability, UGAbilitySystemComponent* ASC)
 {
 	if (FGameplayAbilitySpecHandle* SpecHandle = Handles.Find(ASC))
 	{
@@ -19,7 +17,7 @@ void FGlobalAppliedAbilityList::AddToASC(TSubclassOf<UGameplayAbility> Ability, 
 	Handles.Add(ASC, AbilitySpecHandle);
 }
 
-void FGlobalAppliedAbilityList::RemoveFromASC(UMyAbilitySystemComponent* ASC)
+void FGlobalAppliedAbilityList::RemoveFromASC(UGAbilitySystemComponent* ASC)
 {
 	if (FGameplayAbilitySpecHandle* SpecHandle = Handles.Find(ASC))
 	{
@@ -41,8 +39,7 @@ void FGlobalAppliedAbilityList::RemoveFromAll()
 }
 
 
-
-void FGlobalAppliedEffectList::AddToASC(TSubclassOf<UGameplayEffect> Effect, UMyAbilitySystemComponent* ASC)
+void FGlobalAppliedEffectList::AddToASC(TSubclassOf<UGameplayEffect> Effect, UGAbilitySystemComponent* ASC)
 {
 	if (FActiveGameplayEffectHandle* EffectHandle = Handles.Find(ASC))
 	{
@@ -54,7 +51,7 @@ void FGlobalAppliedEffectList::AddToASC(TSubclassOf<UGameplayEffect> Effect, UMy
 	Handles.Add(ASC, GameplayEffectHandle);
 }
 
-void FGlobalAppliedEffectList::RemoveFromASC(UMyAbilitySystemComponent* ASC)
+void FGlobalAppliedEffectList::RemoveFromASC(UGAbilitySystemComponent* ASC)
 {
 	if (FActiveGameplayEffectHandle* EffectHandle = Handles.Find(ASC))
 	{
@@ -75,35 +72,36 @@ void FGlobalAppliedEffectList::RemoveFromAll()
 	Handles.Empty();
 }
 
-UMyGlobalAbilitySystem::UMyGlobalAbilitySystem()
+
+UGGlobalAbilitySystem::UGGlobalAbilitySystem()
 {
 }
 
-void UMyGlobalAbilitySystem::ApplyAbilityToAll(TSubclassOf<UGameplayAbility> Ability)
+void UGGlobalAbilitySystem::ApplyAbilityToAll(TSubclassOf<UGameplayAbility> Ability)
 {
 	if ((Ability.Get() != nullptr) && (!AppliedAbilities.Contains(Ability)))
 	{
-		FGlobalAppliedAbilityList& Entry = AppliedAbilities.Add(Ability);		
-		for (UMyAbilitySystemComponent* ASC : RegisteredASCs)
+		FGlobalAppliedAbilityList& Entry = AppliedAbilities.Add(Ability);
+		for (UGAbilitySystemComponent* ASC : RegisteredASCs)
 		{
 			Entry.AddToASC(Ability, ASC);
 		}
 	}
 }
 
-void UMyGlobalAbilitySystem::ApplyEffectToAll(TSubclassOf<UGameplayEffect> Effect)
+void UGGlobalAbilitySystem::ApplyEffectToAll(TSubclassOf<UGameplayEffect> Effect)
 {
 	if ((Effect.Get() != nullptr) && (!AppliedEffects.Contains(Effect)))
 	{
 		FGlobalAppliedEffectList& Entry = AppliedEffects.Add(Effect);
-		for (UMyAbilitySystemComponent* ASC : RegisteredASCs)
+		for (UGAbilitySystemComponent* ASC : RegisteredASCs)
 		{
 			Entry.AddToASC(Effect, ASC);
 		}
 	}
 }
 
-void UMyGlobalAbilitySystem::RemoveAbilityFromAll(TSubclassOf<UGameplayAbility> Ability)
+void UGGlobalAbilitySystem::RemoveAbilityFromAll(TSubclassOf<UGameplayAbility> Ability)
 {
 	if ((Ability.Get() != nullptr) && AppliedAbilities.Contains(Ability))
 	{
@@ -113,7 +111,7 @@ void UMyGlobalAbilitySystem::RemoveAbilityFromAll(TSubclassOf<UGameplayAbility> 
 	}
 }
 
-void UMyGlobalAbilitySystem::RemoveEffectFromAll(TSubclassOf<UGameplayEffect> Effect)
+void UGGlobalAbilitySystem::RemoveEffectFromAll(TSubclassOf<UGameplayEffect> Effect)
 {
 	if ((Effect.Get() != nullptr) && AppliedEffects.Contains(Effect))
 	{
@@ -123,7 +121,7 @@ void UMyGlobalAbilitySystem::RemoveEffectFromAll(TSubclassOf<UGameplayEffect> Ef
 	}
 }
 
-void UMyGlobalAbilitySystem::RegisterASC(UMyAbilitySystemComponent* ASC)
+void UGGlobalAbilitySystem::RegisterASC(UGAbilitySystemComponent* ASC)
 {
 	check(ASC);
 
@@ -139,7 +137,7 @@ void UMyGlobalAbilitySystem::RegisterASC(UMyAbilitySystemComponent* ASC)
 	RegisteredASCs.AddUnique(ASC);
 }
 
-void UMyGlobalAbilitySystem::UnregisterASC(UMyAbilitySystemComponent* ASC)
+void UGGlobalAbilitySystem::UnregisterASC(UGAbilitySystemComponent* ASC)
 {
 	check(ASC);
 	for (auto& Entry : AppliedAbilities)
@@ -153,4 +151,3 @@ void UMyGlobalAbilitySystem::UnregisterASC(UMyAbilitySystemComponent* ASC)
 
 	RegisteredASCs.Remove(ASC);
 }
-

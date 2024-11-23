@@ -7,7 +7,6 @@
 #include "AbilitySystem/MyAbilitySystemLog.h"
 #include "Engine/World.h"
 #include "GameFramework/Pawn.h"
-#include "MyGlobalAbilitySystem.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(MyAbilitySystemComponent)
 
@@ -25,11 +24,6 @@ UMyAbilitySystemComponent::UMyAbilitySystemComponent(const FObjectInitializer& O
 
 void UMyAbilitySystemComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	if (UMyGlobalAbilitySystem* GlobalAbilitySystem = UWorld::GetSubsystem<UMyGlobalAbilitySystem>(GetWorld()))
-	{
-		GlobalAbilitySystem->UnregisterASC(this);
-	}
-
 	Super::EndPlay(EndPlayReason);
 }
 
@@ -70,10 +64,10 @@ void UMyAbilitySystemComponent::InitAbilityActorInfo(AActor* InOwnerActor, AActo
 		}
 
 		// Register with the global system once we actually have a pawn avatar. We wait until this time since some globally-applied effects may require an avatar.
-		if (UMyGlobalAbilitySystem* GlobalAbilitySystem = UWorld::GetSubsystem<UMyGlobalAbilitySystem>(GetWorld()))
-		{
-			GlobalAbilitySystem->RegisterASC(this);
-		}
+		//if (UMyGlobalAbilitySystem* GlobalAbilitySystem = UWorld::GetSubsystem<UMyGlobalAbilitySystem>(GetWorld()))
+		//{
+		//	GlobalAbilitySystem->RegisterASC(this);
+		//}
 
 		/*if (UMyAnimInstance* MyAnimInst = Cast<UMyAnimInstance>(ActorInfo->GetAnimInstance()))
 		{
