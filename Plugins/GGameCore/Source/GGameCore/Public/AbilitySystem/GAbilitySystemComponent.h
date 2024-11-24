@@ -20,6 +20,14 @@ class GGAMECORE_API UGAbilitySystemComponent : public UAbilitySystemComponent
 
 public:
 
+    UGAbilitySystemComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+
+    //~UActorComponent interface
+    virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+    //~End of UActorComponent interface
+
+    virtual void InitAbilityActorInfo(AActor* InOwnerActor, AActor* InAvatarActor) override;
+
     typedef TFunctionRef<bool(const UGGameplayAbility*, FGameplayAbilitySpecHandle)> TShouldCancelAbilityFunc;
     void CancelAbilitiesByFunc(TShouldCancelAbilityFunc ShouldCancelFunc, bool bReplicateCancelAbility);
 
@@ -31,6 +39,9 @@ public:
     /** Gets the ability target data associated with the given ability handle and activation info */
     void GetAbilityTargetData(const FGameplayAbilitySpecHandle AbilityHandle, FGameplayAbilityActivationInfo ActivationInfo, FGameplayAbilityTargetDataHandle& OutTargetDataHandle);
 
+protected:
+
+    void TryActivateAbilitiesOnSpawn();
 
 protected:
     int32 ActivationGroupCounts[(uint8)EGAbilityActivationGroup::MAX];

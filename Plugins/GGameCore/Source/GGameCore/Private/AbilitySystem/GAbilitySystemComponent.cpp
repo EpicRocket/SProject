@@ -1,7 +1,94 @@
 ﻿
 #include "AbilitySystem/GAbilitySystemComponent.h"
+#include "AbilitySystem/GGlobalAbilitySystem.h"
+#include "Unit/UnitAnimInstance.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(GAbilitySystemComponent)
+
+UGAbilitySystemComponent::UGAbilitySystemComponent(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+
+	FMemory::Memset(ActivationGroupCounts, 0, sizeof(ActivationGroupCounts));
+}
+
+void UGAbilitySystemComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	if (UGGlobalAbilitySystem* GlobalAbilitySystem = UWorld::GetSubsystem<UGGlobalAbilitySystem>(GetWorld()))
+	{
+		GlobalAbilitySystem->UnregisterASC(this);
+	}
+
+	Super::EndPlay(EndPlayReason);
+}
+
+void UGAbilitySystemComponent::InitAbilityActorInfo(AActor* InOwnerActor, AActor* InAvatarActor)
+{
+	FGameplayAbilityActorInfo* ActorInfo = AbilityActorInfo.Get();
+	check(ActorInfo);
+	check(InOwnerActor);
+
+	const bool bHasNewPawnAvatar = Cast<APawn>(InAvatarActor) && (InAvatarActor != ActorInfo->AvatarActor);
+
+	Super::InitAbilityActorInfo(InOwnerActor, InAvatarActor);
+
+	if (bHasNewPawnAvatar)
+	{
+		// Notify all abilities that a new pawn avatar has been set
+		for (const FGameplayAbilitySpec& AbilitySpec : ActivatableAbilities.Items)
+		{
+			UGGameplayAbility* GAbilityCDO = Cast<UGGameplayAbility>(AbilitySpec.Ability);
+			if (!GAbilityCDO)
+			{
+				continue;
+			}
+
+			if (GAbilityCDO->GetInstancingPolicy() != EGameplayAbilityInstancingPolicy::NonInstanced)
+			{
+				TArray<UGameplayAbility*> Instances = AbilitySpec.GetAbilityInstances();
+				for (UGameplayAbility* AbilityInstance : Instances)
+				{
+					UGGameplayAbility* GAbilityInstance = Cast<UGGameplayAbility>(AbilityInstance);
+					if (GAbilityInstance)
+					{
+						// Ability instances may be missing for replays
+						GAbilityInstance->OnPawnAvatarSet();
+					}
+				}
+			}
+			else
+			{
+				GAbilityCDO->OnPawnAvatarSet();
+			}
+		}
+
+		// Register with the global system once we actually have a pawn avatar. We wait until this time since some globally-applied effects may require an avatar.
+		if (UGGlobalAbilitySystem* GlobalAbilitySystem = UWorld::GetSubsystem<UGGlobalAbilitySystem>(GetWorld()))
+		{
+			GlobalAbilitySystem->RegisterASC(this);
+		}
+
+		if (UUnitAnimInstance* UnitAnimInst = Cast<UUnitAnimInstance>(ActorInfo->GetAnimInstance()))
+		{
+			UnitAnimInst->InitializeWithAbilitySystem(this);
+		}
+
+		TryActivateAbilitiesOnSpawn();
+	}
+}
+
+void UGAbilitySystemComponent::TryActivateAbilitiesOnSpawn()
+{
+	ABILITYLIST_SCOPE_LOCK();
+	for (const FGameplayAbilitySpec& AbilitySpec : ActivatableAbilities.Items)
+	{
+		if (const UGGameplayAbility* GAbilityCDO = Cast<UGGameplayAbility>(AbilitySpec.Ability))
+		{
+			GAbilityCDO->TryActivateAbilityOnSpawn(AbilityActorInfo.Get(), AbilitySpec);
+		}
+	}
+}
+
 
 void UGAbilitySystemComponent::CancelAbilitiesByFunc(TShouldCancelAbilityFunc ShouldCancelFunc, bool bReplicateCancelAbility)
 {
