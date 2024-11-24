@@ -9,6 +9,7 @@
 
 class UStageDataAsset;
 class AStageLevel;
+class AMyGameLevel;
 class UWorld;
 class APlayerController;
 struct FGErrorInfo;
@@ -51,6 +52,9 @@ protected:
 	
 	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "OnLoadLevelCompleted"))
 	void K2_OnLoadLevelCompleted();
+	
+	UFUNCTION(BlueprintCallable)
+	void SetTargetLevel(AMyGameLevel* Level);
 
 public:
 	UPROPERTY(EditDefaultsOnly, Category = "에셋")

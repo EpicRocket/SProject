@@ -46,7 +46,7 @@ void AMyGameLevel::GetActorsByClass(TSubclassOf<AActor> ActorClass, TArray<AActo
 
 	for (auto& Actor : Level->Actors)
 	{
-		if (Actor->IsA(ActorClass))
+		if (IsValid(Actor) && Actor->IsA(ActorClass))
 		{
 			OutActors.Add(Actor);
 		}

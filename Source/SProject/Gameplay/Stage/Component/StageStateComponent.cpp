@@ -127,3 +127,12 @@ void UStageStateComponent::OnLoadLevelCompleted()
 {
 	K2_OnLoadLevelCompleted();
 }
+
+void UStageStateComponent::SetTargetLevel(AMyGameLevel* Level)
+{
+	TargetStage = Cast<AStageLevel>(Level);
+	if (TargetStage.IsValid())
+	{
+		OnLoadLevelCompleted();
+	}
+}

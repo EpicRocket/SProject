@@ -131,6 +131,11 @@ AMyGameLevel* UGameWorldSubsystem::FindLoadedLevel(TSoftObjectPtr<UWorld> Level)
 	return Cast<AMyGameLevel>(LevelStreaming->GetLevelScriptActor());
 }
 
+AMyGameLevel* UGameWorldSubsystem::GetTopLevel()
+{
+	return Cast<AMyGameLevel>(GetWorld()->GetCurrentLevel()->GetLevelScriptActor());
+}
+
 FString UGameWorldSubsystem::MakeSafeLevelName(const FName& LevelName) const
 {
 	auto World = GetWorld();

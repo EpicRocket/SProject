@@ -36,6 +36,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "게임플레이")
     AMyGameLevel* FindLoadedLevel(TSoftObjectPtr<UWorld> Level);
 
+    UFUNCTION(BlueprintPure, Category = "게임플레이")
+    AMyGameLevel* GetTopLevel();
+
 private:
     FString MakeSafeLevelName(const FName& LevelName) const;
 
