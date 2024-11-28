@@ -2,8 +2,11 @@
 #include "Phase/GPhaseGameplayAbility.h"
 // include Engine
 #include "AbilitySystemComponent.h"
+// include Plugin
+#include "GameFramework/GameplayMessageSubsystem.h"
 // include Project
 #include "Phase/Subsystem/GPhaseSubsystem.h"
+#include "GameplayMessage/GPhaseMessage.h"
 
 #if WITH_EDITOR
 #include "Misc/DataValidation.h"
@@ -40,13 +43,18 @@ void UGPhaseGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Ha
 	{
 		if(auto AbilitySystem = ActorInfo->AbilitySystemComponent; AbilitySystem.IsValid())
 		{
-			if (auto World = AbilitySystem->GetWorld(); IsValid(World))
+			if (auto World = AbilitySystem->GetWorld())
 			{
 				if (auto Subsystem = World->GetSubsystem<UGPhaseSubsystem>(); IsValid(Subsystem))
 				{
 					Subsystem->OnBeginPhase(this, Handle);
 				}
 			}
+
+			UGameplayMessageSubsystem::Get(AbilitySystem.Get()).BroadcastMessage<FGPhaseMessage>(
+				PhaseTag,
+				FGPhaseMessage{ .bActive = true }
+			);
 		}
 	}
 
@@ -66,6 +74,11 @@ void UGPhaseGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle,
 					Subsystem->OnBeginPhase(this, Handle);
 				}
 			}
+
+			UGameplayMessageSubsystem::Get(AbilitySystem.Get()).BroadcastMessage<FGPhaseMessage>(
+				PhaseTag,
+				FGPhaseMessage{ .bActive = false }
+			);
 		}
 	}
 

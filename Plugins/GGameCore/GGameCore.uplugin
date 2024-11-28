@@ -52,6 +52,11 @@
 		{
 			"Name": "Paper2D",
 			"Enabled": true
+		},
+		{
+			"Name": "GameplayMessageRouter",
+			"Enabled": true
 		}
-	]
+	],
+	"IsExperimentalVersion": false
 }
