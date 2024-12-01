@@ -2,6 +2,7 @@
 #include "Phase/GPhaseGameplayAbility.h"
 // include Engine
 #include "AbilitySystemComponent.h"
+#include "Engine/GameInstance.h"
 // include Plugin
 #include "GameFramework/GameplayMessageSubsystem.h"
 // include Project
@@ -51,10 +52,7 @@ void UGPhaseGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Ha
 				}
 			}
 
-			UGameplayMessageSubsystem::Get(AbilitySystem.Get()).BroadcastMessage<FGPhaseMessage>(
-				PhaseTag,
-				FGPhaseMessage{ .bActive = true }
-			);
+			BroadcastPhaseMessage(true);
 		}
 	}
 
@@ -75,12 +73,29 @@ void UGPhaseGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle,
 				}
 			}
 
-			UGameplayMessageSubsystem::Get(AbilitySystem.Get()).BroadcastMessage<FGPhaseMessage>(
-				PhaseTag,
-				FGPhaseMessage{ .bActive = false }
-			);
+			BroadcastPhaseMessage(false);
 		}
 	}
 
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+}
+
+void UGPhaseGameplayAbility::BroadcastPhaseMessage(bool bActive)
+{
+	auto World = GetWorld();
+	if (!IsValid(World))
+	{
+		return;
+	}
+
+	auto Subsystem = UGameInstance::GetSubsystem<UGameplayMessageSubsystem>(World->GetGameInstance());
+	if (!IsValid(Subsystem))
+	{
+		return;
+	}
+
+	Subsystem->BroadcastMessage<FGPhaseMessage>(
+		PhaseTag,
+		FGPhaseMessage{ .bActive = bActive }
+	);
 }
