@@ -404,10 +404,15 @@ bool UXLSXFactory::GenerateXLSXSheet(const FString& FileName)
 						XLSXHeader.Type = TEXT("int64");
 						XLSXHeader.CellType = ECellType::Int64;
 					}
-					else if (ExactTypeName.Contains(TEXT("float")))
+					else if (ExactTypeName.Contains(TEXT("float32")))
 					{
 						XLSXHeader.Type = TEXT("float");
-						XLSXHeader.CellType = ECellType::Float;
+						XLSXHeader.CellType = ECellType::Float32;
+					}
+					else if (ExactTypeName.Contains(TEXT("float64")))
+					{
+						XLSXHeader.Type = TEXT("double");
+						XLSXHeader.CellType = ECellType::Float64;
 					}
 					else if (ExactTypeName.Contains(TEXT("FString")))
 					{
@@ -463,10 +468,15 @@ bool UXLSXFactory::GenerateXLSXSheet(const FString& FileName)
 							XLSXHeader.Type = FString::Printf(TEXT("TArray<%s>"), *Param);
 							XLSXHeader.SubType = ECellType::Int64;
 						}
-						else if (Param.Contains(TEXT("float")))
+						else if (Param.Contains(TEXT("float32")))
 						{
-							XLSXHeader.Type = FString::Printf(TEXT("TArray<%s>"), *Param);
-							XLSXHeader.SubType = ECellType::Float;
+							XLSXHeader.Type = TEXT("TArray<float>");
+							XLSXHeader.SubType = ECellType::Float32;
+						}
+						else if (ExactTypeName.Contains(TEXT("float64")))
+						{
+							XLSXHeader.Type = TEXT("TArray<double>");
+							XLSXHeader.CellType = ECellType::Float64;
 						}
 						else if (Param.Contains(TEXT("FString")))
 						{
@@ -765,7 +775,8 @@ FString UXLSXFactory::GenerateTableDesc(FString const& Filename)
 						case ECellType::Bool: InitailzieValue = TEXT("false"); break;
 						case ECellType::Int32: InitailzieValue = TEXT("0"); break;
 						case ECellType::Int64: InitailzieValue = TEXT("0"); break;
-						case ECellType::Float: InitailzieValue = TEXT("0.0F"); break;
+						case ECellType::Float32: InitailzieValue = TEXT("0.0F"); break;
+						case ECellType::Float64: InitailzieValue = TEXT("0.0"); break;
 						case ECellType::Enum: InitailzieValue = FString::Printf(TEXT("static_cast<%s>(0)"), *Header.Type); break;
 					}
 
@@ -934,7 +945,7 @@ FString UXLSXFactory::GenerateTableDesc(FString const& Filename)
 					ModuleIni
 				);
 			}
-			else if (Const.Type.Contains(TEXT("float")))
+			else if (Const.Type.Contains(TEXT("float32")))
 			{
 				GConfig->SetFloat(
 					*Section,
@@ -943,7 +954,7 @@ FString UXLSXFactory::GenerateTableDesc(FString const& Filename)
 					ModuleIni
 				);
 			}
-			else if (Const.Type.Contains(TEXT("double")))
+			else if (Const.Type.Contains(TEXT("float64")))
 			{
 				GConfig->SetDouble(
 					*Section,
