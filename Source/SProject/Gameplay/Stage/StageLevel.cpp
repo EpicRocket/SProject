@@ -26,7 +26,6 @@ void AStageLevel::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 bool AStageLevel::ShouldShowLoadingScreen(FString& OutReason) const
 {
-
 	return false;
 }
 
