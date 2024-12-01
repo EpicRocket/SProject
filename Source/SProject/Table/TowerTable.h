@@ -1,13 +1,12 @@
-// This is an automatically generated file. Do not modify it manually. [2024.10.12-19.39.27]
+// This is an automatically generated file. Do not modify it manually. [2024.12.01-17.03.22]
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Misc/EnumRange.h"
-#include "Engine/DataTable.h"
-#include "TowerTable.generated.h"
-
 enum class EAttackType : uint8;
 class UTexture2D;
+
+#include "Engine/DataTable.h"
+#include "TowerTable.generated.h"
 
 USTRUCT(BlueprintType)
 struct SPROJECT_API FNormalTowerTableRow : public FTableRowBase
@@ -42,10 +41,10 @@ struct SPROJECT_API FNormalTowerTableRow : public FTableRowBase
 	int32 Hp = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 AttackSpeed = 0;
+	float AttackSpeed = 0.0F;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 Range = 0;
+	float Range = 0.0F;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 UsePoint = 0;
@@ -57,7 +56,7 @@ struct SPROJECT_API FNormalTowerTableRow : public FTableRowBase
 	int32 Splash = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 SplashScale = 0;
+	float SplashScale = 0.0F;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSoftObjectPtr<UTexture2D> IconPath = nullptr;
