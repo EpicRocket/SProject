@@ -94,37 +94,9 @@ FGErrorInfo UStageStateComponent::OnLoadStage(FLatentActionInfo LatentInfo)
 	return ErrorInfo;
 }
 
-void UStageStateComponent::FailLoadLevel()
-{
-	// TODO: SetLevel에 실패함...
-}
-
-void UStageStateComponent::SuccessLoadLevel()
-{
-	auto GameWorldSubsystem = UWorld::GetSubsystem<UGameWorldSubsystem>(GetWorld());
-	if (!GameWorldSubsystem)
-	{
-		return;
-	}
-
-	auto MyGameLevel = GameWorldSubsystem->FindLoadedLevel(LoadLevel);
-	if (!MyGameLevel)
-	{
-		return;
-	}
-
-	auto StageLevel = Cast<AStageLevel>(MyGameLevel);
-	if (!StageLevel)
-	{
-		return;
-	}
-	TargetStage = StageLevel;
-
-	OnLoadLevelCompleted();
-}
-
 void UStageStateComponent::OnLoadLevelCompleted()
 {
+	bLoadCompleted = true;
 	K2_OnLoadLevelCompleted();
 }
 

@@ -8,6 +8,7 @@
 
 namespace Stage
 {
+    // 요청
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Tag_Gameplay_Stage_Request_Build);
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Tag_Gameplay_Stage_Request_Build_Select);
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Tag_Gameplay_Stage_Request_Build_Cancel);

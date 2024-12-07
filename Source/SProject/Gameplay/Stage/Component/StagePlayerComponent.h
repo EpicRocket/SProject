@@ -38,10 +38,10 @@ public:
 
 public:
 	UFUNCTION(BlueprintCallable)
-	void SetHealth(int NewHealth);
+	void SetHealth(int32 NewHealth);
 
 	UFUNCTION(BlueprintCallable)
-	void SetUsePoint(int NewUsePoint);
+	void SetUsePoint(int32 NewUsePoint);
 
 protected:
 	UPROPERTY(BlueprintReadWrite, Category = "스테이지|자원")

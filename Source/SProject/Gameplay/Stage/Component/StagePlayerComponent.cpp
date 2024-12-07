@@ -8,6 +8,10 @@
 #include "Components/PrimitiveComponent.h"
 #include "Framework/Application/SlateUser.h"
 #include "Widgets/SViewport.h"
+// include Plugin
+#include "GameFramework/GameplayMessageSubsystem.h"
+// include Project
+#include "Gameplay/Stage/GameplayMessage/StagePlayerEventMessage.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(StagePlayerComponent)
 
@@ -67,22 +71,20 @@ void UStagePlayerComponent::InteractionMouseEvent()
 	}
 }
 
-void UStagePlayerComponent::SetHealth(int NewHealth)
+void UStagePlayerComponent::SetHealth(int32 NewHealth)
 {
-	if (NewHealth < 0) {
-		Health = 0;
-	}
-	else {
-		Health = NewHealth;
-	}
+	FStagePlayerHealthMessage Message;
+	Message.OldValue = Health;
+	Health = FMath::Max(0, NewHealth);
+	Message.NewValue = Health;
+	UGameplayMessageSubsystem::Get(this).BroadcastMessage(Stage::Tag_Gameplay_Stage_Player_Health_Changed, Message);
 }
 
-void UStagePlayerComponent::SetUsePoint(int NewUsePoint)
+void UStagePlayerComponent::SetUsePoint(int32 NewUsePoint)
 {
-	if (NewUsePoint < 0) {
-		UsePoint = 0;
-	}
-	else{
-		UsePoint = NewUsePoint;
-	}
+	FStagePlayerUsePointMessage Message;
+	Message.OldValue = UsePoint;
+	UsePoint = FMath::Max(0, NewUsePoint);
+	Message.NewValue = UsePoint;
+	UGameplayMessageSubsystem::Get(this).BroadcastMessage(Stage::Tag_Gameplay_Stage_Player_UsePoint_Changed, Message);
 }

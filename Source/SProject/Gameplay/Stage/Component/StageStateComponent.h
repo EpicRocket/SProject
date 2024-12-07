@@ -41,12 +41,6 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnLoadStreaming();
 
-	UFUNCTION(BlueprintCallable)
-	void FailLoadLevel();
-
-	UFUNCTION(BlueprintCallable)
-	void SuccessLoadLevel();
-
 	UFUNCTION()
 	void OnLoadLevelCompleted();
 	
@@ -70,7 +64,5 @@ protected:
 	UPROPERTY(Transient, BlueprintReadOnly)
 	TSoftObjectPtr<UWorld> LoadLevel;
 
-	// 로딩 완료 여부 테스트를 위해 우선 UPROPERTY로 뺌
-	UPROPERTY(Transient, BlueprintReadWrite)
 	bool bLoadCompleted = false;
 };
