@@ -37,7 +37,7 @@ struct FGameplayEffectSpec;
   * @param OldValue			The value of the attribute before it was changed
   * @param NewValue			The value after it was changed
  */
-DECLARE_MULTICAST_DELEGATE_SixParams(FLyraAttributeEvent, AActor* /*EffectInstigator*/, AActor* /*EffectCauser*/, const FGameplayEffectSpec* /*EffectSpec*/, float /*EffectMagnitude*/, float /*OldValue*/, float /*NewValue*/);
+DECLARE_MULTICAST_DELEGATE_SixParams(FGAttributeEvent, AActor* /*EffectInstigator*/, AActor* /*EffectCauser*/, const FGameplayEffectSpec* /*EffectSpec*/, float /*EffectMagnitude*/, float /*OldValue*/, float /*NewValue*/);
 
 UCLASS()
 class GGAMECORE_API UGAttributeSet : public UAttributeSet
