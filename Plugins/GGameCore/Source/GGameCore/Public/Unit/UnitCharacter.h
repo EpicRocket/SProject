@@ -7,6 +7,9 @@
 
 #include "UnitCharacter.generated.h"
 
+class UGBaseAttributeSet;
+class UObject;
+
 UCLASS()
 class GGAMECORE_API AUnitCharacter : public ACharacter, public IGTeamAgentInterface, public IAbilitySystemInterface
 {
@@ -32,4 +35,7 @@ protected:
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Gameplay", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UGAbilitySystemComponent> AbilitySystemComponent;
+
+	UPROPERTY()
+	TObjectPtr<const class UGBaseAttributeSet> BaseAttributeSet;
 };
