@@ -43,7 +43,14 @@ jobs:
             Write-Host "Build ERROR: The batch file does not appear to be located in the root UE directory. This script must be run from within that directory."
             exit 1
         }
+
+        $batchDir = Split-Path -Path $batchFilePath
+        Set-Location -Path $batchDir
         
+        $batchFilePath = Join-Path (Get-Location) "Build.bat"
+        
+        Set-Location -Path "$env:GITHUB_WORKSPACE"
+
         $projectFilePath = Join-Path (Get-Location) "SProject.uproject"
         try {
             & cmd /c "`"$batchFilePath`" -projectfiles -project=`"$projectFilePath`" -game -engine -progress"
@@ -67,6 +74,13 @@ jobs:
             Write-Host "Build ERROR: The batch file does not appear to be located in the root UE directory. This script must be run from within that directory."
             exit 1
         }
+
+        $batchDir = Split-Path -Path $batchFilePath
+        Set-Location -Path $batchDir
+        
+        $batchFilePath = Join-Path (Get-Location) "Build.bat"
+        
+        Set-Location -Path "$env:GITHUB_WORKSPACE"
 
         $projectFilePath = Join-Path (Get-Location) "SProject.uproject"
         try {
