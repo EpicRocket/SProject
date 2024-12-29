@@ -1,7 +1,7 @@
 ﻿
 #pragma once
 
-#include "AbilitySystem/Abilities/GGameplayAbility.h"
+#include "AbilitySystem/Ability/GGameplayAbility.h"
 
 #include "GPhaseGameplayAbility.generated.h"
 

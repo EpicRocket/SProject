@@ -7,29 +7,6 @@
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(StageBuildZone)
 
-int32 AStageBuildZone::GetPosition() const
-{
-	int32 Position = INDEX_NONE;
-	for (const auto& Tag : Tags)
-	{
-		FString TagString = Tag.ToString();
-		FString Left, Right;
-		if (!TagString.Split(TEXT("."), &Left, &Right))
-		{
-			continue;
-		}
-
-		if (!Left.Contains(TEXT("Position")))
-		{
-			continue;
-		}
-
-		Position = FCString::Atoi(*Right);
-		break;
-	}
-
-	return Position;
-}
 
 TArray<FBuildStageTower> AStageBuildZone::GetBuildTower() const
 {

@@ -83,7 +83,20 @@ void AStageLevel::SetPlayerPawn(AStagePlayerPawn* InPlayerPawn)
 	PlayerPawn = InPlayerPawn;
 }
 
-//ATowerBase* AStageLevel::GetTower(int32 Position) const
-//{
-//	return nullptr;
-//}
+void AStageLevel::AddPathActor(AGameplayPathActor* PathActor)
+{
+}
+
+AGameplayPathActor* AStageLevel::GetPathActor(int32 Position) const
+{
+	return nullptr;
+}
+
+void AStageLevel::AddSpawner(AStageSpawner* Spawner)
+{
+}
+
+AStageSpawner* AStageLevel::GetSpawner(int32 Position) const
+{
+	return nullptr;
+}

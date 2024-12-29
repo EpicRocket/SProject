@@ -37,11 +37,7 @@ void UGAbilitySystemComponent::InitAbilityActorInfo(AActor* InOwnerActor, AActor
 		// Notify all abilities that a new pawn avatar has been set
 		for (const FGameplayAbilitySpec& AbilitySpec : ActivatableAbilities.Items)
 		{
-			UGGameplayAbility* GAbilityCDO = Cast<UGGameplayAbility>(AbilitySpec.Ability);
-			if (!GAbilityCDO)
-			{
-				continue;
-			}
+			UGGameplayAbility* GAbilityCDO = CastChecked<UGGameplayAbility>(AbilitySpec.Ability);
 
 			if (GAbilityCDO->GetInstancingPolicy() != EGameplayAbilityInstancingPolicy::NonInstanced)
 			{
@@ -82,10 +78,8 @@ void UGAbilitySystemComponent::TryActivateAbilitiesOnSpawn()
 	ABILITYLIST_SCOPE_LOCK();
 	for (const FGameplayAbilitySpec& AbilitySpec : ActivatableAbilities.Items)
 	{
-		if (const UGGameplayAbility* GAbilityCDO = Cast<UGGameplayAbility>(AbilitySpec.Ability))
-		{
-			GAbilityCDO->TryActivateAbilityOnSpawn(AbilityActorInfo.Get(), AbilitySpec);
-		}
+		const UGGameplayAbility* GAbilityCDO = CastChecked<UGGameplayAbility>(AbilitySpec.Ability);
+		GAbilityCDO->TryActivateAbilityOnSpawn(AbilityActorInfo.Get(), AbilitySpec);
 	}
 }
 

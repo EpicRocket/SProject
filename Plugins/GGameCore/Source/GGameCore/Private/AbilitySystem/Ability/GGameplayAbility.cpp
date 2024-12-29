@@ -1,13 +1,13 @@
 ﻿
-#include "AbilitySystem/Abilities/GGameplayAbility.h"
+#include "AbilitySystem/Ability/GGameplayAbility.h"
 #include "GLogChannels.h"
 #include "AbilitySystem/GAbilitySystemComponent.h"
 #include "AbilitySystemLog.h"
 #include "Unit/UnitCharacter.h"
 #include "GGameplayTags.h"
-#include "AbilitySystem/Abilities/GAbilityCost.h"
+#include "AbilitySystem/Ability/GAbilityCost.h"
 #include "AbilitySystemBlueprintLibrary.h"
-#include "AbilitySystem/Abilities/GAbilitySimpleFailureMessage.h"
+#include "AbilitySystem/Ability/GAbilitySimpleFailureMessage.h"
 #include "AbilitySystem/GAbilitySourceInterface.h"
 #include "AbilitySystem/GGamePlayEffectContext.h"
 
@@ -48,7 +48,7 @@ UGAbilitySystemComponent* UGGameplayAbility::GetGAbilitySystemComponentFromActor
 
 void UGGameplayAbility::TryActivateAbilityOnSpawn(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) const
 {
-	const bool bIsPredicting = (Spec.ActivationInfo.ActivationMode == EGameplayAbilityActivationMode::Predicting);
+	const bool bIsPredicting = (Spec.Ability->GetCurrentActivationInfo().ActivationMode == EGameplayAbilityActivationMode::Predicting);
 
 	// Try to activate if activation policy is on spawn.
 	if (ActorInfo && !Spec.IsActive() && !bIsPredicting && (ActivationPolicy == EGAbilityActivationPolicy::OnSpawn))
@@ -206,7 +206,7 @@ bool UGGameplayAbility::CheckCost(const FGameplayAbilitySpecHandle Handle, const
 	}
 
 	// Verify we can afford any additional costs
-	for (const TObjectPtr<UGAbilityCost>& AdditionalCost : AdditionalCosts)
+	for (TObjectPtr<UGAbilityCost> AdditionalCost : AdditionalCosts)
 	{
 		if (AdditionalCost != nullptr)
 		{
@@ -251,7 +251,7 @@ void UGGameplayAbility::ApplyCost(const FGameplayAbilitySpecHandle Handle, const
 	// Pay any additional costs
 	bool bAbilityHitTarget = false;
 	bool bHasDeterminedIfAbilityHitTarget = false;
-	for (const TObjectPtr<UGAbilityCost>& AdditionalCost : AdditionalCosts)
+	for (TObjectPtr<UGAbilityCost> AdditionalCost : AdditionalCosts)
 	{
 		if (AdditionalCost != nullptr)
 		{

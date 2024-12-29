@@ -1,4 +1,4 @@
-#include "AbilitySystem/Attributes/GAttributeSet.h"
+#include "AbilitySystem/Attribute/GAttributeSet.h"
 
 #include "AbilitySystem/GAbilitySystemComponent.h"
 

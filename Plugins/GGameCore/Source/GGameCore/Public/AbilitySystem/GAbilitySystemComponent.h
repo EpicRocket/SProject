@@ -2,7 +2,7 @@
 #pragma once
 
 #include "AbilitySystemComponent.h"
-#include "AbilitySystem/Abilities/GGameplayAbility.h"
+#include "AbilitySystem/Ability/GGameplayAbility.h"
 #include "NativeGameplayTags.h"
 
 #include "GAbilitySystemComponent.generated.h"

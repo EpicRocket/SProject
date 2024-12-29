@@ -1,6 +1,6 @@
-#include "AbilitySystem/Abilities/GGameplayAbility_Death.h"
+#include "AbilitySystem/Ability/GGameplayAbility_Death.h"
 
-#include "AbilitySystem/Abilities/GGameplayAbility.h"
+#include "AbilitySystem/Ability/GGameplayAbility.h"
 #include "AbilitySystem/GAbilitySystemComponent.h"
 #include "GGameplayTags.h"
 #include "GLogChannels.h"

@@ -5,8 +5,10 @@
 
 #include "StageLevel.generated.h"
 
+class AGameplayPathActor;
 class AStageBuildZone;
 class AStagePlayerPawn;
+class AStageSpawner;
 
 UCLASS()
 class MY_API AStageLevel : public AMyGameLevel
@@ -31,12 +33,29 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetPlayerPawn(AStagePlayerPawn* InPlayerPawn);
 
+    UFUNCTION(BlueprintCallable)
+	void AddPathActor(AGameplayPathActor* PathActor);
+
+	UFUNCTION(BlueprintCallable)
+	AGameplayPathActor* GetPathActor(int32 Position) const;
+
+    UFUNCTION(BlueprintCallable)
+	void AddSpawner(AStageSpawner* Spawner);
+
+    UFUNCTION(BlueprintCallable)
+	AStageSpawner* GetSpawner(int32 Position) const;
+
+
 protected:
     UFUNCTION(BlueprintImplementableEvent)
     void OnInitailize();
 
 public:
+    TMap<int32, TWeakObjectPtr<AGameplayPathActor>> PathActors;
+
     TMap<int32, TWeakObjectPtr<AStageBuildZone>> BuildZones;
+
+	TMap<int32, TWeakObjectPtr<AStageSpawner>> Spawners;
 
     UPROPERTY(Transient, BlueprintReadOnly)
 	TWeakObjectPtr<AStagePlayerPawn> PlayerPawn;

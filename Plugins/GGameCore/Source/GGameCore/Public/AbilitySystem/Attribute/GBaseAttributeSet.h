@@ -1,7 +1,7 @@
 #pragma once
 
 #include "AbilitySystemComponent.h"
-#include "AbilitySystem/Attributes/GAttributeSet.h"
+#include "AbilitySystem/Attribute/GAttributeSet.h"
 
 #include "GBaseAttributeSet.generated.h"
 

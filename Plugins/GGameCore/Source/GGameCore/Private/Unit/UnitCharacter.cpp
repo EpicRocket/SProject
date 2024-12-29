@@ -1,7 +1,7 @@
 ﻿
 #include "Unit/UnitCharacter.h"
 #include "AbilitySystem/GAbilitySystemComponent.h"
-#include "AbilitySystem/Attributes/GBaseAttributeSet.h"
+#include "AbilitySystem/Attribute/GBaseAttributeSet.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(UnitCharacter)
 
