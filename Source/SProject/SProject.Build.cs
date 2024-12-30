@@ -61,7 +61,6 @@ public class SProject : ModuleRules
         PrivateDependencyModuleNames.AddRange(
             new[] {
                 "GGameCore",
-                "GameplayMessageRuntime",
                 "ModularGameplay"
             }
         );

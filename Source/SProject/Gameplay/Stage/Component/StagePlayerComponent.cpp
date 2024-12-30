@@ -8,8 +8,6 @@
 #include "Components/PrimitiveComponent.h"
 #include "Framework/Application/SlateUser.h"
 #include "Widgets/SViewport.h"
-// include Plugin
-#include "GameFramework/GameplayMessageSubsystem.h"
 // include Project
 #include "Gameplay/Stage/GameplayMessage/StagePlayerEventMessage.h"
 
@@ -77,7 +75,7 @@ void UStagePlayerComponent::SetHealth(int32 NewHealth)
 	Message.OldValue = Health;
 	Health = FMath::Max(0, NewHealth);
 	Message.NewValue = Health;
-	UGameplayMessageSubsystem::Get(this).BroadcastMessage(Stage::Tag_Gameplay_Stage_Player_Health_Changed, Message);
+	//UGameplayMessageSubsystem::Get(this).BroadcastMessage(Stage::Tag_Gameplay_Stage_Player_Health_Changed, Message);
 }
 
 void UStagePlayerComponent::SetUsePoint(int32 NewUsePoint)
@@ -86,5 +84,5 @@ void UStagePlayerComponent::SetUsePoint(int32 NewUsePoint)
 	Message.OldValue = UsePoint;
 	UsePoint = FMath::Max(0, NewUsePoint);
 	Message.NewValue = UsePoint;
-	UGameplayMessageSubsystem::Get(this).BroadcastMessage(Stage::Tag_Gameplay_Stage_Player_UsePoint_Changed, Message);
+	//UGameplayMessageSubsystem::Get(this).BroadcastMessage(Stage::Tag_Gameplay_Stage_Player_UsePoint_Changed, Message);
 }

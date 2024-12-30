@@ -4,10 +4,10 @@
 #include "CoreMinimal.h"
 #include "Error/GErrorTypes.h"
 
-#include "GGameplayMessage.generated.h"
+#include "GMessage.generated.h"
 
 USTRUCT(BlueprintType)
-struct FGGameplayMessage
+struct FGMessage
 {
     GENERATED_BODY()
 

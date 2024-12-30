@@ -7,7 +7,6 @@
 
 class AController;
 class AStageLevel;
-struct FGameplayMessageListenerHandle;
 
 UENUM(BlueprintType, meta = (Bitflags))
 enum class EStagePlayerFlag : uint8
@@ -33,9 +32,6 @@ protected:
     TWeakObjectPtr<AStageLevel> CurrentLevel;
 
 private:
-    UPROPERTY(Transient)
-    TArray<FGameplayMessageListenerHandle> GameplayMessageListenerHandles;
-
-    UPROPERTY(Transient, meta = (Bitmask, BitmaskEnum = EStagePlayerFlag))
+    UPROPERTY(Transient, meta = (Bitmask, BitmaskEnum = "EStagePlayerFlag"))
     int32 PlayerFlags = 0;
 };

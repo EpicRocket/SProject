@@ -44,13 +44,6 @@ public class GGameCore : ModuleRules
 			}
 		);
 
-		// GameplayMessage
-		PublicDependencyModuleNames.AddRange(
-			new[] {
-                "GameplayMessageRuntime",
-			}
-		);
-
 		// UI
 		PublicDependencyModuleNames.AddRange(
 			new[] {

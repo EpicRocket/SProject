@@ -3,11 +3,10 @@
 // include Engine
 #include "AbilitySystemComponent.h"
 #include "Engine/GameInstance.h"
-// include Plugin
-#include "GameFramework/GameplayMessageSubsystem.h"
 // include Project
 #include "Phase/Subsystem/GPhaseSubsystem.h"
-#include "GameplayMessage/GPhaseMessage.h"
+#include "GMessage/Subsystem/GMessageSubsystem.h"
+#include "GMessage/GPhaseMessage.h"
 
 #if WITH_EDITOR
 #include "Misc/DataValidation.h"
@@ -88,7 +87,7 @@ void UGPhaseGameplayAbility::BroadcastPhaseMessage(bool bActive)
 		return;
 	}
 
-	auto Subsystem = UGameInstance::GetSubsystem<UGameplayMessageSubsystem>(World->GetGameInstance());
+	auto Subsystem = UGameInstance::GetSubsystem<UGMessageSubsystem>(World->GetGameInstance());
 	if (!IsValid(Subsystem))
 	{
 		return;
