@@ -1,4 +1,6 @@
 ﻿
+#pragma once
+
 #include "GameFramework/Actor.h"
 #include "Gameplay/Interface/IGameplayActorTag.h"
 

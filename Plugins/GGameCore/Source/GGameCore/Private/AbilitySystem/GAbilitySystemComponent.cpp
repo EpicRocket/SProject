@@ -39,7 +39,7 @@ void UGAbilitySystemComponent::InitAbilityActorInfo(AActor* InOwnerActor, AActor
 		{
 			UGGameplayAbility* GAbilityCDO = CastChecked<UGGameplayAbility>(AbilitySpec.Ability);
 
-			if (GAbilityCDO->GetInstancingPolicy() != EGameplayAbilityInstancingPolicy::NonInstanced)
+			if (GAbilityCDO->GetInstancingPolicy() != EGameplayAbilityInstancingPolicy::InstancedPerActor)
 			{
 				TArray<UGameplayAbility*> Instances = AbilitySpec.GetAbilityInstances();
 				for (UGameplayAbility* AbilityInstance : Instances)
@@ -95,7 +95,7 @@ void UGAbilitySystemComponent::CancelAbilitiesByFunc(TShouldCancelAbilityFunc Sh
 		}
 
 		auto GameplayAbility = CastChecked<UGGameplayAbility>(AbilitySpec.Ability);
-		if (GameplayAbility->GetInstancingPolicy() != EGameplayAbilityInstancingPolicy::NonInstanced)
+		if (GameplayAbility->GetInstancingPolicy() != EGameplayAbilityInstancingPolicy::InstancedPerActor)
 		{
 			TArray<UGameplayAbility*> Instances = AbilitySpec.GetAbilityInstances();
 			for (UGameplayAbility* Instance : Instances)
