@@ -48,7 +48,7 @@ UGAbilitySystemComponent* UGGameplayAbility::GetGAbilitySystemComponentFromActor
 
 void UGGameplayAbility::TryActivateAbilityOnSpawn(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) const
 {
-	const bool bIsPredicting = (Spec.Ability->GetCurrentActivationInfo().ActivationMode == EGameplayAbilityActivationMode::Predicting);
+	const bool bIsPredicting = (GetCurrentActivationInfo().ActivationMode == EGameplayAbilityActivationMode::Predicting);
 
 	// Try to activate if activation policy is on spawn.
 	if (ActorInfo && !Spec.IsActive() && !bIsPredicting && (ActivationPolicy == EGAbilityActivationPolicy::OnSpawn))

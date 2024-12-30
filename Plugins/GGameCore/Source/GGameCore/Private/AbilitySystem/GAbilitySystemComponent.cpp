@@ -39,22 +39,15 @@ void UGAbilitySystemComponent::InitAbilityActorInfo(AActor* InOwnerActor, AActor
 		{
 			UGGameplayAbility* GAbilityCDO = CastChecked<UGGameplayAbility>(AbilitySpec.Ability);
 
-			if (GAbilityCDO->GetInstancingPolicy() != EGameplayAbilityInstancingPolicy::InstancedPerActor)
+			TArray<UGameplayAbility*> Instances = AbilitySpec.GetAbilityInstances();
+			for (UGameplayAbility* AbilityInstance : Instances)
 			{
-				TArray<UGameplayAbility*> Instances = AbilitySpec.GetAbilityInstances();
-				for (UGameplayAbility* AbilityInstance : Instances)
+				UGGameplayAbility* GAbilityInstance = Cast<UGGameplayAbility>(AbilityInstance);
+				if (GAbilityInstance)
 				{
-					UGGameplayAbility* GAbilityInstance = Cast<UGGameplayAbility>(AbilityInstance);
-					if (GAbilityInstance)
-					{
-						// Ability instances may be missing for replays
-						GAbilityInstance->OnPawnAvatarSet();
-					}
+					// Ability instances may be missing for replays
+					GAbilityInstance->OnPawnAvatarSet();
 				}
-			}
-			else
-			{
-				GAbilityCDO->OnPawnAvatarSet();
 			}
 		}
 
@@ -95,27 +88,16 @@ void UGAbilitySystemComponent::CancelAbilitiesByFunc(TShouldCancelAbilityFunc Sh
 		}
 
 		auto GameplayAbility = CastChecked<UGGameplayAbility>(AbilitySpec.Ability);
-		if (GameplayAbility->GetInstancingPolicy() != EGameplayAbilityInstancingPolicy::InstancedPerActor)
+		TArray<UGameplayAbility*> Instances = AbilitySpec.GetAbilityInstances();
+		for (UGameplayAbility* Instance : Instances)
 		{
-			TArray<UGameplayAbility*> Instances = AbilitySpec.GetAbilityInstances();
-			for (UGameplayAbility* Instance : Instances)
+			auto AbilityInstance = CastChecked<UGGameplayAbility>(Instance);
+			if (ShouldCancelFunc(AbilityInstance, AbilitySpec.Handle))
 			{
-				auto AbilityInstance = CastChecked<UGGameplayAbility>(Instance);
-				if (ShouldCancelFunc(AbilityInstance, AbilitySpec.Handle))
+				if (AbilityInstance->CanBeCanceled())
 				{
-					if (AbilityInstance->CanBeCanceled())
-					{
-						AbilityInstance->CancelAbility(AbilitySpec.Handle, AbilityActorInfo.Get(), AbilityInstance->GetCurrentActivationInfo(), bReplicateCancelAbility);
-					}
+					AbilityInstance->CancelAbility(AbilitySpec.Handle, AbilityActorInfo.Get(), AbilityInstance->GetCurrentActivationInfo(), bReplicateCancelAbility);
 				}
-			}
-		}
-		else
-		{
-			if (ShouldCancelFunc(GameplayAbility, AbilitySpec.Handle))
-			{
-				check(GameplayAbility->CanBeCanceled());
-				GameplayAbility->CancelAbility(AbilitySpec.Handle, AbilityActorInfo.Get(), FGameplayAbilityActivationInfo{}, bReplicateCancelAbility);
 			}
 		}
 	}

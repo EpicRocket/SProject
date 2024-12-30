@@ -75,15 +75,15 @@ protected:
 public:
     void StartPhase(TSubclassOf<UGPhaseGameplayAbility> PhaseAbility, FGPhaseDelegate PhaseEnded = FGPhaseDelegate{});
 
-    UFUNCTION(BlueprintCallable, Category = "페이즈", meta = (DisplayName="Start Phase", AutoCreateRefTerm = "PhaseEnded"))
+    UFUNCTION(BlueprintCallable, Category = "Phase", meta = (DisplayName="Start Phase", AutoCreateRefTerm = "PhaseEnded"))
 	void K2_StartPhase(TSubclassOf<UGPhaseGameplayAbility> PhaseAbility, const FGPhaseDynamicDelegate& PhaseEnded);
 
     void WhenPhaseStartsOrIsActive(FGameplayTag PhaseTag, EPhaseTagMatchType MatchType, const FGPhaseTagDelegate& WhenPhaseActive);
-    UFUNCTION(BlueprintCallable, Category = "페이즈", meta = (DisplayName = "When Phase Starts or Is Active", AutoCreateRefTerm = "WhenPhaseActive"))
+    UFUNCTION(BlueprintCallable, Category = "Phase", meta = (DisplayName = "When Phase Starts or Is Active", AutoCreateRefTerm = "WhenPhaseActive"))
     void K2_WhenPhaseStartsOrIsActive(FGameplayTag PhaseTag, EPhaseTagMatchType MatchType, FGPhaseTagDynamicDelegate WhenPhaseActive);
 
     void WhenPhaseEnds(FGameplayTag PhaseTag, EPhaseTagMatchType MatchType, const FGPhaseTagDelegate& WhenPhaseEnd);
-    UFUNCTION(BlueprintCallable, Category = "페이즈", meta = (DisplayName = "When Phase Ends", AutoCreateRefTerm = "WhenPhaseEnd"))
+    UFUNCTION(BlueprintCallable, Category = "Phase", meta = (DisplayName = "When Phase Ends", AutoCreateRefTerm = "WhenPhaseEnd"))
     void K2_WhenPhaseEnds(FGameplayTag PhaseTag, EPhaseTagMatchType MatchType, FGPhaseTagDynamicDelegate WhenPhaseEnd);
 
     UFUNCTION(BlueprintPure, meta = (AutoCreateRefTerm = "PhaseTag"))
