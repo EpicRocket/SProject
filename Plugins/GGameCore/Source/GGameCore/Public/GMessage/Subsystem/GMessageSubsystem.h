@@ -8,6 +8,12 @@
 
 #include "GMessageSubsystem.generated.h"
 
+GGAMECORE_API DECLARE_LOG_CATEGORY_EXTERN(LogGMessage, Log, All);
+
+class UGMessageSubsystem;
+class UAsyncAction_ListenForGMessage;
+struct FFrame;
+
 USTRUCT(BlueprintType)
 struct GGAMECORE_API FGMessageListenerHandle
 {
@@ -57,7 +63,7 @@ class GGAMECORE_API UGMessageSubsystem : public UGameInstanceSubsystem
 {
     GENERATED_BODY()
 
-    friend FGMessageListenerHandle;
+    friend UAsyncAction_ListenForGMessage;
 
 public:
     virtual void Deinitialize() override;
@@ -117,6 +123,11 @@ public:
 
     void UnregisterListener(FGMessageListenerHandle Handle);
 
+    UFUNCTION(BlueprintCallable, CustomThunk, Category = Messaging, meta = (CustomStructureParam = "Message", AllowAbstract = "false", DisplayName = "Broadcast Message"))
+    void K2_BroadcastMessage(FGameplayTag Channel, const int32& Message);
+
+    DECLARE_FUNCTION(execK2_BroadcastMessage);
+
 protected:
     void BroadcastMessageInternal(FGameplayTag Channel, const UScriptStruct* StructType, const void* MessageBytes);
 
@@ -135,5 +146,5 @@ private:
         int32 HandleID = 0;
     };
 
-    TMap<FGameplayTag, FChannelListenerList> ListenerMap;
+    TMap<FGameplayTag, FChannelListenerList> Listeners;
 };
