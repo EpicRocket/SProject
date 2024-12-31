@@ -11,9 +11,9 @@
 USTRUCT()
 struct MY_API FFetchDocument
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
-    // UserDocument
+	// UserDocument
 	TOptional<FUserInfo> UserInfo;
 
 	TOptional<int64> Gold = 0;
@@ -27,5 +27,5 @@ struct MY_API FFetchDocument
 	TOptional<FStage> Stage;
 
 	TOptional<TArray<FStageDetail>> StageDetails;
-    // ~UserDocument
+	// ~UserDocument
 };

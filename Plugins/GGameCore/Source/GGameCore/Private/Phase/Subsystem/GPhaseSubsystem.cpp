@@ -59,11 +59,11 @@ void UGPhaseSubsystem::K2_StartPhase(TSubclassOf<UGPhaseGameplayAbility> PhaseAb
 	StartPhase(PhaseAbility, EndedDelegate);
 }
 
-void UGPhaseSubsystem::WhenPhaseStartsOrIsActive(FGameplayTag PhaseTag, EPhaseTagMatchType MatchType, const FGPhaseTagDelegate& WhenPhaseActive)
+void UGPhaseSubsystem::WhenPhaseStartsOrIsActive(FGameplayTag PhaseTag, bool bMatchExact, const FGPhaseTagDelegate& WhenPhaseActive)
 {
 	FGPhaseObserver Observer{
 		.PhaseTag = PhaseTag,
-		.MatchType = MatchType,
+		.bMatchExact = bMatchExact,
 		.PhaseCallback = WhenPhaseActive
 	};
 
@@ -75,7 +75,7 @@ void UGPhaseSubsystem::WhenPhaseStartsOrIsActive(FGameplayTag PhaseTag, EPhaseTa
 	}
 }
 
-void UGPhaseSubsystem::K2_WhenPhaseStartsOrIsActive(FGameplayTag PhaseTag, EPhaseTagMatchType MatchType, FGPhaseTagDynamicDelegate WhenPhaseActive)
+void UGPhaseSubsystem::K2_WhenPhaseStartsOrIsActive(FGameplayTag PhaseTag, bool bMatchExact, FGPhaseTagDynamicDelegate WhenPhaseActive)
 {
 	auto ActiveDelegate = FGPhaseTagDelegate::CreateWeakLambda(
 		WhenPhaseActive.GetUObject(),
@@ -83,21 +83,21 @@ void UGPhaseSubsystem::K2_WhenPhaseStartsOrIsActive(FGameplayTag PhaseTag, EPhas
 			WhenPhaseActive.ExecuteIfBound(PhaseTag);
 		});
 
-	WhenPhaseStartsOrIsActive(PhaseTag, MatchType, ActiveDelegate);
+	WhenPhaseStartsOrIsActive(PhaseTag, bMatchExact, ActiveDelegate);
 }
 
-void UGPhaseSubsystem::WhenPhaseEnds(FGameplayTag PhaseTag, EPhaseTagMatchType MatchType, const FGPhaseTagDelegate& WhenPhaseEnd)
+void UGPhaseSubsystem::WhenPhaseEnds(FGameplayTag PhaseTag, bool bMatchExact, const FGPhaseTagDelegate& WhenPhaseEnd)
 {
 	FGPhaseObserver Observer{
 		.PhaseTag = PhaseTag,
-		.MatchType = MatchType,
+		.bMatchExact = bMatchExact,
 		.PhaseCallback = WhenPhaseEnd
 	};
 
 	PhaseEndObservers.Add(Observer);
 }
 
-void UGPhaseSubsystem::K2_WhenPhaseEnds(FGameplayTag PhaseTag, EPhaseTagMatchType MatchType, FGPhaseTagDynamicDelegate WhenPhaseEnd)
+void UGPhaseSubsystem::K2_WhenPhaseEnds(FGameplayTag PhaseTag, bool bMatchExact, FGPhaseTagDynamicDelegate WhenPhaseEnd)
 {
 	auto EndedDelegate = FGPhaseTagDelegate::CreateWeakLambda(
 		WhenPhaseEnd.GetUObject(),
@@ -105,7 +105,7 @@ void UGPhaseSubsystem::K2_WhenPhaseEnds(FGameplayTag PhaseTag, EPhaseTagMatchTyp
 			WhenPhaseEnd.ExecuteIfBound(PhaseTag);
 		});
 
-	WhenPhaseEnds(PhaseTag, MatchType, EndedDelegate);
+	WhenPhaseEnds(PhaseTag, bMatchExact, EndedDelegate);
 }
 
 bool UGPhaseSubsystem::IsPhaseActive(const FGameplayTag& PhaseTag) const

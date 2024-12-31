@@ -1,19 +1,17 @@
 ﻿
 #pragma once
 
-#include "UObject/Interface.h"
+#include "GenericTeamAgentInterface.h"
 
 #include "GTeamAgentInterface.generated.h"
 
-UINTERFACE(BlueprintType, meta = (CannotImplementInterfaceInBlueprint))
-class GGAMECORE_API UGTeamAgentInterface : public UInterface
+UINTERFACE(meta = (CannotImplementInterfaceInBlueprint))
+class GGAMECORE_API UGTeamAgentInterface : public UGenericTeamAgentInterface
 {
     GENERATED_BODY()
 };
 
-class GGAMECORE_API IGTeamAgentInterface : public IInterface
+class GGAMECORE_API IGTeamAgentInterface : public IGenericTeamAgentInterface
 {
     GENERATED_BODY()
-public:
-    
 };

@@ -12,25 +12,24 @@ struct FStageDetail;
 USTRUCT(BlueprintType)
 struct MY_API FStage
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
-    /**스테이지 레벨 */
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    int32 Level = 0;
+	/**스테이지 레벨 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 Level = 0;
 };
 
 /** 스테이지 별 상세 정보 */
 USTRUCT(BlueprintType)
 struct MY_API FStageDetail
 {
-    GENERATED_BODY()
-    
-    /** 스테이지의 레벨(맵) */
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    int32 Level = 0;
+	GENERATED_BODY()
 
-    /** 스테이지에 배치된 타워들 */
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    TArray<FTower> Towers;
+	/** 스테이지의 레벨(맵) */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 Level = 0;
+
+	/** 스테이지에 배치된 타워들 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<FTower> Towers;
 };
-

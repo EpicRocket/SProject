@@ -32,7 +32,9 @@ public class GGameCore : ModuleRules
                 "InputCore",
                 "RenderCore",
                 "DeveloperSettings",
-            }
+                "AIModule",
+				"ModularGameplay",
+			}
 		);
 
 		// GameplayAbility

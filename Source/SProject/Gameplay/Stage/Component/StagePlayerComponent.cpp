@@ -13,16 +13,6 @@
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(StagePlayerComponent)
 
-APlayerController* UStagePlayerComponent::GetOwningPlayer() const
-{
-	return Cast<APlayerController>(GetOwner());
-}
-
-ULocalPlayer* UStagePlayerComponent::GetOwningLocalPlayer() const
-{
-	return GetOwningPlayer()->GetLocalPlayer();
-}
-
 void UStagePlayerComponent::InteractionMouseEvent()
 {
 	auto PC = GetOwningPlayer();

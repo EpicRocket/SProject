@@ -20,6 +20,6 @@ class MY_API IGameplayActorTag : public IInterface
     static const FString PositionTagName;
 
 public:
-    UFUNCTION(BlueprintCallable, Category = "Gameplay|Tag")
+    UFUNCTION(BlueprintCallable, Category = "Gameplay|Actor|Tag")
     virtual int32 GetPosition() const;
 };

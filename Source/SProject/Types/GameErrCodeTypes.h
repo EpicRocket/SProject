@@ -9,7 +9,7 @@ UENUM()
 enum class EGameErrCode : int32
 {
 	None = 0,
-	
+
 	// 엔진 에러
 	NotFoundLocalPlayer,
 
@@ -19,7 +19,6 @@ enum class EGameErrCode : int32
 	// 싱글플레이
 	NotFoundSignleplaySubsystem,
 	NotFoundSingleplayContext,
-
 
 	Unkwon,
 	Max
