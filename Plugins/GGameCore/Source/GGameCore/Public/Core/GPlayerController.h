@@ -2,14 +2,14 @@
 #pragma once
 
 #include "GameFramework/PlayerController.h"
-#include "Team/Interface/GTeamAgentInterface.h"
+#include "Team/Interface/IGTeamAgent.h"
 
 #include "GPlayerController.generated.h"
 
 class APawn;
 
 UCLASS(Blueprintable)
-class GGAMECORE_API AGPlayerController : public APlayerController, public IGTeamAgentInterface
+class GGAMECORE_API AGPlayerController : public APlayerController, public IGTeamAgent
 {
     GENERATED_BODY()
 

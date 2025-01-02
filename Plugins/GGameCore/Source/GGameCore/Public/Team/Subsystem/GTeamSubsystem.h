@@ -32,6 +32,6 @@ class GGAMECORE_API UGTeamHelper : public UBlueprintFunctionLibrary
     GENERATED_BODY()
 
 public:
-    UFUNCTION(BlueprintCallable, Category = "Team", meta = ())
-    static void LoadTeamTableRows(UDataTable* Table, TArray<FGTeamTracker>& Teams);
+    UFUNCTION(BlueprintCallable, Category = "Team", meta = (ReturnDisplayName = "Success"))
+    static bool LoadTeamTableRows(UDataTable* Table, TArray<FGTeamTracker>& Teams);
 };

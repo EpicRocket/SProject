@@ -2,7 +2,7 @@
 #pragma once
 
 #include "GameFramework/Character.h"
-#include "Team/Interface/GTeamAgentInterface.h"
+#include "Team/Interface/IGTeamAgent.h"
 #include "AbilitySystemInterface.h"
 
 #include "UnitCharacter.generated.h"
@@ -11,7 +11,7 @@ class UGBaseAttributeSet;
 class UObject;
 
 UCLASS()
-class GGAMECORE_API AUnitCharacter : public ACharacter, public IGTeamAgentInterface, public IAbilitySystemInterface
+class GGAMECORE_API AUnitCharacter : public ACharacter, public IGTeamAgent, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 

@@ -2,10 +2,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
 #include "Engine/DataAsset.h"
-#include "Team/Interface/GTeamAgentInterface.h"
 #include "Gameplay/Interface/IGameplayActorTag.h"
+#include "Gameplay/ETC/GameplayTeamActor.h"
 
 #include "StageBuildZone.generated.h"
 
@@ -40,7 +39,7 @@ public:
 };
 
 UCLASS(Abstract, BlueprintType, Blueprintable)
-class MY_API AStageBuildZone : public AActor, public IGameplayActorTag
+class MY_API AStageBuildZone : public AGameplayTeamActor, public IGameplayActorTag
 {
 	GENERATED_BODY()
 
@@ -78,9 +77,6 @@ protected:
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UStageBuildZoneData> BuildZoneData;
-
-	UPROPERTY(EditInstanceOnly)
-	FGenericTeamId TeamID;
 
 private:
 	UPROPERTY(Category = "스테이지", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
