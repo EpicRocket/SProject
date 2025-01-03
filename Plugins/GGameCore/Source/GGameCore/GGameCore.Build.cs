@@ -21,7 +21,7 @@ public class GGameCore : ModuleRules
 
 
 		PublicDependencyModuleNames.AddRange(
-			new string[]
+			new []
 			{
 				"CoreUObject",
 				"Engine",
@@ -39,7 +39,7 @@ public class GGameCore : ModuleRules
 
 		// GameplayAbility
 		PublicDependencyModuleNames.AddRange(
-			new[] {
+			new string[] {
 				"GameplayAbilities",
 				"GameplayTags",
 				"GameplayTasks",
@@ -48,7 +48,7 @@ public class GGameCore : ModuleRules
 
 		// UI
 		PublicDependencyModuleNames.AddRange(
-			new[] {
+			new string[] {
 				"CommonUI",
 				"CommonInput",
 			}
@@ -56,14 +56,14 @@ public class GGameCore : ModuleRules
 
 		// Loading
 		PublicDependencyModuleNames.AddRange(
-			new[] {
+			new string[] {
 				"PreLoadScreen",
 			}
 		);
 
         // 2D
         PublicDependencyModuleNames.AddRange(
-            new[] {
+            new string[] {
                 "Paper2D",
             }
         );
