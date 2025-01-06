@@ -26,8 +26,11 @@ public:
     void Unload();
 
 private:
-	TMap<int32/*Kind*/, TMap<int32/*Level*/, TSharedPtr<FNormalTowerTableRow>>> NormalTowerTableRows;
-    TMap<int32/*Level*/, TSharedPtr<FStageTableRow>> StageTableRows;
+	TMap<int32/*Kind*/, TSortedMap<int32/*Level*/, TSharedPtr<FNormalTowerTableRow>>> NormalTowerTableRows;
+    TSortedMap<int32/*Level*/, TSharedPtr<FNormalTowerTableRow>>* FindNormalTowerTableRows(int32 Kind);
+	TSharedPtr<FNormalTowerTableRow>* FindNormalTowerTableRow(int32 Kind, int32 Level);
+
+    TSortedMap<int32/*Level*/, TSharedPtr<FStageTableRow>> StageTableRows;
 };
 
 UCLASS()
@@ -38,6 +41,12 @@ class MY_API UStageTableHelper : public UBlueprintFunctionLibrary
 public:
 	UFUNCTION(BlueprintCallable, Category = "스테이지|타워|건설", meta = (ReturnDisplayName = "Find"))
     static bool GetBuildStageTower(EStageTowerType TowerType, int32 Kind, int32 Level, FBuildStageTower& Result);
+
+    UFUNCTION(BlueprintCallable, Category = "스테이지|타워|건설", meta = (ReturnDisplayName = "Find"))
+    static bool GetNextStageTower(EStageTowerType TowerType, int32 Kind, int32 Level, FBuildStageTower& Result);
+
+    UFUNCTION(BlueprintCallable, Category = "스테이지|타워")
+    static int32 GetStageTowerMaxLevel(EStageTowerType TowerType, int32 Kind);
 
     UFUNCTION(BlueprintCallable, Category = "스테이지|정보", meta = (ReturnDisplayName = "Find"))
     static bool GetStageTableInfo(int32 Level, FStageTableRow& Result);

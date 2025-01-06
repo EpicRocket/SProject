@@ -31,6 +31,7 @@ void UStageTableRepository::Load()
 		return;
 	}
 
+	NormalTowerTableRows.Empty();
 	for (auto Row : TableSubsystem->GetTableDatas<FNormalTowerTableRow>())
 	{
 		if (Row == nullptr)
@@ -45,6 +46,7 @@ void UStageTableRepository::Load()
 		}
 	}
 
+	StageTableRows.Empty();
 	for (auto Row : TableSubsystem->GetTableDatas<FStageTableRow>())
 	{
 		if (Row == nullptr)
@@ -62,6 +64,36 @@ void UStageTableRepository::Unload()
 	StageTableRows.Empty();
 }
 
+TSortedMap<int32, TSharedPtr<FNormalTowerTableRow>>* UStageTableRepository::FindNormalTowerTableRows(int32 Kind)
+{
+	auto Result = NormalTowerTableRows.Find(Kind);
+	if (!Result)
+	{
+		UE_LOG(LogTable, Warning, TEXT("NormalTowerTable을 찾지 못하였습니다. [Kind: %d]"), Kind);
+		return nullptr;
+	}
+	return Result;
+
+}
+
+TSharedPtr<FNormalTowerTableRow>* UStageTableRepository::FindNormalTowerTableRow(int32 Kind, int32 Level)
+{
+	auto KindTable = FindNormalTowerTableRows(Kind);
+	if (!KindTable)
+	{
+		return nullptr;
+	}
+
+	auto Result = KindTable->Find(Level);
+	if (!Result)
+	{
+		UE_LOG(LogTable, Warning, TEXT("NormalTowerTable을 찾지 못하였습니다. [Kind: %d, Level: %d]"), Kind, Level);
+		return nullptr;
+	}
+
+	return Result;
+}
+
 //////////////////////////////////////////////////////////////////////////
 // UStageTableHelper
 //////////////////////////////////////////////////////////////////////////
@@ -72,19 +104,10 @@ bool UStageTableHelper::GetBuildStageTower(EStageTowerType TowerType, int32 Kind
 
 	switch (TowerType)
 	{
-	case EStageTowerType::Normal:
-	{
-		auto KindTable = Repository->NormalTowerTableRows.Find(Kind);
-		if (!KindTable)
-		{
-            UE_LOG(LogTable, Warning, TEXT("NormalTowerTable을 찾지 못하였습니다. [Kind: %d]"), Kind);
-			return false;
-		}
-
-		auto TowerRow = KindTable->Find(Level);
+	case EStageTowerType::Normal: {
+		auto TowerRow = Repository->FindNormalTowerTableRow(Kind, Level);
 		if (!TowerRow)
 		{
-			UE_LOG(LogTable, Warning, TEXT("NormalTowerTable을 찾지 못하였습니다. [Kind: %d, Level: %d]"), Kind, Level);
 			return false;
 		}
 
@@ -105,6 +128,75 @@ bool UStageTableHelper::GetBuildStageTower(EStageTowerType TowerType, int32 Kind
 	}
 
 	return true;
+}
+
+bool UStageTableHelper::GetNextStageTower(EStageTowerType TowerType, int32 Kind, int32 Level, FBuildStageTower& Result)
+{
+	auto Repository = UStageTableRepository::Get();
+	check(Repository);
+
+	int32 MaxLevel = GetStageTowerMaxLevel(TowerType, Kind);
+	if (Level >= MaxLevel)
+	{
+		return false;
+	}
+
+	int32 NextLevel = Level + 1;
+
+	switch (TowerType)
+	{
+	case EStageTowerType::Normal: {
+		auto TowerRow = Repository->FindNormalTowerTableRow(Kind, NextLevel);
+		if (!TowerRow)
+		{
+			return false;
+		}
+
+		auto& TowerPtr = *TowerRow;
+		Result.Index = TowerPtr->Index;
+		Result.Kind = TowerPtr->Kind;
+		Result.Level = TowerPtr->Level;
+		Result.Name = TowerPtr->Name;
+		// FIXME: 텍스쳐 로드는 로딩에서 미리 해둬야 함.
+		Result.Icon = TowerPtr->IconPath.LoadSynchronous();
+	}
+	break;
+
+	default: {
+		UE_LOG(LogTable, Warning, TEXT("타워 타입이 잘못되었습니다. [TowerType: %s]"), *UEnum::GetValueAsString(TowerType));
+		return false;
+	}
+	}
+
+	return true;
+}
+
+int32 UStageTableHelper::GetStageTowerMaxLevel(EStageTowerType TowerType, int32 Kind)
+{
+	auto Repository = UStageTableRepository::Get();
+	check(Repository);
+
+	int32 Result = 0;
+
+	switch (TowerType)
+	{
+	case EStageTowerType::Normal: {
+		auto KindTable = Repository->FindNormalTowerTableRows(Kind);
+		if (!KindTable || KindTable->IsEmpty())
+		{
+			return 0;
+		}
+		Result = (*(--KindTable->end())).Key;
+	}
+	break;
+
+	default: {
+		UE_LOG(LogTable, Warning, TEXT("타워 타입이 잘못되었습니다. [TowerType: %s]"), *UEnum::GetValueAsString(TowerType));
+		return 0;
+	}
+	}
+
+	return FMath::Max(0, Result);
 }
 
 bool UStageTableHelper::GetStageTableInfo(int32 Level, FStageTableRow& Result)
