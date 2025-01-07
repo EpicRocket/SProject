@@ -2,6 +2,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Error/GErrorTypes.h"
 
 #include "StageTowerTypes.generated.h"
 
@@ -16,5 +17,14 @@ struct FStageTowerReceipt
     TArray<FBuildStageTower> BuildTowers;
 
     UPROPERTY(EditAnywhere, BlueprintType)
-    int64 SalesPrice = 0;
+	FGErrorInfo Error;
+
+    UPROPERTY(EditAnywhere, BlueprintType)
+    bool bMaxLevel = false;
+
+    UPROPERTY(EditAnywhere, BlueprintType)
+    bool bSellable = false;
+
+    UPROPERTY(EditAnywhere, BlueprintType)
+    int64 SellPrice = 0;
 };

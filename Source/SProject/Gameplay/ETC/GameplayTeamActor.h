@@ -7,6 +7,8 @@
 
 #include "GameplayTeamActor.generated.h"
 
+class AGPlayerController;
+
 UCLASS(Abstract, BlueprintType, Blueprintable)
 class MY_API AGameplayTeamActor : public AActor, public IGTeamAgent
 {

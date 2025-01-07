@@ -9,14 +9,14 @@ const FString IGameplayActorTag::PositionTagName = TEXT("Position");
 
 int32 IGameplayActorTag::GetPosition() const
 {
-	const AActor* Actor = Cast<AActor>(this);
-	if (!Actor)
+	const AActor* ThisActor = Cast<AActor>(this);
+	if (!ThisActor)
 	{
 		return INDEX_NONE;
 	}
 
 	int32 Position = INDEX_NONE;
-	for (const auto& Tag : Actor->Tags)
+	for (const auto& Tag : ThisActor->Tags)
 	{
 		FString TagString = Tag.ToString();
 		FString Left, Right;

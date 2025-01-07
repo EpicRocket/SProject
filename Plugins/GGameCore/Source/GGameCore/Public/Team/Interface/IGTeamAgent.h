@@ -5,6 +5,8 @@
 
 #include "IGTeamAgent.generated.h"
 
+struct FGTeamTracker;
+
 UINTERFACE(meta = (CannotImplementInterfaceInBlueprint))
 class GGAMECORE_API UGTeamAgent : public UGenericTeamAgentInterface
 {
@@ -14,4 +16,8 @@ class GGAMECORE_API UGTeamAgent : public UGenericTeamAgentInterface
 class GGAMECORE_API IGTeamAgent : public IGenericTeamAgentInterface
 {
     GENERATED_BODY()
+
+public:
+    UFUNCTION(BlueprintCallable)
+    virtual FGTeamTracker GetTeamTracker() const;
 };

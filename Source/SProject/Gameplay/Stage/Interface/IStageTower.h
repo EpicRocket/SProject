@@ -9,12 +9,12 @@
 enum class EStageTowerType : uint8;
 
 UINTERFACE(BlueprintType, meta = (CannotImplementInterfaceInBlueprint))
-class MY_API UIStageTower : public UInterface
+class MY_API UStageTower : public UInterface
 {
     GENERATED_BODY()
 };
 
-class MY_API IIStageTower : public IInterface
+class MY_API IStageTower : public IInterface
 {
     GENERATED_BODY()
 
@@ -29,5 +29,5 @@ public:
 	virtual int32 GetLevel() const = 0;
 
     UFUNCTION(BlueprintCallable, Category = "타워", meta = (ShortToolTip = "판매 가격"))
-	virtual int64 GetSalesPrice() const = 0;
+	virtual int64 GetSellPrice() const = 0;
 };

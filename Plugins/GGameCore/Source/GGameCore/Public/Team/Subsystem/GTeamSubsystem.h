@@ -8,8 +8,11 @@
 #include "GTeamSubsystem.generated.h"
 
 class UDataTable;
+struct FGenericTeamId;
 
-UCLASS(Abstract)
+GGAMECORE_API DECLARE_LOG_CATEGORY_EXTERN(LogGTeam, Log, All);
+
+UCLASS(Abstract, Config = Game)
 class GGAMECORE_API UGTeamSubsystem : public UWorldSubsystem
 {
     GENERATED_BODY()
@@ -20,6 +23,9 @@ protected:
 public:
     UFUNCTION(BlueprintCallable)
     void RegisterTeams(const TArray<FGTeamTracker>& InTeams);
+
+    UFUNCTION(BlueprintPure)
+	FGTeamTracker GetTeamTracker(FGenericTeamId TeamID) const;
 
 private:
     UPROPERTY(Transient)

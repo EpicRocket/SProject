@@ -3,15 +3,33 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
+#include "UObject/ScriptInterface.h"
+#include "NativeGameplayTags.h"
 #include "Gameplay/Interface/IGameplayActorTag.h"
 #include "Gameplay/ETC/GameplayTeamActor.h"
 
 #include "StageBuildZone.generated.h"
 
-struct FBuildStageTower;
 enum class EStageTowerType : uint8;
+struct FBuildStageTower;
+struct FStageTowerReceipt;
 class UBoxComponent;
 class UChildActorComponent;
+class IStageTower;
+
+namespace Stage
+{
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Selected_BuildZone);
+}
+
+USTRUCT(BlueprintType)
+struct FSelectedStageBuildZoneMessage
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<AStageBuildZone> SelectedBuildZone;
+};
 
 USTRUCT(BlueprintType)
 struct MY_API FStageBuildContent
@@ -49,8 +67,8 @@ class MY_API AStageBuildZone : public AGameplayTeamActor, public IGameplayActorT
 public:
 	AStageBuildZone();
 
-	UFUNCTION(BlueprintCallable)
-	TArray<FBuildStageTower> GetBuildTower() const;
+	UFUNCTION(BlueprintPure)
+	FStageTowerReceipt GetTowerReceipt() const;
 
 	UFUNCTION(BlueprintCallable)
 	void Reset();
@@ -77,6 +95,9 @@ protected:
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UStageBuildZoneData> BuildZoneData;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TScriptInterface<IStageTower> SpawnedTower;
 
 private:
 	UPROPERTY(Category = "스테이지", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
