@@ -30,6 +30,4 @@ private:
     UPROPERTY(Transient)
     TObjectPtr<UGUIPolicy> GUIPolicy;
 
-    UPROPERTY(config, EditAnywhere)
-    TSoftClassPtr<UGUIPolicy> GUIPolicyClassPtr;
 };

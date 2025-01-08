@@ -1,9 +1,10 @@
 ﻿
 #include "MyGameLayout.h"
-
+// include Engine
+#include "Engine/GameInstance.h"
 #include "CommonInputSubsystem.h"
 #include "Widgets/CommonActivatableWidgetContainer.h"
-
+// include GameCore
 #include "MyUIPolicy.h"
 #include "MyUISubsystem.h"
 #include "Core/MyLocalPlayer.h"
@@ -17,9 +18,9 @@ int32 InputSuspensionCount = 0;
 // UMyGameLayout
 //////////////////////////////////////////////////////////////////////////
 
-UMyGameLayout* UMyGameLayout::Get(const ULocalPlayer* LocalPlayer)
+/*static*/ UMyGameLayout* UMyGameLayout::Get(const ULocalPlayer* LocalPlayer)
 {
-	UMyUISubsystem* UISubsystem = UMyUISubsystem::Get(LocalPlayer);
+	UMyUISubsystem* UISubsystem = UGameInstance::GetSubsystem<UMyUISubsystem>(LocalPlayer->GetGameInstance());
 	if (!UISubsystem)
 	{
 		return nullptr;

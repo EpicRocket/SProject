@@ -2,8 +2,8 @@
 #include "Core/GGameInstance.h"
 // Engine
 #include "Engine/LocalPlayer.h"
-
-#include "UI/GUIManagerSubsystem.h"
+// GameCore
+#include "UI/Subsystem/GUIManagerSubsystem.h"
 #include "Core/GLocalPlayer.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(GGameInstance)

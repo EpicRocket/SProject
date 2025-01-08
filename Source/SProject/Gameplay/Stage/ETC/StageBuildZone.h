@@ -70,28 +70,6 @@ public:
 	UFUNCTION(BlueprintPure)
 	FStageTowerReceipt GetTowerReceipt() const;
 
-	UFUNCTION(BlueprintCallable)
-	void Reset();
-
-	UFUNCTION(BlueprintCallable)
-	void Select();
-
-	UFUNCTION(BlueprintCallable)
-	void Deselect();
-
-protected:
-	UFUNCTION(BlueprintImplementableEvent)
-	void OnReset();
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void OnSelect();
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void OnDeselect();
-
-	//UFUNCTION(BlueprintImplementableEvent)
-	//void OnBuild(ATowerBase* Tower);
-
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UStageBuildZoneData> BuildZoneData;

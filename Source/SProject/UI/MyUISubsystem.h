@@ -1,18 +1,17 @@
 ﻿
 #pragma once
 
-#include "UI/GUIManagerSubsystem.h"
+#include "UI/Subsystem/GUIManagerSubsystem.h"
 
 #include "MyUISubsystem.generated.h"
 
 class UMyUIPolicy;
 class UMyLocalPlayer;
 
-UCLASS(Config = SProject)
+UCLASS()
 class MY_API UMyUISubsystem : public UGUIManagerSubsystem
 {
     GENERATED_BODY()
 
 public:
-    static UMyUISubsystem* Get(const UObject* WorldContextObject);
 };

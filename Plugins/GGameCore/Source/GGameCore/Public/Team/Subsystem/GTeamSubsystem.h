@@ -22,14 +22,14 @@ protected:
 
 public:
     UFUNCTION(BlueprintCallable)
-    void RegisterTeams(const TArray<FGTeamTracker>& InTeams);
+    void RegisterTeams(const TArray<FGTeamTracker>& InTeams, TArray<FGTeamForce> InForces);
 
     UFUNCTION(BlueprintPure)
 	FGTeamTracker GetTeamTracker(FGenericTeamId TeamID) const;
 
 private:
-    UPROPERTY(Transient)
-    TMap<uint8, FGTeamTracker> Teams;
+    TMap<uint8, TSharedPtr<FGTeamTracker>> Teams;
+	TMap<uint8, TArray<uint8>> TeamForces;
 };
 
 UCLASS()
@@ -38,6 +38,9 @@ class GGAMECORE_API UGTeamHelper : public UBlueprintFunctionLibrary
     GENERATED_BODY()
 
 public:
+	UFUNCTION(BlueprintCallable, Category = "Team", meta = (ReturnDisplayName = "Success"))
+	static bool LoadTeamForceTableRows(UDataTable* Table, TArray<FGTeamForce>& Forces);
+
     UFUNCTION(BlueprintCallable, Category = "Team", meta = (ReturnDisplayName = "Success"))
     static bool LoadTeamTableRows(UDataTable* Table, TArray<FGTeamTracker>& Teams);
 };

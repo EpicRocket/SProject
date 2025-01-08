@@ -8,6 +8,13 @@
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(IGTeamAgent)
 
+ETeamAttitude::Type IGTeamAgent::GetTeamAttitudeTowards(const AActor& Other) const
+{
+
+
+	return ETeamAttitude::Type();
+}
+
 FGTeamTracker IGTeamAgent::GetTeamTracker() const
 {
 	const UObject* ThisObject = Cast<UObject>(this);

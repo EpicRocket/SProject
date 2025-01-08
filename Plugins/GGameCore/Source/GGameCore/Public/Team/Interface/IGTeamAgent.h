@@ -18,6 +18,8 @@ class GGAMECORE_API IGTeamAgent : public IGenericTeamAgentInterface
     GENERATED_BODY()
 
 public:
+    virtual ETeamAttitude::Type GetTeamAttitudeTowards(const AActor& Other) const override;
+
     UFUNCTION(BlueprintCallable)
     virtual FGTeamTracker GetTeamTracker() const;
 };

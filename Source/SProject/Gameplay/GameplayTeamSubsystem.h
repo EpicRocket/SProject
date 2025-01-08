@@ -8,7 +8,7 @@
 class UDataTable;
 
 UCLASS()
-class SPROJECT_API UGameplayTeamSubsystem : public UGTeamSubsystem
+class MY_API UGameplayTeamSubsystem : public UGTeamSubsystem
 {
     GENERATED_BODY()
 

@@ -80,21 +80,6 @@ FStageTowerReceipt AStageBuildZone::GetTowerReceipt() const
 	return Receipt;
 }
 
-void AStageBuildZone::Reset()
-{
-	OnReset();
-}
-
-void AStageBuildZone::Select()
-{
-	OnSelect();
-}
-
-void AStageBuildZone::Deselect()
-{
-	OnDeselect();
-}
-
 //void AStageBuildZone::Build(TSubclassOf<ATowerBase> TowerClass)
 //{
 //	if (IsValid(SpawendTower))

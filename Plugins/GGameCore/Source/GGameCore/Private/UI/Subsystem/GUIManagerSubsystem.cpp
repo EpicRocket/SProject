@@ -1,8 +1,9 @@
 ﻿
-#include "UI/GUIManagerSubsystem.h"
-
+#include "UI/Subsystem/GUIManagerSubsystem.h"
+// include GameCore
 #include "Core/GLocalPlayer.h"
 #include "UI/GUIPolicy.h"
+#include "UI/GUISettings.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(GUIManagerSubsystem)
 
@@ -10,9 +11,10 @@ void UGUIManagerSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
 
-	if (!GUIPolicyClassPtr.IsNull())
+	auto& DefaultPolicyClassPtr = GetDefault<UGUISettings>()->DefaultPolicyClassPtr;
+	if (!DefaultPolicyClassPtr.IsNull())
 	{
-		TSubclassOf<UGUIPolicy> GUIPolicyClass = GUIPolicyClassPtr.LoadSynchronous();
+		TSubclassOf<UGUIPolicy> GUIPolicyClass = DefaultPolicyClassPtr.LoadSynchronous();
 		GUIPolicy = NewObject<UGUIPolicy>(this, GUIPolicyClass);
 	}
 }

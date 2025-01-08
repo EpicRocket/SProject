@@ -1,7 +1,6 @@
 ﻿
 #pragma once
 
-#include "Components/GameFrameworkComponent.h"
 #include "Framework/Player/GPlayerComponent.h"
 
 
@@ -10,7 +9,7 @@
 class AActor;
 
 UCLASS()
-class SPROJECT_API UStagePlayerComponent : public UGPlayerComponent
+class MY_API UStagePlayerComponent : public UGPlayerComponent
 {
     GENERATED_BODY()
 
