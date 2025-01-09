@@ -6,7 +6,7 @@
 
 #include "ISelectableActor.generated.h"
 
-class APlayerController;
+class UPlayerSelectComponent;
 
 UINTERFACE(BlueprintType)
 class MY_API USelectableActor : public UInterface

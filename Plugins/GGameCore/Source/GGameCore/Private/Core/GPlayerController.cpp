@@ -46,3 +46,13 @@ void AGPlayerController::OnUnPossess()
 		LocalPlayer->OnPlayerPawnSet.Broadcast(LocalPlayer, nullptr);
 	}
 }
+
+void AGPlayerController::SetGenericTeamId(const FGenericTeamId& InTeamID)
+{
+	TeamID = InTeamID;
+}
+
+FGenericTeamId AGPlayerController::GetGenericTeamId() const
+{
+	return TeamID;
+}

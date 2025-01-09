@@ -10,9 +10,25 @@
 
 ETeamAttitude::Type IGTeamAgent::GetTeamAttitudeTowards(const AActor& Other) const
 {
+	const UObject* ThisObject = Cast<UObject>(this);
+	if (!ThisObject)
+	{
+		return ETeamAttitude::Type::Neutral;
+	}
 
+	const IGTeamAgent* OtherTeamAgent = Cast<IGTeamAgent>(&Other);
+	if (!OtherTeamAgent)
+	{
+		return ETeamAttitude::Type::Neutral;
+	}
 
-	return ETeamAttitude::Type();
+	auto TeamSubsystem = UWorld::GetSubsystem<UGTeamSubsystem>(ThisObject->GetWorld());
+	if (!TeamSubsystem)
+	{
+		return ETeamAttitude::Type::Neutral;
+	}
+
+	return TeamSubsystem->GetTeamAttitudeTowards(GetGenericTeamId(), OtherTeamAgent->GetGenericTeamId());
 }
 
 FGTeamTracker IGTeamAgent::GetTeamTracker() const

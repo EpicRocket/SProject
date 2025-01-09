@@ -8,31 +8,39 @@
 #include "GTeamTypes.generated.h"
 
 class UGTeamDisplayAsset;
-namespace ETeamAttitude
-{
-    enum Type : int;
-}
-
-USTRUCT(BlueprintType)
-struct FGTeamForce : public FTableRowBase
-{
-    GENERATED_BODY()
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    TEnumAsByte<ETeamAttitude::Type> Attitude = TEnumAsByte<ETeamAttitude::Type>{ 0 };
-};
 
 USTRUCT(BlueprintType)
 struct GGAMECORE_API FGTeamTracker : public FTableRowBase
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    uint8 ID = 255;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	uint8 ID = 255;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    uint8 Force = 0;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	uint8 Force = 0;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    TSoftObjectPtr<UGTeamDisplayAsset> DisplayAssetPtr;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSoftObjectPtr<UGTeamDisplayAsset> DisplayAssetPtr;
+};
+
+USTRUCT(BlueprintType)
+struct GGAMECORE_API FGTeamRelationship
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 TrustLevel = 0;
+};
+
+USTRUCT(BlueprintType)
+struct GGAMECORE_API FGTeam
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FGTeamTracker Tracker;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TMap<uint8/*TeamIndex*/, FGTeamRelationship> Relationships;
 };
