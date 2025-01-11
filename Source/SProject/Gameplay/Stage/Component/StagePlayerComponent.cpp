@@ -8,6 +8,8 @@
 #include "Components/PrimitiveComponent.h"
 #include "Framework/Application/SlateUser.h"
 #include "Widgets/SViewport.h"
+#include "Math/UnitConversion.h"
+#include "HAL/PlatformApplicationMisc.h"
 // include Project
 #include "Gameplay/Stage/GameplayMessage/StagePlayerEventMessage.h"
 
@@ -57,6 +59,65 @@ void UStagePlayerComponent::InteractionMouseEvent()
 	{
 		OnInteractionActor(HitActor);
 	}
+}
+
+void UStagePlayerComponent::OnMousePressed()
+{
+	auto LocalPlayer = GetOwningLocalPlayer();
+	if (!LocalPlayer)
+	{
+		return;
+	}
+
+	UGameViewportClient* ViewportClient = LocalPlayer->ViewportClient;
+	if (!ViewportClient)
+	{
+		return;
+	}
+
+	bMousePressed = ViewportClient->GetMousePosition(FirstMousePressPosition);
+}
+
+void UStagePlayerComponent::OnMouseMoved()
+{
+	auto LocalPlayer = GetOwningLocalPlayer();
+	if (!LocalPlayer)
+	{
+		return;
+	}
+
+	UGameViewportClient* ViewportClient = LocalPlayer->ViewportClient;
+	if (!ViewportClient)
+	{
+		return;
+	}
+
+	FVector2D MousePosition;
+	if (!ViewportClient->GetMousePosition(MousePosition))
+	{
+		return;
+	}
+
+	auto Dist = (FirstMousePressPosition - MousePosition).SizeSquared();
+	float DragTriggerDistance;
+
+	const float DragTriggerDistanceInInches = FUnitConversion::Convert(1.0f, EUnit::Millimeters, EUnit::Inches);
+	FPlatformApplicationMisc::ConvertInchesToPixels(DragTriggerDistanceInInches, DragTriggerDistance);
+	DragTriggerDistance = FMath::Max(DragTriggerDistance, 5.0F);
+
+	if (Dist >= DragTriggerDistance)
+	{
+		bMousePressed = false;
+	}
+}
+
+void UStagePlayerComponent::OnMouseReleased()
+{
+	if (bMousePressed)
+	{
+		InteractionMouseEvent();
+	}
+	bMousePressed = false;
 }
 
 void UStagePlayerComponent::SetHealth(int32 NewHealth)

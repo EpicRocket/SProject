@@ -85,15 +85,22 @@ void UPlayerSelectFunctionLibrary::SelectActor(APlayerController* PC, AActor* Ta
 		return;
 	}
 
-	ISelectableActor* SelectableActor = Cast<ISelectableActor>(Target);
-	if (!SelectableActor)
-	{
-		return;
-	}
-
 	TScriptInterface<ISelectableActor> SelectableActorInterface;
-	SelectableActorInterface.SetObject(Target);
-	SelectableActorInterface.SetInterface(SelectableActor);
+	if (Target->Implements<USelectableActor>())
+	{
+		SelectableActorInterface.SetObject(Target);
+	}
+	else
+	{
+		ISelectableActor* SelectableActor = Cast<ISelectableActor>(Target);
+		if (!SelectableActor)
+		{
+			return;
+		}
+
+		SelectableActorInterface.SetObject(Target);
+		SelectableActorInterface.SetInterface(SelectableActor);
+	}
 
 	auto PlayerSelectComponent = PC->GetComponentByClass<UPlayerSelectComponent>();
 	if (!IsValid(PlayerSelectComponent))
@@ -116,15 +123,22 @@ void UPlayerSelectFunctionLibrary::DeselectActor(APlayerController* PC, AActor* 
 		return;
 	}
 
-	ISelectableActor* SelectableActor = Cast<ISelectableActor>(Target);
-	if (!SelectableActor)
-	{
-		return;
-	}
-
 	TScriptInterface<ISelectableActor> SelectableActorInterface;
-	SelectableActorInterface.SetObject(Target);
-	SelectableActorInterface.SetInterface(SelectableActor);
+	if (Target->Implements<USelectableActor>())
+	{
+		SelectableActorInterface.SetObject(Target);
+	}
+	else
+	{
+		ISelectableActor* SelectableActor = Cast<ISelectableActor>(Target);
+		if (!SelectableActor)
+		{
+			return;
+		}
+
+		SelectableActorInterface.SetObject(Target);
+		SelectableActorInterface.SetInterface(SelectableActor);
+	}
 
 	auto PlayerSelectComponent = PC->GetComponentByClass<UPlayerSelectComponent>();
 	if (!IsValid(PlayerSelectComponent))
@@ -163,15 +177,22 @@ bool UPlayerSelectFunctionLibrary::IsSelected(APlayerController* PC, AActor* Tar
 		return false;
 	}
 
-	ISelectableActor* SelectableActor = Cast<ISelectableActor>(Target);
-	if (!SelectableActor)
-	{
-		return false;
-	}
-
 	TScriptInterface<ISelectableActor> SelectableActorInterface;
-	SelectableActorInterface.SetObject(Target);
-	SelectableActorInterface.SetInterface(SelectableActor);
+	if (Target->Implements<USelectableActor>())
+	{
+		SelectableActorInterface.SetObject(Target);
+	}
+	else
+	{
+		ISelectableActor* SelectableActor = Cast<ISelectableActor>(Target);
+		if (!SelectableActor)
+		{
+			return false;
+		}
+
+		SelectableActorInterface.SetObject(Target);
+		SelectableActorInterface.SetInterface(SelectableActor);
+	}
 
 	auto PlayerSelectComponent = PC->GetComponentByClass<UPlayerSelectComponent>();
 	if (!IsValid(PlayerSelectComponent))

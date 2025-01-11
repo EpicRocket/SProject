@@ -14,10 +14,6 @@ class MY_API UStagePlayerComponent : public UGPlayerComponent
     GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintCallable, Category = "입력|이벤트")
-	void InteractionMouseEvent();
-
-public:
 	UFUNCTION(BlueprintCallable)
 	void SetHealth(int32 NewHealth);
 
@@ -34,4 +30,21 @@ protected:
 protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnInteractionActor(AActor* HitActor);
+
+	UFUNCTION(BlueprintCallable, Category = "입력|이벤트")
+	void InteractionMouseEvent();
+
+	UFUNCTION(BlueprintCallable, Category = "입력|이벤트")
+	void OnMousePressed();
+
+	UFUNCTION(BlueprintCallable, Category = "입력|이벤트")
+	void OnMouseMoved();
+
+	UFUNCTION(BlueprintCallable, Category = "입력|이벤트")
+	void OnMouseReleased();
+
+private:
+	bool bMousePressed = false;
+
+	FVector2D FirstMousePressPosition = FVector2D::ZeroVector;
 };

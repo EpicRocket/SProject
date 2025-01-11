@@ -13,18 +13,18 @@ struct FStageTowerReceipt
 {
     GENERATED_BODY()
 
-    UPROPERTY(EditAnywhere, BlueprintType)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
     TArray<FBuildStageTower> BuildTowers;
 
-    UPROPERTY(EditAnywhere, BlueprintType)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FGErrorInfo Error;
 
-    UPROPERTY(EditAnywhere, BlueprintType)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
     bool bMaxLevel = false;
 
-    UPROPERTY(EditAnywhere, BlueprintType)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
     bool bSellable = false;
 
-    UPROPERTY(EditAnywhere, BlueprintType)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
     int64 SellPrice = 0;
 };

@@ -37,6 +37,7 @@ public class SProject : ModuleRules
                 "DataValidation",
                 "DeveloperSettings",
                 "AssetRegistry",
+                "ApplicationCore",
             }
         );
 
