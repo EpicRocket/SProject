@@ -70,6 +70,9 @@ public:
 	UFUNCTION(BlueprintPure)
 	FStageTowerReceipt GetTowerReceipt() const;
 
+	UFUNCTION(BlueprintCallable)
+	void RequestBuildTower(const FBuildStageTower& BuildStageTower);
+
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UStageBuildZoneData> BuildZoneData;

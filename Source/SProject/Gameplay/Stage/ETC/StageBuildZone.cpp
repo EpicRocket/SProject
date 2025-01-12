@@ -10,7 +10,9 @@
 #include "Gameplay/GameplayLogging.h"
 #include "Gameplay/Stage/Types/StageTowerTypes.h"
 #include "Gameplay/Stage/Interface/IStageTower.h"
+#include "Gameplay/Stage/Unit/UnitStageTower.h"
 #include "Table/TableSubsystem.h"
+#include "Table/TowerTable.h"
 #include "TableRepository/StageTableRepository.h"
 #include "TableTypes/StageTableTypes.h"
 
@@ -80,36 +82,49 @@ FStageTowerReceipt AStageBuildZone::GetTowerReceipt() const
 	return Receipt;
 }
 
-//void AStageBuildZone::Build(TSubclassOf<ATowerBase> TowerClass)
-//{
-//	if (IsValid(SpawendTower))
-//	{
-//		UGameplayFunctionLibrary::RemoveUnit(SpawendTower);
-//	}
-//
-//	auto SpawnedUnit = UGameplayFunctionLibrary::SpawnUnit(TowerClass, GetTransform());
-//	if (!IsValid(SpawnedUnit))
-//	{
-//		UE_LOG(LogTemp, Error, TEXT("타워 생성에 실패하였습니다. [Object: %s][Position: %d]"), *GetFName().ToString(), GetPosition());
-//		return;
-//	}
-//
-//	SpawendTower = Cast<ATowerBase>(SpawnedUnit);
-//	if (!IsValid(SpawendTower))
-//	{
-//		UGameplayFunctionLibrary::RemoveUnit(SpawnedUnit);
-//		UE_LOG(LogTemp, Error, TEXT("타워 캐스트에 실패하였습니다. [Object: %s][Position: %d]"), *GetFName().ToString(), GetPosition());
-//		return;
-//	}
-//
-//	OnBuild(SpawendTower);
-//}
-//
-//ATowerBase* AStageBuildZone::GetSpawendTower() const
-//{
-//	if (IsValid(SpawendTower))
-//	{
-//		return SpawendTower;
-//	}
-//	return nullptr;
-//}
+
+// TODO: 별도의 AI 컨트롤 필요함...
+#include "AIController.h"
+#include "Engine/World.h"
+
+void AStageBuildZone::RequestBuildTower(const FBuildStageTower& BuildStageTower)
+{
+	// TODO: 플레이어 자원 체크
+
+	TSubclassOf<AUnitStageTower> TowerClass;
+
+	switch (BuildStageTower.TowerType)
+	{
+	case EStageTowerType::Normal:
+	{
+		auto Row = UTableHelper::GetData<FNormalTowerTableRow>(BuildStageTower.Index);
+		if (!Row)
+		{
+			return;
+		}
+
+		TowerClass = Row->UnitPath.LoadSynchronous();
+	}
+	break;
+
+	default:
+		return;
+	}
+
+	if (!TowerClass)
+	{
+		return;
+	}
+
+	ChildActorComponent->SetChildActorClass(TowerClass);
+	auto TowerActor = Cast<AUnitStageTower>(ChildActorComponent->GetChildActor());
+	if (!TowerActor)
+	{
+		return;
+	}
+
+	TowerActor->AIControllerClass = AAIController::StaticClass();
+	TowerActor->SpawnDefaultController();
+
+	//TowerActor->poss
+}
