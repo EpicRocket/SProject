@@ -73,6 +73,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void RequestBuildTower(const FBuildStageTower& BuildStageTower);
 
+	UFUNCTION(BlueprintImplementableEvent)
+	FVector GetBuildLocation() const;
+
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UStageBuildZoneData> BuildZoneData;

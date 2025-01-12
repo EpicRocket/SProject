@@ -4,6 +4,7 @@
 #include "Engine/GameInstance.h"
 #include "Components/BoxComponent.h"
 #include "Components/ChildActorComponent.h"
+#include "Components/CapsuleComponent.h"
 // include GameCore
 #include "GMessage/Subsystem/GMessageSubsystem.h"
 // include Project
@@ -126,6 +127,9 @@ void AStageBuildZone::RequestBuildTower(const FBuildStageTower& BuildStageTower)
 
 	TowerActor->AIControllerClass = AAIController::StaticClass();
 	TowerActor->SpawnDefaultController();
-
-	//TowerActor->poss
+	
+	// TODO: 임시임...
+	auto CapsuleComponent = TowerActor->GetCapsuleComponent();
+	auto TargetLocation = GetBuildLocation() + FVector(0.0F, 0.0F, CapsuleComponent->GetScaledCapsuleHalfHeight());
+	TowerActor->SetActorLocation(TargetLocation);
 }
