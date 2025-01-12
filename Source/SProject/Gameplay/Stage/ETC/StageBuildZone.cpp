@@ -32,6 +32,7 @@ AStageBuildZone::AStageBuildZone()
 	InteractionComponent->SetBoxExtent(FVector(100.0f, 100.0f, 150.0f));
 	static FName InteractionCollsionProfileName = FName(TEXT("UI"));
 	InteractionComponent->SetCollisionProfileName(InteractionCollsionProfileName);
+	RootComponent = InteractionComponent;
 
 	ChildActorComponent = CreateDefaultSubobject<UChildActorComponent>(ChildActorComponentName);
 	ChildActorComponent->SetupAttachment(InteractionComponent);
