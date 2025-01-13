@@ -38,7 +38,8 @@ jobs:
         $ErrorActionPreference = "Stop"
         Set-Location -Path "$env:GITHUB_WORKSPACE"
 
-        $batchFilePath = "C:/UnrealEngine/Engine/Build/BatchFiles/Build.bat"
+        $ueRoot = "C:/UnrealEngine"
+        $batchFilePath = Join-Path $ueRoot "Engine/Build/BatchFiles/Build.bat"
         if (-Not (Test-Path $batchFilePath)) {
             Write-Host "Build ERROR: The batch file does not appear to be located in the root UE directory. This script must be run from within that directory."
             exit 1
@@ -69,23 +70,17 @@ jobs:
         $ErrorActionPreference = "Stop"
         Set-Location -Path "$env:GITHUB_WORKSPACE"
         
-        $batchFilePath = "C:/UnrealEngine/Engine/Build/BatchFiles/Build.bat"
+        $ueRoot = "C:/UnrealEngine"
+        $batchFilePath = Join-Path $ueRoot "Engine/Binaries/DotNET/UnrealBuildTool/UnrealBuildTool.exe"
         if (-Not (Test-Path $batchFilePath)) {
             Write-Host "Build ERROR: The batch file does not appear to be located in the root UE directory. This script must be run from within that directory."
             exit 1
         }
-
-        $batchDir = Split-Path -Path $batchFilePath
-        Set-Location -Path $batchDir
-        
-        $batchFilePath = Join-Path (Get-Location) "Build.bat"
-        
         Set-Location -Path "$env:GITHUB_WORKSPACE"
 
         $projectFilePath = Join-Path (Get-Location) "SProject.uproject"
         try {
-            & cmd /c "`"$batchFilePath`" -Target="SProjectEditor Win64 Development -Project="$projectFilePath""
-            & cmd /c "`"$batchFilePath`" -Target=`"ShaderCompileWorker Win64 Development -Quiet`" -WaitMutex -FromMsBuild"
+            & cmd /c "`"$batchFilePath`" SProjectEditor Win64 Development -project=`"$projectFilePath`" -progress -log"
             exit $LASTEXITCODE
         } catch {
             Write-Error "An error occurred: $_"
@@ -99,19 +94,19 @@ jobs:
     steps:
     - name: Clean-up
       run: |
-        $ErrorActionPreference = "Stop"
+        # $ErrorActionPreference = "Stop"
 
-        $binariesPath = Join-Path (Get-Location).Path "Binaries"
-        if (Test-Path $binariesPath) {
-        # delete *pdb files
-            Get-ChildItem -Path "$binariesPath" -Filter *.pdb -Recurse | Remove-Item -Force
-        }
+        # $binariesPath = Join-Path (Get-Location).Path "Binaries"
+        # if (Test-Path $binariesPath) {
+        # # delete *pdb files
+        #     Get-ChildItem -Path "$binariesPath" -Filter *.pdb -Recurse | Remove-Item -Force
+        # }
 
-        $pluginsPath = Join-Path (Get-Location).Path "Plugins"
-        if (Test-Path $pluginsPath) {
-            # delete *pdb files
-            Get-ChildItem -Path "$pluginsPath" -Filter *.pdb -Recurse | Remove-Item -Force
-        }
+        # $pluginsPath = Join-Path (Get-Location).Path "Plugins"
+        # if (Test-Path $pluginsPath) {
+        #     # delete *pdb files
+        #     Get-ChildItem -Path "$pluginsPath" -Filter *.pdb -Recurse | Remove-Item -Force
+        # }
 
   Deploy:
     needs: [Clean-up]
