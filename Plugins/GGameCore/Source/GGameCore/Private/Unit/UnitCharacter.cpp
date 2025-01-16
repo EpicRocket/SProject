@@ -24,6 +24,16 @@ void AUnitCharacter::BeginPlay()
 	}
 }
 
+void AUnitCharacter::SetGenericTeamId(const FGenericTeamId& InTeamID)
+{
+	TeamID = InTeamID.GetId();
+}
+
+FGenericTeamId AUnitCharacter::GetGenericTeamId() const
+{
+	return FGenericTeamId(TeamID);
+}
+
 UAbilitySystemComponent* AUnitCharacter::GetAbilitySystemComponent() const
 {
 	return AbilitySystemComponent;

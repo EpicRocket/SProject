@@ -171,6 +171,32 @@ bool UStageTableHelper::GetNextStageTower(EStageTowerType TowerType, int32 Kind,
 	return true;
 }
 
+bool UStageTableHelper::GetStageTowerSellPrice(EStageTowerType TowerType, int32 Kind, int32 Level, int64& Result)
+{
+	auto Repository = UStageTableRepository::Get();
+	check(Repository);
+	switch (TowerType)
+	{
+	case EStageTowerType::Normal: {
+		auto TowerRow = Repository->FindNormalTowerTableRow(Kind, Level);
+		if (!TowerRow)
+		{
+			return false;
+		}
+		auto& TowerPtr = *TowerRow;
+		Result = TowerPtr->UsePoint;
+	}
+	break;
+
+	default: {
+		UE_LOG(LogTable, Warning, TEXT("타워 타입이 잘못되었습니다. [TowerType: %s]"), *UEnum::GetValueAsString(TowerType));
+		return false;
+	}
+	}
+
+	return true;
+}
+
 int32 UStageTableHelper::GetStageTowerMaxLevel(EStageTowerType TowerType, int32 Kind)
 {
 	auto Repository = UStageTableRepository::Get();

@@ -21,6 +21,6 @@ public:
     // ~IGTeamAgent
 
 public:
-    UPROPERTY(EditInstanceOnly)
-    FGenericTeamId TeamID;
+    UPROPERTY(EditInstanceOnly, Category = "Team")
+    uint8 TeamID;
 };

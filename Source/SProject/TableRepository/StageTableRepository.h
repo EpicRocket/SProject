@@ -39,15 +39,18 @@ class MY_API UStageTableHelper : public UBlueprintFunctionLibrary
     GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintCallable, Category = "스테이지|타워|건설", meta = (ReturnDisplayName = "Find"))
+	UFUNCTION(BlueprintPure, Category = "스테이지|타워|건설", meta = (ReturnDisplayName = "Find"))
     static bool GetBuildStageTower(EStageTowerType TowerType, int32 Kind, int32 Level, FBuildStageTower& Result);
 
-    UFUNCTION(BlueprintCallable, Category = "스테이지|타워|건설", meta = (ReturnDisplayName = "Find"))
+    UFUNCTION(BlueprintPure, Category = "스테이지|타워|건설", meta = (ReturnDisplayName = "Find"))
     static bool GetNextStageTower(EStageTowerType TowerType, int32 Kind, int32 Level, FBuildStageTower& Result);
 
-    UFUNCTION(BlueprintCallable, Category = "스테이지|타워")
+	UFUNCTION(BlueprintPure, Category = "스테이지|타워|판매", meta = (ReturnDisplayName = "Find"))
+	static bool GetStageTowerSellPrice(EStageTowerType TowerType, int32 Kind, int32 Level, int64& Result);
+
+    UFUNCTION(BlueprintPure, Category = "스테이지|타워")
     static int32 GetStageTowerMaxLevel(EStageTowerType TowerType, int32 Kind);
 
-    UFUNCTION(BlueprintCallable, Category = "스테이지|정보", meta = (ReturnDisplayName = "Find"))
+    UFUNCTION(BlueprintPure, Category = "스테이지|정보", meta = (ReturnDisplayName = "Find"))
     static bool GetStageTableInfo(int32 Level, FStageTableRow& Result);
 };

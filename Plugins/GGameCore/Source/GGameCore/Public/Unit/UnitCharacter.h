@@ -20,6 +20,11 @@ public:
 
 	virtual void BeginPlay() override;
 
+	// IGTeamAgent
+	virtual void SetGenericTeamId(const FGenericTeamId& InTeamID) override;
+	virtual FGenericTeamId GetGenericTeamId() const override;
+	// ~IGTeamAgent
+
 	// IAbilitySystemInterface
 	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	// ~IAbilitySystemInterface
@@ -27,6 +32,9 @@ public:
 public:
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Unit")
 	FGuid UnitId;
+
+	UPROPERTY(EditInstanceOnly, Category = "Team")
+	uint8 TeamID;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Unit")

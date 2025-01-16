@@ -7,10 +7,10 @@
 
 void AGameplayTeamActor::SetGenericTeamId(const FGenericTeamId& InTeamID)
 {
-    TeamID = InTeamID;
+    TeamID = InTeamID.GetId();
 }
 
 FGenericTeamId AGameplayTeamActor::GetGenericTeamId() const
 {
-    return TeamID;
+    return FGenericTeamId(TeamID);
 }

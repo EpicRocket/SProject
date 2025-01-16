@@ -1,25 +1,41 @@
 ﻿
 #include "UnitStageTower.h"
+
 #include "TableTypes/StageTableTypes.h"
+#include "TableRepository/StageTableRepository.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(UnitStageTower)
 
 EStageTowerType AUnitStageTower::GetTowerType() const
 {
-    return EStageTowerType::Normal;
+    return GetBuildReceipt()->TowerType;
 }
 
 int32 AUnitStageTower::GetKind() const
 {
-    return 0;
+    return GetBuildReceipt()->Kind;
 }
 
 int32 AUnitStageTower::GetLevel() const
 {
-    return 0;
+    return GetBuildReceipt()->Level;
 }
 
 int64 AUnitStageTower::GetSellPrice() const
 {
-    return 0;
+	int64 Result = 0;
+	if (!UStageTableHelper::GetStageTowerSellPrice(GetTowerType(), GetKind(), GetLevel(), Result))
+	{
+		return 0;
+	}
+	return Result;
+}
+
+TSharedRef<FBuildStageTower> AUnitStageTower::GetBuildReceipt() const
+{
+	if (!BuildReceipt.IsValid())
+	{
+		BuildReceipt = MakeShared<FBuildStageTower>();
+	}
+    return BuildReceipt.ToSharedRef();
 }
