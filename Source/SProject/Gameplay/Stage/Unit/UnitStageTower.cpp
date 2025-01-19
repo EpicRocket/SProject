@@ -31,6 +31,11 @@ int64 AUnitStageTower::GetSellPrice() const
 	return Result;
 }
 
+void AUnitStageTower::SetBuildReceipt(const FBuildStageTower& Tower)
+{
+	*(GetBuildReceipt()) = Tower;
+}
+
 TSharedRef<FBuildStageTower> AUnitStageTower::GetBuildReceipt() const
 {
 	if (!BuildReceipt.IsValid())

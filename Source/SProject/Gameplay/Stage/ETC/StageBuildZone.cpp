@@ -124,7 +124,7 @@ void AStageBuildZone::RequestBuildTower(const FBuildStageTower& BuildStageTower)
 	{
 		return;
 	}
-
+	TowerActor->SetBuildReceipt(BuildStageTower);
 	TowerActor->AIControllerClass = AAIController::StaticClass();
 	TowerActor->SpawnDefaultController();
 	
