@@ -22,5 +22,5 @@ public:
 
 public:
     UPROPERTY(EditInstanceOnly, Category = "Team")
-    uint8 TeamID;
+	uint8 TeamID = 255;
 };
