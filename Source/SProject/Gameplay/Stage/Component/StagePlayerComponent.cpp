@@ -1,6 +1,7 @@
 ﻿
 #include "StagePlayerComponent.h"
 // include Engine
+#include "Engine/World.h"
 #include "Engine/LocalPlayer.h"
 #include "Engine/GameViewportClient.h"
 #include "GameFramework/PlayerController.h"
@@ -11,7 +12,10 @@
 #include "Math/UnitConversion.h"
 #include "HAL/PlatformApplicationMisc.h"
 // include Project
+#include "Core/MyPlayerController.h"
 #include "Gameplay/Stage/GameplayMessage/StagePlayerEventMessage.h"
+#include "Gameplay/Team/GameplayTeamSubsystem.h"
+#include "Gameplay/Team/GameplayUserPlayer.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(StagePlayerComponent)
 
@@ -118,6 +122,29 @@ void UStagePlayerComponent::OnMouseReleased()
 		InteractionMouseEvent();
 	}
 	bMousePressed = false;
+}
+
+void UStagePlayerComponent::InitializeComponent()
+{
+	Super::InitializeComponent();
+
+	auto TeamSubsystem = UWorld::GetSubsystem<UGameplayTeamSubsystem>(GetWorld());
+	check(TeamSubsystem);
+
+	auto MyPlayerController = Cast<AMyPlayerController>(GetOwningPlayer());
+	auto Player = TeamSubsystem->GetPlayer(MyPlayerController->GetGenericTeamId());
+	if (!Player)
+	{
+		return;
+	}
+
+	UserPlayer = Cast<UGameplayUserPlayer>(Player);
+	if (!UserPlayer.IsValid())
+	{
+		return;
+	}
+
+	UserPlayer->OwningPlayerController = MyPlayerController;
 }
 
 void UStagePlayerComponent::SetHealth(int32 NewHealth)

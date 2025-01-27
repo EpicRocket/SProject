@@ -60,5 +60,5 @@ AUnitCharacter* UGameplayHelper::SpawnUnit(UObject* WorldContextObject, FVector 
 	float HalfHeight = SpawnUnit->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
 	SpawnUnit->FinishSpawning(FTransform(Rotation, AdjustedLocation + HalfHeight), false, nullptr, ESpawnActorScaleMethod::MultiplyWithRoot);
 
-    return SpawnUnit;
+	return SpawnUnit;
 }

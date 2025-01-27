@@ -1,4 +1,4 @@
-// This is an automatically generated file. Do not modify it manually. [2024.10.27-18.47.37]
+// This is an automatically generated file. Do not modify it manually. [2025.01.26-19.22.58]
 #pragma once
 
 #include "CoreMinimal.h"
@@ -7,6 +7,7 @@
 
 enum class EItemType : uint8;
 enum class EUseType : uint8;
+class UTexture2D;
 
 
 USTRUCT(BlueprintType)
@@ -30,7 +31,7 @@ struct SPROJECT_API FItemInfoTableRow : public FTableRowBase
 	EUseType UseType = static_cast<EUseType>(0);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FString Icon;
+	TSoftObjectPtr<UTexture2D> Icon = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<int32> Value;

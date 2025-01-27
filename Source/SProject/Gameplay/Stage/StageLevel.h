@@ -47,8 +47,7 @@ public:
 
 
 protected:
-    UFUNCTION(BlueprintImplementableEvent)
-    void OnInitailize();
+    virtual void OnInitailize();
 
 public:
     TMap<int32, TWeakObjectPtr<AGameplayPathActor>> PathActors;

@@ -9,6 +9,13 @@
 
 class UGTeamDisplayAsset;
 
+UENUM(BlueprintType)
+enum class EGTeamPlayerType : uint8
+{
+	Player,
+	Computer,
+};
+
 USTRUCT(BlueprintType)
 struct GGAMECORE_API FGTeamTracker : public FTableRowBase
 {
@@ -19,6 +26,9 @@ struct GGAMECORE_API FGTeamTracker : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	uint8 Force = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	EGTeamPlayerType PlayerType = EGTeamPlayerType::Player;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSoftObjectPtr<UGTeamDisplayAsset> DisplayAssetPtr;

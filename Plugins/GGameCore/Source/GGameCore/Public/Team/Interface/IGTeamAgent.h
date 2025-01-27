@@ -25,4 +25,5 @@ public:
 
     UFUNCTION(BlueprintCallable)
     virtual FGTeamTracker GetTeamTracker() const;
+    
 };

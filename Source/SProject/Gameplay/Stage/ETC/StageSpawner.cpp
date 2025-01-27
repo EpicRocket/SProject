@@ -1,37 +1,35 @@
 ﻿
 #include "StageSpawner.h"
+// include Engine
 #include "AIController.h"
 #include "Gameplay/ETC/GameplayPathActor.h"
 #include "Engine/World.h"
 #include "Unit/UnitCharacter.h"
 #include "Kismet/GameplayStatics.h"
+// include Project
+#include "Gameplay/Stage/StageLogging.h"
+#include "Gameplay/Stage/StageLevel.h"
+#include "Gameplay/GameplayWorldSubsystem.h"
 
-void AStageSpawner::Spawn()
+AUnitCharacter* AStageSpawner::Spawn(const FStageSpawnParams& Params)
 {
-	UE_LOG(LogTemp, Log, TEXT("StageSpawner spawn start."));
-	if (!GetWorld()) 
+	if (!Params.StageLevel.IsValid())
 	{
-		return;
+		UE_LOG(LogStage, Warning, TEXT("StageLevel을 찾지 못하였습니다."));
+		return nullptr;
 	}
 
-	TArray<AActor*> GameplayPathActors;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AGameplayPathActor::StaticClass(), GameplayPathActors);
-
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-
-	if (!SpawnUnits.IsEmpty())
+	auto PathActor = Params.StageLevel->GetPathActor(Params.PathPosition);
+	if (!PathActor)
 	{
-		AUnitCharacter* Spawned = GetWorld()->SpawnActor<AUnitCharacter>(SpawnUnits[0], GetActorLocation(), GetActorRotation(), SpawnParams);
-
-		Spawned->SetGenericTeamId(GetGenericTeamId());
-	
-		AAIController* AIController = GetWorld()->SpawnActor<AAIController>();
-		if (AIController)
-		{
-			AIController->Possess(Cast<APawn>(Spawned));
-		}
+		UE_LOG(LogStage, Warning, TEXT("PathActor을 찾지 못하였습니다."));
+		return nullptr;
 	}
+
+	auto SpawnedUnit = UGameplayHelper::SpawnUnit(this, PathActor->GetActorLocation(), PathActor->GetActorRotation(), Params.SpawnUnit, AAIController::StaticClass());
+	SpawnedUnit->SetGenericTeamId(GetGenericTeamId());
+
+	return SpawnedUnit;
 }
 
 int32 AStageSpawner::GetCurrentWave()

@@ -41,7 +41,10 @@ public:
     UFUNCTION(BlueprintPure)
 	TEnumAsByte<ETeamAttitude::Type> GetTeamAttitudeTowards(const FGenericTeamId& TeamA, const FGenericTeamId& TeamB) const;
 
-private:
+protected:
+    virtual void OnRegisterTeams() {}
+
+protected:
     TMap<FTeamIndex, TSharedPtr<FGTeam>> Teams;
 	TMap<FTeamForceIndex, TArray<TSharedPtr<FGTeam>>> Forces;
     

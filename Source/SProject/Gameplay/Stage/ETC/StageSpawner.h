@@ -8,21 +8,32 @@
 #include "StageSpawner.generated.h"
 
 class AUnitCharacter;
+class AStageLevel;
 class AGameplayPathActor;
+
+USTRUCT(BlueprintType)
+struct FStageSpawnParams
+{
+	GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TWeakObjectPtr<AStageLevel> StageLevel;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<AUnitCharacter> SpawnUnit;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    int32 PathPosition = INDEX_NONE;
+};
 
 UCLASS(Abstract, BlueprintType, Blueprintable)
 class MY_API AStageSpawner : public AGameplayTeamActor, public IGameplayActorTag
 {
     GENERATED_BODY()
 
-    // TODO: 함수 호출 하면 스폰 되도록
-    // - 1. 이 Spawner의 팀을 따라가도록 즉시 스폰
-    // - 2. 스폰이 되자마자 AIController를 빙의
-    // - 3. 특정 GameplayPathActor를 찾아야 함 ( 스폰 되자마자 자신의 GameplayPathActor를 찾아 넣어주기)
-
 public:
     UFUNCTION(BlueprintCallable)
-    void Spawn();
+    AUnitCharacter* Spawn(const FStageSpawnParams& Params);
     
     UPROPERTY(EditAnywhere)
     TArray<TSubclassOf<AUnitCharacter>> SpawnUnits;

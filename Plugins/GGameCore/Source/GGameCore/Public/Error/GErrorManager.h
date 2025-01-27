@@ -33,3 +33,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Error")
 	static FGErrorInfo Pass();
 };
+
+namespace GameCore
+{
+	GGAMECORE_API bool IsOK(const FGErrorInfo& Err);
+
+	GGAMECORE_API FGErrorInfo Pass();
+}

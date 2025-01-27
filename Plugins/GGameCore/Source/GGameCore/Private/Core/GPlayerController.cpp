@@ -14,6 +14,8 @@ void AGPlayerController::ReceivedPlayer()
 		{
 			LocalPlayer->OnPlayerStateSet.Broadcast(LocalPlayer, PlayerState);
 		}
+
+		SetGenericTeamId(LocalPlayer->GetLocalPlayerIndex());
 	}
 }
 

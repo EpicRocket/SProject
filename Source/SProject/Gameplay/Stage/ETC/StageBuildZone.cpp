@@ -1,14 +1,19 @@
 ﻿
 #include "StageBuildZone.h"
 // include Engine
+#include "Engine/World.h"
 #include "Engine/GameInstance.h"
 #include "Components/BoxComponent.h"
-#include "Components/ChildActorComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "AIController.h"
 // include GameCore
 #include "GMessage/Subsystem/GMessageSubsystem.h"
+#include "Error/GErrorManager.h"
+#include "Error/GErrorTypes.h"
 // include Project
 #include "Gameplay/GameplayLogging.h"
+#include "Gameplay/Team/GameplayTeamSubsystem.h"
+#include "Gameplay/Team/GameplayPlayer.h"
 #include "Gameplay/Stage/Types/StageTowerTypes.h"
 #include "Gameplay/Stage/Interface/IStageTower.h"
 #include "Gameplay/Stage/Unit/UnitStageTower.h"
@@ -25,7 +30,6 @@ namespace Stage
 }
 
 FName AStageBuildZone::InteractionComponentName = TEXT("InteractionComponent");
-FName AStageBuildZone::ChildActorComponentName = TEXT("ChildActorComponent");
 
 AStageBuildZone::AStageBuildZone()
 {
@@ -34,16 +38,12 @@ AStageBuildZone::AStageBuildZone()
 	static FName InteractionCollsionProfileName = FName(TEXT("UI"));
 	InteractionComponent->SetCollisionProfileName(InteractionCollsionProfileName);
 	RootComponent = InteractionComponent;
-
-	ChildActorComponent = CreateDefaultSubobject<UChildActorComponent>(ChildActorComponentName);
-	ChildActorComponent->SetupAttachment(InteractionComponent);
 }
 
 FStageTowerReceipt AStageBuildZone::GetTowerReceipt() const
 {
 	FStageTowerReceipt Receipt;
-
-	if (!SpawnedTower)
+	if (!IsValid(SpawnedTower))
 	{
 		if (!BuildZoneData)
 		{
@@ -84,16 +84,19 @@ FStageTowerReceipt AStageBuildZone::GetTowerReceipt() const
 	return Receipt;
 }
 
-
-// TODO: 별도의 AI 컨트롤 필요함...
-#include "AIController.h"
-#include "Engine/World.h"
-
 void AStageBuildZone::RequestBuildTower(const FBuildStageTower& BuildStageTower)
 {
-	// TODO: 플레이어 자원 체크
+	auto TeamSubsystem = UWorld::GetSubsystem<UGameplayTeamSubsystem>(GetWorld());
+	check(TeamSubsystem);
+
+	auto Player = TeamSubsystem->GetPlayer(GetGenericTeamId());
+	if (!Player)
+	{
+		return;
+	}
 
 	TSubclassOf<AUnitStageTower> TowerClass;
+	int64 NeedUsePoint = TNumericLimits<int64>::Max();
 
 	switch (BuildStageTower.TowerType)
 	{
@@ -106,6 +109,7 @@ void AStageBuildZone::RequestBuildTower(const FBuildStageTower& BuildStageTower)
 		}
 
 		TowerClass = Row->UnitPath.LoadSynchronous();
+		NeedUsePoint = Row->UsePoint;
 	}
 	break;
 
@@ -118,18 +122,59 @@ void AStageBuildZone::RequestBuildTower(const FBuildStageTower& BuildStageTower)
 		return;
 	}
 
-	ChildActorComponent->SetChildActorClass(TowerClass);
-	auto TowerActor = Cast<AUnitStageTower>(ChildActorComponent->GetChildActor());
-	if (!TowerActor)
+	if (!GameCore::IsOK(Player->ConsumeUsePoint(NeedUsePoint)))
 	{
 		return;
 	}
-	TowerActor->SetBuildReceipt(BuildStageTower);
-	TowerActor->AIControllerClass = AAIController::StaticClass();
-	TowerActor->SpawnDefaultController();
-	
-	// TODO: 임시임...
-	auto CapsuleComponent = TowerActor->GetCapsuleComponent();
-	auto TargetLocation = GetBuildLocation() + FVector(0.0F, 0.0F, CapsuleComponent->GetScaledCapsuleHalfHeight());
-	TowerActor->SetActorLocation(TargetLocation);
+
+	auto SpawnedLocation = GetBuildLocation();
+	auto SpawnedRotation = GetActorRotation();
+
+	AUnitStageTower* SpawnUnit = GetWorld()->SpawnActorDeferred<AUnitStageTower>(TowerClass, FTransform(SpawnedRotation, SpawnedLocation), nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+	SpawnUnit->AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+
+	//
+	SpawnUnit->SetBuildReceipt(BuildStageTower);
+	//
+
+	float HalfHeight = SpawnUnit->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+	SpawnedLocation += FVector(0.0f, 0.0f, HalfHeight);
+	SpawnUnit->FinishSpawning(FTransform(SpawnedRotation, SpawnedLocation), false, nullptr, ESpawnActorScaleMethod::MultiplyWithRoot);
+
+	if (IsValid(SpawnedTower))
+	{
+		SpawnedTower->Destroy();
+	}
+
+	SpawnedTower = SpawnUnit;
+}
+
+void AStageBuildZone::RequestDemolishTower()
+{
+	if (!IsValid(SpawnedTower))
+	{
+		return;
+	}
+
+	auto TeamSubsystem = UWorld::GetSubsystem<UGameplayTeamSubsystem>(GetWorld());
+	check(TeamSubsystem);
+
+	auto Player = TeamSubsystem->GetPlayer(GetGenericTeamId());
+	if (!Player)
+	{
+		return;
+	}
+	auto Receipt = GetTowerReceipt();
+	if (!Receipt.bSellable)
+	{
+		return;
+	}
+
+	/*if (!GameCore::IsOK(Player->AddUsePoint(Receipt.SellPrice)))
+	{
+		return;
+	}*/
+
+	SpawnedTower->Destroy();
+	SpawnedTower = nullptr;
 }

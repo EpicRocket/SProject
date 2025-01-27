@@ -66,6 +66,8 @@ void UGTeamSubsystem::RegisterTeams(const TArray<FGTeamTracker>& TeamTrackers)
 			}
 		}
 	}
+
+	OnRegisterTeams();
 }
 
 FGTeamTracker UGTeamSubsystem::GetTeamTracker(FGenericTeamId TeamID) const

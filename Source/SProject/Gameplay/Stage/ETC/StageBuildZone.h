@@ -14,8 +14,8 @@ enum class EStageTowerType : uint8;
 struct FBuildStageTower;
 struct FStageTowerReceipt;
 class UBoxComponent;
-class UChildActorComponent;
-class IStageTower;
+class AAIController;
+class AUnitStageTower;
 
 namespace Stage
 {
@@ -62,7 +62,6 @@ class MY_API AStageBuildZone : public AGameplayTeamActor, public IGameplayActorT
 	GENERATED_BODY()
 
 	static FName InteractionComponentName;
-	static FName ChildActorComponentName;
 
 public:
 	AStageBuildZone();
@@ -73,6 +72,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void RequestBuildTower(const FBuildStageTower& BuildStageTower);
 
+	UFUNCTION(BlueprintCallable)
+	void RequestDemolishTower();
+
 	UFUNCTION(BlueprintImplementableEvent)
 	FVector GetBuildLocation() const;
 
@@ -80,13 +82,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UStageBuildZoneData> BuildZoneData;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TScriptInterface<IStageTower> SpawnedTower;
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
+	TObjectPtr<AUnitStageTower> SpawnedTower;
 
 private:
 	UPROPERTY(Category = "스테이지", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UBoxComponent> InteractionComponent;
-
-	UPROPERTY(Category = "스테이지", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UChildActorComponent> ChildActorComponent;
 };

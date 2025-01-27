@@ -1,10 +1,10 @@
-// This is an automatically generated file. Do not modify it manually.
+// This is an automatically generated file. Do not modify it manually. [2025.01.26-19.21.15]
 #pragma once
 
 #include "CoreMinimal.h"
 #include "Misc/EnumRange.h"
-#include "Engine/DataTable.h"
 #include "EnumTable.generated.h"
+
 
 
 UENUM(BlueprintType)
