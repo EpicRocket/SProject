@@ -10,7 +10,7 @@
 class UGBaseAttributeSet;
 class UObject;
 
-UCLASS()
+UCLASS(Abstract)
 class GGAMECORE_API AUnitCharacter : public ACharacter, public IGTeamAgent, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
