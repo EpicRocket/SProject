@@ -9,8 +9,6 @@ AUnitCharacter::AUnitCharacter()
 {
 	static FName AbilitySystemComponentName = TEXT("AbilitySystemComponent");
 	AbilitySystemComponent = CreateDefaultSubobject<UGAbilitySystemComponent>(AbilitySystemComponentName);
-
-	BaseAttributeSet = CreateDefaultSubobject<UGBaseAttributeSet>(TEXT("BaseAttribueSet"));
 }
 
 void AUnitCharacter::BeginPlay()
@@ -22,6 +20,19 @@ void AUnitCharacter::BeginPlay()
 	{
 		CharacterMesh->LinkAnimClassLayers(DefaultAnimClassLayer);
 	}
+}
+
+void AUnitCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	if (!IsValid(this))
+	{
+		return;
+	}
+
+	check(AbilitySystemComponent);
+	AbilitySystemComponent->InitAbilityActorInfo(this, this);
 }
 
 void AUnitCharacter::SetGenericTeamId(const FGenericTeamId& InTeamID)

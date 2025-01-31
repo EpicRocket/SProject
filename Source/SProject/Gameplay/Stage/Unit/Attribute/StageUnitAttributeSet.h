@@ -1,6 +1,7 @@
 ﻿
 #pragma once
 
+#include "AbilitySystemComponent.h"
 #include "AbilitySystem/Attribute/GAttributeSet.h"
 #include "Misc/EnumRange.h"
 
@@ -8,17 +9,59 @@
 
 enum class EStageUnitAttribute : uint8
 {
-    None = 0,
+	None			= 0			UMETA(DisplayName = "없음"),
 
-    Max,
+	Level			= 1			UMETA(DisplayName = "레벨"),
+	Grade			= 2			UMETA(DisplayName = "등급"),
+	Attack			= 3			UMETA(DisplayName = "공격력"),
+	Defence			= 4			UMETA(DisplayName = "방어력"),
+	MaxHp			= 5			UMETA(DisplayName = "최대체력"),
+	Hp				= 6			UMETA(DisplayName = "현재체력"),
+	AttackSpeed		= 7			UMETA(DisplayName = "공격속도"),
+	MovementSpeed	= 8			UMETA(DisplayName = "이동속도"),
+	Range			= 9			UMETA(DisplayName = "사거리"),
+	SplashScale		= 10		UMETA(DisplayName = "스플래쉬 범위"),
+
+	Max							UMETA(Hidden),
 };
 ENUM_RANGE_BY_COUNT(EStageUnitAttribute, EStageUnitAttribute::Max)
 
 UCLASS()
 class MY_API UStageUnitAttributeSet : public UGAttributeSet
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
 public:
+	UStageUnitAttributeSet();
 
+	ATTRIBUTE_ACCESSORS(UStageUnitAttributeSet, Level);
+	UPROPERTY(BlueprintReadOnly)
+	FGameplayAttributeData Level;
+
+	ATTRIBUTE_ACCESSORS(UStageUnitAttributeSet, Grade);
+	FGameplayAttributeData Grade;
+
+	ATTRIBUTE_ACCESSORS(UStageUnitAttributeSet, Attack);
+	FGameplayAttributeData Attack;
+
+	ATTRIBUTE_ACCESSORS(UStageUnitAttributeSet, Defence);
+	FGameplayAttributeData Defence;
+
+	ATTRIBUTE_ACCESSORS(UStageUnitAttributeSet, MaxHp);
+	FGameplayAttributeData MaxHp;
+
+	ATTRIBUTE_ACCESSORS(UStageUnitAttributeSet, Hp);
+	FGameplayAttributeData Hp;
+
+	ATTRIBUTE_ACCESSORS(UStageUnitAttributeSet, AttackSpeed);
+	FGameplayAttributeData AttackSpeed;
+
+	ATTRIBUTE_ACCESSORS(UStageUnitAttributeSet, MovementSpeed);
+	FGameplayAttributeData MovementSpeed;
+
+	ATTRIBUTE_ACCESSORS(UStageUnitAttributeSet, Range);
+	FGameplayAttributeData Range;
+
+	ATTRIBUTE_ACCESSORS(UStageUnitAttributeSet, SplashScale);
+	FGameplayAttributeData SplashScale;
 };

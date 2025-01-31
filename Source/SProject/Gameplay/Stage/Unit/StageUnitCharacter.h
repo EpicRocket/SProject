@@ -8,6 +8,8 @@
 UCLASS(Abstract)
 class MY_API AStageUnitCharacter : public AUnitCharacter
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
+public:
+	AStageUnitCharacter();
 };

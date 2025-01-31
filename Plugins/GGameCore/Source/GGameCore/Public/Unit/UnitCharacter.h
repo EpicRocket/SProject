@@ -19,6 +19,7 @@ public:
 	AUnitCharacter();
 
 	virtual void BeginPlay() override;
+	virtual void PostInitializeComponents() override;
 
 	// IGTeamAgent
 	virtual void SetGenericTeamId(const FGenericTeamId& InTeamID) override;
@@ -40,10 +41,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Unit")
 	TSubclassOf<class UAnimInstance> DefaultAnimClassLayer;
 
-private:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Gameplay", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Gameplay")
 	TObjectPtr<class UGAbilitySystemComponent> AbilitySystemComponent;
 
-	UPROPERTY()
-	TObjectPtr<const class UGBaseAttributeSet> BaseAttributeSet;
 };
