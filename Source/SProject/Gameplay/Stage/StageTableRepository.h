@@ -21,8 +21,10 @@ class MY_API UStageTableRepository : public UEngineSubsystem
 public:
 	static UStageTableRepository* Get();
 
+    UFUNCTION(BlueprintCallable)
     void Load();
 
+	UFUNCTION(BlueprintCallable)
     void Unload();
 
 private:

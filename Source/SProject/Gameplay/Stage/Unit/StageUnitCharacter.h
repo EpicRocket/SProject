@@ -12,4 +12,8 @@ class MY_API AStageUnitCharacter : public AUnitCharacter
 
 public:
 	AStageUnitCharacter();
+
+private:
+	UPROPERTY()
+	TArray<TObjectPtr<class UGAttributeSet>> AttributeSetCache;
 };

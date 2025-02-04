@@ -266,6 +266,16 @@ bool UUserAccountSubsystem::IsLogin() const
 	return true;
 }
 
+EUserLoginType UUserAccountSubsystem::GetUserLoginType() const
+{
+	return LoginType;
+}
+
+FString UUserAccountSubsystem::GetUserLoginTypeToString() const
+{
+	return FString();
+}
+
 TSharedRef<FUserAccount> UUserAccountSubsystem::GetUserAccount() const
 {
 	if (!UserAccount.IsValid())

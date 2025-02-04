@@ -45,7 +45,6 @@ public:
     UFUNCTION(BlueprintCallable)
 	AStageSpawner* GetSpawner(int32 Position) const;
 
-
 protected:
     virtual void OnInitailize();
 

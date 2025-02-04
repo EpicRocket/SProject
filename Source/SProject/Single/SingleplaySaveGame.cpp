@@ -12,7 +12,6 @@
 
 FString USingleplaySaveGameContext::Token = TEXT("SINGLE_PLAY");
 
-
 bool USingleplaySaveGameContext::IsExistSaveGame() const
 {
 	return IsValid(SaveGame) && !SlotName.IsEmpty();
@@ -113,23 +112,6 @@ FFetchDocument USingleplaySaveGameContext::FetchDocument()
 			if (SrcUserDocument.Items[Index] != DestDocument.Items[Index])
 			{
 				Document.Items = SrcUserDocument.Items;
-				break;
-			}
-		}
-	}
-
-	// 영지건물들
-	if (SrcUserDocument.DomainBuildings.Num() != DestDocument.DomainBuildings.Num())
-	{
-		Document.DomainBuildings = SrcUserDocument.DomainBuildings;
-	}
-	else
-	{
-		for (int32 Index = 0; Index < SrcUserDocument.DomainBuildings.Num(); ++Index)
-		{
-			if (SrcUserDocument.DomainBuildings[Index] != DestDocument.DomainBuildings[Index])
-			{
-				Document.DomainBuildings = SrcUserDocument.DomainBuildings;
 				break;
 			}
 		}

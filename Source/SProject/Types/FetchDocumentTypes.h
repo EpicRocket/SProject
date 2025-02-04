@@ -22,8 +22,6 @@ struct MY_API FFetchDocument
 
 	TOptional<TArray<FItem>> Items;
 
-	TOptional<TArray<FDomainBuilding>> DomainBuildings;
-
 	TOptional<FStage> Stage;
 
 	TOptional<TArray<FStageDetail>> StageDetails;

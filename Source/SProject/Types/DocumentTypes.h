@@ -5,7 +5,6 @@
 // include Project
 #include "UserTypes.h"
 #include "ResourceTypes.h"
-#include "DomainTypes.h"
 #include "StageTypes.h"
 
 #include "DocumentTypes.generated.h"
@@ -27,9 +26,6 @@ struct MY_API FUserDocument
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FItem> Items;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<FDomainBuilding> DomainBuildings;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FStage Stage;

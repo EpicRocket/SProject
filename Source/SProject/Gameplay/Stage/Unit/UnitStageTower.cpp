@@ -1,8 +1,8 @@
 ﻿
 #include "UnitStageTower.h"
 
-#include "TableTypes/StageTableTypes.h"
-#include "TableRepository/StageTableRepository.h"
+#include "Gameplay/Stage/StageTableRepository.h"
+#include "Gameplay/Stage/Types/StageTowerTypes.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(UnitStageTower)
 

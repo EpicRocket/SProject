@@ -19,12 +19,11 @@
 #include "Gameplay/Stage/Unit/UnitStageTower.h"
 #include "Table/TableSubsystem.h"
 #include "Table/TowerTable.h"
-#include "TableRepository/StageTableRepository.h"
-#include "TableTypes/StageTableTypes.h"
+#include "Gameplay/Stage/StageTableRepository.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(StageBuildZone)
 
-namespace Stage
+namespace Stage 
 {
 	UE_DEFINE_GAMEPLAY_TAG(Selected_BuildZone, "Gameplay.Stage.Selected.BuildZone");
 }

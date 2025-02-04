@@ -8,5 +8,6 @@
 
 AStageUnitCharacter::AStageUnitCharacter()
 {
-	CreateDefaultSubobject<UStageUnitAttributeSet>(TEXT("AttributeSet"));
+	static FName StageUnitAttributeSetName = TEXT("AttributeSets");
+	AttributeSetCache.Emplace(CreateDefaultSubobject<UStageUnitAttributeSet>(StageUnitAttributeSetName));
 }

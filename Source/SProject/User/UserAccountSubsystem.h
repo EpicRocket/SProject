@@ -46,6 +46,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "사용자 계정")
 	bool IsLogin() const;
 
+	UFUNCTION(BlueprintCallable, Category = "사용자 계정")
+	EUserLoginType GetUserLoginType() const;
+
+	UFUNCTION(BlueprintCallable, Category = "사용자 계정")
+	FString GetUserLoginTypeToString() const;
+
 private:
 	TSharedRef<FUserAccount> GetUserAccount() const;
 

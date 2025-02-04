@@ -7,7 +7,7 @@
 #include "Table/TableSubsystem.h"
 #include "Table/TowerTable.h"
 #include "Table/StageInfoTable.h"
-#include "TableTypes/StageTableTypes.h"
+#include "Gameplay/Stage/Types/StageTowerTypes.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(StageTableRepository)
 

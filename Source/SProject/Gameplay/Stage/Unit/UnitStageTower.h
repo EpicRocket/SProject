@@ -2,6 +2,7 @@
 #pragma once
 
 #include "Unit/UnitCharacter.h"
+#include "StageUnitCharacter.h"
 #include "Gameplay/Stage/Interface/IStageTower.h"
 
 #include "UnitStageTower.generated.h"
@@ -9,7 +10,7 @@
 struct FBuildStageTower;
 
 UCLASS()
-class MY_API AUnitStageTower : public AUnitCharacter, public IStageTower
+class MY_API AUnitStageTower : public AStageUnitCharacter, public IStageTower
 {
 	GENERATED_BODY()
 
