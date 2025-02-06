@@ -1,5 +1,7 @@
 ﻿
 #include "Framework/Player/GPlayerComponent.h"
+#include "Engine/LocalPlayer.h"
+#include "GameFramework/PlayerController.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(GPlayerComponent)
 
