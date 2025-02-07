@@ -7,10 +7,11 @@
 
 #include "StageTableRepository.generated.h"
 
+enum class EStageTowerType : uint8;
 struct FNormalTowerTableRow;
 struct FBuildStageTower;
 struct FStageTableRow;
-enum class EStageTowerType : uint8;
+class AStageTowerUnit;
 
 UCLASS()
 class MY_API UStageTableRepository : public UEngineSubsystem
