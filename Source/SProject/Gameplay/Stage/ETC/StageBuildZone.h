@@ -15,7 +15,8 @@ struct FBuildStageTower;
 struct FStageTowerReceipt;
 class UBoxComponent;
 class AAIController;
-class AUnitStageTower;
+class AStageLevel;
+class AStageTowerUnit;
 
 namespace Stage
 {
@@ -83,7 +84,10 @@ public:
 	TObjectPtr<UStageBuildZoneData> BuildZoneData;
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
-	TObjectPtr<AUnitStageTower> SpawnedTower;
+	TObjectPtr<AStageLevel> TargetLevel;
+
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
+	TObjectPtr<AStageTowerUnit> SpawnedTower;
 
 private:
 	UPROPERTY(Category = "스테이지", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))

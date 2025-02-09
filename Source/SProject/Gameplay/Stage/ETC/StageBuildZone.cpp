@@ -11,15 +11,16 @@
 #include "Error/GErrorManager.h"
 #include "Error/GErrorTypes.h"
 // include Project
+#include "Table/TableSubsystem.h"
+#include "Table/TowerTable.h"
 #include "Gameplay/GameplayLogging.h"
 #include "Gameplay/Team/GameplayTeamSubsystem.h"
 #include "Gameplay/Team/GameplayPlayer.h"
+#include "Gameplay/Stage/StageTableRepository.h"
 #include "Gameplay/Stage/Types/StageTowerTypes.h"
 #include "Gameplay/Stage/Interface/IStageTower.h"
-#include "Gameplay/Stage/Unit/UnitStageTower.h"
-#include "Table/TableSubsystem.h"
-#include "Table/TowerTable.h"
-#include "Gameplay/Stage/StageTableRepository.h"
+#include "Gameplay/Stage/Component/StageSpawnComponent.h"
+#include "Gameplay/Stage/Unit/StageTowerUnit.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(StageBuildZone)
 
@@ -64,7 +65,7 @@ FStageTowerReceipt AStageBuildZone::GetTowerReceipt() const
 	}
 	else
 	{
-		Receipt.bSellable = true;
+		/*Receipt.bSellable = true;
 		Receipt.SellPrice = SpawnedTower->GetSellPrice();
 
 		int32 MaxLevel = UStageTableHelper::GetStageTowerMaxLevel(SpawnedTower->GetTowerType(), SpawnedTower->GetKind());
@@ -77,7 +78,7 @@ FStageTowerReceipt AStageBuildZone::GetTowerReceipt() const
 			FBuildStageTower NextTower;
 			UStageTableHelper::GetNextStageTower(SpawnedTower->GetTowerType(), SpawnedTower->GetKind(), SpawnedTower->GetLevel(), NextTower);
 			Receipt.BuildTowers.Emplace(NextTower);
-		}
+		}*/
 	}
 
 	return Receipt;
@@ -85,67 +86,31 @@ FStageTowerReceipt AStageBuildZone::GetTowerReceipt() const
 
 void AStageBuildZone::RequestBuildTower(const FBuildStageTower& BuildStageTower)
 {
-	//auto TeamSubsystem = UWorld::GetSubsystem<UGameplayTeamSubsystem>(GetWorld());
-	//check(TeamSubsystem);
+	auto TeamSubsystem = UWorld::GetSubsystem<UGameplayTeamSubsystem>(GetWorld());
+	check(TeamSubsystem);
 
-	//auto Player = TeamSubsystem->GetPlayer(GetGenericTeamId());
-	//if (!Player)
-	//{
-	//	return;
-	//}
+	auto Player = TeamSubsystem->GetPlayer(GetGenericTeamId());
+	if (!Player)
+	{
+		return;
+	}
 
-	//TSubclassOf<AUnitStageTower> TowerClass;
-	//int64 NeedUsePoint = TNumericLimits<int64>::Max();
+	int64 NeedUsePoint = 0;
+	if (!UStageTableHelper::GetStageTowerSellPrice(BuildStageTower.TowerType, BuildStageTower.Kind, BuildStageTower.Level, NeedUsePoint))
+	{
+		return;
+	}
 
-	//switch (BuildStageTower.TowerType)
-	//{
-	//case EStageTowerType::Normal:
-	//{
-	//	auto Row = UTableHelper::GetData<FNormalTowerTableRow>(BuildStageTower.Index);
-	//	if (!Row)
-	//	{
-	//		return;
-	//	}
+	auto SpawnedLocation = GetBuildLocation();
+	auto SpawnedRotation = GetActorRotation();
 
-	//	//TowerClass = Row->UnitPath.LoadSynchronous();
-	//	NeedUsePoint = Row->UsePoint;
-	//}
-	//break;
+	AStageTowerUnit* SpawendUnit = nullptr;
+	if (UStageSpawnHelper::SpawnTower(K2_GetTeamID(), TargetLevel, SpawnedLocation, SpawnedRotation, BuildStageTower, nullptr, SpawendUnit))
+	{
+		return;
+	}
 
-	//default:
-	//	return;
-	//}
-
-	//if (!TowerClass)
-	//{
-	//	return;
-	//}
-
-	//if (!GameCore::IsOK(Player->ConsumeUsePoint(NeedUsePoint)))
-	//{
-	//	return;
-	//}
-
-	//auto SpawnedLocation = GetBuildLocation();
-	//auto SpawnedRotation = GetActorRotation();
-
-	//AUnitStageTower* SpawnUnit = GetWorld()->SpawnActorDeferred<AUnitStageTower>(TowerClass, FTransform(SpawnedRotation, SpawnedLocation), nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
-	//SpawnUnit->AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
-
-	////
-	//SpawnUnit->SetBuildReceipt(BuildStageTower);
-	////
-
-	//float HalfHeight = SpawnUnit->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
-	//SpawnedLocation += FVector(0.0f, 0.0f, HalfHeight);
-	//SpawnUnit->FinishSpawning(FTransform(SpawnedRotation, SpawnedLocation), false, nullptr, ESpawnActorScaleMethod::MultiplyWithRoot);
-
-	//if (IsValid(SpawnedTower))
-	//{
-	//	SpawnedTower->Destroy();
-	//}
-
-	//SpawnedTower = SpawnUnit;
+	SpawnedTower = SpawendUnit;
 }
 
 void AStageBuildZone::RequestDemolishTower()
