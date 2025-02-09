@@ -8,6 +8,8 @@
 #include "Table/TowerTable.h"
 #include "Table/StageInfoTable.h"
 #include "Gameplay/Stage/Types/StageTowerTypes.h"
+#include "Gameplay/Stage/Unit/StageTowerUnit.h"
+#include "Gameplay/Stage/Unit/Attribute/StageUnitAttributeSet.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(StageTableRepository)
 
@@ -159,13 +161,50 @@ bool UStageTableHelper::GetNextStageTower(EStageTowerType TowerType, int32 Kind,
 		Result.Name = TowerPtr->Name;
 		// FIXME: 텍스쳐 로드는 로딩에서 미리 해둬야 함.
 		Result.Icon = TowerPtr->IconPath.LoadSynchronous();
-	}
-	break;
+	} break;
 
 	default: {
 		UE_LOG(LogTable, Warning, TEXT("타워 타입이 잘못되었습니다. [TowerType: %s]"), *UEnum::GetValueAsString(TowerType));
 		return false;
 	}
+	}
+
+	return true;
+}
+
+bool UStageTableHelper::GetStageTowerUnitClass(EStageTowerType TowerType, int32 Kind, int32 Level, TSubclassOf<AStageTowerUnit>& Result)
+{
+	auto Repository = UStageTableRepository::Get();
+	check(Repository);
+
+	switch (TowerType)
+	{
+	case EStageTowerType::Normal: {
+		auto TowerRow = Repository->FindNormalTowerTableRow(Kind, Level);
+		if (!TowerRow)
+		{
+			return false;
+		}
+
+		Result = (*TowerRow)->UnitPath.LoadSynchronous();
+
+	} break;
+
+	default: {
+		UE_LOG(LogTable, Warning, TEXT("타워 타입이 잘못되었습니다. [TowerType: %s]"), *UEnum::GetValueAsString(TowerType));
+		return false;
+	}
+	}
+
+	if (!Result)
+	{
+		UE_LOGFMT(LogTable, Warning,
+			"타워 유닛 클래스를 찾지 못하였습니다. [TowerType: {Type}, Kind: {Kind}, Level: {Level}]",
+			("Type",  * UEnum::GetValueAsString(TowerType)),
+			("Kind", Kind),
+			("Level", Level));
+
+		return false;
 	}
 
 	return true;
@@ -213,8 +252,7 @@ int32 UStageTableHelper::GetStageTowerMaxLevel(EStageTowerType TowerType, int32 
 			return 0;
 		}
 		Result = (*(--KindTable->end())).Key;
-	}
-	break;
+	} break;
 
 	default: {
 		UE_LOG(LogTable, Warning, TEXT("타워 타입이 잘못되었습니다. [TowerType: %s]"), *UEnum::GetValueAsString(TowerType));
@@ -223,6 +261,42 @@ int32 UStageTableHelper::GetStageTowerMaxLevel(EStageTowerType TowerType, int32 
 	}
 
 	return FMath::Max(0, Result);
+}
+
+bool UStageTableHelper::GetStageTowerBaseStats(EStageTowerType TowerType, int32 Kind, int32 Level, TMap<EStageUnitAttribute, double>& Result)
+{
+	auto Repository = UStageTableRepository::Get();
+	check(Repository);
+
+	switch (TowerType)
+	{
+	case EStageTowerType::Normal: {
+		auto TowerRow = Repository->FindNormalTowerTableRow(Kind, Level);
+		if (!TowerRow)
+		{
+			return false;
+		}
+
+		Result.FindOrAdd(EStageUnitAttribute::Level) = (*TowerRow)->Level;
+		Result.FindOrAdd(EStageUnitAttribute::Grade) = (*TowerRow)->Grade;
+		Result.FindOrAdd(EStageUnitAttribute::Attack) = (*TowerRow)->Attack;
+		Result.FindOrAdd(EStageUnitAttribute::Defence) = (*TowerRow)->Defence;
+		Result.FindOrAdd(EStageUnitAttribute::MaxHp) = (*TowerRow)->Hp;
+		Result.FindOrAdd(EStageUnitAttribute::Hp) = (*TowerRow)->Hp;
+		Result.FindOrAdd(EStageUnitAttribute::AttackSpeed) = (*TowerRow)->AttackSpeed;
+		Result.FindOrAdd(EStageUnitAttribute::MovementSpeed) = 0.0;
+		Result.FindOrAdd(EStageUnitAttribute::Range) = (*TowerRow)->Range;
+		Result.FindOrAdd(EStageUnitAttribute::SplashScale) = (*TowerRow)->SplashScale;
+
+	} break;
+
+	default: {
+		UE_LOG(LogTable, Warning, TEXT("타워 타입이 잘못되었습니다. [TowerType: %s]"), *UEnum::GetValueAsString(TowerType));
+		return false;
+	}
+	}
+
+	return true;
 }
 
 bool UStageTableHelper::GetStageTableInfo(int32 Level, FStageTableRow& Result)

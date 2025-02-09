@@ -2,11 +2,13 @@
 #pragma once
 
 #include "AbilitySystemComponent.h"
+#include "Kismet/BlueprintFunctionLibrary.h"
 #include "AbilitySystem/Attribute/GAttributeSet.h"
 #include "Misc/EnumRange.h"
 
 #include "StageUnitAttributeSet.generated.h"
 
+UENUM(BlueprintType)
 enum class EStageUnitAttribute : uint8
 {
 	None			= 0			UMETA(DisplayName = "없음"),
@@ -64,4 +66,18 @@ public:
 
 	ATTRIBUTE_ACCESSORS(UStageUnitAttributeSet, SplashScale);
 	FGameplayAttributeData SplashScale;
+};
+
+UCLASS()
+class MY_API UStageUnitAttributeHelper : public UBlueprintFunctionLibrary
+{
+	GENERATED_BODY()
+
+public:
+	UFUNCTION(BlueprintCallable, Category = "스테이지|어트리뷰트")
+	static FGameplayAttribute ConvertAttribute(EStageUnitAttribute Attribute);
+
+	UFUNCTION(BlueprintCallable, Category = "스테이지|어트리뷰트")
+	static EStageUnitAttribute ConvertAttributeType(FGameplayAttribute Attribute);
+
 };

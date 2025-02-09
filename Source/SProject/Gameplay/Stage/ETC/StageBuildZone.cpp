@@ -85,95 +85,95 @@ FStageTowerReceipt AStageBuildZone::GetTowerReceipt() const
 
 void AStageBuildZone::RequestBuildTower(const FBuildStageTower& BuildStageTower)
 {
-	auto TeamSubsystem = UWorld::GetSubsystem<UGameplayTeamSubsystem>(GetWorld());
-	check(TeamSubsystem);
+	//auto TeamSubsystem = UWorld::GetSubsystem<UGameplayTeamSubsystem>(GetWorld());
+	//check(TeamSubsystem);
 
-	auto Player = TeamSubsystem->GetPlayer(GetGenericTeamId());
-	if (!Player)
-	{
-		return;
-	}
+	//auto Player = TeamSubsystem->GetPlayer(GetGenericTeamId());
+	//if (!Player)
+	//{
+	//	return;
+	//}
 
-	TSubclassOf<AUnitStageTower> TowerClass;
-	int64 NeedUsePoint = TNumericLimits<int64>::Max();
+	//TSubclassOf<AUnitStageTower> TowerClass;
+	//int64 NeedUsePoint = TNumericLimits<int64>::Max();
 
-	switch (BuildStageTower.TowerType)
-	{
-	case EStageTowerType::Normal:
-	{
-		auto Row = UTableHelper::GetData<FNormalTowerTableRow>(BuildStageTower.Index);
-		if (!Row)
-		{
-			return;
-		}
+	//switch (BuildStageTower.TowerType)
+	//{
+	//case EStageTowerType::Normal:
+	//{
+	//	auto Row = UTableHelper::GetData<FNormalTowerTableRow>(BuildStageTower.Index);
+	//	if (!Row)
+	//	{
+	//		return;
+	//	}
 
-		TowerClass = Row->UnitPath.LoadSynchronous();
-		NeedUsePoint = Row->UsePoint;
-	}
-	break;
+	//	//TowerClass = Row->UnitPath.LoadSynchronous();
+	//	NeedUsePoint = Row->UsePoint;
+	//}
+	//break;
 
-	default:
-		return;
-	}
+	//default:
+	//	return;
+	//}
 
-	if (!TowerClass)
-	{
-		return;
-	}
+	//if (!TowerClass)
+	//{
+	//	return;
+	//}
 
-	if (!GameCore::IsOK(Player->ConsumeUsePoint(NeedUsePoint)))
-	{
-		return;
-	}
+	//if (!GameCore::IsOK(Player->ConsumeUsePoint(NeedUsePoint)))
+	//{
+	//	return;
+	//}
 
-	auto SpawnedLocation = GetBuildLocation();
-	auto SpawnedRotation = GetActorRotation();
+	//auto SpawnedLocation = GetBuildLocation();
+	//auto SpawnedRotation = GetActorRotation();
 
-	AUnitStageTower* SpawnUnit = GetWorld()->SpawnActorDeferred<AUnitStageTower>(TowerClass, FTransform(SpawnedRotation, SpawnedLocation), nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
-	SpawnUnit->AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+	//AUnitStageTower* SpawnUnit = GetWorld()->SpawnActorDeferred<AUnitStageTower>(TowerClass, FTransform(SpawnedRotation, SpawnedLocation), nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+	//SpawnUnit->AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
-	//
-	SpawnUnit->SetBuildReceipt(BuildStageTower);
-	//
+	////
+	//SpawnUnit->SetBuildReceipt(BuildStageTower);
+	////
 
-	float HalfHeight = SpawnUnit->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
-	SpawnedLocation += FVector(0.0f, 0.0f, HalfHeight);
-	SpawnUnit->FinishSpawning(FTransform(SpawnedRotation, SpawnedLocation), false, nullptr, ESpawnActorScaleMethod::MultiplyWithRoot);
+	//float HalfHeight = SpawnUnit->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+	//SpawnedLocation += FVector(0.0f, 0.0f, HalfHeight);
+	//SpawnUnit->FinishSpawning(FTransform(SpawnedRotation, SpawnedLocation), false, nullptr, ESpawnActorScaleMethod::MultiplyWithRoot);
 
-	if (IsValid(SpawnedTower))
-	{
-		SpawnedTower->Destroy();
-	}
+	//if (IsValid(SpawnedTower))
+	//{
+	//	SpawnedTower->Destroy();
+	//}
 
-	SpawnedTower = SpawnUnit;
+	//SpawnedTower = SpawnUnit;
 }
 
 void AStageBuildZone::RequestDemolishTower()
 {
-	if (!IsValid(SpawnedTower))
-	{
-		return;
-	}
+	//if (!IsValid(SpawnedTower))
+	//{
+	//	return;
+	//}
 
-	auto TeamSubsystem = UWorld::GetSubsystem<UGameplayTeamSubsystem>(GetWorld());
-	check(TeamSubsystem);
+	//auto TeamSubsystem = UWorld::GetSubsystem<UGameplayTeamSubsystem>(GetWorld());
+	//check(TeamSubsystem);
 
-	auto Player = TeamSubsystem->GetPlayer(GetGenericTeamId());
-	if (!Player)
-	{
-		return;
-	}
-	auto Receipt = GetTowerReceipt();
-	if (!Receipt.bSellable)
-	{
-		return;
-	}
+	//auto Player = TeamSubsystem->GetPlayer(GetGenericTeamId());
+	//if (!Player)
+	//{
+	//	return;
+	//}
+	//auto Receipt = GetTowerReceipt();
+	//if (!Receipt.bSellable)
+	//{
+	//	return;
+	//}
 
-	/*if (!GameCore::IsOK(Player->AddUsePoint(Receipt.SellPrice)))
-	{
-		return;
-	}*/
+	///*if (!GameCore::IsOK(Player->AddUsePoint(Receipt.SellPrice)))
+	//{
+	//	return;
+	//}*/
 
-	SpawnedTower->Destroy();
-	SpawnedTower = nullptr;
+	//SpawnedTower->Destroy();
+	//SpawnedTower = nullptr;
 }

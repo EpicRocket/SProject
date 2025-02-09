@@ -1,4 +1,4 @@
-// This is an automatically generated file. Do not modify it manually. [2025.01.12-13.43.04]
+// This is an automatically generated file. Do not modify it manually. [2025.02.09-14.31.14]
 #pragma once
 
 #include "CoreMinimal.h"
@@ -6,7 +6,7 @@
 #include "TowerTable.generated.h"
 
 enum class EAttackType : uint8;
-class AUnitStageTower;
+class AStageTowerUnit;
 class UTexture2D;
 
 
@@ -37,7 +37,7 @@ struct SPROJECT_API FNormalTowerTableRow : public FTableRowBase
 	int32 Attack = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 Defend = 0;
+	int32 Defence = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 Hp = 0;
@@ -61,7 +61,7 @@ struct SPROJECT_API FNormalTowerTableRow : public FTableRowBase
 	float SplashScale = 0.0F;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TSoftClassPtr<AUnitStageTower> UnitPath = nullptr;
+	TSoftClassPtr<AStageTowerUnit> UnitPath = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSoftObjectPtr<UTexture2D> IconPath = nullptr;
