@@ -11,7 +11,7 @@ class AStageTowerUnit;
 class AStageMonsterUnit;
 class AAIController;
 class AStageLevel;
-struct FBuildStageTower;
+struct FStageTowerInfo;
 
 UCLASS(Abstract, Blueprintable, meta = (BlueprintSpawnableComponent))
 class MY_API UStageSpawnComponent : public UGameStateComponent
@@ -20,7 +20,7 @@ class MY_API UStageSpawnComponent : public UGameStateComponent
 
 public:
 	UFUNCTION(BlueprintCallable)
-	AStageTowerUnit* SpawnTower(uint8 TeamID, AStageLevel* TargetLevel, FVector Location, FRotator Rotation, struct FBuildStageTower Build, TSubclassOf<AAIController> AIController = nullptr);
+	AStageTowerUnit* SpawnTower(uint8 TeamID, AStageLevel* TargetLevel, FVector Location, FRotator Rotation, struct FStageTowerInfo Build, TSubclassOf<AAIController> AIController = nullptr);
 	
 	/*UFUNCTION(BlueprintCallable)
 	AStageMonsterUnit* SpawnMonster(FVector Location, FRotator Rotation);*/
@@ -34,6 +34,6 @@ class MY_API UStageSpawnHelper : public UBlueprintFunctionLibrary
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "스테이지|생성")
-	static bool SpawnTower(uint8 TeamID, AStageLevel* TargetLevel, FVector Location, FRotator Rotation, struct FBuildStageTower Build, TSubclassOf<AAIController> AIController, AStageTowerUnit*& SpawnedUnit);
+	static bool SpawnTower(uint8 TeamID, AStageLevel* TargetLevel, FVector Location, FRotator Rotation, struct FStageTowerInfo Build, TSubclassOf<AAIController> AIController, AStageTowerUnit*& SpawnedUnit);
 
 };

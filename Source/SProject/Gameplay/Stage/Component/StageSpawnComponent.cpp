@@ -18,7 +18,7 @@
 // UStageSpawnComponent
 //////////////////////////////////////////////////////////////////////////
 
-AStageTowerUnit* UStageSpawnComponent::SpawnTower(uint8 TeamID, AStageLevel* TargetLevel, FVector Location, FRotator Rotation, FBuildStageTower Build, TSubclassOf<AAIController> AIController)
+AStageTowerUnit* UStageSpawnComponent::SpawnTower(uint8 TeamID, AStageLevel* TargetLevel, FVector Location, FRotator Rotation, FStageTowerInfo Build, TSubclassOf<AAIController> AIController)
 {
     if (!IsValid(TargetLevel))
     {
@@ -69,7 +69,7 @@ AStageTowerUnit* UStageSpawnComponent::SpawnTower(uint8 TeamID, AStageLevel* Tar
 // UStageSpawnHelper
 //////////////////////////////////////////////////////////////////////////
 
-/*static*/bool UStageSpawnHelper::SpawnTower(uint8 TeamID, AStageLevel* TargetLevel, FVector Location, FRotator Rotation, FBuildStageTower Build, TSubclassOf<AAIController> AIController, AStageTowerUnit*& SpawnedUnit)
+/*static*/bool UStageSpawnHelper::SpawnTower(uint8 TeamID, AStageLevel* TargetLevel, FVector Location, FRotator Rotation, FStageTowerInfo Build, TSubclassOf<AAIController> AIController, AStageTowerUnit*& SpawnedUnit)
 {
     if (!IsValid(TargetLevel))
     {

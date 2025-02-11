@@ -15,7 +15,7 @@ enum class EStageTowerType : uint8
 };
 
 USTRUCT(BlueprintType)
-struct MY_API FBuildStageTower
+struct MY_API FStageTowerInfo
 {
     GENERATED_BODY()
 
@@ -45,7 +45,7 @@ struct FStageTowerReceipt
     GENERATED_BODY()
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    TArray<FBuildStageTower> BuildTowers;
+    TArray<FStageTowerInfo> BuildTowers;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FGErrorInfo Error;

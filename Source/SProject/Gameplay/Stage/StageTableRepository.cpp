@@ -99,7 +99,7 @@ TSharedPtr<FNormalTowerTableRow>* UStageTableRepository::FindNormalTowerTableRow
 //////////////////////////////////////////////////////////////////////////
 // UStageTableHelper
 //////////////////////////////////////////////////////////////////////////
-bool UStageTableHelper::GetBuildStageTower(EStageTowerType TowerType, int32 Kind, int32 Level, FBuildStageTower& Result)
+bool UStageTableHelper::GetBuildStageTower(EStageTowerType TowerType, int32 Kind, int32 Level, FStageTowerInfo& Result)
 {
 	auto Repository = UStageTableRepository::Get();
 	check(Repository);
@@ -132,7 +132,7 @@ bool UStageTableHelper::GetBuildStageTower(EStageTowerType TowerType, int32 Kind
 	return true;
 }
 
-bool UStageTableHelper::GetNextStageTower(EStageTowerType TowerType, int32 Kind, int32 Level, FBuildStageTower& Result)
+bool UStageTableHelper::GetNextStageTower(EStageTowerType TowerType, int32 Kind, int32 Level, FStageTowerInfo& Result)
 {
 	auto Repository = UStageTableRepository::Get();
 	check(Repository);

@@ -11,7 +11,7 @@
 #include "StageBuildZone.generated.h"
 
 enum class EStageTowerType : uint8;
-struct FBuildStageTower;
+struct FStageTowerInfo;
 struct FStageTowerReceipt;
 class UBoxComponent;
 class AAIController;
@@ -71,7 +71,7 @@ public:
 	FStageTowerReceipt GetTowerReceipt() const;
 
 	UFUNCTION(BlueprintCallable)
-	void RequestBuildTower(const FBuildStageTower& BuildStageTower);
+	void RequestBuildTower(const FStageTowerInfo& BuildStageTower);
 
 	UFUNCTION(BlueprintCallable)
 	void RequestDemolishTower();

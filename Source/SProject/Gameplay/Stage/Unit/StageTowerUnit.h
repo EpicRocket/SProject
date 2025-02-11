@@ -5,7 +5,7 @@
 
 #include "StageTowerUnit.generated.h"
 
-struct FBuildStageTower;
+struct FStageTowerInfo;
 
 UCLASS(Abstract)
 class MY_API AStageTowerUnit : public AStageUnitCharacter
@@ -13,15 +13,15 @@ class MY_API AStageTowerUnit : public AStageUnitCharacter
     GENERATED_BODY()
 
 public:
-    void SetInfo(FBuildStageTower NewInfo);
+    void SetInfo(FStageTowerInfo NewInfo);
     
     UFUNCTION(BlueprintPure)
-	FBuildStageTower GetInfo() const;
-	TSharedRef<FBuildStageTower> GetInfoRef() const;
+	FStageTowerInfo GetInfo() const;
+	TSharedRef<FStageTowerInfo> GetInfoRef() const;
 
 protected:
     virtual void InitailizeBaseStats() override;
 
 public:
-    TSharedPtr<FBuildStageTower> Info;
+    TSharedPtr<FStageTowerInfo> Info;
 };

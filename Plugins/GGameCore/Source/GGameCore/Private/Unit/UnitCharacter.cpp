@@ -49,3 +49,12 @@ UAbilitySystemComponent* AUnitCharacter::GetAbilitySystemComponent() const
 {
 	return AbilitySystemComponent;
 }
+
+void AUnitCharacter::Remove()
+{
+	Destroy();
+}
+
+void AUnitCharacter::Kill()
+{
+}

@@ -30,6 +30,12 @@ public:
 	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	// ~IAbilitySystemInterface
 
+	UFUNCTION(BlueprintCallable)
+	virtual void Remove();
+
+	UFUNCTION(BlueprintCallable)
+	virtual void Kill();
+
 public:
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Unit")
 	FGuid UnitId;

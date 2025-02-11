@@ -10,21 +10,21 @@
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(StageTowerUnit)
 
-void AStageTowerUnit::SetInfo(FBuildStageTower NewInfo)
+void AStageTowerUnit::SetInfo(FStageTowerInfo NewInfo)
 {
-	Info = MakeShared<FBuildStageTower>(NewInfo);
+	Info = MakeShared<FStageTowerInfo>(NewInfo);
 }
 
-FBuildStageTower AStageTowerUnit::GetInfo() const
+FStageTowerInfo AStageTowerUnit::GetInfo() const
 {
 	return GetInfoRef().Get();
 }
 
-TSharedRef<FBuildStageTower> AStageTowerUnit::GetInfoRef() const
+TSharedRef<FStageTowerInfo> AStageTowerUnit::GetInfoRef() const
 {
 	if (!Info.IsValid())
 	{
-		return MakeShared<FBuildStageTower>();
+		return MakeShared<FStageTowerInfo>();
 	}
 	return Info.ToSharedRef();
 }

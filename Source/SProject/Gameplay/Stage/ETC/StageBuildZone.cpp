@@ -55,7 +55,7 @@ FStageTowerReceipt AStageBuildZone::GetTowerReceipt() const
 
 		for (auto& Content : BuildZoneData->BuildContents)
 		{
-			FBuildStageTower Tower;
+			FStageTowerInfo Tower;
 			if (!UStageTableHelper::GetBuildStageTower(Content.TowerType, Content.Kind, Content.Level, Tower))
 			{
 				continue;
@@ -84,7 +84,7 @@ FStageTowerReceipt AStageBuildZone::GetTowerReceipt() const
 	return Receipt;
 }
 
-void AStageBuildZone::RequestBuildTower(const FBuildStageTower& BuildStageTower)
+void AStageBuildZone::RequestBuildTower(const FStageTowerInfo& BuildStageTower)
 {
 	auto TeamSubsystem = UWorld::GetSubsystem<UGameplayTeamSubsystem>(GetWorld());
 	check(TeamSubsystem);
@@ -115,30 +115,13 @@ void AStageBuildZone::RequestBuildTower(const FBuildStageTower& BuildStageTower)
 
 void AStageBuildZone::RequestDemolishTower()
 {
-	//if (!IsValid(SpawnedTower))
-	//{
-	//	return;
-	//}
+	if (!IsValid(SpawnedTower))
+	{
+		return;
+	}
 
-	//auto TeamSubsystem = UWorld::GetSubsystem<UGameplayTeamSubsystem>(GetWorld());
-	//check(TeamSubsystem);
+	// TODO: 배치 포인트를 받자
 
-	//auto Player = TeamSubsystem->GetPlayer(GetGenericTeamId());
-	//if (!Player)
-	//{
-	//	return;
-	//}
-	//auto Receipt = GetTowerReceipt();
-	//if (!Receipt.bSellable)
-	//{
-	//	return;
-	//}
-
-	///*if (!GameCore::IsOK(Player->AddUsePoint(Receipt.SellPrice)))
-	//{
-	//	return;
-	//}*/
-
-	//SpawnedTower->Destroy();
-	//SpawnedTower = nullptr;
+	SpawnedTower->Kill();
+	SpawnedTower = nullptr;
 }

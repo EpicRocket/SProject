@@ -10,7 +10,7 @@
 enum class EStageTowerType : uint8;
 enum class EStageUnitAttribute : uint8;
 struct FNormalTowerTableRow;
-struct FBuildStageTower;
+struct FStageTowerInfo;
 struct FStageTableRow;
 class AStageTowerUnit;
 
@@ -44,10 +44,10 @@ class MY_API UStageTableHelper : public UBlueprintFunctionLibrary
 
 public:
 	UFUNCTION(BlueprintPure, Category = "스테이지|타워|건설", meta = (ReturnDisplayName = "Find"))
-	static bool GetBuildStageTower(EStageTowerType TowerType, int32 Kind, int32 Level, FBuildStageTower& Result);
+	static bool GetBuildStageTower(EStageTowerType TowerType, int32 Kind, int32 Level, FStageTowerInfo& Result);
 
 	UFUNCTION(BlueprintPure, Category = "스테이지|타워|건설", meta = (ReturnDisplayName = "Find"))
-	static bool GetNextStageTower(EStageTowerType TowerType, int32 Kind, int32 Level, FBuildStageTower& Result);
+	static bool GetNextStageTower(EStageTowerType TowerType, int32 Kind, int32 Level, FStageTowerInfo& Result);
 
 	UFUNCTION(BlueprintPure, Category = "스테이지|타워", meta = (ReturnDisplayName = "Find"))
 	static bool GetStageTowerUnitClass(EStageTowerType TowerType, int32 Kind, int32 Level, TSubclassOf<AStageTowerUnit>& Result);
