@@ -1,10 +1,11 @@
-// This is an automatically generated file. Do not modify it manually.
+// 이 파일은 자동으로 생성된 파일입니다. 수동으로 수정하지 마세요.
+
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Misc/EnumRange.h"
 #include "Engine/DataTable.h"
-#include "StageInfoTable.generated.h"
+
+#include "StageTable.generated.h"
 
 class UTexture2D;
 class UWorld;
@@ -15,21 +16,19 @@ struct SPROJECT_API FStageTableRow : public FTableRowBase
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 Level = 0;
+	int32 Level = INDEX_NONE;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 WaveGroup = 0;
+	int32 WaveGroup = INDEX_NONE;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TSoftObjectPtr<UTexture2D> StageIcon = nullptr;
+	TSoftObjectPtr<UTexture2D> Icon;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<int32> Reward;
+	int32 UsePoint = INDEX_NONE;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 UsePoint = 0;
+	TSoftObjectPtr<UWorld> Map;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TSoftObjectPtr<UWorld> Map = nullptr;
 };
 
