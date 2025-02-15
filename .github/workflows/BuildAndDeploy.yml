@@ -40,9 +40,7 @@ jobs:
 
           Push-Location -Path "ueproject_generator"
 
-          $configPath = Join-Path (Get-Location).Path "ueproject.yaml"
-          cmd.exe /c "ueproject.exe $configPath"
-          cmd.exe /c "ncuploader.exe $configPath"
+          cmd.exe /c "ueproject.exe "ueproject.yaml"
 
   GenerateFiles:
     needs: GenerateTableFiles
