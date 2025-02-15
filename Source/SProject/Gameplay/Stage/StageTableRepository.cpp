@@ -6,7 +6,7 @@
 // include Project
 #include "Table/TableSubsystem.h"
 #include "Table/TowerTable.h"
-#include "Table/StageInfoTable.h"
+#include "Table/StageTable.h"
 #include "Gameplay/Stage/Types/StageTowerTypes.h"
 #include "Gameplay/Stage/Unit/StageTowerUnit.h"
 #include "Gameplay/Stage/Unit/Attribute/StageUnitAttributeSet.h"
