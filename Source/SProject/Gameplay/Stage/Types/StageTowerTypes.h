@@ -33,7 +33,7 @@ public:
     int32 Level = 0;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    FString Name;
+    FText Name;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     TObjectPtr<UTexture2D> Icon;

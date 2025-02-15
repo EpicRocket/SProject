@@ -117,9 +117,9 @@ bool UStageTableHelper::GetBuildStageTower(EStageTowerType TowerType, int32 Kind
 		Result.Index = TowerPtr->Index;
 		Result.Kind = TowerPtr->Kind;
 		Result.Level = TowerPtr->Level;
-		//Result.Name = TowerPtr->Name;
+		Result.Name = TowerPtr->Name;
 		// FIXME: 텍스쳐 로드는 로딩에서 미리 해둬야 함.
-		//Result.Icon = TowerPtr->IconPath.LoadSynchronous();
+		Result.Icon = TowerPtr->Icon.LoadSynchronous();
 	}
 	break;
 
@@ -158,9 +158,9 @@ bool UStageTableHelper::GetNextStageTower(EStageTowerType TowerType, int32 Kind,
 		Result.Index = TowerPtr->Index;
 		Result.Kind = TowerPtr->Kind;
 		Result.Level = TowerPtr->Level;
-		//Result.Name = TowerPtr->Name;
+		Result.Name = TowerPtr->Name;
 		// FIXME: 텍스쳐 로드는 로딩에서 미리 해둬야 함.
-		//Result.Icon = TowerPtr->IconPath.LoadSynchronous();
+		Result.Icon = TowerPtr->Icon.LoadSynchronous();
 	} break;
 
 	default: {
@@ -186,7 +186,7 @@ bool UStageTableHelper::GetStageTowerUnitClass(EStageTowerType TowerType, int32 
 			return false;
 		}
 
-		//Result = (*TowerRow)->UnitPath.LoadSynchronous();
+		Result = (*TowerRow)->Unit.LoadSynchronous();
 
 	} break;
 
