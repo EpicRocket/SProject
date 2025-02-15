@@ -108,7 +108,8 @@ jobs:
           Set-Location -Path "$env:GITHUB_WORKSPACE"
 
           cp ../.git-credentials .
-
+          
+          git config --local credential.helper 'store --file .git-credentials'
           git config user.name "gr(bot)"
           git config user.email "greantearocket@gmail.com"
 
