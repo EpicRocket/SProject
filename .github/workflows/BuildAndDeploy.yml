@@ -1,29 +1,20 @@
-# This is a basic workflow to help you get started with Actions
 
 name: BuildAndDeploy
 
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the "release" branch
   push:
     branches: 
     - main
 
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 permissions: write-all
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
   Checkout:
-    # The type of runner that the job will run on
     runs-on: self-hosted
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
         with:
           clean: false
@@ -35,6 +26,10 @@ jobs:
       - name: Generate Table Files
         run: |
           $ErrorActionPreference = "Stop"
+
+          $tablePath = "$env:GITHUB_WORKSPACE/Source/SProject/Table"
+          Get-ChildItem -Path $tablePath -File | Where-Object { $_.Name -notmatch "^(TableSubsystem\.h|TableSubsystem\.cpp)$" } | Remove-Item -Force
+
           Set-Location -Path "$env:GITHUB_WORKSPACE"
           cd ..
 
