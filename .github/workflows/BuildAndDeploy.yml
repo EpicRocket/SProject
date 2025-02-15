@@ -125,10 +125,15 @@ jobs:
     runs-on: self-hosted
     steps:
     - name: Table Push
-      uses: ad-m/github-push-action@master
-      with:
-          branch: main
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        $ErrorActionPreference = "Stop"
+        
+        if (-not (git status --porcelain)) {
+          Write-Host "No changes to commit."
+          exit 0
+        }
+        Write-Host "Changes detected! Pushing..."
+        git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} HEAD:$BRANCH_NAME
 
   Deploy:
     needs: Build
@@ -148,7 +153,7 @@ jobs:
 
 
   Cleanup:
-    needs: [GenerateTableFiles, GenerateFiles, Build, TableCommit, Deploy]
+    needs: [GenerateTableFiles, GenerateFiles, Build, TableCommit, TablePush, Deploy]
     if: failure()
     runs-on: self-hosted
     steps:
