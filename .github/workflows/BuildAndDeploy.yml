@@ -38,10 +38,11 @@ jobs:
           Set-Location -Path "$env:GITHUB_WORKSPACE"
           cd ..
 
-          Push-Location -Path "uploader_sproject"
+          Push-Location -Path "ueproject_generator"
 
           $configPath = Join-Path (Get-Location).Path "ueproject.yaml"
           cmd.exe /c "ueproject.exe $configPath"
+          cmd.exe /c "ncuploader.exe $configPath"
 
   GenerateFiles:
     needs: GenerateTableFiles
