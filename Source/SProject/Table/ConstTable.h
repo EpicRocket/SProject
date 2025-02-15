@@ -1,13 +1,14 @@
-// This is an automatically generated file. Do not modify it manually. [2025.01.26-19.22.55]
+// 이 파일은 자동으로 생성된 파일입니다. 수동으로 수정하지 마세요.
+
 #pragma once
 
 #include "CoreMinimal.h"
 #include "Engine/DeveloperSettings.h"
+
 #include "ConstTable.generated.h"
 
 
-
-UCLASS(Config=SProject)
+UCLASS(config = SProject, defaultconfig)
 class SPROJECT_API UConstSettings : public UDeveloperSettings
 {
 	GENERATED_BODY()
@@ -28,7 +29,5 @@ public:
 	UPROPERTY(Config, VisibleDefaultsOnly, BlueprintReadOnly, Category = "Table")
 	int32 DefensiveConst;
 
-	UPROPERTY(Config, VisibleDefaultsOnly, BlueprintReadOnly, Category = "Table")
-	float SpawnDelay;
 };
 
