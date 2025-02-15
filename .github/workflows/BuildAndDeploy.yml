@@ -101,6 +101,9 @@ jobs:
       - name: Table Commit
         run: |
           $ErrorActionPreference = "Stop"
+          $env:GIT_TRACE = "1"
+          $env:GIT_CURL_VERBOSE = "1"
+
           Set-Location -Path "$env:GITHUB_WORKSPACE"
 
           git config user.name "greantearocket[bot]"
@@ -117,7 +120,7 @@ jobs:
           
           Write-Host "Changes detected! Committing..."
           git commit -m "Table files updated"
-          git push
+          git push origin main
 
   Deploy:
     needs: Build
