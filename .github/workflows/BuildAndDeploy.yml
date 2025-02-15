@@ -40,7 +40,7 @@ jobs:
 
           Push-Location -Path "ueproject_generator"
 
-          cmd.exe /c "ueproject.exe "ueproject.yaml"
+          cmd.exe /c "ueproject.exe `"ueproject.yaml`""
 
   GenerateFiles:
     needs: GenerateTableFiles
