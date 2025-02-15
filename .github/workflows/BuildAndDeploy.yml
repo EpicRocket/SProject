@@ -133,7 +133,7 @@ jobs:
           exit 0
         }
         Write-Host "Changes detected! Pushing..."
-        git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} HEAD:$BRANCH_NAME
+        git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} $env:BRANCH_NAME
 
   Deploy:
     needs: Build
@@ -152,7 +152,7 @@ jobs:
         cmd.exe /c "ncuploader.exe $configPath"
 
 
-  Cleanup:
+  Recovery:
     needs: [GenerateTableFiles, GenerateFiles, Build, TableCommit, TablePush, Deploy]
     if: failure()
     runs-on: self-hosted
