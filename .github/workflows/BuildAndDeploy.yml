@@ -104,12 +104,17 @@ jobs:
           Set-Location -Path "$env:GITHUB_WORKSPACE"
 
           git add Source/
-          if git diff --cached --quiet; then
-            echo "No changes to commit"
-            exit 0
-          fi
 
+          $changes = git diff --cached --quiet; $LASTEXITCODE
+          
+          if ($LASTEXITCODE -eq 0) {
+              Write-Host "No changes to commit"
+              exit 0
+          }
+          
+          Write-Host "Changes detected! Committing..."
           git commit -m "Table files updated"
+          git push
 
   Deploy:
     needs: Build
