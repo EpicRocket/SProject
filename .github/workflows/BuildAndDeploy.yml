@@ -107,6 +107,8 @@ jobs:
 
           Set-Location -Path "$env:GITHUB_WORKSPACE"
 
+          cp ../.git-credentials .
+
           git config user.name "gr(bot)"
           git config user.email "greantearocket@gmail.com"
 
@@ -120,8 +122,8 @@ jobs:
           }
           
           Write-Host "Changes detected! Committing..."
-          git commit -m "Table files updated"
-          git push origin HEAD:${GITHUB_REF#refs/heads/}
+          git commit -m "Table files updated $(date)"
+          git push origin $BRANCH_NAME
 
   Deploy:
     needs: Build
