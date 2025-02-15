@@ -27,11 +27,25 @@ jobs:
       - uses: actions/checkout@v4
         with:
           clean: false
-
-  GenerateFiles:
+    
+  GenerateTableFiles:
     needs: Checkout
     runs-on: self-hosted
+    steps:
+      - name: Generate Table Files
+        run: |
+          $ErrorActionPreference = "Stop"
+          Set-Location -Path "$env:GITHUB_WORKSPACE"
+          cd ..
 
+          Push-Location -Path "uploader_sproject"
+
+          $configPath = Join-Path (Get-Location).Path "ueproject.yaml"
+          cmd.exe /c "ueproject.exe $configPath"
+
+  GenerateFiles:
+    needs: GenerateTableFiles
+    runs-on: self-hosted
     steps:
     - name: Generate Files
       run: |
@@ -61,9 +75,8 @@ jobs:
         }
 
   Build:
-    needs: [Checkout, GenerateFiles]
+    needs: GenerateFiles
     runs-on: self-hosted
-
     steps:
     - name: Build
       run: |
@@ -87,31 +100,26 @@ jobs:
             exit 1
         }
 
-  Clean-up:
-    needs: [Build]
+  TableCommit:
+    needs: Build
     runs-on: self-hosted
-
     steps:
-    - name: Clean-up
-      run: |
-        # $ErrorActionPreference = "Stop"
+      - name: Table Commit
+        run: |
+          $ErrorActionPreference = "Stop"
+          Set-Location -Path "$env:GITHUB_WORKSPACE"
 
-        # $binariesPath = Join-Path (Get-Location).Path "Binaries"
-        # if (Test-Path $binariesPath) {
-        # # delete *pdb files
-        #     Get-ChildItem -Path "$binariesPath" -Filter *.pdb -Recurse | Remove-Item -Force
-        # }
+          git add Source/
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
 
-        # $pluginsPath = Join-Path (Get-Location).Path "Plugins"
-        # if (Test-Path $pluginsPath) {
-        #     # delete *pdb files
-        #     Get-ChildItem -Path "$pluginsPath" -Filter *.pdb -Recurse | Remove-Item -Force
-        # }
+          git commit -m "Table files updated"
 
   Deploy:
-    needs: [Clean-up]
+    needs: Build
     runs-on: self-hosted
-
     steps:
     - name: Deploy
       run: | 
@@ -122,5 +130,18 @@ jobs:
 
         Push-Location -Path "uploader_sproject"
         
-        $uploadListPath = Join-Path (Get-Location).Path "uploadList.yaml"
-        cmd.exe /c "ncuploader.exe $uploadListPath"
+        $configPath = Join-Path (Get-Location).Path "uploadList.yaml"
+        cmd.exe /c "ncuploader.exe $configPath"
+
+
+  Cleanup:
+    needs: [GenerateTableFiles, GenerateFiles, Build, TableCommit, Deploy]
+    if: failure()
+    runs-on: self-hosted
+    steps:
+      - name: Reset Git Changes on Failure
+        run: |
+          echo "Error! Initializing changes..."
+          Set-Location -Path "$env:GITHUB_WORKSPACE"
+          git reset --hard
+          git clean -fd
