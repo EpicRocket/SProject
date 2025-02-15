@@ -102,14 +102,9 @@ jobs:
       - name: Table Commit
         run: |
           $ErrorActionPreference = "Stop"
-          $env:GIT_TRACE = "1"
-          $env:GIT_CURL_VERBOSE = "1"
 
           Set-Location -Path "$env:GITHUB_WORKSPACE"
 
-          cp ../.git-credentials .
-          
-          git config --local credential.helper 'store --file .git-credentials'
           git config user.name "gr(bot)"
           git config user.email "greantearocket@gmail.com"
 
@@ -124,7 +119,16 @@ jobs:
           
           Write-Host "Changes detected! Committing..."
           git commit -m "Table files updated $(date)"
-          git push origin $BRANCH_NAME
+  
+  TablePush:
+    needs: TableCommit
+    runs-on: self-hosted
+    steps:
+    - name: Table Push
+      uses: ad-m/github-push-action@master
+      with:
+          branch: main
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
   Deploy:
     needs: Build
