@@ -8,7 +8,8 @@ on:
 
   workflow_dispatch:
 
-permissions: write-all
+permissions:
+  contents: write
 
 jobs:
   Checkout:
@@ -106,7 +107,7 @@ jobs:
 
           Set-Location -Path "$env:GITHUB_WORKSPACE"
 
-          git config user.name "greantearocket[bot]"
+          git config user.name "gr(bot)"
           git config user.email "greantearocket@gmail.com"
 
           git add Source/
@@ -120,7 +121,7 @@ jobs:
           
           Write-Host "Changes detected! Committing..."
           git commit -m "Table files updated"
-          git push origin main
+          git push origin HEAD:${GITHUB_REF#refs/heads/}
 
   Deploy:
     needs: Build
