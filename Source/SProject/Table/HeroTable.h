@@ -7,8 +7,8 @@
 
 #include "HeroTable.generated.h"
 
-enum class EAttackType : uint8;
 class UTexture2D;
+enum class EAttackType : uint8;
 
 USTRUCT(BlueprintType)
 struct SPROJECT_API FHeroTableRow : public FTableRowBase

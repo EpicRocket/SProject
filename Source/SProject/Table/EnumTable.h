@@ -9,14 +9,6 @@
 
 
 UENUM(BlueprintType)
-enum class EUseType : uint8{
-	None = 0 UMETA(DisplayName = "안씀"),
-	GetResource = 1 UMETA(DisplayName = "재화 즉시 획득"),
-	Max UMETA(Hidden)
-};
-ENUM_RANGE_BY_COUNT(EUseType, EUseType::Max)
-
-UENUM(BlueprintType)
 enum class EAttackType : uint8{
 	None = 0 UMETA(DisplayName = "안씀"),
 	TowerNomalAttack = 1 UMETA(DisplayName = "즉발형"),
@@ -37,4 +29,12 @@ enum class EItemType : uint8{
 	Max UMETA(Hidden)
 };
 ENUM_RANGE_BY_COUNT(EItemType, EItemType::Max)
+
+UENUM(BlueprintType)
+enum class EUseType : uint8{
+	None = 0 UMETA(DisplayName = "안씀"),
+	GetResource = 1 UMETA(DisplayName = "재화 즉시 획득"),
+	Max UMETA(Hidden)
+};
+ENUM_RANGE_BY_COUNT(EUseType, EUseType::Max)
 
