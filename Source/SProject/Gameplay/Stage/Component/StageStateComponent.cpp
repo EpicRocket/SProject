@@ -11,7 +11,7 @@
 #include "Core/GGameLoadAction.h"
 // include Project
 #include "Table/TableSubsystem.h"
-#include "Table/StageInfoTable.h"
+#include "Table/StageTable.h"
 #include "Gameplay/Stage/StageLevel.h"
 #include "Gameplay/Stage/Error/StageTableError.h"
 #include "Gameplay/GameWorldSubsystem.h"
