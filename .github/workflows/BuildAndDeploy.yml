@@ -103,6 +103,9 @@ jobs:
           $ErrorActionPreference = "Stop"
           Set-Location -Path "$env:GITHUB_WORKSPACE"
 
+          git config user.name "greantearocket[bot]"
+          git config user.email "greantearocket@gmail.com"
+
           git add Source/
 
           $changes = git diff --cached --quiet; $LASTEXITCODE
