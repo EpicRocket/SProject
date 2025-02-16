@@ -7,9 +7,9 @@
 
 #include "ItemTable.generated.h"
 
+class UTexture2D;
 enum class EItemType : uint8;
 enum class EUseType : uint8;
-class UTexture2D;
 
 USTRUCT(BlueprintType)
 struct SPROJECT_API FItemTableRow : public FTableRowBase
