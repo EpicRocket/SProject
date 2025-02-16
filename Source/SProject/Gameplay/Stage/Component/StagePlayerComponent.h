@@ -3,13 +3,12 @@
 
 #include "Framework/Player/GPlayerComponent.h"
 
-
 #include "StagePlayerComponent.generated.h"
 
 class AActor;
 class UGameplayUserPlayer;
 
-UCLASS()
+UCLASS(Abstract, Blueprintable, BlueprintType, HideCategories = (Trigger, PhysicsVolume))
 class MY_API UStagePlayerComponent : public UGPlayerComponent
 {
     GENERATED_BODY()

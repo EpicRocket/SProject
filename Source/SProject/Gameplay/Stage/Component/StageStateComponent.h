@@ -15,7 +15,7 @@ class APlayerController;
 struct FGErrorInfo;
 struct FLatentActionInfo;
 
-UCLASS()
+UCLASS(Abstract, Blueprintable, BlueprintType, HideCategories = (Trigger, PhysicsVolume))
 class MY_API UStageStateComponent : public UGameStateComponent, public IGLoadingProcessInterface
 {
 	GENERATED_BODY()

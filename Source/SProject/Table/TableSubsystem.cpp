@@ -13,7 +13,7 @@
 
 DEFINE_LOG_CATEGORY(LogTable)
 
-UTableSubsystem* UTableSubsystem::Get()
+/* static */UTableSubsystem* UTableSubsystem::Get()
 {
 	if (GEngine == NULL)
 	{

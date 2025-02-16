@@ -47,99 +47,74 @@ void UStageSubsystem::Deinitialize()
 
 void UStageSubsystem::ApplyUserDocumentChanges(const TSharedRef<FFetchDocument> FetchDocument)
 {
-	if (FetchDocument->Stage.IsSet())
+	if (FetchDocument->LastStageLevel.IsSet())
 	{
-		GetStage().Get() = FetchDocument->Stage.GetValue();
+		GetLastStageLevel().Get() = FetchDocument->LastStageLevel.GetValue();
 	}
 
-	if (FetchDocument->StageDetails.IsSet())
+	if (FetchDocument->Stages.IsSet())
 	{
-		for (auto const& Detail : FetchDocument->StageDetails.GetValue())
+		TSet<int32> ExistsStage;
+		ExistsStage.Reserve(FetchDocument->Stages->Num());
+		for (auto const& Detail : FetchDocument->Stages.GetValue())
 		{
-			GetStageDetail(Detail.Level).Get().Level = Detail.Level;
+			ExistsStage.Emplace(Detail.Level);
+			GetStage(Detail.Level).Get() = Detail;
+		}
 
-			// HACK: 현재는 모든 타워 정보를 덮어씌우지만, 추후에는 변경된 타워 정보만 업데이트 해야함
-			TSet<int32> TowerKeys; TowerKeys.Reserve(Detail.Towers.Num());
-			for (auto const& Tower : Detail.Towers)
+		TSet<int32> DeleteStage;
+		DeleteStage.Reserve(Stages.Num());
+		for (auto& [Level, _] : Stages)
+		{
+			if (!ExistsStage.Contains(Level))
 			{
-				GetTower(Detail.Level, Tower.Key).Get() = Tower;
-				TowerKeys.Emplace(Tower.Key);
+				DeleteStage.Emplace(Level);
 			}
+		}
 
-			for (auto& [Key, Tower] : GetStageDetail(Detail.Level).Get().Towers)
-			{
-				if (!TowerKeys.Contains(Key))
-				{
-					Tower->Level = 0;
-					Tower->Location = INDEX_NONE;
-				}
-			}
+		for (auto& Key : DeleteStage)
+		{
+			Stages.Remove(Key);
 		}
 	}
 }
 
-int32 UStageSubsystem::GetUserStageLevel() const
+int32 UStageSubsystem::K2_GetLastStageLevel() const
 {
-	return GetStage().Get().Level;
+	return GetLastStageLevel().Get();
 }
 
-TArray<FTower> UStageSubsystem::GetStageTowers(int32 Level) const
+TSharedRef<int32> UStageSubsystem::GetLastStageLevel() const
 {
-	auto const& StageDetail = GetStageDetail(Level).Get();
-	
-	TArray<FTower> Result;
-	Result.Reserve(StageDetail.Towers.Num());
-	for (auto const& Tower : StageDetail.Towers)
+	if (!LastStageLevel.IsValid())
 	{
-		Result.Emplace(*Tower.Value);
+		LastStageLevel = MakeShared<int32>();
 	}
-
-	return Result;
+	return LastStageLevel.ToSharedRef();
 }
 
-FStage UStageSubsystem::BP_GetStage() const
+FStage UStageSubsystem::K2_GetLastStage() const
 {
-	return GetStage().Get();
+	return GetLastStage().Get();
 }
 
-TSharedRef<FStage> UStageSubsystem::GetStage() const
+TSharedRef<FStage> UStageSubsystem::GetLastStage() const
 {
-	if(!Stage.IsValid())
+	return GetStage(GetLastStageLevel().Get());
+}
+
+FStage UStageSubsystem::K2_GetStage(int32 Level) const
+{
+	return GetStage(Level).Get();
+}
+
+TSharedRef<FStage> UStageSubsystem::GetStage(int32 Level) const
+{
+	if (!Stages.Contains(Level))
 	{
-		Stage = MakeShared<FStage>();
+		auto NewStage = MakeShared<FStage>();
+		NewStage->Level = Level;
+		Stages.Emplace(Level, NewStage);
 	}
-	return Stage.ToSharedRef();
-}
-
-FStageDetailSpec UStageSubsystem::BP_GetStageDetail(int32 Level) const
-{
-	return GetStageDetail(Level).Get();
-}
-
-TSharedRef<FStageDetailSpec> UStageSubsystem::GetStageDetail(int32 Level) const
-{
-	if (!StageDetails.Contains(Level))
-	{
-		auto Spec = MakeShared<FStageDetailSpec>();
-		Spec->Level = Level;
-		StageDetails.Emplace(Level, Spec);
-	}
-	return StageDetails[Level].ToSharedRef();
-}
-
-FTower UStageSubsystem::BP_GetTower(int32 Level, int32 Key) const
-{
-	return GetTower(Level, Key).Get();
-}
-
-TSharedRef<FTower> UStageSubsystem::GetTower(int32 Level, int32 Key) const
-{
-	auto& StageDetail = GetStageDetail(Level).Get();
-	if (!StageDetail.Towers.Contains(Key))
-	{
-		auto Tower = MakeShared<FTower>();
-		Tower->Key = Key;
-		StageDetail.Towers.Emplace(Key, Tower);
-	}
-	return StageDetail.Towers[Key].ToSharedRef();
+	return Stages[Level].ToSharedRef();
 }

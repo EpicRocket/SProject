@@ -1,7 +1,30 @@
 ﻿
 #include "Error/GErrorManager.h"
+// include Engine
+#include "Engine/Engine.h"
+#include "Engine/DataTable.h"
+// include GameCore
+#include "Error/GErrorTypes.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(GErrorManager)
+
+/* static */UGErrorManager* UGErrorManager::Get()
+{
+	if (GEngine == NULL)
+	{
+		return nullptr;
+	}
+	return GEngine->GetEngineSubsystem<UGErrorManager>();
+}
+
+bool UGErrorManager::LoadTable(UDataTable* DataTable)
+{
+	return false;
+}
+
+void UGErrorManager::UnloadTable(UDataTable* DataTable)
+{
+}
 
 bool UGErrorHelper::IsOk(const FGErrorInfo& Err)
 {
@@ -11,6 +34,11 @@ bool UGErrorHelper::IsOk(const FGErrorInfo& Err)
 FGErrorInfo UGErrorHelper::Pass()
 {
 	return GameCore::Pass();
+}
+
+FGErrorInfo UGErrorHelper::Throw(FString ErrCode, FString More)
+{
+	return FGErrorInfo();
 }
 
 bool GameCore::IsOK(const FGErrorInfo& Err)
@@ -37,6 +65,11 @@ bool GameCore::IsOK(const FGErrorInfo& Err)
 }
 
 FGErrorInfo GameCore::Pass()
+{
+	return FGErrorInfo();
+}
+
+GGAMECORE_API FGErrorInfo GameCore::Throw(FString ErrCode, FString More)
 {
 	return FGErrorInfo();
 }

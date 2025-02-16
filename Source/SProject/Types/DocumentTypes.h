@@ -28,8 +28,8 @@ struct MY_API FUserDocument
 	TArray<FItem> Items;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FStage Stage;
+	int32 LastStageLevel = 1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<FStageDetail> StageDetails;
+	TArray<FStage> Stages;
 };

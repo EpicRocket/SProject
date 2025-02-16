@@ -3,12 +3,15 @@
 #include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/PlayerState.h"
+// inclue GameCore
+#include "Error/GErrorTypes.h"
+#include "Error/GErrorManager.h"
 
 void FGGameLoadAction::UpdateOperation(FLatentResponse& Response)
 {
 	if (!WorldPtr.IsValid())
 	{
-		OnFailed();
+		OnFailed(GameCore::Throw(GameErr::WORLD_INVALID, TEXT("FGGameLoadAction")));
 		Response.FinishAndTriggerIf(true, LatentInfo.ExecutionFunction, LatentInfo.Linkage, LatentInfo.CallbackTarget);
 		return;
 	}

@@ -5,12 +5,12 @@
 
 class UWorld;
 class APlayerController;
+struct FGErrorInfo;
 
 class GGAMECORE_API FGGameLoadAction : public FPendingLatentAction
 {
-
 public:
-	FGGameLoadAction(const FLatentActionInfo& InLatentInfo, UWorld* World, TFunction<void(APlayerController*)> CompletedCallback, TFunction<void()> FailedCallback)
+	FGGameLoadAction(const FLatentActionInfo& InLatentInfo, UWorld* World, TFunction<void(APlayerController*)> CompletedCallback, TFunction<void(FGErrorInfo)> FailedCallback)
 		: LatentInfo(InLatentInfo)
 		, WorldPtr(World)
 		, OnCompleted(CompletedCallback)
@@ -28,5 +28,5 @@ private:
 	FLatentActionInfo LatentInfo;
 	TWeakObjectPtr<UWorld> WorldPtr;
 	TFunction<void(APlayerController*)> OnCompleted;
-	TFunction<void()> OnFailed;
+	TFunction<void(FGErrorInfo)> OnFailed;
 };

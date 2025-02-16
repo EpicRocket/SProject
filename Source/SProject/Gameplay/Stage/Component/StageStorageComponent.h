@@ -1,23 +1,24 @@
 ﻿
 #pragma once
 
-#include "Components/GameStateComponent.h"
+#include "Framework/Player/GPlayerComponent.h"
 
 #include "StageStorageComponent.generated.h"
 
-struct FStageDetail;
+struct FStage;
 
-UCLASS()
-class MY_API UStageStorageComponent : public UGameStateComponent
+UCLASS(Abstract, Blueprintable, BlueprintType, HideCategories = (Trigger, PhysicsVolume))
+class MY_API UStageStorageComponent : public UGPlayerComponent
 {
 	GENERATED_BODY()
 
 public:
+	
 
+	UFUNCTION(BlueprintPure)
+	FStage GetLastStage() const;
 
 private:
-	TWeakObjectPtr<FStageDetail> LastStageDetail;
-
-	TMap<int32/*Level*/, TSharedPtr<FStageDetail>> StageDetails;
+	TMap<int32/*Level*/, TSharedPtr<FStage>> Stages;
 
 };

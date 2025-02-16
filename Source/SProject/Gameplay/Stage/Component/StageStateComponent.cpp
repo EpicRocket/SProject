@@ -62,13 +62,15 @@ FGErrorInfo UStageStateComponent::OnLoadStage(FLatentActionInfo LatentInfo)
 			}
 			
 			PrimaryPC = PrimaryPlayerController;
+
+			OnLoadStageCompleted();
 		};
 
-	auto OnFailed = [&ErrorInfo, ThisPtr = TWeakObjectPtr<UStageStateComponent>(this)]
+	auto OnFailed = [&ErrorInfo, ThisPtr = TWeakObjectPtr<UStageStateComponent>(this)](FGErrorInfo Err)
 		{
 			if (ThisPtr.IsValid())
 			{
-				ErrorInfo.ErrType = EGErrType::Error;
+				ErrorInfo = Err;
 			}
 		};
 

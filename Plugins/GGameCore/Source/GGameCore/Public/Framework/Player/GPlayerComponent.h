@@ -8,7 +8,7 @@
 class APlayerController;
 class ULocalPlayer;
 
-UCLASS()
+UCLASS(Abstract, Blueprintable, BlueprintType, HideCategories = (Trigger, PhysicsVolume))
 class GGAMECORE_API UGPlayerComponent : public UGameFrameworkComponent
 {
     GENERATED_BODY()
