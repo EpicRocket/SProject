@@ -27,33 +27,17 @@ public:
 	virtual bool ShouldShowLoadingScreen(FString& OutReason) const override;
 	// ~IGLoadingProcessInterface
 
-public:
-	UFUNCTION(BlueprintCallable)
-	FGErrorInfo SetLevel(int32 Level);
-
 protected:
 	UFUNCTION(BlueprintCallable, meta = (Latent, LatentInfo = "LatentInfo"))
 	FGErrorInfo OnLoadStage(FLatentActionInfo LatentInfo);
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void OnLoadCompleted();
+	void OnLoadStageCompleted();
 
-	UFUNCTION(BlueprintImplementableEvent)
-	void OnLoadStreaming();
-
-	UFUNCTION()
-	void OnLoadLevelCompleted();
-	
-	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "OnLoadLevelCompleted"))
-	void K2_OnLoadLevelCompleted();
-	
 	UFUNCTION(BlueprintCallable)
 	void SetTargetLevel(AMyGameLevel* Level);
 
 public:
-	UPROPERTY(EditDefaultsOnly, Category = "에셋")
-	TSoftObjectPtr<UStageDataAsset> StageDataAsset;
-
 	UPROPERTY(Transient, BlueprintReadOnly)
 	TWeakObjectPtr<APlayerController> PrimaryPC;
 
@@ -61,8 +45,5 @@ public:
 	TWeakObjectPtr<AStageLevel> TargetStage;
 
 protected:
-	UPROPERTY(Transient, BlueprintReadOnly)
-	TSoftObjectPtr<UWorld> LoadLevel;
-
 	bool bLoadCompleted = false;
 };

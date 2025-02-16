@@ -2,6 +2,7 @@
 #include "StageTableRepository.h"
 // include Engine
 #include "Engine/Engine.h"
+#include "Engine/World.h"
 #include "Engine/Texture2D.h"
 // include Project
 #include "Table/TableSubsystem.h"
@@ -71,7 +72,7 @@ TSortedMap<int32, TSharedPtr<FNormalTowerTableRow>>* UStageTableRepository::Find
 	auto Result = NormalTowerTableRows.Find(Kind);
 	if (!Result)
 	{
-		UE_LOG(LogTable, Warning, TEXT("NormalTowerTable을 찾지 못하였습니다. [Kind: %d]"), Kind);
+		UE_LOGFMT(LogTable, Warning, "NormalTowerTableRow을 찾지 못하였습니다. [Kind: {Kind}]", ("Kind", Kind));
 		return nullptr;
 	}
 	return Result;
@@ -89,11 +90,23 @@ TSharedPtr<FNormalTowerTableRow>* UStageTableRepository::FindNormalTowerTableRow
 	auto Result = KindTable->Find(Level);
 	if (!Result)
 	{
-		UE_LOG(LogTable, Warning, TEXT("NormalTowerTable을 찾지 못하였습니다. [Kind: %d, Level: %d]"), Kind, Level);
+		UE_LOGFMT(LogTable, Warning, "NormalTowerTableRow을 찾지 못하였습니다. [Kind: {Kind}, Level: {Level}]", ("Kind", Kind), ("Level", Level));
 		return nullptr;
 	}
 
 	return Result;
+}
+
+TSharedPtr<FStageTableRow> UStageTableRepository::FindStageTableRow(int32 Level)
+{
+	auto Row = StageTableRows.Find(Level);
+	if (!Row)
+	{
+		UE_LOGFMT(LogTable, Warning, "StageTableRow을 찾지 못하였습니다. [Level:{Level}]", ("Level", Level));
+		return nullptr;
+	}
+
+	return *Row;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -299,23 +312,47 @@ bool UStageTableHelper::GetStageTowerBaseStats(EStageTowerType TowerType, int32 
 	return true;
 }
 
-bool UStageTableHelper::GetStageTableInfo(int32 Level, FStageTableRow& Result)
+bool UStageTableHelper::GetStage(int32 Level, FStageTableRow& Result)
 {
-	auto Repository = UStageTableRepository::Get();
-	if (!Repository)
+	auto Repo = UStageTableRepository::Get();
+	check(Repo);
+
+	auto Row = Repo->StageTableRows.Find(Level);
+	if (!Row)
 	{
 		return false;
 	}
 
-	auto StageInfoRow = Repository->StageTableRows.Find(Level);
-	if (!StageInfoRow)
-	{
-		return false;
-	}
-
-	auto& StageInfoPtr = *StageInfoRow;
+	auto& StageInfoPtr = *Row;
 	Result.Level = StageInfoPtr->Level;
 	Result.UsePoint = StageInfoPtr->UsePoint;
+
+	return true;
+}
+
+bool UStageTableHelper::GetStageMap(int32 Level, TSoftObjectPtr<UWorld>& Map)
+{
+	auto Repo = UStageTableRepository::Get();
+	check(Repo);
+
+	auto Row = Repo->FindStageTableRow(Level);
+	if (!Row)
+	{
+		return false;
+	}
+
+	Map = Row->Map;
+	if (Map.IsNull())
+	{
+		UE_LOGFMT(LogTable, Warning, "Map이 Null입니다.[Level:{Level}]", ("Level", Level));
+		return false;
+	}
+
+	if (Map.IsValid())
+	{
+		UE_LOGFMT(LogTable, Warning, "Map이 유효하지 않습니다.[Level:{Level}]", ("Level", Level));
+		return false;
+	}
 
 	return true;
 }

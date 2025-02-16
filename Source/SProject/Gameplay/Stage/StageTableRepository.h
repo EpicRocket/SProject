@@ -13,6 +13,7 @@ struct FNormalTowerTableRow;
 struct FStageTowerInfo;
 struct FStageTableRow;
 class AStageTowerUnit;
+class UWorld;
 
 UCLASS()
 class MY_API UStageTableRepository : public UEngineSubsystem
@@ -35,6 +36,7 @@ private:
 	TSharedPtr<FNormalTowerTableRow>* FindNormalTowerTableRow(int32 Kind, int32 Level);
 
 	TSortedMap<int32/*Level*/, TSharedPtr<FStageTableRow>> StageTableRows;
+	TSharedPtr<FStageTableRow> FindStageTableRow(int32 Level);
 };
 
 UCLASS()
@@ -62,5 +64,8 @@ public:
 	static bool GetStageTowerBaseStats(EStageTowerType TowerType, int32 Kind, int32 Level, TMap<EStageUnitAttribute, double>& Result);
 
 	UFUNCTION(BlueprintPure, Category = "스테이지|정보", meta = (ReturnDisplayName = "Find"))
-	static bool GetStageTableInfo(int32 Level, FStageTableRow& Result);
+	static bool GetStage(int32 Level, FStageTableRow& Result);
+
+	UFUNCTION(BlueprintPure, Category = "스테이지|정보", meta = (ReturnDisplayName = "Find"))
+	static bool GetStageMap(int32 Level, TSoftObjectPtr<UWorld>& Map);
 };

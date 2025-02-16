@@ -37,20 +37,6 @@ bool UStageStateComponent::ShouldShowLoadingScreen(FString& OutReason) const
 	return false;
 }
 
-FGErrorInfo UStageStateComponent::SetLevel(int32 Level)
-{
-	auto Data = UTableHelper::GetData<FStageTableRow>(Level);
-	if (!Data)
-	{
-		return FStageTableError(Level);
-	}
-
-	LoadLevel = Data->Map;
-	OnLoadStreaming();
-
-	return FGErrorInfo{};
-}
-
 FGErrorInfo UStageStateComponent::OnLoadStage(FLatentActionInfo LatentInfo)
 {
 	auto World = GetWorld();
@@ -68,7 +54,6 @@ FGErrorInfo UStageStateComponent::OnLoadStage(FLatentActionInfo LatentInfo)
 	}
 
 	FGErrorInfo ErrorInfo;
-
 	auto OnSuccess = [this, World, &ErrorInfo, ThisPtr = TWeakObjectPtr<UStageStateComponent>(this)](APlayerController* PrimaryPlayerController)
 		{
 			if (!ThisPtr.IsValid())
@@ -77,7 +62,6 @@ FGErrorInfo UStageStateComponent::OnLoadStage(FLatentActionInfo LatentInfo)
 			}
 			
 			PrimaryPC = PrimaryPlayerController;
-			OnLoadCompleted();
 		};
 
 	auto OnFailed = [&ErrorInfo, ThisPtr = TWeakObjectPtr<UStageStateComponent>(this)]
@@ -94,17 +78,7 @@ FGErrorInfo UStageStateComponent::OnLoadStage(FLatentActionInfo LatentInfo)
 	return ErrorInfo;
 }
 
-void UStageStateComponent::OnLoadLevelCompleted()
-{
-	bLoadCompleted = true;
-	K2_OnLoadLevelCompleted();
-}
-
 void UStageStateComponent::SetTargetLevel(AMyGameLevel* Level)
 {
 	TargetStage = Cast<AStageLevel>(Level);
-	if (TargetStage.IsValid())
-	{
-		OnLoadLevelCompleted();
-	}
 }

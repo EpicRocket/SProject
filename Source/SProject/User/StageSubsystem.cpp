@@ -143,12 +143,3 @@ TSharedRef<FTower> UStageSubsystem::GetTower(int32 Level, int32 Key) const
 	}
 	return StageDetail.Towers[Key].ToSharedRef();
 }
-
-//////////////////////////////////////////////////////////////////////////
-// UStageSubsystemHelper
-//////////////////////////////////////////////////////////////////////////
-
-TSoftObjectPtr<UWorld> UStageSubsystemHelper::GetStageMap(int32 Level)
-{
-	return nullptr;
-}

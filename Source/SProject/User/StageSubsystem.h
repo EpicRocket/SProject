@@ -74,6 +74,4 @@ class MY_API UStageSubsystemHelper : public UBlueprintFunctionLibrary
     GENERATED_BODY()
 
 public:
-    UFUNCTION(BlueprintPure, Category = "스테이지|Helper")
-    static TSoftObjectPtr<UWorld> GetStageMap(int32 Level);
 };
