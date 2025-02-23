@@ -28,6 +28,7 @@ UStageTableRepository* UStageTableRepository::Get()
 
 void UStageTableRepository::Load()
 {
+	Super::Load();
 	auto TableSubsystem = UTableSubsystem::Get();
 	if (!TableSubsystem)
 	{
@@ -63,6 +64,7 @@ void UStageTableRepository::Load()
 
 void UStageTableRepository::Unload()
 {
+	Super::Unload();
 	NormalTowerTableRows.Empty();
 	StageTableRows.Empty();
 }

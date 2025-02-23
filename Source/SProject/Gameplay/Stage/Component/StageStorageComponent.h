@@ -22,6 +22,8 @@ public:
 	FStage GetLastStage() const;
 
 private:
+	int32 LastStageLevel = INDEX_NONE;
+
 	TMap<int32/*Level*/, TSharedPtr<FStage>> Stages;
 
 };

@@ -19,7 +19,7 @@ struct MY_API FStage
 
 	/** 스테이지의 레벨(맵) */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 Level = 0;
+	int32 Level = INDEX_NONE;
 
 	/** 스테이지에 배치된 타워들 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

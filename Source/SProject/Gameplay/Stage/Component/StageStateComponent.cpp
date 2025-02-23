@@ -7,13 +7,12 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "GameFramework/PlayerController.h"
 // include GameCore
-#include "Error/GErrorManager.h"
+#include "Error/GError.h"
 #include "Core/Action/GGameLoadAction.h"
 // include Project
 #include "Table/TableSubsystem.h"
 #include "Table/StageTable.h"
 #include "Gameplay/Stage/StageLevel.h"
-#include "Gameplay/Stage/Error/StageTableError.h"
 #include "Gameplay/GameWorldSubsystem.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(StageStateComponent)
@@ -37,52 +36,25 @@ bool UStageStateComponent::ShouldShowLoadingScreen(FString& OutReason) const
 	return false;
 }
 
-FGErrorInfo UStageStateComponent::OnLoadStage(FLatentActionInfo LatentInfo)
+FGErrorInfo UStageStateComponent::WaitForPrimaryPlayerController(FLatentActionInfo LatentInfo)
 {
 	auto World = GetWorld();
 	if (!World)
 	{
 		UKismetSystemLibrary::DelayUntilNextTick(World, LatentInfo);
-		return FGErrorInfo(EGErrType::Error, TEXT(""), FText{});
+		return GameCore::Throw(GameErr::WORLD_INVALID);
 	}
-
-	FLatentActionManager& LatentManager = World->GetLatentActionManager();
-	if (LatentManager.FindExistingAction<FGGameLoadAction>(LatentInfo.CallbackTarget, LatentInfo.UUID) != nullptr)
-	{
-		UKismetSystemLibrary::DelayUntilNextTick(World, LatentInfo);
-		return FGErrorInfo(EGErrType::Warning, TEXT(""), FText{});
-	}
-
+	
 	FGErrorInfo ErrorInfo;
-	auto OnSuccess = [this, World, &ErrorInfo, ThisPtr = TWeakObjectPtr<UStageStateComponent>(this)](APlayerController* PrimaryPlayerController)
+	auto OnSuccess = [this](APlayerController* PrimaryPlayerController)
 		{
-			if (!ThisPtr.IsValid())
-			{
-				return;
-			}
-			
 			PrimaryPC = PrimaryPlayerController;
-
 			OnLoadStageCompleted();
 		};
-
-	auto OnFailed = [&ErrorInfo, ThisPtr = TWeakObjectPtr<UStageStateComponent>(this)](FGErrorInfo Err)
-		{
-			if (ThisPtr.IsValid())
-			{
-				ErrorInfo = Err;
-			}
-		};
-
-	FGGameLoadAction* NewAction = new FGGameLoadAction(LatentInfo, GetWorld(), OnSuccess, OnFailed);
-	LatentManager.AddNewAction(LatentInfo.CallbackTarget, LatentInfo.UUID, NewAction);
+	auto NewAction = new FGGameLoadAction(LatentInfo, GetWorld(), OnSuccess, [&ErrorInfo](FGErrorInfo Err) {ErrorInfo = Err; });
+	World->GetLatentActionManager().AddNewAction(LatentInfo.CallbackTarget, LatentInfo.UUID, NewAction);
 
 	return ErrorInfo;
-}
-
-FGErrorInfo UStageStateComponent::WaitForPrimaryPlayerController(FLatentActionInfo LatentInfo)
-{
-	return FGErrorInfo();
 }
 
 void UStageStateComponent::SetTargetLevel(AMyGameLevel* Level)

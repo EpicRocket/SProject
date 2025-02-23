@@ -29,9 +29,6 @@ public:
 
 protected:
 	UFUNCTION(BlueprintCallable, meta = (Latent, LatentInfo = "LatentInfo"))
-	FGErrorInfo OnLoadStage(FLatentActionInfo LatentInfo);
-
-	UFUNCTION(BlueprintCallable, meta = (Latent, LatentInfo = "LatentInfo"))
 	FGErrorInfo WaitForPrimaryPlayerController(FLatentActionInfo LatentInfo);
 
 	UFUNCTION(BlueprintImplementableEvent)

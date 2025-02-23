@@ -18,6 +18,8 @@ DECLARE_LOG_CATEGORY_EXTERN(LogTable, Log, All);
 template<typename T>
 concept DerivedFromFTableRowBase = std::is_base_of<FTableRowBase, T>::value;
 
+DECLARE_MULTICAST_DELEGATE(FTableLoadCompleted);
+
 /*
  * 테이터 테이블 시스템
  */
@@ -29,7 +31,6 @@ class MY_API UTableSubsystem : public UEngineSubsystem
 public:
     static UTableSubsystem* Get();
 
-    DECLARE_MULTICAST_DELEGATE_OneParam(FTableLoadCompleted, const UTableSubsystem*);
 	FTableLoadCompleted TableLoadCompleted;
 
     virtual void Initialize(FSubsystemCollectionBase& Collection) override;

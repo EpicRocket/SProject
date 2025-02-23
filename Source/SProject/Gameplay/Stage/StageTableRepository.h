@@ -2,7 +2,7 @@
 #pragma once
 
 #include "Kismet/BlueprintFunctionLibrary.h"
-#include "Subsystems/EngineSubsystem.h"
+#include "Table/TableRepositorySubsystem.h"
 #include "Templates/SharedPointer.h"
 
 #include "StageTableRepository.generated.h"
@@ -16,19 +16,15 @@ class AStageTowerUnit;
 class UWorld;
 
 UCLASS()
-class MY_API UStageTableRepository : public UEngineSubsystem
+class MY_API UStageTableRepository : public UTableRepositorySubsystem
 {
 	GENERATED_BODY()
 
 	friend UStageTableHelper;
-public:
 	static UStageTableRepository* Get();
-
-	UFUNCTION(BlueprintCallable)
-	void Load();
-
-	UFUNCTION(BlueprintCallable)
-	void Unload();
+public:
+	virtual void Load() override;
+	virtual void Unload() override;
 
 private:
 	TMap<int32/*Kind*/, TSortedMap<int32/*Level*/, TSharedPtr<FNormalTowerTableRow>>> NormalTowerTableRows;
