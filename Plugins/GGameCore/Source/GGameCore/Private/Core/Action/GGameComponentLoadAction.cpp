@@ -1,5 +1,5 @@
 ﻿
-#include "Core/GGameComponentLoadAction.h"
+#include "Core/Action/GGameComponentLoadAction.h"
 #include "Engine/World.h"
 // inclue GameCore
 #include "Error/GErrorTypes.h"

@@ -1,5 +1,6 @@
 ﻿
-#include "Framework/Player/GPlayerComponent.h"
+#include "Core/Component/GPlayerComponent.h"
+// include Engine
 #include "Engine/LocalPlayer.h"
 #include "GameFramework/PlayerController.h"
 

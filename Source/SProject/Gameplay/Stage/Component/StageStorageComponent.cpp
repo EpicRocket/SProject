@@ -7,6 +7,11 @@
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(StageStorageComponent)
 
+FGErrorInfo UStageStorageComponent::WaitForInitialize(FLatentActionInfo LatentInfo)
+{
+	return FGErrorInfo();
+}
+
 FStage UStageStorageComponent::GetLastStage() const
 {
 	return FStage();

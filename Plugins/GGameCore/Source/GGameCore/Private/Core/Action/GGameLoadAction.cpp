@@ -1,6 +1,8 @@
 ﻿
-#include "Core/GGameLoadAction.h"
+#include "Core/Action/GGameLoadAction.h"
+// include Engine
 #include "Engine/World.h"
+#include "Engine/LatentActionManager.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/PlayerState.h"
 // inclue GameCore

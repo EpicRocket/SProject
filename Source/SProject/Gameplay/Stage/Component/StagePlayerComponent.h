@@ -1,7 +1,7 @@
 ﻿
 #pragma once
 
-#include "Framework/Player/GPlayerComponent.h"
+#include "Core/Component/GPlayerComponent.h"
 
 #include "StagePlayerComponent.generated.h"
 

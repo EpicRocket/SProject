@@ -8,7 +8,7 @@
 #include "GameFramework/PlayerController.h"
 // include GameCore
 #include "Error/GErrorManager.h"
-#include "Core/GGameLoadAction.h"
+#include "Core/Action/GGameLoadAction.h"
 // include Project
 #include "Table/TableSubsystem.h"
 #include "Table/StageTable.h"
@@ -78,6 +78,11 @@ FGErrorInfo UStageStateComponent::OnLoadStage(FLatentActionInfo LatentInfo)
 	LatentManager.AddNewAction(LatentInfo.CallbackTarget, LatentInfo.UUID, NewAction);
 
 	return ErrorInfo;
+}
+
+FGErrorInfo UStageStateComponent::WaitForPrimaryPlayerController(FLatentActionInfo LatentInfo)
+{
+	return FGErrorInfo();
 }
 
 void UStageStateComponent::SetTargetLevel(AMyGameLevel* Level)

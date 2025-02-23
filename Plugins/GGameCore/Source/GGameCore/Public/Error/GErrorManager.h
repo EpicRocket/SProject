@@ -9,6 +9,8 @@
 
 struct FGErrorInfo;
 
+DECLARE_LOG_CATEGORY_EXTERN(LogGameError, Log, All);
+
 namespace GameErr
 {
 	static const FString WORLD_INVALID = TEXT("WORLD_INVALID");
@@ -27,13 +29,24 @@ public:
 	static UGErrorManager* Get();
 
 	UFUNCTION(BlueprintCallable)
+	void Clear();
+
+	UFUNCTION(BlueprintCallable)
 	bool LoadTable(UDataTable* DataTable);
 
 	UFUNCTION(BlueprintCallable)
 	void UnloadTable(UDataTable* DataTable);
 
+	UFUNCTION(BlueprintCallable)
+	FGErrorInfo GetError(FString ErrCode);
+
 private:
-	TMap<FString, TSharedPtr<FGErrorInfo>> Errs;
+	void OverwriteTable(TSharedPtr<struct GErrorTableStack> Stack);
+
+private:
+	TMap<FString, TWeakPtr<FGErrorInfo>> Errs;
+
+	TArray<TSharedPtr<struct GErrorTableStack>> ErrsStack;
 };
 
 UCLASS()

@@ -1,7 +1,7 @@
 ﻿
 #pragma once
 
-#include "Components/GameStateComponent.h"
+#include "Core/Component/GGameStateComponent.h"
 #include "UObject/SoftObjectPtr.h"
 #include "Loading/Interface/GLoadingProcessInterface.h"
 
@@ -16,7 +16,7 @@ struct FGErrorInfo;
 struct FLatentActionInfo;
 
 UCLASS(Abstract, Blueprintable, BlueprintType, HideCategories = (Trigger, PhysicsVolume))
-class MY_API UStageStateComponent : public UGameStateComponent, public IGLoadingProcessInterface
+class MY_API UStageStateComponent : public UGGameStateComponent, public IGLoadingProcessInterface
 {
 	GENERATED_BODY()
 
@@ -30,6 +30,9 @@ public:
 protected:
 	UFUNCTION(BlueprintCallable, meta = (Latent, LatentInfo = "LatentInfo"))
 	FGErrorInfo OnLoadStage(FLatentActionInfo LatentInfo);
+
+	UFUNCTION(BlueprintCallable, meta = (Latent, LatentInfo = "LatentInfo"))
+	FGErrorInfo WaitForPrimaryPlayerController(FLatentActionInfo LatentInfo);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnLoadStageCompleted();
