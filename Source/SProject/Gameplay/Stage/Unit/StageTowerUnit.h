@@ -7,7 +7,7 @@
 
 struct FStageTowerInfo;
 
-UCLASS(Abstract)
+UCLASS(Abstract, Config = Game, BlueprintType, Blueprintable)
 class MY_API AStageTowerUnit : public AStageUnitCharacter
 {
     GENERATED_BODY()

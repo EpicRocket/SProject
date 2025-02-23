@@ -5,7 +5,7 @@
 
 #include "StageMonsterUnit.generated.h"
 
-UCLASS(Abstract)
+UCLASS(Abstract, Config = Game, BlueprintType, Blueprintable)
 class MY_API AStageMonsterUnit : public AStageUnitCharacter
 {
     GENERATED_BODY()

@@ -182,29 +182,13 @@ UXLSXFactory::UXLSXFactory()
 UObject* UXLSXFactory::FactoryCreateFile(UClass* InClass, UObject* InParent, FName InName, EObjectFlags Flags, const FString& Filename, const TCHAR* Parms, FFeedbackContext* Warn, bool& bOutOperationCanceled)
 {
 #if PLATFORM_WINDOWS
-	//if (IsCompileOnImportEnabled())
-	//{
-	//	UE_LOG(LogTemp, Error, TEXT("Failed to import. [Reason:Compiling]"));
-	//	return nullptr;
-	//}
-
 	if (!GenerateXLSXSheet(Filename))
 	{
 		UE_LOG(LogTemp, Error, TEXT("Failed to generate sheet. [Path:%s]"), *Filename);
 		return nullptr;
 	}
 
-	FString AbsPath = FPaths::ProjectDir() / TEXT("Source") / Dependency_Module / GetTablePath();
-	if (!FPaths::DirectoryExists(AbsPath))
-	{
-		UE_LOG(LogTemp, Error, TEXT("Failed to find module path. [Path:%s]"), *AbsPath);
-		return nullptr;
-	}
-
-	FString FilePath = AbsPath / FString::Printf(TEXT("%s.h"), *InName.ToString());
-
-	FString ChangeToDesc = GenerateTableDesc(InName.ToString());
-	FFileHelper::SaveStringToFile(ChangeToDesc, *FilePath);
+	GenerateTableDesc(InName.ToString());
 
 	PackageName = InParent->GetName();
 	int32 LastSlashIndex = INDEX_NONE;
@@ -727,190 +711,9 @@ bool UXLSXFactory::GenerateConst(OpenXLSX::XLWorksheet WorkSheet, FXLSXSheet& Sh
 #endif
 }
 
-FString UXLSXFactory::GenerateTableDesc(FString const& Filename)
+void UXLSXFactory::GenerateTableDesc(FString const& Filename)
 {
-	FString TableDesc;
-	TArray<FString> Includes;
-	TArray<FString> Structs;
-	TArray<FString> Enums;
-	TArray<FString> Constants;
-
-	TableDesc += FString::Printf(TEXT("// This is an automatically generated file. Do not modify it manually. [%s]"), *FDateTime::Now().ToString());
-	TableDesc += TEXT("\n");
-	TableDesc += TEXT("#pragma once");
-	TableDesc += TEXT("\n\n");
-	TableDesc += TEXT("#include \"CoreMinimal.h\"");
-	TableDesc += TEXT("\n");
-
-	for (auto& Sheet : CacheSheet)
-	{
-		switch (Sheet.AssetType)
-		{
-		case EAssetType::Struct:
-		{
-			FString Desc;
-
-			Desc += FString::Printf(TEXT("USTRUCT(BlueprintType)\n"));
-			Desc += FString::Printf(TEXT("struct %s F%sTableRow : public FTableRowBase\n"), Dependency_Module_API, *Sheet.Name);
-			Desc += TEXT("{\n");
-			Desc += TEXT("	GENERATED_BODY()\n");
-
-			for (auto& Header : Sheet.Headers)
-			{
-				Desc += TEXT("\n");
-				Desc += FString::Printf(TEXT("	UPROPERTY(EditAnywhere, BlueprintReadWrite)\n"));
-				if (Header.CellType == ECellType::Asset)
-				{
-					Desc += FString::Printf(TEXT("	TSoftObjectPtr<%s> %s = nullptr;"), *Header.Type, *Header.Name);
-				}
-				else if (Header.CellType == ECellType::Class)
-				{
-					Desc += FString::Printf(TEXT("	TSoftClassPtr<%s> %s = nullptr;"), *Header.Type, *Header.Name);
-				}
-				else
-				{
-					FString InitailzieValue;
-					switch (Header.CellType)
-					{
-						case ECellType::Bool: InitailzieValue = TEXT("false"); break;
-						case ECellType::Int32: InitailzieValue = TEXT("0"); break;
-						case ECellType::Int64: InitailzieValue = TEXT("0"); break;
-						case ECellType::Float32: InitailzieValue = TEXT("0.0F"); break;
-						case ECellType::Float64: InitailzieValue = TEXT("0.0"); break;
-						case ECellType::Enum: InitailzieValue = FString::Printf(TEXT("static_cast<%s>(0)"), *Header.Type); break;
-					}
-
-					if (InitailzieValue.IsEmpty())
-					{
-						Desc += FString::Printf(TEXT("	%s %s;"), *Header.Type, *Header.Name);
-					}
-					else
-					{
-						Desc += FString::Printf(TEXT("	%s %s = %s;"), *Header.Type, *Header.Name, *InitailzieValue);
-					}
-				}
-				Desc += TEXT("\n");
-			}
-			Desc += TEXT("};\n");
-			Desc += TEXT("\n");
-
-			Structs.Emplace(Desc);
-
-		}
-		break;
-
-		case EAssetType::Enum:
-		{
-			FString Desc;
-
-			Desc += FString::Printf(TEXT("UENUM(BlueprintType)\n"));
-			Desc += FString::Printf(TEXT("enum class %s : uint8\n"), *Sheet.Name);
-			Desc += TEXT("{\n");
-
-			for (int32 Index = 0; Index < Sheet.Datas.Num(); ++Index)
-			{
-				auto& Datas = Sheet.Datas[Index];
-				FString Value, Name;
-
-				int32 Count = 0;
-				for (auto& Data : Datas)
-				{
-					if (Count == 0)
-					{
-						Value = Data;
-					}
-					else if (Count == 1)
-					{
-						Name = Data;
-						break;
-					}
-					Count++;
-				}
-				Desc += FString::Printf(TEXT("	%s = %s,\n"), *Name, *Value);
-			}
-			Desc += TEXT("	Max UMETA(Hidden)\n");
-			Desc += TEXT("};\n");
-			Desc += FString::Printf(TEXT("ENUM_RANGE_BY_COUNT(%s, %s::Max)\n"), *Sheet.Name, *Sheet.Name);
-			Desc += TEXT("\n");
-
-			Enums.Emplace(Desc);
-		}
-		break;
-
-		case EAssetType::Constant:
-		{
-			FString Desc;
-
-			Desc += FString::Printf(TEXT("UCLASS(Config=%s)"), Dependency_Module);
-			Desc += TEXT("\n");
-			Desc += FString::Printf(TEXT("class %s U%sSettings : public UDeveloperSettings\n"), Dependency_Module_API, *Sheet.Name);
-			Desc += TEXT("{\n");
-			Desc += TEXT("	GENERATED_BODY()\n");
-			Desc += TEXT("\n");
-			Desc += TEXT("public:");
-
-			for (auto& Const : Sheet.Consts)
-			{
-				Desc += TEXT("\n");
-				Desc += FString::Printf(TEXT("	UPROPERTY(Config, VisibleDefaultsOnly, BlueprintReadOnly, Category = \"Table\")\n"));
-				Desc += FString::Printf(TEXT("	%s %s;"), *Const.Type, *Const.Key, *Const.Value);
-				Desc += TEXT("\n");
-			}
-
-			Desc += TEXT("};\n");
-			Desc += TEXT("\n");
-
-			Constants.Emplace(Desc);
-		}
-		break;
-
-		}
-	}
-
-	if (Enums.Num() > 0)
-	{
-		TableDesc += TEXT("#include \"Misc/EnumRange.h\"");
-		TableDesc += TEXT("\n");
-	}
-
-	if (Structs.Num() > 0)
-	{
-		TableDesc += TEXT("#include \"Engine/DataTable.h\"");
-		TableDesc += TEXT("\n");
-	}
-
-	if (Constants.Num() > 0)
-	{
-		TableDesc += TEXT("#include \"Engine/DeveloperSettings.h\"");
-		TableDesc += TEXT("\n");
-	}
-
-	TableDesc += FString::Printf(TEXT("#include \"%s.generated.h\""), *Filename);
-	TableDesc += TEXT("\n\n");
-
-	for (auto& ForwardDeclaration : ForwardDeclarations)
-	{
-		TableDesc += FString::Printf(TEXT("%s;\n"), *ForwardDeclaration);
-	}
-	TableDesc += TEXT("\n\n");
-
-	for (auto& Desc : Enums)
-	{
-		TableDesc += Desc;
-	}
-
-	for (auto& Desc : Structs)
-	{
-		TableDesc += Desc;
-	}
-
-	for (auto& Desc : Constants)
-	{
-		TableDesc += Desc;
-	}
-
 	auto ModuleIni = FPaths::ProjectConfigDir() / FString::Printf(TEXT("Default%s.ini"), Dependency_Module);
-
 	for (auto& Sheet : CacheSheet)
 	{
 		auto Section = FString::Printf(TEXT("/Script/%s.%sSettings"), Dependency_Module, *Sheet.Name);
@@ -983,8 +786,6 @@ FString UXLSXFactory::GenerateTableDesc(FString const& Filename)
 			}
 		}
 	}
-
-	return TableDesc;
 }
 
 FString UXLSXFactory::GetTablePath() const

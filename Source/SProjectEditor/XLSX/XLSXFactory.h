@@ -91,7 +91,7 @@ private:
 
 	bool GenerateConst(OpenXLSX::XLWorksheet WorkSheet, FXLSXSheet& Sheet);
 
-	FString GenerateTableDesc(FString const& Filename);
+	void GenerateTableDesc(FString const& Filename);
 
 	FString GetTablePath() const;
 };

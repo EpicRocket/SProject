@@ -10,7 +10,7 @@
 class UGBaseAttributeSet;
 class UObject;
 
-UCLASS(Abstract)
+UCLASS(Abstract, Config = Game, BlueprintType, Blueprintable)
 class GGAMECORE_API AUnitCharacter : public ACharacter, public IGTeamAgent, public IAbilitySystemInterface
 {
 	GENERATED_BODY()

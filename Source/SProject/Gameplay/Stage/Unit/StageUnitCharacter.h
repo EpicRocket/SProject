@@ -8,7 +8,7 @@
 enum class EStageUnitAttribute : uint8;
 class UStageUnitAttributeSet;
 
-UCLASS(Abstract)
+UCLASS(Abstract, Config = Game, BlueprintType, Blueprintable)
 class MY_API AStageUnitCharacter : public AUnitCharacter
 {
 	GENERATED_BODY()

@@ -48,5 +48,6 @@ public:
 	TWeakObjectPtr<AStageLevel> TargetStage;
 
 protected:
+	UPROPERTY(BlueprintReadWrite)
 	bool bLoadCompleted = false;
 };

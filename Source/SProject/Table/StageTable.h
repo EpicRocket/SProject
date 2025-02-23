@@ -25,10 +25,32 @@ struct SPROJECT_API FStageTableRow : public FTableRowBase
 	TSoftObjectPtr<UTexture2D> Icon;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<int32> Reward;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 UsePoint = INDEX_NONE;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSoftObjectPtr<UWorld> Map;
+
+};
+
+USTRUCT(BlueprintType)
+struct SPROJECT_API FWaveTableRow : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 Index = INDEX_NONE;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 Wave_Group = INDEX_NONE;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 Type = INDEX_NONE;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 Monster_Group = INDEX_NONE;
 
 };
 
