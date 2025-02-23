@@ -7,13 +7,8 @@
 
 #include "StageStateComponent.generated.h"
 
-class UStageDataAsset;
-class AStageLevel;
-class AMyGameLevel;
-class UWorld;
-class APlayerController;
-struct FGErrorInfo;
 struct FLatentActionInfo;
+struct FStage;
 
 UCLASS(Abstract, Blueprintable, BlueprintType, HideCategories = (Trigger, PhysicsVolume))
 class MY_API UStageStateComponent : public UGGameStateComponent, public IGLoadingProcessInterface
@@ -27,22 +22,25 @@ public:
 	virtual bool ShouldShowLoadingScreen(FString& OutReason) const override;
 	// ~IGLoadingProcessInterface
 
+	UFUNCTION(BlueprintCallable)
+	FGErrorInfo LoadStage(const FStage& Stage);
+
 protected:
 	UFUNCTION(BlueprintCallable, meta = (Latent, LatentInfo = "LatentInfo"))
 	FGErrorInfo WaitForPrimaryPlayerController(FLatentActionInfo LatentInfo);
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void OnLoadStageCompleted();
+	void OnLoadStage(const FStage& Stage, const TSoftObjectPtr<class UWorld>& Level);
 
 	UFUNCTION(BlueprintCallable)
-	void SetTargetLevel(AMyGameLevel* Level);
+	void SetTargetLevel(class AMyGameLevel* Level);
 
 public:
 	UPROPERTY(Transient, BlueprintReadOnly)
-	TWeakObjectPtr<APlayerController> PrimaryPC;
+	TWeakObjectPtr<class APlayerController> PrimaryPC;
 
 	UPROPERTY(Transient, BlueprintReadOnly)
-	TWeakObjectPtr<AStageLevel> TargetStage;
+	TWeakObjectPtr<class AStageLevel> TargetStage;
 
 protected:
 	UPROPERTY(BlueprintReadWrite)

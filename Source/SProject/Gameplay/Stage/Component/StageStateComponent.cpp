@@ -10,10 +10,11 @@
 #include "Error/GError.h"
 #include "Core/Action/GGameLoadAction.h"
 // include Project
-#include "Table/TableSubsystem.h"
-#include "Table/StageTable.h"
-#include "Gameplay/Stage/StageLevel.h"
+#include "Types/StageTypes.h"
 #include "Gameplay/GameWorldSubsystem.h"
+#include "Gameplay/Stage/StageLevel.h"
+#include "Gameplay/Stage/StageTableRepository.h"
+
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(StageStateComponent)
 
@@ -36,6 +37,18 @@ bool UStageStateComponent::ShouldShowLoadingScreen(FString& OutReason) const
 	return false;
 }
 
+FGErrorInfo UStageStateComponent::LoadStage(const FStage& Stage)
+{
+	TSoftObjectPtr<UWorld> MapPtr;
+	if (auto Err = UStageTableHelper::GetStageMap(Stage.Level, MapPtr); !GameCore::IsOK(Err))
+	{
+		return Err;
+	}
+
+	OnLoadStage(Stage, MapPtr);
+	return GameCore::Pass();
+}
+
 FGErrorInfo UStageStateComponent::WaitForPrimaryPlayerController(FLatentActionInfo LatentInfo)
 {
 	auto World = GetWorld();
@@ -49,7 +62,6 @@ FGErrorInfo UStageStateComponent::WaitForPrimaryPlayerController(FLatentActionIn
 	auto OnSuccess = [this](APlayerController* PrimaryPlayerController)
 		{
 			PrimaryPC = PrimaryPlayerController;
-			OnLoadStageCompleted();
 		};
 	auto NewAction = new FGGameLoadAction(LatentInfo, GetWorld(), OnSuccess, [&ErrorInfo](FGErrorInfo Err) {ErrorInfo = Err; });
 	World->GetLatentActionManager().AddNewAction(LatentInfo.CallbackTarget, LatentInfo.UUID, NewAction);

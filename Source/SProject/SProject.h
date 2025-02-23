@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Logging/StructuredLog.h"
+#include "Error/GError.h"
 
 #define MY_API SPROJECT_API
 

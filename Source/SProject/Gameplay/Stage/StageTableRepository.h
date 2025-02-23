@@ -12,6 +12,7 @@ enum class EStageUnitAttribute : uint8;
 struct FNormalTowerTableRow;
 struct FStageTowerInfo;
 struct FStageTableRow;
+struct FGErrorInfo;
 class AStageTowerUnit;
 class UWorld;
 
@@ -42,26 +43,26 @@ class MY_API UStageTableHelper : public UBlueprintFunctionLibrary
 
 public:
 	UFUNCTION(BlueprintPure, Category = "스테이지|타워|건설", meta = (ReturnDisplayName = "Find"))
-	static bool GetBuildStageTower(EStageTowerType TowerType, int32 Kind, int32 Level, FStageTowerInfo& Result);
+	static FGErrorInfo GetBuildStageTower(EStageTowerType TowerType, int32 Kind, int32 Level, FStageTowerInfo& Result);
 
 	UFUNCTION(BlueprintPure, Category = "스테이지|타워|건설", meta = (ReturnDisplayName = "Find"))
-	static bool GetNextStageTower(EStageTowerType TowerType, int32 Kind, int32 Level, FStageTowerInfo& Result);
+	static FGErrorInfo GetNextStageTower(EStageTowerType TowerType, int32 Kind, int32 Level, FStageTowerInfo& Result);
 
 	UFUNCTION(BlueprintPure, Category = "스테이지|타워", meta = (ReturnDisplayName = "Find"))
-	static bool GetStageTowerUnitClass(EStageTowerType TowerType, int32 Kind, int32 Level, TSubclassOf<AStageTowerUnit>& Result);
+	static FGErrorInfo GetStageTowerUnitClass(EStageTowerType TowerType, int32 Kind, int32 Level, TSubclassOf<AStageTowerUnit>& Result);
 
 	UFUNCTION(BlueprintPure, Category = "스테이지|타워", meta = (ReturnDisplayName = "Find"))
-	static bool GetStageTowerSellPrice(EStageTowerType TowerType, int32 Kind, int32 Level, int64& Result);
+	static FGErrorInfo GetStageTowerSellPrice(EStageTowerType TowerType, int32 Kind, int32 Level, int64& Result);
 
 	UFUNCTION(BlueprintPure, Category = "스테이지|타워")
 	static int32 GetStageTowerMaxLevel(EStageTowerType TowerType, int32 Kind);
 
 	UFUNCTION(BlueprintPure, Category = "스테이지|타워")
-	static bool GetStageTowerBaseStats(EStageTowerType TowerType, int32 Kind, int32 Level, TMap<EStageUnitAttribute, double>& Result);
+	static FGErrorInfo GetStageTowerBaseStats(EStageTowerType TowerType, int32 Kind, int32 Level, TMap<EStageUnitAttribute, double>& Result);
 
 	UFUNCTION(BlueprintPure, Category = "스테이지|정보", meta = (ReturnDisplayName = "Find"))
-	static bool GetStage(int32 Level, FStageTableRow& Result);
+	static FGErrorInfo GetStage(int32 Level, FStageTableRow& Result);
 
 	UFUNCTION(BlueprintPure, Category = "스테이지|정보", meta = (ReturnDisplayName = "Find"))
-	static bool GetStageMap(int32 Level, TSoftObjectPtr<UWorld>& Map);
+	static FGErrorInfo GetStageMap(int32 Level, TSoftObjectPtr<UWorld>& Map);
 };

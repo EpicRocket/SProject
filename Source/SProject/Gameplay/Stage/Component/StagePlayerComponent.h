@@ -11,16 +11,28 @@ class UGameplayUserPlayer;
 UCLASS(Abstract, Blueprintable, BlueprintType, HideCategories = (Trigger, PhysicsVolume))
 class MY_API UStagePlayerComponent : public UGPlayerComponent
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
 public:
 	virtual void InitializeComponent() override;
 
 	UFUNCTION(BlueprintCallable)
-	void SetHealth(int32 NewHealth);
+	FGErrorInfo NewStart();
 
 	UFUNCTION(BlueprintCallable)
-	void SetUsePoint(int32 NewUsePoint);
+	FGErrorInfo Restart();
+
+	UFUNCTION(BlueprintCallable)
+	void SetHp(int32 NewHp);
+
+	UFUNCTION(BlueprintPure)
+	int32 GetHp() const;
+
+	UFUNCTION(BlueprintCallable)
+	void SetUsePoint(int64 NewUsePoint);
+
+	UFUNCTION(BlueprintPure)
+	int64 GetUsePoint() const;
 
 protected:
 	UFUNCTION(BlueprintImplementableEvent)
@@ -38,13 +50,9 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "입력|이벤트")
 	void OnMouseReleased();
 
+	FGErrorInfo SetDefaults();
+
 protected:
-	UPROPERTY(BlueprintReadWrite, Category = "스테이지|자원")
-	int Health;
-
-	UPROPERTY(BlueprintReadWrite, Category = "스테이지|자원")
-	int UsePoint;
-
 	UPROPERTY(BlueprintReadOnly)
 	TWeakObjectPtr<UGameplayUserPlayer> UserPlayer;
 

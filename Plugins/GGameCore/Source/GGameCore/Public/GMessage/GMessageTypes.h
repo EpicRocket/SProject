@@ -1,5 +1,5 @@
 
-#pragma
+#pragma once
 
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"

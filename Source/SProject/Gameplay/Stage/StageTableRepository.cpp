@@ -4,6 +4,8 @@
 #include "Engine/Engine.h"
 #include "Engine/World.h"
 #include "Engine/Texture2D.h"
+// include GameCore
+#include "Error/GError.h"
 // include Project
 #include "Table/TableSubsystem.h"
 #include "Table/TowerTable.h"
@@ -114,7 +116,7 @@ TSharedPtr<FStageTableRow> UStageTableRepository::FindStageTableRow(int32 Level)
 //////////////////////////////////////////////////////////////////////////
 // UStageTableHelper
 //////////////////////////////////////////////////////////////////////////
-bool UStageTableHelper::GetBuildStageTower(EStageTowerType TowerType, int32 Kind, int32 Level, FStageTowerInfo& Result)
+FGErrorInfo UStageTableHelper::GetBuildStageTower(EStageTowerType TowerType, int32 Kind, int32 Level, FStageTowerInfo& Result)
 {
 	auto Repository = UStageTableRepository::Get();
 	check(Repository);
@@ -125,7 +127,7 @@ bool UStageTableHelper::GetBuildStageTower(EStageTowerType TowerType, int32 Kind
 		auto TowerRow = Repository->FindNormalTowerTableRow(Kind, Level);
 		if (!TowerRow)
 		{
-			return false;
+			return GameCore::Throw(GameErr::POINTER_INVALID, TEXT("FNormalTowerTableRow"));
 		}
 
 		auto& TowerPtr = *TowerRow;
@@ -139,15 +141,14 @@ bool UStageTableHelper::GetBuildStageTower(EStageTowerType TowerType, int32 Kind
 	break;
 
 	default: {
-		UE_LOG(LogTable, Warning, TEXT("타워 타입이 잘못되었습니다. [TowerType: %s]"), *UEnum::GetValueAsString(TowerType));
-		return false;
+		return GameCore::Throw(GameErr::ENUM_INVALID, UEnum::GetValueAsString(TowerType));
 	}
 	}
 
-	return true;
+	return GameCore::Pass();
 }
 
-bool UStageTableHelper::GetNextStageTower(EStageTowerType TowerType, int32 Kind, int32 Level, FStageTowerInfo& Result)
+FGErrorInfo UStageTableHelper::GetNextStageTower(EStageTowerType TowerType, int32 Kind, int32 Level, FStageTowerInfo& Result)
 {
 	auto Repository = UStageTableRepository::Get();
 	check(Repository);
@@ -155,7 +156,7 @@ bool UStageTableHelper::GetNextStageTower(EStageTowerType TowerType, int32 Kind,
 	int32 MaxLevel = GetStageTowerMaxLevel(TowerType, Kind);
 	if (Level >= MaxLevel)
 	{
-		return false;
+		return GameCore::Throw(GameErr::VALUE_INVALID, FString::Printf(TEXT("Level:%d, MaxLevel:%d"), Level, MaxLevel));
 	}
 
 	int32 NextLevel = Level + 1;
@@ -166,7 +167,7 @@ bool UStageTableHelper::GetNextStageTower(EStageTowerType TowerType, int32 Kind,
 		auto TowerRow = Repository->FindNormalTowerTableRow(Kind, NextLevel);
 		if (!TowerRow)
 		{
-			return false;
+			return GameCore::Throw(GameErr::POINTER_INVALID, TEXT("FNormalTowerTableRow"));
 		}
 
 		auto& TowerPtr = *TowerRow;
@@ -179,15 +180,14 @@ bool UStageTableHelper::GetNextStageTower(EStageTowerType TowerType, int32 Kind,
 	} break;
 
 	default: {
-		UE_LOG(LogTable, Warning, TEXT("타워 타입이 잘못되었습니다. [TowerType: %s]"), *UEnum::GetValueAsString(TowerType));
-		return false;
+		return GameCore::Throw(GameErr::ENUM_INVALID, UEnum::GetValueAsString(TowerType));
 	}
 	}
 
-	return true;
+	return GameCore::Pass();
 }
 
-bool UStageTableHelper::GetStageTowerUnitClass(EStageTowerType TowerType, int32 Kind, int32 Level, TSubclassOf<AStageTowerUnit>& Result)
+FGErrorInfo UStageTableHelper::GetStageTowerUnitClass(EStageTowerType TowerType, int32 Kind, int32 Level, TSubclassOf<AStageTowerUnit>& Result)
 {
 	auto Repository = UStageTableRepository::Get();
 	check(Repository);
@@ -198,7 +198,7 @@ bool UStageTableHelper::GetStageTowerUnitClass(EStageTowerType TowerType, int32 
 		auto TowerRow = Repository->FindNormalTowerTableRow(Kind, Level);
 		if (!TowerRow)
 		{
-			return false;
+			return GameCore::Throw(GameErr::POINTER_INVALID, TEXT("FNormalTowerTableRow"));
 		}
 
 		Result = (*TowerRow)->Unit.LoadSynchronous();
@@ -206,26 +206,19 @@ bool UStageTableHelper::GetStageTowerUnitClass(EStageTowerType TowerType, int32 
 	} break;
 
 	default: {
-		UE_LOG(LogTable, Warning, TEXT("타워 타입이 잘못되었습니다. [TowerType: %s]"), *UEnum::GetValueAsString(TowerType));
-		return false;
+		return GameCore::Throw(GameErr::ENUM_INVALID, UEnum::GetValueAsString(TowerType));
 	}
 	}
 
 	if (!Result)
 	{
-		UE_LOGFMT(LogTable, Warning,
-			"타워 유닛 클래스를 찾지 못하였습니다. [TowerType: {Type}, Kind: {Kind}, Level: {Level}]",
-			("Type",  * UEnum::GetValueAsString(TowerType)),
-			("Kind", Kind),
-			("Level", Level));
-
-		return false;
+		return GameCore::Throw(GameErr::POINTER_INVALID, TEXT("AStageTowerUnit"));
 	}
 
-	return true;
+	return GameCore::Pass();
 }
 
-bool UStageTableHelper::GetStageTowerSellPrice(EStageTowerType TowerType, int32 Kind, int32 Level, int64& Result)
+FGErrorInfo UStageTableHelper::GetStageTowerSellPrice(EStageTowerType TowerType, int32 Kind, int32 Level, int64& Result)
 {
 	auto Repository = UStageTableRepository::Get();
 	check(Repository);
@@ -235,7 +228,7 @@ bool UStageTableHelper::GetStageTowerSellPrice(EStageTowerType TowerType, int32 
 		auto TowerRow = Repository->FindNormalTowerTableRow(Kind, Level);
 		if (!TowerRow)
 		{
-			return false;
+			return GameCore::Throw(GameErr::POINTER_INVALID, TEXT("FNormalTowerTableRow"));
 		}
 		auto& TowerPtr = *TowerRow;
 		Result = TowerPtr->UsePoint;
@@ -243,12 +236,11 @@ bool UStageTableHelper::GetStageTowerSellPrice(EStageTowerType TowerType, int32 
 	break;
 
 	default: {
-		UE_LOG(LogTable, Warning, TEXT("타워 타입이 잘못되었습니다. [TowerType: %s]"), *UEnum::GetValueAsString(TowerType));
-		return false;
+		return GameCore::Throw(GameErr::ENUM_INVALID, UEnum::GetValueAsString(TowerType));
 	}
 	}
 
-	return true;
+	return GameCore::Pass();
 }
 
 int32 UStageTableHelper::GetStageTowerMaxLevel(EStageTowerType TowerType, int32 Kind)
@@ -278,7 +270,7 @@ int32 UStageTableHelper::GetStageTowerMaxLevel(EStageTowerType TowerType, int32 
 	return FMath::Max(0, Result);
 }
 
-bool UStageTableHelper::GetStageTowerBaseStats(EStageTowerType TowerType, int32 Kind, int32 Level, TMap<EStageUnitAttribute, double>& Result)
+FGErrorInfo UStageTableHelper::GetStageTowerBaseStats(EStageTowerType TowerType, int32 Kind, int32 Level, TMap<EStageUnitAttribute, double>& Result)
 {
 	auto Repository = UStageTableRepository::Get();
 	check(Repository);
@@ -289,7 +281,7 @@ bool UStageTableHelper::GetStageTowerBaseStats(EStageTowerType TowerType, int32 
 		auto TowerRow = Repository->FindNormalTowerTableRow(Kind, Level);
 		if (!TowerRow)
 		{
-			return false;
+			return GameCore::Throw(GameErr::POINTER_INVALID, TEXT("FNormalTowerTableRow"));
 		}
 
 		Result.FindOrAdd(EStageUnitAttribute::Level) = (*TowerRow)->Level;
@@ -306,15 +298,14 @@ bool UStageTableHelper::GetStageTowerBaseStats(EStageTowerType TowerType, int32 
 	} break;
 
 	default: {
-		UE_LOG(LogTable, Warning, TEXT("타워 타입이 잘못되었습니다. [TowerType: %s]"), *UEnum::GetValueAsString(TowerType));
-		return false;
+		return GameCore::Throw(GameErr::ENUM_INVALID, UEnum::GetValueAsString(TowerType));
 	}
 	}
 
-	return true;
+	return GameCore::Pass();
 }
 
-bool UStageTableHelper::GetStage(int32 Level, FStageTableRow& Result)
+FGErrorInfo UStageTableHelper::GetStage(int32 Level, FStageTableRow& Result)
 {
 	auto Repo = UStageTableRepository::Get();
 	check(Repo);
@@ -322,17 +313,17 @@ bool UStageTableHelper::GetStage(int32 Level, FStageTableRow& Result)
 	auto Row = Repo->StageTableRows.Find(Level);
 	if (!Row)
 	{
-		return false;
+		return GameCore::Throw(GameErr::POINTER_INVALID, FString::Printf(TEXT("FStageTableRow find Level %d"), Level));
 	}
 
 	auto& StageInfoPtr = *Row;
 	Result.Level = StageInfoPtr->Level;
 	Result.UsePoint = StageInfoPtr->UsePoint;
 
-	return true;
+	return GameCore::Pass();
 }
 
-bool UStageTableHelper::GetStageMap(int32 Level, TSoftObjectPtr<UWorld>& Map)
+FGErrorInfo UStageTableHelper::GetStageMap(int32 Level, TSoftObjectPtr<UWorld>& Map)
 {
 	auto Repo = UStageTableRepository::Get();
 	check(Repo);
@@ -340,21 +331,19 @@ bool UStageTableHelper::GetStageMap(int32 Level, TSoftObjectPtr<UWorld>& Map)
 	auto Row = Repo->FindStageTableRow(Level);
 	if (!Row)
 	{
-		return false;
+		return GameCore::Throw(GameErr::POINTER_INVALID, FString::Printf(TEXT("FStageTableRow find Level %d"), Level));
 	}
 
 	Map = Row->Map;
 	if (Map.IsNull())
 	{
-		UE_LOGFMT(LogTable, Warning, "Map이 Null입니다.[Level:{Level}]", ("Level", Level));
-		return false;
+		return GameCore::Throw(GameErr::POINTER_INVALID, FString::Printf(TEXT("Level: %d"), Level));
 	}
 
 	if (Map.IsValid())
 	{
-		UE_LOGFMT(LogTable, Warning, "Map이 유효하지 않습니다.[Level:{Level}]", ("Level", Level));
-		return false;
+		return GameCore::Throw(GameErr::OBJECT_INVALID, FString::Printf(TEXT("Level: %d"), Level));
 	}
 
-	return true;
+	return GameCore::Pass();
 }

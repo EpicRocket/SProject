@@ -29,5 +29,8 @@ public:
 	UPROPERTY(Config, VisibleDefaultsOnly, BlueprintReadOnly, Category = "Table")
 	int32 DefensiveConst;
 
+	UPROPERTY(Config, VisibleDefaultsOnly, BlueprintReadOnly, Category = "Table")
+	float SpawnDelay;
+
 };
 

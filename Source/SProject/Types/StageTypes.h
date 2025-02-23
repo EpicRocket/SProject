@@ -24,4 +24,10 @@ struct MY_API FStage
 	/** 스테이지에 배치된 타워들 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FTower> Towers;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 Hp = INDEX_NONE;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int64 UsePoint = INDEX_NONE;
 };

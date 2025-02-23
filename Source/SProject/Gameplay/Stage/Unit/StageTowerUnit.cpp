@@ -32,8 +32,10 @@ TSharedRef<FStageTowerInfo> AStageTowerUnit::GetInfoRef() const
 void AStageTowerUnit::InitailizeBaseStats()
 {
 	TMap<EStageUnitAttribute, double> BaseStats;
-	if (UStageTableHelper::GetStageTowerBaseStats(GetInfoRef()->TowerType, GetInfoRef()->Kind, GetInfoRef()->Level, BaseStats))
+	if (auto Err = UStageTableHelper::GetStageTowerBaseStats(GetInfoRef()->TowerType, GetInfoRef()->Kind, GetInfoRef()->Level, BaseStats); !GameCore::IsOK(Err))
 	{
-		SetBaseStats(BaseStats);
+		return;
 	}
+
+	SetBaseStats(BaseStats);
 }

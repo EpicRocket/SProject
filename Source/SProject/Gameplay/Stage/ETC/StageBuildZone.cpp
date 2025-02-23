@@ -8,8 +8,7 @@
 #include "AIController.h"
 // include GameCore
 #include "GMessage/Subsystem/GMessageSubsystem.h"
-#include "Error/GErrorManager.h"
-#include "Error/GErrorTypes.h"
+#include "Error/GError.h"
 // include Project
 #include "Table/TableSubsystem.h"
 #include "Table/TowerTable.h"
@@ -56,7 +55,7 @@ FStageTowerReceipt AStageBuildZone::GetTowerReceipt() const
 		for (auto& Content : BuildZoneData->BuildContents)
 		{
 			FStageTowerInfo Tower;
-			if (!UStageTableHelper::GetBuildStageTower(Content.TowerType, Content.Kind, Content.Level, Tower))
+			if (auto Err = UStageTableHelper::GetBuildStageTower(Content.TowerType, Content.Kind, Content.Level, Tower); !GameCore::IsOK(Err))
 			{
 				continue;
 			}
@@ -96,7 +95,7 @@ void AStageBuildZone::RequestBuildTower(const FStageTowerInfo& BuildStageTower)
 	}
 
 	int64 NeedUsePoint = 0;
-	if (!UStageTableHelper::GetStageTowerSellPrice(BuildStageTower.TowerType, BuildStageTower.Kind, BuildStageTower.Level, NeedUsePoint))
+	if (auto Err = UStageTableHelper::GetStageTowerSellPrice(BuildStageTower.TowerType, BuildStageTower.Kind, BuildStageTower.Level, NeedUsePoint); !GameCore::IsOK(Err))
 	{
 		return;
 	}

@@ -19,6 +19,9 @@ namespace GameErr
 	static const FString COMPONENT_INVALID = TEXT("COMPONENT_INVALID");
 	static const FString WIDGET_INVALID = TEXT("WIDGET_INVALID");
 	static const FString SUBSYSTEM_INVALID = TEXT("SUBSYSTEM_INVALID");
+	static const FString POINTER_INVALID = TEXT("POINTER_INVALID");
+	static const FString VALUE_INVALID = TEXT("VALUE_INVALID");
+	static const FString ENUM_INVALID = TEXT("ENUM_INVALID");
 }
 
 UCLASS()

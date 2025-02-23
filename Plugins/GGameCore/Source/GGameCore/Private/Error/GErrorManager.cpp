@@ -173,7 +173,6 @@ bool GameCore::IsOK(const FGErrorInfo& Err)
 		return true;
 
 	case EGErrType::Verbose:
-		UE_LOG(LogGameError, Verbose, TEXT("%s(%s)"), *Err.Description.ToString(), *Err.ErrCode)
 		return true;
 
 	case EGErrType::Warning:

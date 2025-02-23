@@ -34,7 +34,7 @@ AStageTowerUnit* UStageSpawnComponent::SpawnTower(uint8 TeamID, AStageLevel* Tar
     }
 
     TSubclassOf<AStageTowerUnit> UnitClass;
-	if (!UStageTableHelper::GetStageTowerUnitClass(Build.TowerType, Build.Kind, Build.Level, UnitClass))
+	if (auto Err = UStageTableHelper::GetStageTowerUnitClass(Build.TowerType, Build.Kind, Build.Level, UnitClass); !GameCore::IsOK(Err))
 	{
 		return nullptr;
 	}
