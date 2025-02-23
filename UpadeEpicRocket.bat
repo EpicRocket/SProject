@@ -1,11 +1,11 @@
-﻿
+
 setlocal
 
-SET SP_CONFIG=%~dp0SProjectConfig.yaml
+SET GCONFIG=%~dp0EpicRocketConfig.yaml
 
-IF NOT EXIST "%SP_CONFIG%" (
-    ECHO UnrealEngineConfig.yaml not found. Please run EpicRocket.bat to generate it.
-    GOTO :EOF
+IF NOT EXIST "%GCONFIG%" (
+	ECHO EpicRocketConfig.yaml not found. Please run EpicRocket.bat to generate it.
+	GOTO :EOF
 )
 
-"ncdownloader.exe" "%SP_CONFIG%"
+"ncdownloader.exe" "%GCONFIG%"
