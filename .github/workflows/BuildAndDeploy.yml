@@ -70,8 +70,6 @@ jobs:
             exit 1
         }
 
-        Start-Sleep -Milliseconds 500
-
   Build:
     needs: GenerateFiles
     runs-on: self-hosted
