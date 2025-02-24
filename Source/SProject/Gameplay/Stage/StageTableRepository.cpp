@@ -28,48 +28,48 @@ UStageTableRepository* UStageTableRepository::Get()
 	return GEngine->GetEngineSubsystem<UStageTableRepository>();
 }
 
-void UStageTableRepository::Load()
-{
-	Super::Load();
-	auto TableSubsystem = UTableSubsystem::Get();
-	if (!TableSubsystem)
-	{
-		return;
-	}
-
-	NormalTowerTableRows.Empty();
-	for (auto Row : TableSubsystem->GetTableDatas<FNormalTowerTableRow>())
-	{
-		if (Row == nullptr)
-		{
-			continue;
-		}
-
-		auto& Datas = NormalTowerTableRows.FindOrAdd(Row->Kind);
-		if (!Datas.Contains(Row->Level))
-		{
-			Datas.Emplace(Row->Level, MakeShared<FNormalTowerTableRow>(*Row));
-		}
-	}
-
-	StageTableRows.Empty();
-	for (auto Row : TableSubsystem->GetTableDatas<FStageTableRow>())
-	{
-		if (Row == nullptr)
-		{
-			continue;
-		}
-
-		StageTableRows.Emplace(Row->Level, MakeShared<FStageTableRow>(*Row));
-	}
-}
-
-void UStageTableRepository::Unload()
-{
-	Super::Unload();
-	NormalTowerTableRows.Empty();
-	StageTableRows.Empty();
-}
+//void UStageTableRepository::Load()
+//{
+//	Super::Load();
+//	auto TableSubsystem = UTableSubsystem::Get();
+//	if (!TableSubsystem)
+//	{
+//		return;
+//	}
+//
+//	NormalTowerTableRows.Empty();
+//	for (auto Row : TableSubsystem->GetTableDatas<FNormalTowerTableRow>())
+//	{
+//		if (Row == nullptr)
+//		{
+//			continue;
+//		}
+//
+//		auto& Datas = NormalTowerTableRows.FindOrAdd(Row->Kind);
+//		if (!Datas.Contains(Row->Level))
+//		{
+//			Datas.Emplace(Row->Level, MakeShared<FNormalTowerTableRow>(*Row));
+//		}
+//	}
+//
+//	StageTableRows.Empty();
+//	for (auto Row : TableSubsystem->GetTableDatas<FStageTableRow>())
+//	{
+//		if (Row == nullptr)
+//		{
+//			continue;
+//		}
+//
+//		StageTableRows.Emplace(Row->Level, MakeShared<FStageTableRow>(*Row));
+//	}
+//}
+//
+//void UStageTableRepository::Unload()
+//{
+//	Super::Unload();
+//	NormalTowerTableRows.Empty();
+//	StageTableRows.Empty();
+//}
 
 TSortedMap<int32, TSharedPtr<FNormalTowerTableRow>>* UStageTableRepository::FindNormalTowerTableRows(int32 Kind)
 {
