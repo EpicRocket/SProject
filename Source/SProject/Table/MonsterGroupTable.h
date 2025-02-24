@@ -14,7 +14,7 @@ struct SPROJECT_API FMonsterGroupTableRow : public FTableRowBase
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 Kind = INDEX_NONE;
+	int32 Index = INDEX_NONE;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 Group = INDEX_NONE;
