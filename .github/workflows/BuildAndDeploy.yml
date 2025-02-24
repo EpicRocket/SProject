@@ -70,6 +70,8 @@ jobs:
             exit 1
         }
 
+        Start-Sleep -Milliseconds 500
+
   Build:
     needs: GenerateFiles
     runs-on: self-hosted
@@ -95,8 +97,6 @@ jobs:
             Write-Error "An error occurred: $_"
             exit 1
         }
-
-        Start-Sleep -Milliseconds 500
 
   TableCommit:
     needs: Build
