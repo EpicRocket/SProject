@@ -30,7 +30,7 @@ jobs:
           $ErrorActionPreference = "Stop"
 
           $tablePath = "$env:GITHUB_WORKSPACE/Source/SProject/Table"
-          Get-ChildItem -Path $tablePath -File | Where-Object { $_.Name -notmatch "^(TableSubsystem\.h|TableSubsystem\.cpp)$" } | Remove-Item -Force
+          Get-ChildItem -Path $tablePath -File | Where-Object { $_.Name -notmatch "^(TableSubsystem\.h|TableSubsystem\.cpp|TableRepositorySubsystem\.h|TableRepositorySubsystem\.cpp)$" } | Remove-Item -Force
 
           Set-Location -Path "$env:GITHUB_WORKSPACE"
           cd ..
