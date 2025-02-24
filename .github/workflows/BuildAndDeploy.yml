@@ -96,6 +96,8 @@ jobs:
             exit 1
         }
 
+        Start-Sleep -Milliseconds 500
+
   TableCommit:
     needs: Build
     runs-on: self-hosted
