@@ -14,22 +14,22 @@ class SPROJECT_API UConstSettings : public UDeveloperSettings
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(Config, VisibleDefaultsOnly, BlueprintReadOnly, Category = "Table")
+	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Table")
 	int32 UsePointKey;
 
-	UPROPERTY(Config, VisibleDefaultsOnly, BlueprintReadOnly, Category = "Table")
+	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Table")
 	int32 GoldKey;
 
-	UPROPERTY(Config, VisibleDefaultsOnly, BlueprintReadOnly, Category = "Table")
+	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Table")
 	int32 UserHp;
 
-	UPROPERTY(Config, VisibleDefaultsOnly, BlueprintReadOnly, Category = "Table")
+	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Table")
 	int32 StageUsePoint;
 
-	UPROPERTY(Config, VisibleDefaultsOnly, BlueprintReadOnly, Category = "Table")
+	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Table")
 	int32 DefensiveConst;
 
-	UPROPERTY(Config, VisibleDefaultsOnly, BlueprintReadOnly, Category = "Table")
+	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Table")
 	float SpawnDelay;
 
 };
