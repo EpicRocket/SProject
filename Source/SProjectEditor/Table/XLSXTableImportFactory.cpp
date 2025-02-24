@@ -347,7 +347,7 @@ FString UXLSXTableImportFactory::ConvertXLSXToJsonString(const FString& Filename
 				switch (Cell->Type())
 				{
 				case EOpenXLSXType::String:
-					RowData.Emplace(FString::Printf(TEXT("\"%s\""), *Cell->StringValue()));
+					RowData.Emplace(FString::Printf(TEXT("%s"), *Cell->StringValue()));
 					break;
 
 				case EOpenXLSXType::Integer:
@@ -408,6 +408,61 @@ FString UXLSXTableImportFactory::ConvertXLSXToJsonString(const FString& Filename
 		SheetData.Rows.RemoveAt(1);	// 타입
 	}
 
+	// 배열 찾기
+	for (auto& SheetData : SheetDatas)
+	{
+		auto& Keys = SheetData.Rows[0];
+		
+		TMap<FString, TArray<int32>> ValueIndices;
+		TArray<FString> UniqueKeys;
+
+		for (int32 Index = 0; Index < Keys.Num(); ++Index)
+		{
+			auto& Key = ValueIndices.FindOrAdd(Keys[Index]);
+			Key.Emplace(Index);
+
+			if (!UniqueKeys.Contains(Keys[Index]))
+			{
+				UniqueKeys.Emplace(Keys[Index]);
+			}
+		}
+		SheetData.Rows[0] = UniqueKeys;
+
+		for (int32 Index = 1; Index < SheetData.Rows.Num(); ++Index)
+		{
+			TArray<FString> NewRow;
+			auto& Row = SheetData.Rows[Index];
+
+			for (auto& Key : UniqueKeys)
+			{
+				auto& Indices = ValueIndices.FindOrAdd(Key);
+				if (Indices.Num() == 1)
+				{
+					auto Value = FString::Printf(TEXT("\"%s\""), *Row[Indices[0]]);
+					NewRow.Emplace(Value);
+				}
+				else if (Indices.Num() > 1)
+				{
+					FString Values;
+					for (int32 i = 0; i < Indices.Num(); ++i)
+					{
+						Values += Row[Indices[i]];
+						if (i != Indices.Num() - 1)
+						{
+							Values += TEXT(",");
+						}
+					}
+					NewRow.Emplace(FString::Printf(TEXT("\"(%s)\""), *Values));
+				}
+				else
+				{
+					NewRow.Emplace(TEXT("\"\""));
+				}
+			}
+			Row = NewRow;
+		}
+	}
+
 	// Row 데이터 생성
 	for (auto& SheetData : SheetDatas)
 	{
@@ -425,7 +480,7 @@ FString UXLSXTableImportFactory::ConvertXLSXToJsonString(const FString& Filename
 			}
 		}
 	}
-	
+
 	// 시트 데이터 JsonObject로 변환
 	TSharedRef<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
 	TArray<TSharedPtr<FJsonValue>> JsonArray;
