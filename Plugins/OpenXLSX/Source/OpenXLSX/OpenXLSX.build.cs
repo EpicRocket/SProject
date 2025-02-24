@@ -6,20 +6,24 @@ public class OpenXLSX : ModuleRules
 {
     public OpenXLSX(ReadOnlyTargetRules Target) : base(Target)
     {
-        Type = ModuleType.External;
-
+		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
+        
         if (Target.Platform == UnrealTargetPlatform.Win64)
         {
-            PublicIncludePaths.Add(Path.Combine(ModuleDirectory, "include"));
+		    var ThirdPartyPath = Path.Combine(ModuleDirectory, "../ThirdParty", Target.Platform.ToString());
+
+		    PublicIncludePaths.Add(Path.Combine(ThirdPartyPath, "include"));
 
             if (Target.Configuration == UnrealTargetConfiguration.Debug && Target.bDebugBuildsActuallyUseDebugCRT)
             {
-                PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "lib", "Debug", "OpenXLSXd.lib"));
+                PublicAdditionalLibraries.Add(Path.Combine(ThirdPartyPath, "lib", "Debug", "OpenXLSXd.lib"));
             }
             else
             {
-                PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "lib", "Release", "OpenXLSX.lib"));
+                PublicAdditionalLibraries.Add(Path.Combine(ThirdPartyPath, "lib", "Release", "OpenXLSX.lib"));
             }
+
+            PublicDefinitions.Add("WIN32_LEAN_AND_MEAN");
         }
         
         PublicDependencyModuleNames.AddRange(
@@ -30,9 +34,5 @@ public class OpenXLSX : ModuleRules
 				"Engine",
 			}
 		);
-        
-        PublicDefinitions.Add(
-	        "WIN32_LEAN_AND_MEAN"
-        );
     }
 }
