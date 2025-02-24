@@ -16,6 +16,7 @@
 #include "Serialization/Csv/CsvParser.h"
 #include "Serialization/JsonWriter.h"
 #include "Serialization/JsonSerializer.h"
+#include "AssetRegistry/AssetRegistryModule.h"
 // include Plugin
 #include "OpenXLSX.h"
 
@@ -191,7 +192,7 @@ UObject* UXLSXTableImportFactory::FactoryCreateText(UClass* InClass, UObject* In
 		UPackage* Pkg = CreatePackage(*(PackageName / DataTableName));
 
 		UClass* DataTableClass = UDataTable::StaticClass();
-		UDataTable* NewTable = NewObject<UDataTable>(InParent, DataTableClass, FName(*DataTableName), Flags);
+		UDataTable* NewTable = NewObject<UDataTable>(Pkg, DataTableClass, FName(*DataTableName), Flags);
 		NewTable->RowStruct = RowStruct;
 
 		if (RowStruct)
@@ -200,7 +201,7 @@ UObject* UXLSXTableImportFactory::FactoryCreateText(UClass* InClass, UObject* In
 			NewTable->RowStructPathName = RowStruct->GetStructPathName();
 		}
 
-		NewTable->AssetImportData->Update(CurrentPath / DataTableName);
+		NewTable->AssetImportData->Update(CurrentFilename);
 
 		ImportSettings.ImportRowStruct = RowStruct;
 		for (int32 RowIndex = 0; RowIndex < Rows.Num(); ++RowIndex)
@@ -225,6 +226,8 @@ UObject* UXLSXTableImportFactory::FactoryCreateText(UClass* InClass, UObject* In
 		}
 
 		Problems.Append(DoImportDataTable(ImportSettings, NewTable));
+		NewTable->OnDataTableChanged().Broadcast();
+		Pkg->MarkPackageDirty();
 
 		NewAsset = NewTable;
 
@@ -257,6 +260,7 @@ UObject* UXLSXTableImportFactory::FactoryCreateText(UClass* InClass, UObject* In
 	{
 		if (NewAsset)
 		{
+			FAssetRegistryModule::AssetCreated(NewAsset);
 			GEditor->GetEditorSubsystem<UImportSubsystem>()->BroadcastAssetPostImport(this, NewAsset);
 		}
 	}
