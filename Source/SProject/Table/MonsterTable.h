@@ -7,6 +7,7 @@
 
 #include "MonsterTable.generated.h"
 
+class AStageMonsterUnit;
 class UTexture2D;
 enum class EAttackType : uint8;
 
@@ -17,9 +18,6 @@ struct SPROJECT_API FMonsterTableRow : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 Index = INDEX_NONE;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 Kind = INDEX_NONE;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 Level = INDEX_NONE;
@@ -65,6 +63,9 @@ struct SPROJECT_API FMonsterTableRow : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 UserDamage = INDEX_NONE;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSoftClassPtr<AStageMonsterUnit> Unit;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSoftObjectPtr<UTexture2D> Icon;
