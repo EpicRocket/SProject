@@ -14,6 +14,8 @@ namespace Stage
 
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Tag_Gameplay_Stage_Player_Health_Changed);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Tag_Gameplay_Stage_Player_UsePoint_Changed);
+
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Tag_Gameplay_Stage_Player_StartPoint);
 }
 
 USTRUCT(BlueprintType)
@@ -59,4 +61,11 @@ struct FStagePlayerUsePointMessage
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 NewValue = 0;
+};
+
+USTRUCT(BlueprintType)
+struct FStagePlayerStartPointMessage
+{
+	GENERATED_BODY()
+
 };
