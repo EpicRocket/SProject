@@ -9,7 +9,6 @@
 
 class AUnitCharacter;
 class AStageLevel;
-class AGameplayPathActor;
 
 USTRUCT(BlueprintType)
 struct FStageSpawnParams
@@ -20,7 +19,7 @@ struct FStageSpawnParams
 	TWeakObjectPtr<AStageLevel> StageLevel;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TSubclassOf<AUnitCharacter> SpawnUnit;
+    int32 SpawnIndex = 0;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     int32 PathPosition = INDEX_NONE;
@@ -33,19 +32,6 @@ class MY_API AStageSpawner : public AGameplayTeamActor, public IGameplayActorTag
 
 public:
     UFUNCTION(BlueprintCallable)
-    AUnitCharacter* Spawn(const FStageSpawnParams& Params);
+    virtual AUnitCharacter* Spawn(const FStageSpawnParams& Params);
     
-    UPROPERTY(EditAnywhere)
-    TArray<TSubclassOf<AUnitCharacter>> SpawnUnits;
-
-    UFUNCTION(BlueprintCallable)
-    int32 GetCurrentWave();
-
-protected:
-
-private:
-    int32 CurrentWave;
-
-    UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = true))
-    AGameplayPathActor* GameplayPathActor;
 };

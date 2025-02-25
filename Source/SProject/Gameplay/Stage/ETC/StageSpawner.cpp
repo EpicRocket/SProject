@@ -13,7 +13,7 @@
 
 AUnitCharacter* AStageSpawner::Spawn(const FStageSpawnParams& Params)
 {
-	if (!Params.StageLevel.IsValid())
+	/*if (!Params.StageLevel.IsValid())
 	{
 		UE_LOG(LogStage, Warning, TEXT("StageLevel을 찾지 못하였습니다."));
 		return nullptr;
@@ -29,10 +29,7 @@ AUnitCharacter* AStageSpawner::Spawn(const FStageSpawnParams& Params)
 	auto SpawnedUnit = UGameplayHelper::SpawnUnit(this, PathActor->GetActorLocation(), PathActor->GetActorRotation(), Params.SpawnUnit, AAIController::StaticClass());
 	SpawnedUnit->SetGenericTeamId(GetGenericTeamId());
 
-	return SpawnedUnit;
-}
+	return SpawnedUnit;*/
 
-int32 AStageSpawner::GetCurrentWave()
-{
-	return CurrentWave;
+	return nullptr;
 }
