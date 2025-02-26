@@ -9,10 +9,11 @@
 
 enum class EStageTowerType : uint8;
 enum class EStageUnitAttribute : uint8;
+struct FGErrorInfo;
 struct FNormalTowerTableRow;
 struct FStageTowerInfo;
 struct FStageTableRow;
-struct FGErrorInfo;
+struct FStageMonsterInfo;
 class AStageTowerUnit;
 class UWorld;
 
@@ -28,10 +29,16 @@ public:
 	virtual void Unload() override;
 
 private:
+	// 타워
 	TMap<int32/*Kind*/, TSortedMap<int32/*Level*/, TSharedPtr<FNormalTowerTableRow>>> NormalTowerTableRows;
 	TSortedMap<int32/*Level*/, TSharedPtr<FNormalTowerTableRow>>* FindNormalTowerTableRows(int32 Kind);
 	TSharedPtr<FNormalTowerTableRow>* FindNormalTowerTableRow(int32 Kind, int32 Level);
+	
+	// 몬스터
+	TSortedMap<int32, TSharedPtr<FStageMonsterInfo>> MonsterInfos;
+	TSharedPtr<FStageMonsterInfo> FindMonsterInfo(int32 MonsterKey);
 
+	// 스테이지
 	TSortedMap<int32/*Level*/, TSharedPtr<FStageTableRow>> StageTableRows;
 	TSharedPtr<FStageTableRow> FindStageTableRow(int32 Level);
 };
@@ -60,9 +67,15 @@ public:
 	UFUNCTION(BlueprintPure, Category = "스테이지|타워")
 	static FGErrorInfo GetStageTowerBaseStats(EStageTowerType TowerType, int32 Kind, int32 Level, TMap<EStageUnitAttribute, double>& Result);
 
-	UFUNCTION(BlueprintPure, Category = "스테이지|정보", meta = (ReturnDisplayName = "Find"))
+	UFUNCTION(BlueprintPure, Category = "스테이지|타워")
+	static FGErrorInfo GetStageMonsterInfo(int32 MonsterKey, FStageMonsterInfo& Result);
+
+	UFUNCTION(BlueprintPure, Category = "스테이지|타워")
+	static FGErrorInfo GetStageMonsterBaseStats(int32 MonsterKey, TMap<EStageUnitAttribute, double>& Result);
+
+	UFUNCTION(BlueprintPure, Category = "스테이지", meta = (ReturnDisplayName = "Find"))
 	static FGErrorInfo GetStage(int32 Level, FStageTableRow& Result);
 
-	UFUNCTION(BlueprintPure, Category = "스테이지|정보", meta = (ReturnDisplayName = "Find"))
+	UFUNCTION(BlueprintPure, Category = "스테이지", meta = (ReturnDisplayName = "Find"))
 	static FGErrorInfo GetStageMap(int32 Level, TSoftObjectPtr<UWorld>& Map);
 };

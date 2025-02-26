@@ -7,22 +7,24 @@
 
 #include "StageSpawner.generated.h"
 
-class AUnitCharacter;
+class AStageUnitCharacter;
 class AStageLevel;
+struct FGErrorInfo;
 
 USTRUCT(BlueprintType)
-struct FStageSpawnParams
+struct FStageMonsterSpawnParams
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TWeakObjectPtr<AStageLevel> StageLevel;
+    TWeakObjectPtr<AStageLevel> StageLevel;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    int32 Index = INDEX_NONE;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    int32 SpawnIndex = 0;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
     int32 PathPosition = INDEX_NONE;
+
 };
 
 UCLASS(Abstract, BlueprintType, Blueprintable)
@@ -32,6 +34,6 @@ class MY_API AStageSpawner : public AGameplayTeamActor, public IGameplayActorTag
 
 public:
     UFUNCTION(BlueprintCallable)
-    virtual AUnitCharacter* Spawn(const FStageSpawnParams& Params);
+    FGErrorInfo SpawnMonster(const FStageMonsterSpawnParams& Params, AStageUnitCharacter*& SpawnedUnit);
     
 };

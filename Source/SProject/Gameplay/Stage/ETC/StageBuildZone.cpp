@@ -46,9 +46,9 @@ FStageTowerReceipt AStageBuildZone::GetTowerReceipt() const
 	{
 		if (!BuildZoneData)
 		{
-			UE_LOG(LogGameplay, Warning, TEXT("Actor(%s)의 BuildZoneData를 찾을 수 없습니다."), *GetFName().ToString());
+			//UE_LOG(LogGameplay, Warning, TEXT("Actor(%s)의 BuildZoneData를 찾을 수 없습니다."), *GetFName().ToString());
 			//Receipt.Error = FGErrorInfo::CreateError(TEXT("BuildZoneData를 찾을 수 없습니다."));
-			Receipt.Error.ErrType = EGErrType::Error;
+			//Receipt.Error.ErrType = EGErrType::Error;
 			return Receipt;
 		}
 

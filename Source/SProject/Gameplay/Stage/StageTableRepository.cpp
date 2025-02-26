@@ -9,9 +9,12 @@
 // include Project
 #include "Table/TableSubsystem.h"
 #include "Table/TowerTable.h"
+#include "Table/MonsterTable.h"
 #include "Table/StageTable.h"
 #include "Gameplay/Stage/Types/StageTowerTypes.h"
+#include "Gameplay/Stage/Types/StageMonsterTypes.h"
 #include "Gameplay/Stage/Unit/StageTowerUnit.h"
+#include "Gameplay/Stage/Unit/StageMonsterUnit.h"
 #include "Gameplay/Stage/Unit/Attribute/StageUnitAttributeSet.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(StageTableRepository)
@@ -31,20 +34,13 @@ UStageTableRepository* UStageTableRepository::Get()
 void UStageTableRepository::Load()
 {
 	Super::Load();
-	auto TableSubsystem = UTableSubsystem::Get();
-	if (!TableSubsystem)
-	{
-		return;
-	}
+
+	SCOPED_BOOT_TIMING("UStageTableRepository::Load");
+	const double StartTime = FPlatformTime::Seconds();
 
 	NormalTowerTableRows.Empty();
-	for (auto Row : TableSubsystem->GetTableDatas<FNormalTowerTableRow>())
+	for (auto Row : UTableHelper::GetDatas<FNormalTowerTableRow>())
 	{
-		if (Row == nullptr)
-		{
-			continue;
-		}
-
 		auto& Datas = NormalTowerTableRows.FindOrAdd(Row->Kind);
 		if (!Datas.Contains(Row->Level))
 		{
@@ -52,22 +48,53 @@ void UStageTableRepository::Load()
 		}
 	}
 
-	StageTableRows.Empty();
-	for (auto Row : TableSubsystem->GetTableDatas<FStageTableRow>())
 	{
-		if (Row == nullptr)
+		TArray<int32> Keys;
+		MonsterInfos.GetKeys(Keys);
+		for (auto Row : UTableHelper::GetDatas<FMonsterTableRow>())
 		{
-			continue;
+			Keys.Remove(Row->Index);
+			TSharedPtr<FStageMonsterInfo> Ptr;
+			if (MonsterInfos.Contains(Row->Index))
+			{
+				Ptr = MonsterInfos[Row->Index];
+			}
+			else
+			{
+				Ptr = MakeShared<FStageMonsterInfo>();
+				Ptr->Index = Row->Index;
+				MonsterInfos.Emplace(Row->Index, Ptr);
+			}
+
+			Ptr->Level = Row->Level;
+			Ptr->Grade = Row->Grade;
+			Ptr->Name = Row->Name;
+			Ptr->AttackType = Row->AttackType;
+			Ptr->UnitClass = Row->Unit.LoadSynchronous();
+			Ptr->Icon = Row->Icon.LoadSynchronous();
 		}
 
+		for (auto Key : Keys)
+		{
+			MonsterInfos.Remove(Key);
+		}
+	}
+
+	StageTableRows.Empty();
+	for (auto Row : UTableHelper::GetDatas<FStageTableRow>())
+	{
 		StageTableRows.Emplace(Row->Level, MakeShared<FStageTableRow>(*Row));
 	}
+
+	UE_LOG(LogTable, Display, TEXT("StageTableRepository 로드 완료(%.2f)"), FPlatformTime::Seconds() - StartTime);
 }
 
 void UStageTableRepository::Unload()
 {
 	Super::Unload();
+
 	NormalTowerTableRows.Empty();
+	MonsterInfos.Empty();
 	StageTableRows.Empty();
 }
 
@@ -99,6 +126,17 @@ TSharedPtr<FNormalTowerTableRow>* UStageTableRepository::FindNormalTowerTableRow
 	}
 
 	return Result;
+}
+
+TSharedPtr<FStageMonsterInfo> UStageTableRepository::FindMonsterInfo(int32 MonsterKey)
+{
+	auto Result = MonsterInfos.Find(MonsterKey);
+	if (!Result)
+	{
+		UE_LOGFMT(LogTable, Warning, "MonsterInfo을 찾지 못하였습니다. [MonsterKey: {MonsterKey}]", ("MonsterKey", MonsterKey));
+		return nullptr;
+	}
+	return *Result;
 }
 
 TSharedPtr<FStageTableRow> UStageTableRepository::FindStageTableRow(int32 Level)
@@ -284,6 +322,7 @@ FGErrorInfo UStageTableHelper::GetStageTowerBaseStats(EStageTowerType TowerType,
 			return GameCore::Throw(GameErr::POINTER_INVALID, TEXT("FNormalTowerTableRow"));
 		}
 
+		Result.Empty();
 		Result.FindOrAdd(EStageUnitAttribute::Level) = (*TowerRow)->Level;
 		Result.FindOrAdd(EStageUnitAttribute::Grade) = (*TowerRow)->Grade;
 		Result.FindOrAdd(EStageUnitAttribute::Attack) = (*TowerRow)->Attack;
@@ -301,6 +340,43 @@ FGErrorInfo UStageTableHelper::GetStageTowerBaseStats(EStageTowerType TowerType,
 		return GameCore::Throw(GameErr::ENUM_INVALID, UEnum::GetValueAsString(TowerType));
 	}
 	}
+
+	return GameCore::Pass();
+}
+
+FGErrorInfo UStageTableHelper::GetStageMonsterInfo(int32 MonsterKey, FStageMonsterInfo& Result)
+{
+	auto Repo = UStageTableRepository::Get();
+	check(Repo);
+
+	TSharedPtr<FStageMonsterInfo> MonsterInfo = Repo->FindMonsterInfo(MonsterKey);
+	if (!MonsterInfo.IsValid())
+	{
+		return GameCore::Throw(GameErr::POINTER_INVALID, FString::Printf(TEXT("FStageMonsterInfo find MonsterKey %d"), MonsterKey));
+	}
+
+	Result = *MonsterInfo;
+	return GameCore::Pass();
+}
+
+FGErrorInfo UStageTableHelper::GetStageMonsterBaseStats(int32 MonsterKey, TMap<EStageUnitAttribute, double>& Result)
+{
+	auto Row = UTableHelper::GetData<FMonsterTableRow>(MonsterKey);
+	if (!Row)
+	{
+		return GameCore::Throw(GameErr::POINTER_INVALID, FString::Printf(TEXT("FMonsterTableRow find MonsterKey %d"), MonsterKey));
+	}
+
+	Result.Empty();
+	Result.FindOrAdd(EStageUnitAttribute::Level) = Row->Level;
+	Result.FindOrAdd(EStageUnitAttribute::Grade) = Row->Grade;
+	Result.FindOrAdd(EStageUnitAttribute::Attack) = Row->Attack;
+	Result.FindOrAdd(EStageUnitAttribute::Defence) = Row->Defence;
+	Result.FindOrAdd(EStageUnitAttribute::MaxHp) = Row->Hp;
+	Result.FindOrAdd(EStageUnitAttribute::Hp) = Row->Hp;
+	Result.FindOrAdd(EStageUnitAttribute::AttackSpeed) = Row->AttackSpeed;
+	Result.FindOrAdd(EStageUnitAttribute::MovementSpeed) = Row->MovementSpeed;
+	Result.FindOrAdd(EStageUnitAttribute::Range) = Row->Range;
 
 	return GameCore::Pass();
 }

@@ -8,7 +8,6 @@
 #include "StageSpawnComponent.generated.h"
 
 class AStageTowerUnit;
-class AStageMonsterUnit;
 class AAIController;
 class AStageLevel;
 struct FStageTowerInfo;
