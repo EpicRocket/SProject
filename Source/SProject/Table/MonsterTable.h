@@ -44,7 +44,7 @@ struct SPROJECT_API FMonsterTableRow : public FTableRowBase
 	float AttackSpeed = INDEX_NONE;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float MooveSpeed = INDEX_NONE;
+	float MovementSpeed = INDEX_NONE;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float Range = INDEX_NONE;
