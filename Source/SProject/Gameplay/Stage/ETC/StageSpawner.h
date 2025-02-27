@@ -7,7 +7,7 @@
 
 #include "StageSpawner.generated.h"
 
-class AStageUnitCharacter;
+class AStageMonsterUnit;
 class AStageLevel;
 struct FGErrorInfo;
 
@@ -34,6 +34,8 @@ class MY_API AStageSpawner : public AGameplayTeamActor, public IGameplayActorTag
 
 public:
     UFUNCTION(BlueprintCallable)
-    FGErrorInfo SpawnMonster(const FStageMonsterSpawnParams& Params, AStageUnitCharacter*& SpawnedUnit);
+    FGErrorInfo SpawnMonster(const FStageMonsterSpawnParams& Params, AStageMonsterUnit*& SpawnedUnit);
     
+protected:
+    FGErrorInfo GetSpawnComponent(class UStageSpawnComponent*& SpawnComponent) const;
 };

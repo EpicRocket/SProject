@@ -21,7 +21,7 @@ public:
     virtual ETeamAttitude::Type GetTeamAttitudeTowards(const AActor& Other) const override;
 
     UFUNCTION(BlueprintCallable, meta = (DisplayName = "GetTeamID"))
-	virtual uint8 K2_GetTeamID() const { return GetGenericTeamId(); }
+	virtual uint8 GetTeamID() const { return GetGenericTeamId(); }
 
     UFUNCTION(BlueprintCallable)
     virtual FGTeamTracker GetTeamTracker() const;

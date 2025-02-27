@@ -34,13 +34,13 @@ private:
 	TSortedMap<int32/*Level*/, TSharedPtr<FNormalTowerTableRow>>* FindNormalTowerTableRows(int32 Kind);
 	TSharedPtr<FNormalTowerTableRow>* FindNormalTowerTableRow(int32 Kind, int32 Level);
 	
+	TMap<int32/*Kind*/, TSortedMap<int32/*Level*/, TSharedPtr<FStageTowerInfo>>> NormalTowerInfos;
+	TSortedMap<int32/*Level*/, TSharedPtr<FStageTowerInfo>>* FindNormalTowerTableInfos(int32 Kind);
+	TSharedPtr<FStageTowerInfo>* FindNormalTowerInfo(int32 Kind, int32 Level);
+	
 	// 몬스터
 	TSortedMap<int32, TSharedPtr<FStageMonsterInfo>> MonsterInfos;
 	TSharedPtr<FStageMonsterInfo> FindMonsterInfo(int32 MonsterKey);
-
-	// 스테이지
-	TSortedMap<int32/*Level*/, TSharedPtr<FStageTableRow>> StageTableRows;
-	TSharedPtr<FStageTableRow> FindStageTableRow(int32 Level);
 };
 
 UCLASS()
@@ -56,9 +56,6 @@ public:
 	static FGErrorInfo GetNextStageTower(EStageTowerType TowerType, int32 Kind, int32 Level, FStageTowerInfo& Result);
 
 	UFUNCTION(BlueprintPure, Category = "스테이지|타워", meta = (ReturnDisplayName = "Find"))
-	static FGErrorInfo GetStageTowerUnitClass(EStageTowerType TowerType, int32 Kind, int32 Level, TSubclassOf<AStageTowerUnit>& Result);
-
-	UFUNCTION(BlueprintPure, Category = "스테이지|타워", meta = (ReturnDisplayName = "Find"))
 	static FGErrorInfo GetStageTowerSellPrice(EStageTowerType TowerType, int32 Kind, int32 Level, int64& Result);
 
 	UFUNCTION(BlueprintPure, Category = "스테이지|타워")
@@ -67,10 +64,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "스테이지|타워")
 	static FGErrorInfo GetStageTowerBaseStats(EStageTowerType TowerType, int32 Kind, int32 Level, TMap<EStageUnitAttribute, double>& Result);
 
-	UFUNCTION(BlueprintPure, Category = "스테이지|타워")
+	UFUNCTION(BlueprintPure, Category = "스테이지|몬스터")
 	static FGErrorInfo GetStageMonsterInfo(int32 MonsterKey, FStageMonsterInfo& Result);
 
-	UFUNCTION(BlueprintPure, Category = "스테이지|타워")
+	UFUNCTION(BlueprintPure, Category = "스테이지|몬스터")
 	static FGErrorInfo GetStageMonsterBaseStats(int32 MonsterKey, TMap<EStageUnitAttribute, double>& Result);
 
 	UFUNCTION(BlueprintPure, Category = "스테이지", meta = (ReturnDisplayName = "Find"))

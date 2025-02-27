@@ -104,10 +104,10 @@ void AStageBuildZone::RequestBuildTower(const FStageTowerInfo& BuildStageTower)
 	auto SpawnedRotation = GetActorRotation();
 
 	AStageTowerUnit* SpawendUnit = nullptr;
-	if (UStageSpawnHelper::SpawnTower(K2_GetTeamID(), TargetLevel, SpawnedLocation, SpawnedRotation, BuildStageTower, nullptr, SpawendUnit))
+	/*if (UStageSpawnHelper::SpawnTower(GetTeamID(), TargetLevel, SpawnedLocation, SpawnedRotation, BuildStageTower, nullptr, SpawendUnit))
 	{
 		return;
-	}
+	}*/
 
 	SpawnedTower = SpawendUnit;
 }

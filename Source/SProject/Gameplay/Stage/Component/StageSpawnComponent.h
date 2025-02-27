@@ -7,10 +7,14 @@
 
 #include "StageSpawnComponent.generated.h"
 
-class AStageTowerUnit;
 class AAIController;
 class AStageLevel;
+
+class AStageTowerUnit;
 struct FStageTowerInfo;
+
+class AStageMonsterUnit;
+struct FStageMonsterInfo;
 
 UCLASS(Abstract, Blueprintable, meta = (BlueprintSpawnableComponent))
 class MY_API UStageSpawnComponent : public UGGameStateComponent
@@ -19,8 +23,11 @@ class MY_API UStageSpawnComponent : public UGGameStateComponent
 
 public:
 	UFUNCTION(BlueprintCallable)
-	AStageTowerUnit* SpawnTower(uint8 TeamID, AStageLevel* TargetLevel, FVector Location, FRotator Rotation, struct FStageTowerInfo Build, TSubclassOf<AAIController> AIController = nullptr);
+	FGErrorInfo SpawnTower(uint8 TeamID, AStageLevel* StageLevel, FVector Location, FRotator Rotation, FStageTowerInfo Info, TSubclassOf<AAIController> AIController, AStageTowerUnit*& SpawnedUnit);
 	
+	UFUNCTION(BlueprintCallable)
+	FGErrorInfo SpawnMonster(uint8 TeamID, AStageLevel* StageLevel, FVector Location, FRotator Rotation, FStageMonsterInfo Info, TSubclassOf<AAIController> AIController, AStageMonsterUnit*& SpawnedUnit);
+
 	/*UFUNCTION(BlueprintCallable)
 	AStageMonsterUnit* SpawnMonster(FVector Location, FRotator Rotation);*/
 	
@@ -32,7 +39,10 @@ class MY_API UStageSpawnHelper : public UBlueprintFunctionLibrary
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintCallable, Category = "스테이지|생성")
-	static bool SpawnTower(uint8 TeamID, AStageLevel* TargetLevel, FVector Location, FRotator Rotation, struct FStageTowerInfo Build, TSubclassOf<AAIController> AIController, AStageTowerUnit*& SpawnedUnit);
+	UFUNCTION(BlueprintCallable, Category = "스테이지|스폰")
+	static FGErrorInfo SpawnTower(uint8 TeamID, AStageLevel* StageLevel, FVector Location, FRotator Rotation, FStageTowerInfo Info, TSubclassOf<AAIController> AIController, AStageTowerUnit*& SpawnedUnit);
+
+	UFUNCTION(BlueprintCallable, Category = "스테이지|스폰")
+	static FGErrorInfo SpawnMonster(uint8 TeamID, AStageLevel* StageLevel, FVector Location, FRotator Rotation, FStageMonsterInfo Info, TSubclassOf<AAIController> AIController, AStageMonsterUnit*& SpawnedUnit);
 
 };

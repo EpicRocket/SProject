@@ -35,6 +35,9 @@ public:
     int32 Level = INDEX_NONE;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int64 UsePoint = INDEX_NONE;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
     FText Name;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
