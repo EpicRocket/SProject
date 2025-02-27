@@ -10,7 +10,7 @@
 struct FLatentActionInfo;
 struct FStage;
 
-UCLASS(Abstract, Blueprintable, BlueprintType, HideCategories = (Trigger, PhysicsVolume))
+UCLASS(Abstract, Blueprintable, BlueprintType, HideCategories = (Trigger, PhysicsVolume), ClassGroup = "Stage")
 class MY_API UStageStateComponent : public UGGameStateComponent, public IGLoadingProcessInterface
 {
 	GENERATED_BODY()

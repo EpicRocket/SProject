@@ -5,6 +5,9 @@
 #include "AIController.h"
 #include "GameFramework/GameStateBase.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/KismetSystemLibrary.h"
+// include GameCore
+#include "Core/Action/GGameComponentLoadAction.h"
 // include Project
 #include "Gameplay/Stage/StageLogging.h"
 #include "Gameplay/Stage/StageLevel.h"
@@ -67,6 +70,8 @@ namespace Stage
 
 		SpawnUnit->FinishSpawning(FTransform(Rotation, SpawnLocation), false, nullptr, ESpawnActorScaleMethod::MultiplyWithRoot);
 
+		// TODO: Spawn 알림
+		
 		return GameCore::Pass();
 	}
 
@@ -103,6 +108,22 @@ namespace Stage
 //////////////////////////////////////////////////////////////////////////
 // UStageSpawnComponent
 //////////////////////////////////////////////////////////////////////////
+
+FGErrorInfo UStageSpawnComponent::WaitForInitialize(FLatentActionInfo LatentInfo)
+{
+	auto World = GetWorld();
+	if (!World)
+	{
+		UKismetSystemLibrary::DelayUntilNextTick(World, LatentInfo);
+		return GameCore::Throw(GameErr::WORLD_INVALID);
+	}
+
+	FGErrorInfo ErrorInfo;
+	auto NewAction = new FGGameComponentLoadAction(LatentInfo, GetWorld(), this, []() {}, [&ErrorInfo](FGErrorInfo Err) {ErrorInfo = Err; });
+	World->GetLatentActionManager().AddNewAction(LatentInfo.CallbackTarget, LatentInfo.UUID, NewAction);
+
+	return ErrorInfo;
+}
 
 FGErrorInfo UStageSpawnComponent::SpawnTower(uint8 TeamID, AStageLevel* StageLevel, FVector Location, FRotator Rotation, FStageTowerInfo Info, TSubclassOf<AAIController> AIController, AStageTowerUnit*& SpawnedUnit)
 {

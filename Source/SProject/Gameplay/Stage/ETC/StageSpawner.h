@@ -4,6 +4,7 @@
 #include "GameFramework/Actor.h"
 #include "Gameplay/Interface/IGameplayActorTag.h"
 #include "Gameplay/ETC/GameplayTeamActor.h"
+#include "AIController.h"
 
 #include "StageSpawner.generated.h"
 
@@ -25,9 +26,11 @@ struct FStageMonsterSpawnParams
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
     int32 PathPosition = INDEX_NONE;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class UBehaviorTree* BehaviorTree;
 };
 
-UCLASS(Abstract, BlueprintType, Blueprintable)
+UCLASS(Abstract, BlueprintType, Blueprintable, ClassGroup = "Stage")
 class MY_API AStageSpawner : public AGameplayTeamActor, public IGameplayActorTag
 {
     GENERATED_BODY()

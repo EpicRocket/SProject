@@ -7,7 +7,7 @@
 
 #include "StageStartPoint.generated.h"
 
-UCLASS(Abstract, BlueprintType, Blueprintable)
+UCLASS(Abstract, BlueprintType, Blueprintable, ClassGroup = "Stage")
 class MY_API AStageStartPoint : public AGameplayTeamActor, public IGameplayActorTag
 {
 	GENERATED_BODY()

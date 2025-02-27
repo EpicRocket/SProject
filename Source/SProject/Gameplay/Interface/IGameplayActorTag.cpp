@@ -1,38 +1,23 @@
 
 #include "IGameplayActorTag.h"
+// include Engine
 #include "GameFramework/Actor.h"
+// include Project
+#include "Gameplay/GameplayHelper.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(IGameplayActorTag)
 
-const FString IGameplayActorTag::DotString = TEXT(".");
-const FString IGameplayActorTag::PositionTagName = TEXT("Position");
+const FName IGameplayActorTag::PositionTagName = TEXT("Position");
+
+void IGameplayActorTag::SetPosition(int32 InPosition)
+{
+	UGameplayHelper::SetGameplayTagByInt32(Cast<AActor>(this), PositionTagName, InPosition);
+}
 
 int32 IGameplayActorTag::GetPosition() const
 {
 	const AActor* ThisActor = Cast<AActor>(this);
-	if (!ThisActor)
-	{
-		return INDEX_NONE;
-	}
-
 	int32 Position = INDEX_NONE;
-	for (const auto& Tag : ThisActor->Tags)
-	{
-		FString TagString = Tag.ToString();
-		FString Left, Right;
-		if (!TagString.Split(DotString, &Left, &Right))
-		{
-			continue;
-		}
-
-		if (!Left.Contains(PositionTagName))
-		{
-			continue;
-		}
-
-		Position = FCString::Atoi(*Right);
-		break;
-	}
-
+	UGameplayHelper::GetGameplayTagByInt32(const_cast<AActor*>(ThisActor), PositionTagName, Position);
 	return Position;
 }

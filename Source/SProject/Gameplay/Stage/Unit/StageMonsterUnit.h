@@ -7,7 +7,7 @@
 
 struct FStageMonsterInfo;
 
-UCLASS(Abstract, Config = Game, BlueprintType, Blueprintable)
+UCLASS(Abstract, Config = Game, BlueprintType, Blueprintable, ClassGroup = "Stage")
 class MY_API AStageMonsterUnit : public AStageUnitCharacter
 {
     GENERATED_BODY()

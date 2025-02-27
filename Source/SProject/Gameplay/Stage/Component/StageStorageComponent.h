@@ -9,7 +9,7 @@ struct FLatentActionInfo;
 struct FGErrorInfo;
 struct FStage;
 
-UCLASS(Abstract, Blueprintable, BlueprintType, HideCategories = (Trigger, PhysicsVolume))
+UCLASS(Abstract, Blueprintable, BlueprintType, HideCategories = (Trigger, PhysicsVolume), ClassGroup = "Stage")
 class MY_API UStageStorageComponent : public UGPlayerComponent
 {
 	GENERATED_BODY()

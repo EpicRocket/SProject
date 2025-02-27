@@ -8,7 +8,7 @@
 class AActor;
 class UGameplayUserPlayer;
 
-UCLASS(Abstract, Blueprintable, BlueprintType, HideCategories = (Trigger, PhysicsVolume))
+UCLASS(Abstract, Blueprintable, BlueprintType, HideCategories = (Trigger, PhysicsVolume), ClassGroup = "Stage")
 class MY_API UStagePlayerComponent : public UGPlayerComponent
 {
 	GENERATED_BODY()

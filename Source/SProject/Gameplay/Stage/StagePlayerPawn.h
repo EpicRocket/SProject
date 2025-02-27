@@ -15,7 +15,7 @@ enum class EStagePlayerFlag : uint8
     Build               UMETA(DisplayName = "건설"),
 };
 
-UCLASS(Abstract, BlueprintType, Blueprintable, hideCategories=(Navigation))
+UCLASS(Abstract, BlueprintType, Blueprintable, hideCategories=(Navigation), ClassGroup = "Stage")
 class MY_API AStagePlayerPawn : public APawn
 {
     GENERATED_BODY()

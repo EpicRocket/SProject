@@ -47,7 +47,7 @@ struct MY_API FStageBuildContent
 	int32 Level = 0;
 };
 
-UCLASS(BlueprintType)
+UCLASS(BlueprintType, ClassGroup = "Stage")
 class MY_API UStageBuildZoneData : public UDataAsset
 {
 	GENERATED_BODY()
@@ -57,7 +57,7 @@ public:
 	TArray<FStageBuildContent> BuildContents;
 };
 
-UCLASS(Abstract, BlueprintType, Blueprintable)
+UCLASS(Abstract, BlueprintType, Blueprintable, ClassGroup = "Stage")
 class MY_API AStageBuildZone : public AGameplayTeamActor, public IGameplayActorTag
 {
 	GENERATED_BODY()

@@ -9,6 +9,7 @@
 
 class AAIController;
 class AStageLevel;
+struct FLatentActionInfo;
 
 class AStageTowerUnit;
 struct FStageTowerInfo;
@@ -16,12 +17,15 @@ struct FStageTowerInfo;
 class AStageMonsterUnit;
 struct FStageMonsterInfo;
 
-UCLASS(Abstract, Blueprintable, meta = (BlueprintSpawnableComponent))
+UCLASS(Abstract, Blueprintable, meta = (BlueprintSpawnableComponent), ClassGroup = "Stage")
 class MY_API UStageSpawnComponent : public UGGameStateComponent
 {
 	GENERATED_BODY()
 
 public:
+	UFUNCTION(BlueprintCallable, meta = (Latent, LatentInfo = "LatentInfo"))
+	FGErrorInfo WaitForInitialize(FLatentActionInfo LatentInfo);
+
 	UFUNCTION(BlueprintCallable)
 	FGErrorInfo SpawnTower(uint8 TeamID, AStageLevel* StageLevel, FVector Location, FRotator Rotation, FStageTowerInfo Info, TSubclassOf<AAIController> AIController, AStageTowerUnit*& SpawnedUnit);
 	

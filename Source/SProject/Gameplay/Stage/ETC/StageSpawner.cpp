@@ -2,10 +2,10 @@
 #include "StageSpawner.h"
 // include Engine
 #include "Engine/World.h"
-#include "AIController.h"
 #include "GameFramework/GameStateBase.h"
 #include "Kismet/GameplayStatics.h"
 // include Project
+#include "Gameplay/GameplayHelper.h"
 #include "Gameplay/ETC/GameplayPathActor.h"
 #include "Gameplay/Stage/StageLogging.h"
 #include "Gameplay/Stage/StageLevel.h"
@@ -13,6 +13,7 @@
 #include "Gameplay/Stage/Types/StageMonsterTypes.h"
 #include "Gameplay/Stage/Unit/StageMonsterUnit.h"
 #include "Gameplay/Stage/Component/StageSpawnComponent.h"
+#include "Gameplay/Stage/AI/StageAIController.h"
 
 FGErrorInfo AStageSpawner::SpawnMonster(const FStageMonsterSpawnParams& Params, AStageMonsterUnit*& SpawnedUnit)
 {
@@ -31,6 +32,15 @@ FGErrorInfo AStageSpawner::SpawnMonster(const FStageMonsterSpawnParams& Params, 
 	if (auto Err = SpawnComponent->SpawnMonster(GetTeamID(), Params.StageLevel.Get(), GetActorLocation(), GetActorRotation(), Info, nullptr, SpawnedUnit); !GameCore::IsOK(Err))
 	{
 		return Err;
+	}
+
+	if (auto AIController = SpawnedUnit->GetController<AStageAIController>())
+	{
+		AIController->AIBehaviorTree = Params.BehaviorTree;
+		if (Params.PathPosition != INDEX_NONE)
+		{
+			UGameplayHelper::SetGameplayTagByInt32(AIController, AGameplayPathActor::PathTagName, Params.PathPosition);
+		}
 	}
 
 	return GameCore::Pass();
