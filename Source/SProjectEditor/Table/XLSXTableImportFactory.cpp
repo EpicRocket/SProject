@@ -192,7 +192,14 @@ UObject* UXLSXTableImportFactory::FactoryCreateText(UClass* InClass, UObject* In
 		UPackage* Pkg = CreatePackage(*(PackageName / DataTableName));
 
 		UClass* DataTableClass = UDataTable::StaticClass();
-		UDataTable* NewTable = NewObject<UDataTable>(Pkg, DataTableClass, FName(*DataTableName), Flags);
+		UDataTable* ExistingTable = FindObject<UDataTable>(Pkg, *DataTableName);
+		UDataTable* NewTable = nullptr;
+		if (ExistingTable != nullptr)
+		{
+			ExistingTable->OnDataTableChanged().Clear();
+			ExistingTable->EmptyTable();
+		}
+		NewTable = NewObject<UDataTable>(Pkg, DataTableClass, FName(*DataTableName), Flags);
 		NewTable->RowStruct = RowStruct;
 
 		if (RowStruct)
@@ -200,7 +207,6 @@ UObject* UXLSXTableImportFactory::FactoryCreateText(UClass* InClass, UObject* In
 			NewTable->RowStructName_DEPRECATED = RowStruct->GetFName();
 			NewTable->RowStructPathName = RowStruct->GetStructPathName();
 		}
-
 		NewTable->AssetImportData->Update(CurrentFilename);
 
 		ImportSettings.ImportRowStruct = RowStruct;
