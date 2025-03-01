@@ -18,7 +18,10 @@ public:
 	void StopAI();
 
 public:
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(BlueprintReadOnly, Category = "Stage")
+    TWeakObjectPtr<class AStageLevel> SourceStage;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
     TObjectPtr<class UBehaviorTree> AIBehaviorTree;
 
 };

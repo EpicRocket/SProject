@@ -10,6 +10,7 @@
 
 class AStageMonsterUnit;
 class AStageLevel;
+class UBehaviorTree;
 struct FGErrorInfo;
 
 USTRUCT(BlueprintType)
@@ -26,8 +27,6 @@ struct FStageMonsterSpawnParams
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
     int32 PathPosition = INDEX_NONE;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class UBehaviorTree* BehaviorTree;
 };
 
 UCLASS(Abstract, BlueprintType, Blueprintable, ClassGroup = "Stage")

@@ -4,6 +4,7 @@
 #include "Engine/Engine.h"
 #include "Engine/World.h"
 #include "Engine/Texture2D.h"
+#include "BehaviorTree/BehaviorTree.h"
 // include GameCore
 #include "Error/GError.h"
 // include Project
@@ -126,6 +127,7 @@ void UStageTableRepository::Load()
 			Ptr->AttackType = Row->AttackType;
 			Ptr->UnitClass = Row->Unit.LoadSynchronous();
 			Ptr->Icon = Row->Icon.LoadSynchronous();
+			Ptr->AI = Row->AI.LoadSynchronous();
 
 			MonsterInfos.Emplace(Row->Index, Ptr);
 		}

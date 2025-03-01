@@ -10,9 +10,25 @@
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(StageTowerUnit)
 
+void AStageTowerUnit::InitailizeBaseStats()
+{
+	TMap<EStageUnitAttribute, double> BaseStats;
+	if (auto Err = UStageTableHelper::GetStageTowerBaseStats(GetInfoRef()->TowerType, GetInfoRef()->Kind, GetInfoRef()->Level, BaseStats); !GameCore::IsOK(Err))
+	{
+		return;
+	}
+
+	SetBaseStats(BaseStats);
+}
+
+
 void AStageTowerUnit::SetInfo(FStageTowerInfo NewInfo)
 {
-	Info = MakeShared<FStageTowerInfo>(NewInfo);
+	if (!Info.IsValid())
+	{
+		Info = MakeShared<FStageTowerInfo>();
+	}
+	*Info = NewInfo;
 }
 
 FStageTowerInfo AStageTowerUnit::GetInfo() const
@@ -29,13 +45,3 @@ TSharedRef<FStageTowerInfo> AStageTowerUnit::GetInfoRef() const
 	return Info.ToSharedRef();
 }
 
-void AStageTowerUnit::InitailizeBaseStats()
-{
-	TMap<EStageUnitAttribute, double> BaseStats;
-	if (auto Err = UStageTableHelper::GetStageTowerBaseStats(GetInfoRef()->TowerType, GetInfoRef()->Kind, GetInfoRef()->Level, BaseStats); !GameCore::IsOK(Err))
-	{
-		return;
-	}
-
-	SetBaseStats(BaseStats);
-}

@@ -36,11 +36,14 @@ FGErrorInfo AStageSpawner::SpawnMonster(const FStageMonsterSpawnParams& Params, 
 
 	if (auto AIController = SpawnedUnit->GetController<AStageAIController>())
 	{
-		AIController->AIBehaviorTree = Params.BehaviorTree;
+		AIController->SourceStage = Params.StageLevel;
+		AIController->AIBehaviorTree = Info.AI;
 		if (Params.PathPosition != INDEX_NONE)
 		{
 			UGameplayHelper::SetGameplayTagByInt32(AIController, AGameplayPathActor::PathTagName, Params.PathPosition);
 		}
+		
+		AIController->StartAI();
 	}
 
 	return GameCore::Pass();

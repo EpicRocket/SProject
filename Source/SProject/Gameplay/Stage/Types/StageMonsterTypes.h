@@ -8,6 +8,7 @@
 
 enum class EAttackType : uint8;
 class UTexture2D;
+class UBehaviorTree;
 
 USTRUCT(BlueprintType)
 struct MY_API FStageMonsterInfo
@@ -30,9 +31,12 @@ struct MY_API FStageMonsterInfo
 	EAttackType AttackType = static_cast<EAttackType>(0);
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UClass* UnitClass;
+	UClass* UnitClass = nullptr;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     TObjectPtr<UTexture2D> Icon;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    TObjectPtr<UBehaviorTree> AI;
 
 };

@@ -12,15 +12,15 @@ class MY_API AStageTowerUnit : public AStageUnitCharacter
 {
     GENERATED_BODY()
 
+protected:
+    virtual void InitailizeBaseStats() override;
+
 public:
     void SetInfo(FStageTowerInfo NewInfo);
     
     UFUNCTION(BlueprintPure)
 	FStageTowerInfo GetInfo() const;
 	TSharedRef<FStageTowerInfo> GetInfoRef() const;
-
-protected:
-    virtual void InitailizeBaseStats() override;
 
 public:
     TSharedPtr<FStageTowerInfo> Info;
