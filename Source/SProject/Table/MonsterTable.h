@@ -8,6 +8,7 @@
 #include "MonsterTable.generated.h"
 
 class AStageMonsterUnit;
+class UBehaviorTree;
 class UTexture2D;
 enum class EAttackType : uint8;
 
@@ -69,6 +70,9 @@ struct SPROJECT_API FMonsterTableRow : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSoftObjectPtr<UTexture2D> Icon;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSoftObjectPtr<UBehaviorTree> AI;
 
 };
 
