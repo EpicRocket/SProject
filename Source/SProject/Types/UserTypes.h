@@ -51,7 +51,7 @@ struct MY_API FUserInfo
 	FString Tag;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 Level = 0;
+	int32 Level = INDEX_NONE;
 
 	bool operator==(const FUserInfo& Other) const
 	{

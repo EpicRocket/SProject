@@ -5,20 +5,24 @@
 
 #include "GameplayUserPlayer.generated.h"
 
-class AMyPlayerController;
+class APlayerController;
+class ULocalPlayer;
 
 UCLASS(BlueprintType)
-class MY_API UGameplayUserPlayer : public UGameplayPlayer
+class MY_API AGameplayUserPlayer : public AGameplayPlayer
 {
 	GENERATED_BODY()
 
 public:
-	virtual int64 GetItemCount(int32 Key) const override;
+	UFUNCTION(BlueprintPure)
+	APlayerController* GetOwningPlayerController() const;
 
-	virtual FGErrorInfo ConsumeItem(int32 Key, int32 Count) override;
+	UFUNCTION(BlueprintPure)
+	ULocalPlayer* GetOwningLocalPlayer() const;
+
 
 public:
 	UPROPERTY(BlueprintReadOnly)
-	TWeakObjectPtr<AMyPlayerController> OwningPlayerController;
+	TWeakObjectPtr<APlayerController> OwningPlayerController;
 
 };

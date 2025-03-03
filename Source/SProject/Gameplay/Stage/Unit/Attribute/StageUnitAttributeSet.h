@@ -41,30 +41,39 @@ public:
 	FGameplayAttributeData Level;
 
 	ATTRIBUTE_ACCESSORS(UStageUnitAttributeSet, Grade);
+	UPROPERTY(BlueprintReadOnly)
 	FGameplayAttributeData Grade;
 
 	ATTRIBUTE_ACCESSORS(UStageUnitAttributeSet, Attack);
+	UPROPERTY(BlueprintReadOnly)
 	FGameplayAttributeData Attack;
 
 	ATTRIBUTE_ACCESSORS(UStageUnitAttributeSet, Defence);
+	UPROPERTY(BlueprintReadOnly)
 	FGameplayAttributeData Defence;
 
 	ATTRIBUTE_ACCESSORS(UStageUnitAttributeSet, MaxHp);
+	UPROPERTY(BlueprintReadOnly)
 	FGameplayAttributeData MaxHp;
 
 	ATTRIBUTE_ACCESSORS(UStageUnitAttributeSet, Hp);
+	UPROPERTY(BlueprintReadOnly)
 	FGameplayAttributeData Hp;
 
 	ATTRIBUTE_ACCESSORS(UStageUnitAttributeSet, AttackSpeed);
+	UPROPERTY(BlueprintReadOnly)
 	FGameplayAttributeData AttackSpeed;
 
 	ATTRIBUTE_ACCESSORS(UStageUnitAttributeSet, MovementSpeed);
+	UPROPERTY(BlueprintReadOnly)
 	FGameplayAttributeData MovementSpeed;
 
 	ATTRIBUTE_ACCESSORS(UStageUnitAttributeSet, Range);
+	UPROPERTY(BlueprintReadOnly)
 	FGameplayAttributeData Range;
 
 	ATTRIBUTE_ACCESSORS(UStageUnitAttributeSet, SplashScale);
+	UPROPERTY(BlueprintReadOnly)
 	FGameplayAttributeData SplashScale;
 };
 

@@ -12,6 +12,6 @@ UCLASS(BlueprintType, Blueprintable)
 class MY_API AMyGameState : public AGGameState
 {
     GENERATED_BODY()
-
+    
 public:
 };

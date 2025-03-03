@@ -10,30 +10,38 @@
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(StageTowerUnit)
 
-void AStageTowerUnit::SetInfo(FBuildStageTower NewInfo)
+void AStageTowerUnit::InitailizeBaseStats()
 {
-	Info = MakeShared<FBuildStageTower>(NewInfo);
+	TMap<EStageUnitAttribute, double> BaseStats;
+	if (auto Err = UStageTableHelper::GetStageTowerBaseStats(GetInfoRef()->TowerType, GetInfoRef()->Kind, GetInfoRef()->Level, BaseStats); !GameCore::IsOK(Err))
+	{
+		return;
+	}
+
+	SetBaseStats(BaseStats);
 }
 
-FBuildStageTower AStageTowerUnit::GetInfo() const
+
+void AStageTowerUnit::SetInfo(FStageTowerInfo NewInfo)
+{
+	if (!Info.IsValid())
+	{
+		Info = MakeShared<FStageTowerInfo>();
+	}
+	*Info = NewInfo;
+}
+
+FStageTowerInfo AStageTowerUnit::GetInfo() const
 {
 	return GetInfoRef().Get();
 }
 
-TSharedRef<FBuildStageTower> AStageTowerUnit::GetInfoRef() const
+TSharedRef<FStageTowerInfo> AStageTowerUnit::GetInfoRef() const
 {
 	if (!Info.IsValid())
 	{
-		return MakeShared<FBuildStageTower>();
+		return MakeShared<FStageTowerInfo>();
 	}
 	return Info.ToSharedRef();
 }
 
-void AStageTowerUnit::InitailizeBaseStats()
-{
-	TMap<EStageUnitAttribute, double> BaseStats;
-	if (UStageTableHelper::GetStageTowerBaseStats(GetInfoRef()->TowerType, GetInfoRef()->Kind, GetInfoRef()->Level, BaseStats))
-	{
-		SetBaseStats(BaseStats);
-	}
-}

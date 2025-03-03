@@ -1,53 +1,45 @@
 ﻿
 #pragma once
 
-#include "Framework/Player/GPlayerComponent.h"
-
+#include "Gameplay/Component/GameplayPlayerComponent.h"
 
 #include "StagePlayerComponent.generated.h"
 
 class AActor;
 class UGameplayUserPlayer;
 
-UCLASS()
-class MY_API UStagePlayerComponent : public UGPlayerComponent
+UCLASS(Abstract, Blueprintable, BlueprintType, HideCategories = (Trigger, PhysicsVolume), ClassGroup = "Stage")
+class MY_API UStagePlayerComponent : public UGameplayPlayerComponent
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
 public:
-	virtual void InitializeComponent() override;
+	UFUNCTION(BlueprintCallable)
+	FGErrorInfo NewStart();
 
 	UFUNCTION(BlueprintCallable)
-	void SetHealth(int32 NewHealth);
+	FGErrorInfo Restart();
 
 	UFUNCTION(BlueprintCallable)
-	void SetUsePoint(int32 NewUsePoint);
+	void SetHp(int32 NewHp);
+
+	UFUNCTION(BlueprintCallable)
+	void AddHp(int32 AddHp);
+
+	UFUNCTION(BlueprintPure)
+	int32 GetHp() const;
+
+	UFUNCTION(BlueprintCallable)
+	void SetUsePoint(int64 NewUsePoint);
+
+	UFUNCTION(BlueprintCallable)
+	void AddUsePoint(int64 AddUsePoint);
+
+	UFUNCTION(BlueprintPure)
+	int64 GetUsePoint() const;
 
 protected:
-	UFUNCTION(BlueprintImplementableEvent)
-	void OnInteractionActor(AActor* HitActor);
-
-	UFUNCTION(BlueprintCallable, Category = "입력|이벤트")
-	void InteractionMouseEvent();
-
-	UFUNCTION(BlueprintCallable, Category = "입력|이벤트")
-	void OnMousePressed();
-
-	UFUNCTION(BlueprintCallable, Category = "입력|이벤트")
-	void OnMouseMoved();
-
-	UFUNCTION(BlueprintCallable, Category = "입력|이벤트")
-	void OnMouseReleased();
-
-protected:
-	UPROPERTY(BlueprintReadWrite, Category = "스테이지|자원")
-	int Health;
-
-	UPROPERTY(BlueprintReadWrite, Category = "스테이지|자원")
-	int UsePoint;
-
-	UPROPERTY(BlueprintReadOnly)
-	TWeakObjectPtr<UGameplayUserPlayer> UserPlayer;
+	FGErrorInfo SetDefaults();
 
 private:
 	bool bMousePressed = false;

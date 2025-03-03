@@ -8,6 +8,12 @@ public class SProjectEditor : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
+		PublicIncludePaths.AddRange(
+			new[] {
+				ModuleDirectory,
+			}
+		);
+
 		PublicDependencyModuleNames.AddRange(
 			new[]
 			{
@@ -15,6 +21,8 @@ public class SProjectEditor : ModuleRules
 				"CoreUObject",
 				"Engine",
 				"InputCore",
+				"Json",
+				"JsonUtilities",
 			}
 		);
 
@@ -37,6 +45,7 @@ public class SProjectEditor : ModuleRules
 			}
 		);
 
+		// 내부 모듈
 		PrivateDependencyModuleNames.AddRange(
 			new[]
 			{
@@ -44,21 +53,12 @@ public class SProjectEditor : ModuleRules
 			}
 		);
 
-		PublicIncludePaths.AddRange(
-			new[] {
-				ModuleDirectory,
+		// 외부 플러그인
+		PublicDependencyModuleNames.AddRange(
+			new[]
+			{
+				"OpenXLSX",
 			}
 		);
-
-		if (Target.Platform == UnrealTargetPlatform.Win64)
-		{
-			PublicDependencyModuleNames.AddRange(
-				new[]
-				{
-					"OpenXLSX",
-					"LiveCoding",
-				}
-			);
-		}
 	}
 }

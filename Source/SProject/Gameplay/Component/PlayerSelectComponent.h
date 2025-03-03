@@ -1,7 +1,7 @@
 ﻿
 #pragma once
 
-#include "Framework/Player/GPlayerComponent.h"
+#include "Core/Component/GPlayerComponent.h"
 #include "UObject/ScriptInterface.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 
@@ -26,6 +26,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void ClearSelection();
 
+	UFUNCTION(BlueprintCallable)
+	void Exclude(const TArray<TScriptInterface<ISelectableActor>>& Actors);
+
 	UFUNCTION(BlueprintPure)
 	bool IsSelected(TScriptInterface<ISelectableActor> Actor) const;
 
@@ -48,6 +51,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "게임플레이|PC|선택")
 	static void ClearSelection(APlayerController* PC);
+
+	UFUNCTION(BlueprintCallable, Category = "게임플레이|PC|선택")
+	static void ClearSelectionExceptOther(APlayerController* PC, const TSet<AActor*>& Other);
 
 	UFUNCTION(BlueprintPure, Category = "게임플레이|PC|선택")
 	static bool IsSelected(APlayerController* PC, AActor* Target);

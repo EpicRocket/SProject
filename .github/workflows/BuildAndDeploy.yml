@@ -1,37 +1,47 @@
-# This is a basic workflow to help you get started with Actions
 
 name: BuildAndDeploy
 
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the "release" branch
   push:
     branches: 
     - main
 
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-permissions: write-all
+permissions:
+  contents: write
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
   Checkout:
-    # The type of runner that the job will run on
     runs-on: self-hosted
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
         with:
           clean: false
-
-  GenerateFiles:
+          fetch-depth: 0
+    
+  GenerateTableFiles:
     needs: Checkout
     runs-on: self-hosted
+    steps:
+      - name: Generate Table Files
+        run: |
+          $ErrorActionPreference = "Stop"
 
+          $tablePath = "$env:GITHUB_WORKSPACE/Source/SProject/Table"
+          Get-ChildItem -Path $tablePath -File | Where-Object { $_.Name -notmatch "^(TableSubsystem\.h|TableSubsystem\.cpp|TableRepositorySubsystem\.h|TableRepositorySubsystem\.cpp)$" } | Remove-Item -Force
+
+          Set-Location -Path "$env:GITHUB_WORKSPACE"
+          cd ..
+
+          Push-Location -Path "ueproject_generator"
+
+          cmd.exe /c "ueproject.exe `"ueproject.yml`""
+
+  GenerateFiles:
+    needs: GenerateTableFiles
+    runs-on: self-hosted
     steps:
     - name: Generate Files
       run: |
@@ -61,9 +71,8 @@ jobs:
         }
 
   Build:
-    needs: [Checkout, GenerateFiles]
+    needs: GenerateFiles
     runs-on: self-hosted
-
     steps:
     - name: Build
       run: |
@@ -87,31 +96,50 @@ jobs:
             exit 1
         }
 
-  Clean-up:
-    needs: [Build]
+  TableCommit:
+    needs: Build
     runs-on: self-hosted
-
     steps:
-    - name: Clean-up
+      - name: Table Commit
+        run: |
+          $ErrorActionPreference = "Stop"
+
+          Set-Location -Path "$env:GITHUB_WORKSPACE"
+
+          git config user.name "gr(bot)"
+          git config user.email "greantearocket@gmail.com"
+
+          git add Source/
+          git add Config/
+
+          $changes = git diff --cached --quiet; $LASTEXITCODE
+          
+          if ($LASTEXITCODE -eq 0) {
+              Write-Host "No changes to commit"
+              exit 0
+          }
+          
+          Write-Host "Changes detected! Committing..."
+          git commit -m "Table files updated $(date)"
+  
+  TablePush:
+    needs: TableCommit
+    runs-on: self-hosted
+    steps:
+    - name: Table Push
       run: |
-        # $ErrorActionPreference = "Stop"
-
-        # $binariesPath = Join-Path (Get-Location).Path "Binaries"
-        # if (Test-Path $binariesPath) {
-        # # delete *pdb files
-        #     Get-ChildItem -Path "$binariesPath" -Filter *.pdb -Recurse | Remove-Item -Force
-        # }
-
-        # $pluginsPath = Join-Path (Get-Location).Path "Plugins"
-        # if (Test-Path $pluginsPath) {
-        #     # delete *pdb files
-        #     Get-ChildItem -Path "$pluginsPath" -Filter *.pdb -Recurse | Remove-Item -Force
-        # }
+        $ErrorActionPreference = "Stop"
+        
+        if (-not (git status --porcelain)) {
+          Write-Host "No changes to commit."
+          exit 0
+        }
+        Write-Host "Changes detected! Pushing..."
+        git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} $env:BRANCH_NAME
 
   Deploy:
-    needs: [Clean-up]
+    needs: Build
     runs-on: self-hosted
-
     steps:
     - name: Deploy
       run: | 
@@ -122,5 +150,18 @@ jobs:
 
         Push-Location -Path "uploader_sproject"
         
-        $uploadListPath = Join-Path (Get-Location).Path "uploadList.yaml"
-        cmd.exe /c "ncuploader.exe $uploadListPath"
+        $configPath = Join-Path (Get-Location).Path "uploadList.yaml"
+        cmd.exe /c "ncuploader.exe $configPath"
+
+
+  Recovery:
+    needs: [GenerateTableFiles, GenerateFiles, Build, TableCommit, TablePush, Deploy]
+    if: failure()
+    runs-on: self-hosted
+    steps:
+      - name: Reset Git Changes on Failure
+        run: |
+          echo "Error! Initializing changes..."
+          Set-Location -Path "$env:GITHUB_WORKSPACE"
+          git checkout .
+          git clean -fd

@@ -13,7 +13,7 @@
 
 DEFINE_LOG_CATEGORY(LogTable)
 
-UTableSubsystem* UTableSubsystem::Get()
+/* static */UTableSubsystem* UTableSubsystem::Get()
 {
 	if (GEngine == NULL)
 	{
@@ -75,6 +75,6 @@ bool UTableSubsystem::LoadTable()
 
 	CollectGarbage(GARBAGE_COLLECTION_KEEPFLAGS);
 
-	TableLoadCompleted.Broadcast(this);
+	TableLoadCompleted.Broadcast();
 	return true;
 }

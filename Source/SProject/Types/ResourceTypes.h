@@ -12,10 +12,10 @@ struct MY_API FItem
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 Key = 0;
+	int32 Key = INDEX_NONE;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 Count = 0;
+	int32 Count = INDEX_NONE;
 
 	bool operator==(const FItem& Other) const
 	{

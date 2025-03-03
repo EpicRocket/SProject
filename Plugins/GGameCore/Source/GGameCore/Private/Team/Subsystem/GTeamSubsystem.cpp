@@ -6,6 +6,7 @@
 // include GameCore
 #include "Team/GTeamSettings.h"
 #include "Team/GTeamTypes.h"
+#include "Team/GTeamLoadDataAsset.h"
 #include "Team/Interface/IGTeamAgent.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(GTeamSubsystem)
@@ -36,18 +37,19 @@ namespace GTeam
 	}
 }
 
+//////////////////////////////////////////////////////////////////////////
+// UGTeamSubsystem
+//////////////////////////////////////////////////////////////////////////
+
 bool UGTeamSubsystem::DoesSupportWorldType(const EWorldType::Type WorldType) const
 {
     return WorldType == EWorldType::Game || WorldType == EWorldType::PIE;
 }
 
-void UGTeamSubsystem::RegisterTeams(const TArray<FGTeamTracker>& TeamTrackers)
+void UGTeamSubsystem::RegisterTeams(const TArray<FGTeamTracker>& TeamTrackers, const TArray<FGRelationshipInForceTableRow>& RelationshipInForceTableRows, const TArray<FGForcesRelationshipTableRow>& ForcesRelationshipTableRows)
 {
-	Teams.Empty();
-	Forces.Empty();
-
 	TArray<TSharedPtr<FGTeam>> Temp;
-	for (const FGTeamTracker& Tracker : TeamTrackers)
+	for (auto& Tracker : TeamTrackers)
 	{
 		auto Team = MakeShared<FGTeam>();
 		Team->Tracker = Tracker;
@@ -56,18 +58,49 @@ void UGTeamSubsystem::RegisterTeams(const TArray<FGTeamTracker>& TeamTrackers)
 		Temp.Emplace(Team);
 	}
 
-	for (auto& Team : Temp)
+	for (auto& Row : RelationshipInForceTableRows)
 	{
-		for (auto& Other : Temp)
+		auto Force = Forces.Find(Row.Force);
+		if (Force)
 		{
-			if (Team != Other)
+			for (auto& Team : *Force)
 			{
-				Team->Relationships.Emplace(Other->Tracker.ID, FGTeamRelationship{});
+				for (auto& Other : Temp)
+				{
+					if (Team != Other)
+					{
+						Team->Relationships.Emplace(Other->Tracker.ID, Row.Relationship);
+					}
+				}
+			}
+		}
+	}
+	
+	for (auto& Row : ForcesRelationshipTableRows)
+	{
+		auto ForceA = Forces.Find(Row.SourceForce);
+		auto ForceB = Forces.Find(Row.DestForce);
+
+		if (ForceA && ForceB)
+		{
+			for (auto& TeamA : *ForceA)
+			{
+				for (auto& TeamB : *ForceB)
+				{
+					TeamA->Relationships.Emplace(TeamB->Tracker.ID, Row.Relationship);
+				}
 			}
 		}
 	}
 
 	OnRegisterTeams();
+}
+
+void UGTeamSubsystem::UnregisterTeams()
+{
+	Teams.Empty();
+	Forces.Empty();
+	OnUnregisterTeams();
 }
 
 FGTeamTracker UGTeamSubsystem::GetTeamTracker(FGenericTeamId TeamID) const
@@ -80,7 +113,7 @@ FGTeamTracker UGTeamSubsystem::GetTeamTracker(FGenericTeamId TeamID) const
 	return GetDefault<UGTeamSettings>()->DefaultTeamTracker;
 }
 
-TEnumAsByte<ETeamAttitude::Type> UGTeamSubsystem::GetTeamAttitudeTowards(const FGenericTeamId& Source, const FGenericTeamId& Target) const
+TEnumAsByte<ETeamAttitude::Type> UGTeamSubsystem::GetTeamAttitudeTowards(uint8 Source, uint8 Target) const
 {
 	auto A = Teams.Find(Source);
 	auto B = Teams.Find(Target);
@@ -103,9 +136,39 @@ TEnumAsByte<ETeamAttitude::Type> UGTeamSubsystem::GetTeamAttitudeTowards(const F
 	return ETeamAttitude::Neutral;
 }
 
-bool UGTeamHelper::LoadTeamTableRows(UDataTable* Table, TArray<FGTeamTracker>& TeamTrackers)
+TEnumAsByte<ETeamAttitude::Type> UGTeamSubsystem::GetAgentAttitudeTowards(TScriptInterface<IGTeamAgent> Source, TScriptInterface<IGTeamAgent> Target) const
 {
-	return GTeam::LoadTableRows<FGTeamTracker>(Table, TeamTrackers);
+	return GetTeamAttitudeTowards(Source->GetGenericTeamId(), Target->GetGenericTeamId());
+}
+
+//////////////////////////////////////////////////////////////////////////
+// UGTeamHelper
+//////////////////////////////////////////////////////////////////////////
+
+bool UGTeamHelper::LoadTeamLoadAsset(TSoftObjectPtr<class UGTeamLoadDataAsset> DataAsset, TArray<FGTeamTracker>& TeamTrackers, TArray<FGRelationshipInForceTableRow>& RelationshipInForceTableRows, TArray<FGForcesRelationshipTableRow>& ForcesRelationshipTableRows)
+{
+	auto Asset = DataAsset.LoadSynchronous();
+	if (!Asset)
+	{
+		return false;
+	}
+
+	if (!GTeam::LoadTableRows<FGTeamTracker>(Asset->TeamTracker, TeamTrackers))
+	{
+		return false;
+	}
+
+	if (!GTeam::LoadTableRows<FGRelationshipInForceTableRow>(Asset->RelationshipInForce, RelationshipInForceTableRows))
+	{
+		return false;
+	}
+
+	if (!GTeam::LoadTableRows<FGForcesRelationshipTableRow>(Asset->ForcesRelationship, ForcesRelationshipTableRows))
+	{
+		return false;
+	}
+
+	return true;
 }
 
 bool UGTeamHelper::IsTeamAgentOwner(APlayerController* PC, TScriptInterface<IGTeamAgent> TeamAgent)

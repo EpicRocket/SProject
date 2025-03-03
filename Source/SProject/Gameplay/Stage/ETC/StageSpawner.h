@@ -4,48 +4,40 @@
 #include "GameFramework/Actor.h"
 #include "Gameplay/Interface/IGameplayActorTag.h"
 #include "Gameplay/ETC/GameplayTeamActor.h"
+#include "AIController.h"
 
 #include "StageSpawner.generated.h"
 
-class AUnitCharacter;
+class AStageMonsterUnit;
 class AStageLevel;
-class AGameplayPathActor;
+class UBehaviorTree;
+struct FGErrorInfo;
 
 USTRUCT(BlueprintType)
-struct FStageSpawnParams
+struct FStageMonsterSpawnParams
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TWeakObjectPtr<AStageLevel> StageLevel;
+    TWeakObjectPtr<AStageLevel> StageLevel;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    int32 Index = INDEX_NONE;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TSubclassOf<AUnitCharacter> SpawnUnit;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
     int32 PathPosition = INDEX_NONE;
+
 };
 
-UCLASS(Abstract, BlueprintType, Blueprintable)
+UCLASS(Abstract, BlueprintType, Blueprintable, ClassGroup = "Stage")
 class MY_API AStageSpawner : public AGameplayTeamActor, public IGameplayActorTag
 {
     GENERATED_BODY()
 
 public:
     UFUNCTION(BlueprintCallable)
-    AUnitCharacter* Spawn(const FStageSpawnParams& Params);
+    FGErrorInfo SpawnMonster(const FStageMonsterSpawnParams& Params, AStageMonsterUnit*& SpawnedUnit);
     
-    UPROPERTY(EditAnywhere)
-    TArray<TSubclassOf<AUnitCharacter>> SpawnUnits;
-
-    UFUNCTION(BlueprintCallable)
-    int32 GetCurrentWave();
-
 protected:
-
-private:
-    int32 CurrentWave;
-
-    UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = true))
-    AGameplayPathActor* GameplayPathActor;
+    FGErrorInfo GetSpawnComponent(class UStageSpawnComponent*& SpawnComponent) const;
 };

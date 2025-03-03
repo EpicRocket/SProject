@@ -19,6 +19,18 @@ void AStageUnitCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	InitailizeBaseStats();
+
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UStageUnitAttributeSet::GetHpAttribute()).AddWeakLambda(
+		this,
+		[this](const FOnAttributeChangeData& Data)
+		{
+			if (Data.NewValue <= 0)
+			{
+				Kill();
+			}
+			UE_LOGFMT(LogStage, Log, "체력이 변경되었습니다. 변경된 값: {Hp}", Data.NewValue);
+		}
+	);
 }
 
 const UStageUnitAttributeSet* AStageUnitCharacter::GetUnitSet() const

@@ -1,6 +1,8 @@
 
 #include "GameplayUserPlayer.h"
-
+// include Engine
+#include "Engine/LocalPlayer.h"
+#include "GameFramework/PlayerController.h"
 // include GameCore
 #include "Error/GErrorTypes.h"
 // include Project
@@ -9,16 +11,22 @@
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(GameplayUserPlayer)
 
-int64 UGameplayUserPlayer::GetItemCount(int32 Key) const
+APlayerController* AGameplayUserPlayer::GetOwningPlayerController() const
 {
-    /*
-    배치 포인트의 경우에는 스테이지에 재화가 귀속이 되는데
-    어떻게 해야 하지?
-    */
-    return int64();
+    if (!OwningPlayerController.IsValid())
+    {
+        return nullptr;
+    }
+
+    return OwningPlayerController.Get();
 }
 
-FGErrorInfo UGameplayUserPlayer::ConsumeItem(int32 Key, int32 Count)
+ULocalPlayer* AGameplayUserPlayer::GetOwningLocalPlayer() const
 {
-    return FGErrorInfo();
+    if (!OwningPlayerController.IsValid())
+    {
+        return nullptr;
+    }
+
+    return OwningPlayerController->GetLocalPlayer();
 }

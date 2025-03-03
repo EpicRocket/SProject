@@ -2,6 +2,7 @@
 #pragma once
 
 #include "Core/GGameInstance.h"
+#include "Kismet/BlueprintFunctionLibrary.h"
 
 #include "MyGameInstance.generated.h"
 
@@ -11,6 +12,32 @@ class MY_API UMyGameInstance : public UGGameInstance
     GENERATED_BODY()
 
 public:
-    virtual void Init() override;
+    UFUNCTION(BlueprintCallable)
+    void LoadStartupTable();
+protected:
+    UFUNCTION(BlueprintImplementableEvent)
+    void K2_OnLoadStartupTable();
+    virtual void OnLoadStartupTable();
 
+public:
+    UFUNCTION(BlueprintCallable)
+    void LoadTable();
+protected:
+    UFUNCTION(BlueprintImplementableEvent)
+    void K2_OnTableLoad();
+    virtual void OnTableLoad();
+
+};
+
+UCLASS()
+class MY_API UMyGameInstanceHelper : public UBlueprintFunctionLibrary
+{
+    GENERATED_BODY()
+
+public:
+    UFUNCTION(BlueprintCallable, Category = "게임로드", meta = (WorldContext = "WorldContextObject"))
+    static void LoadStartupTable(UObject* WorldContextObject);
+
+    UFUNCTION(BlueprintCallable, Category = "게임로드", meta = (WorldContext = "WorldContextObject"))
+    static void LoadTable(UObject* WorldContextObject);
 };

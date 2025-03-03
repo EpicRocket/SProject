@@ -15,10 +15,10 @@ struct MY_API FTower
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 Key = 0;
+	int32 Key = INDEX_NONE;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 Level = 0;
+	int32 Level = INDEX_NONE;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 Location = INDEX_NONE;

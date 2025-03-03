@@ -11,11 +11,12 @@
 #include "StageBuildZone.generated.h"
 
 enum class EStageTowerType : uint8;
-struct FBuildStageTower;
+struct FStageTowerInfo;
 struct FStageTowerReceipt;
 class UBoxComponent;
 class AAIController;
-class AUnitStageTower;
+class AStageLevel;
+class AStageTowerUnit;
 
 namespace Stage
 {
@@ -46,7 +47,7 @@ struct MY_API FStageBuildContent
 	int32 Level = 0;
 };
 
-UCLASS(BlueprintType)
+UCLASS(BlueprintType, ClassGroup = "Stage")
 class MY_API UStageBuildZoneData : public UDataAsset
 {
 	GENERATED_BODY()
@@ -56,7 +57,7 @@ public:
 	TArray<FStageBuildContent> BuildContents;
 };
 
-UCLASS(Abstract, BlueprintType, Blueprintable)
+UCLASS(Abstract, BlueprintType, Blueprintable, ClassGroup = "Stage")
 class MY_API AStageBuildZone : public AGameplayTeamActor, public IGameplayActorTag
 {
 	GENERATED_BODY()
@@ -70,7 +71,7 @@ public:
 	FStageTowerReceipt GetTowerReceipt() const;
 
 	UFUNCTION(BlueprintCallable)
-	void RequestBuildTower(const FBuildStageTower& BuildStageTower);
+	void RequestBuildTower(const FStageTowerInfo& BuildStageTower);
 
 	UFUNCTION(BlueprintCallable)
 	void RequestDemolishTower();
@@ -83,7 +84,10 @@ public:
 	TObjectPtr<UStageBuildZoneData> BuildZoneData;
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
-	TObjectPtr<AUnitStageTower> SpawnedTower;
+	TWeakObjectPtr<AStageLevel> SourceStage;
+
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
+	TWeakObjectPtr<AStageTowerUnit> SpawnedTower;
 
 private:
 	UPROPERTY(Category = "스테이지", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))

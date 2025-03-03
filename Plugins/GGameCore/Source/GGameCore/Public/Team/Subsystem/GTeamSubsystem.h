@@ -13,6 +13,9 @@ class IGTeamAgent;
 struct FGenericTeamId;
 struct FGTeamTracker;
 struct FGTeam;
+struct FGRelationshipInForceTableRow;
+struct FGForcesRelationshipTableRow;
+
 namespace ETeamAttitude
 {
     enum Type : int;
@@ -33,16 +36,23 @@ protected:
 
 public:
     UFUNCTION(BlueprintCallable)
-    void RegisterTeams(const TArray<FGTeamTracker>& TeamTrackers);
+    void RegisterTeams(const TArray<FGTeamTracker>& TeamTrackers, const TArray<FGRelationshipInForceTableRow>& RelationshipInForceTableRows, const TArray<FGForcesRelationshipTableRow>& ForcesRelationshipTableRows);
+
+    UFUNCTION(BlueprintCallable)
+	void UnregisterTeams();
 
     UFUNCTION(BlueprintPure)
 	FGTeamTracker GetTeamTracker(FGenericTeamId TeamID) const;
 
     UFUNCTION(BlueprintPure)
-	TEnumAsByte<ETeamAttitude::Type> GetTeamAttitudeTowards(const FGenericTeamId& TeamA, const FGenericTeamId& TeamB) const;
+	TEnumAsByte<ETeamAttitude::Type> GetTeamAttitudeTowards(uint8 Source, uint8 Target) const;
+
+    UFUNCTION(BlueprintPure)
+    TEnumAsByte<ETeamAttitude::Type> GetAgentAttitudeTowards(TScriptInterface<IGTeamAgent> Source, TScriptInterface<IGTeamAgent> Target) const;
 
 protected:
     virtual void OnRegisterTeams() {}
+	virtual void OnUnregisterTeams() {}
 
 protected:
     TMap<FTeamIndex, TSharedPtr<FGTeam>> Teams;
@@ -57,8 +67,9 @@ class GGAMECORE_API UGTeamHelper : public UBlueprintFunctionLibrary
 
 public:
     UFUNCTION(BlueprintCallable, Category = "팀", meta = (ReturnDisplayName = "Success"))
-    static bool LoadTeamTableRows(UDataTable* Table, TArray<FGTeamTracker>& TeamTrackers);
+	static bool LoadTeamLoadAsset(TSoftObjectPtr<UGTeamLoadDataAsset> DataAsset, TArray<FGTeamTracker>& TeamTrackers, TArray<FGRelationshipInForceTableRow>& RelationshipInForceTableRows, TArray<FGForcesRelationshipTableRow>&  ForcesRelationshipTableRows);
 
     UFUNCTION(BlueprintPure, Category = "팀", meta = (ReturnDisplayName = "Success"))
     static bool IsTeamAgentOwner(APlayerController* PC, TScriptInterface<IGTeamAgent> TeamAgent);
+
 };

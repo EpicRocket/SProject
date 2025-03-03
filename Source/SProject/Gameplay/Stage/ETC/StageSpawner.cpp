@@ -1,38 +1,74 @@
 ﻿
 #include "StageSpawner.h"
 // include Engine
-#include "AIController.h"
-#include "Gameplay/ETC/GameplayPathActor.h"
 #include "Engine/World.h"
-#include "Unit/UnitCharacter.h"
+#include "GameFramework/GameStateBase.h"
 #include "Kismet/GameplayStatics.h"
 // include Project
+#include "Gameplay/GameplayHelper.h"
+#include "Gameplay/ETC/GameplayPathActor.h"
 #include "Gameplay/Stage/StageLogging.h"
 #include "Gameplay/Stage/StageLevel.h"
-#include "Gameplay/GameplayWorldSubsystem.h"
+#include "Gameplay/Stage/StageTableRepository.h"
+#include "Gameplay/Stage/Types/StageMonsterTypes.h"
+#include "Gameplay/Stage/Unit/StageMonsterUnit.h"
+#include "Gameplay/Stage/Component/StageSpawnComponent.h"
+#include "Gameplay/Stage/AI/StageAIController.h"
 
-AUnitCharacter* AStageSpawner::Spawn(const FStageSpawnParams& Params)
+FGErrorInfo AStageSpawner::SpawnMonster(const FStageMonsterSpawnParams& Params, AStageMonsterUnit*& SpawnedUnit)
 {
-	if (!Params.StageLevel.IsValid())
+	UStageSpawnComponent* SpawnComponent = nullptr;
+	if (auto Err = GetSpawnComponent(SpawnComponent); !GameCore::IsOK(Err))
 	{
-		UE_LOG(LogStage, Warning, TEXT("StageLevel을 찾지 못하였습니다."));
-		return nullptr;
+		return Err;
 	}
 
-	auto PathActor = Params.StageLevel->GetPathActor(Params.PathPosition);
-	if (!PathActor)
+	FStageMonsterInfo Info;
+	if (auto Err = UStageTableHelper::GetStageMonsterInfo(Params.Index, Info); !GameCore::IsOK(Err))
 	{
-		UE_LOG(LogStage, Warning, TEXT("PathActor을 찾지 못하였습니다."));
-		return nullptr;
+		return Err;
 	}
 
-	auto SpawnedUnit = UGameplayHelper::SpawnUnit(this, PathActor->GetActorLocation(), PathActor->GetActorRotation(), Params.SpawnUnit, AAIController::StaticClass());
-	SpawnedUnit->SetGenericTeamId(GetGenericTeamId());
+	if (auto Err = SpawnComponent->SpawnMonster(GetTeamID(), Params.StageLevel.Get(), GetActorLocation(), GetActorRotation(), Info, nullptr, SpawnedUnit); !GameCore::IsOK(Err))
+	{
+		return Err;
+	}
 
-	return SpawnedUnit;
+	if (auto AIController = SpawnedUnit->GetController<AStageAIController>())
+	{
+		AIController->SetGenericTeamId(GetTeamID());
+		AIController->SourceStage = Params.StageLevel;
+		AIController->AIBehaviorTree = Info.AI;
+		if (Params.PathPosition != INDEX_NONE)
+		{
+			UGameplayHelper::SetGameplayTagByInt32(AIController, AGameplayPathActor::PathTagName, Params.PathPosition);
+		}
+		
+		AIController->StartAI();
+	}
+
+	return GameCore::Pass();
 }
 
-int32 AStageSpawner::GetCurrentWave()
+FGErrorInfo AStageSpawner::GetSpawnComponent(UStageSpawnComponent*& SpawnComponent) const
 {
-	return CurrentWave;
+	auto World = GetWorld();
+	if (!World)
+	{
+		return GameCore::Throw(GameErr::WORLD_INVALID);
+	}
+
+	auto GameState = World->GetGameState();
+	if (!GameState)
+	{
+		return GameCore::Throw(GameErr::ACTOR_INVALID, TEXT("GameState"));
+	}
+
+	SpawnComponent = GameState->GetComponentByClass<UStageSpawnComponent>();
+	if (!SpawnComponent)
+	{
+		return GameCore::Throw(GameErr::COMPONENT_INVALID, TEXT("UStageSpawnComponent"));
+	}
+
+	return GameCore::Pass();
 }

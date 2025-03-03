@@ -53,10 +53,6 @@
 			"Enabled": true
 		},
 		{
-			"Name": "GameplayBehaviorSmartObjects",
-			"Enabled": true
-		},
-		{
 			"Name": "GameplayInteractions",
 			"Enabled": true
 		},
@@ -98,6 +94,10 @@
 		},
 		{
 			"Name": "ModularGameplay",
+			"Enabled": true
+		},
+		{
+			"Name": "GGameCore",
 			"Enabled": true
 		}
 	]

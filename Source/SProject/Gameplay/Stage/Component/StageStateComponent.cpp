@@ -7,14 +7,16 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "GameFramework/PlayerController.h"
 // include GameCore
-#include "Error/GErrorManager.h"
-#include "Core/GGameLoadAction.h"
+#include "Error/GError.h"
+#include "Core/Action/GGameLoadAction.h"
 // include Project
-#include "Table/TableSubsystem.h"
-#include "Table/StageInfoTable.h"
-#include "Gameplay/Stage/StageLevel.h"
-#include "Gameplay/Stage/Error/StageTableError.h"
+#include "Types/StageTypes.h"
+#include "Core/MyPlayerController.h"
 #include "Gameplay/GameWorldSubsystem.h"
+#include "Gameplay/Team/GameplayTeamSubsystem.h"
+#include "Gameplay/Stage/StageLevel.h"
+#include "Gameplay/Stage/StageTableRepository.h"
+
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(StageStateComponent)
 
@@ -37,74 +39,53 @@ bool UStageStateComponent::ShouldShowLoadingScreen(FString& OutReason) const
 	return false;
 }
 
-FGErrorInfo UStageStateComponent::SetLevel(int32 Level)
+FGErrorInfo UStageStateComponent::LoadStage(const FStage& Stage)
 {
-	auto Data = UTableHelper::GetData<FStageTableRow>(Level);
-	if (!Data)
+	TSoftObjectPtr<UWorld> MapPtr;
+	if (auto Err = UStageTableHelper::GetStageMap(Stage.Level, MapPtr); !GameCore::IsOK(Err))
 	{
-		return FStageTableError(Level);
+		return Err;
 	}
 
-	LoadLevel = Data->Map;
-	OnLoadStreaming();
-
-	return FGErrorInfo{};
+	OnLoadStage(Stage, MapPtr);
+	return GameCore::Pass();
 }
 
-FGErrorInfo UStageStateComponent::OnLoadStage(FLatentActionInfo LatentInfo)
+FGErrorInfo UStageStateComponent::WaitForPrimaryPlayerController(FLatentActionInfo LatentInfo)
 {
 	auto World = GetWorld();
 	if (!World)
 	{
 		UKismetSystemLibrary::DelayUntilNextTick(World, LatentInfo);
-		return FGErrorInfo(EGErrType::Error, TEXT(""), FText{});
+		return GameCore::Throw(GameErr::WORLD_INVALID);
 	}
-
-	FLatentActionManager& LatentManager = World->GetLatentActionManager();
-	if (LatentManager.FindExistingAction<FGGameLoadAction>(LatentInfo.CallbackTarget, LatentInfo.UUID) != nullptr)
-	{
-		UKismetSystemLibrary::DelayUntilNextTick(World, LatentInfo);
-		return FGErrorInfo(EGErrType::Warning, TEXT(""), FText{});
-	}
-
+	
 	FGErrorInfo ErrorInfo;
-
-	auto OnSuccess = [this, World, &ErrorInfo, ThisPtr = TWeakObjectPtr<UStageStateComponent>(this)](APlayerController* PrimaryPlayerController)
+	auto OnSuccess = [this, World, &ErrorInfo](APlayerController* PrimaryPlayerController)
 		{
-			if (!ThisPtr.IsValid())
-			{
-				return;
-			}
-			
 			PrimaryPC = PrimaryPlayerController;
-			OnLoadCompleted();
-		};
-
-	auto OnFailed = [&ErrorInfo, ThisPtr = TWeakObjectPtr<UStageStateComponent>(this)]
-		{
-			if (ThisPtr.IsValid())
+			if (auto Subsystem = World->GetSubsystem<UGameplayTeamSubsystem>())
 			{
-				ErrorInfo.ErrType = EGErrType::Error;
+				if (auto MyPC = Cast<AMyPlayerController>(PrimaryPlayerController))
+				{
+					auto TeamID = Subsystem->IssusePlayerTeamID(PrimaryPlayerController);
+					if (TeamID == 255)
+					{
+						ErrorInfo = GameCore::Throw(GameErr::VALUE_INVALID, TEXT("발급 할 수 있는 팀이 존재하지 않음."));
+						return;
+					}
+
+					MyPC->SetGenericTeamId(TeamID);
+				}
 			}
 		};
-
-	FGGameLoadAction* NewAction = new FGGameLoadAction(LatentInfo, GetWorld(), OnSuccess, OnFailed);
-	LatentManager.AddNewAction(LatentInfo.CallbackTarget, LatentInfo.UUID, NewAction);
+	auto NewAction = new FGGameLoadAction(LatentInfo, GetWorld(), OnSuccess, [&ErrorInfo](FGErrorInfo Err) {ErrorInfo = Err; });
+	World->GetLatentActionManager().AddNewAction(LatentInfo.CallbackTarget, LatentInfo.UUID, NewAction);
 
 	return ErrorInfo;
-}
-
-void UStageStateComponent::OnLoadLevelCompleted()
-{
-	bLoadCompleted = true;
-	K2_OnLoadLevelCompleted();
 }
 
 void UStageStateComponent::SetTargetLevel(AMyGameLevel* Level)
 {
 	TargetStage = Cast<AStageLevel>(Level);
-	if (TargetStage.IsValid())
-	{
-		OnLoadLevelCompleted();
-	}
 }

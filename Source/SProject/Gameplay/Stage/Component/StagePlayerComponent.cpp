@@ -2,165 +2,194 @@
 #include "StagePlayerComponent.h"
 // include Engine
 #include "Engine/World.h"
+#include "Engine/GameInstance.h"
 #include "Engine/LocalPlayer.h"
-#include "Engine/GameViewportClient.h"
-#include "GameFramework/PlayerController.h"
-#include "EnhancedInputSubsystems.h"
-#include "Components/PrimitiveComponent.h"
-#include "Framework/Application/SlateUser.h"
-#include "Widgets/SViewport.h"
-#include "Math/UnitConversion.h"
-#include "HAL/PlatformApplicationMisc.h"
+// include GameCore
+#include "GMessage/GMessage.h"
 // include Project
 #include "Core/MyPlayerController.h"
-#include "Gameplay/Stage/GameplayMessage/StagePlayerEventMessage.h"
+#include "Types/StageTypes.h"
+#include "User/StageSubsystem.h"
+#include "Table/ConstTable.h"
+#include "Table/StageTable.h"
 #include "Gameplay/Team/GameplayTeamSubsystem.h"
 #include "Gameplay/Team/GameplayUserPlayer.h"
+#include "Gameplay/Stage/GameplayMessage/StagePlayerEventMessage.h"
+#include "Gameplay/Stage/StageTableRepository.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(StagePlayerComponent)
 
-void UStagePlayerComponent::InteractionMouseEvent()
+FGErrorInfo UStagePlayerComponent::SetDefaults()
 {
-	auto PC = GetOwningPlayer();
-	auto LocalPlayer = GetOwningLocalPlayer();
-
-	if (!IsValid(PC) || !LocalPlayer)
+	auto User = GetGameplayPlayer<AGameplayUserPlayer>();
+	if (!User)
 	{
-		return;
+		return GameCore::Throw(GameErr::ACTOR_INVALID, TEXT("AGameplayUserPlayer"));
 	}
 
-	UGameViewportClient* ViewportClient = LocalPlayer->ViewportClient;
-	if (!ViewportClient)
+	auto StageSubsystem = UStageSubsystem::Get(User->GetOwningLocalPlayer());
+	if (!StageSubsystem)
 	{
-		return;
+		return GameCore::Throw(GameErr::SUBSYSTEM_INVALID, TEXT("UStageSubsystem"));
 	}
 
-	TSharedPtr<const FSlateUser> SlateUser = LocalPlayer->GetSlateUser();
-	bool bIsWidgetDirectlyUnderCurosr = SlateUser && SlateUser->IsWidgetDirectlyUnderCursor(ViewportClient->GetGameViewportWidget());
-	if (!bIsWidgetDirectlyUnderCurosr)
+	auto LastStage = StageSubsystem->GetLastStage();
+
+	FStageTableRow StageTableRow;
+	if (auto Err = UStageTableHelper::GetStage(LastStage->Level, StageTableRow); !GameCore::IsOK(Err))
 	{
-		return;
+		return Err;
 	}
 
-	FVector2D MousePosition;
-	FHitResult HitResult;
-	bool bHit = false;
+	LastStage->Towers.Empty();
+	LastStage->Hp = GetDefault<UConstSettings>()->UserHp;
+	LastStage->UsePoint = StageTableRow.UsePoint;
 
-	if (!ViewportClient->GetMousePosition(MousePosition))
-	{
-		return;
-	}
-
-	bHit = PC->GetHitResultAtScreenPosition(MousePosition, PC->CurrentClickTraceChannel, true, /*out*/ HitResult);
-	if (!bHit)
-	{
-		return;
-	}
-
-	auto HitActor = HitResult.HitObjectHandle.GetCachedActor();
-
-	if (IsValid(HitActor))
-	{
-		OnInteractionActor(HitActor);
-	}
+	return GameCore::Pass();
 }
 
-void UStagePlayerComponent::OnMousePressed()
+FGErrorInfo UStagePlayerComponent::NewStart()
 {
-	auto LocalPlayer = GetOwningLocalPlayer();
-	if (!LocalPlayer)
+	if (auto Err = SetDefaults(); !GameCore::IsOK(Err))
 	{
-		return;
+		return Err;
 	}
 
-	UGameViewportClient* ViewportClient = LocalPlayer->ViewportClient;
-	if (!ViewportClient)
+	auto GMessageSubsystem = UGameInstance::GetSubsystem<UGMessageSubsystem>(GetGameInstance<UGameInstance>());
+	if (!GMessageSubsystem)
 	{
-		return;
+		return GameCore::Throw(GameErr::SUBSYSTEM_INVALID, TEXT("UGMessageSubsystem"));
 	}
 
-	bMousePressed = ViewportClient->GetMousePosition(FirstMousePressPosition);
+	FStagePlayerNewStartMessage Message;
+	GMessageSubsystem->BroadcastMessage(Stage::Tag_Gameplay_Stage_Player_NewStart, Message);
+
+	return GameCore::Pass();
 }
 
-void UStagePlayerComponent::OnMouseMoved()
+FGErrorInfo UStagePlayerComponent::Restart()
 {
-	auto LocalPlayer = GetOwningLocalPlayer();
-	if (!LocalPlayer)
+	if (auto Err = SetDefaults(); !GameCore::IsOK(Err))
 	{
-		return;
+		return Err;
 	}
 
-	UGameViewportClient* ViewportClient = LocalPlayer->ViewportClient;
-	if (!ViewportClient)
+	auto GMessageSubsystem = UGameInstance::GetSubsystem<UGMessageSubsystem>(GetGameInstance<UGameInstance>());
+	if (!GMessageSubsystem)
 	{
-		return;
+		return GameCore::Throw(GameErr::SUBSYSTEM_INVALID, TEXT("UGMessageSubsystem"));
 	}
 
-	FVector2D MousePosition;
-	if (!ViewportClient->GetMousePosition(MousePosition))
-	{
-		return;
-	}
+	FStagePlayerRestartMessage Message;
+	GMessageSubsystem->BroadcastMessage(Stage::Tag_Gameplay_Stage_Player_Restart, Message);
 
-	auto Dist = (FirstMousePressPosition - MousePosition).SizeSquared();
-	float DragTriggerDistance;
-
-	const float DragTriggerDistanceInInches = FUnitConversion::Convert(1.0f, EUnit::Millimeters, EUnit::Inches);
-	FPlatformApplicationMisc::ConvertInchesToPixels(DragTriggerDistanceInInches, DragTriggerDistance);
-	DragTriggerDistance = FMath::Max(DragTriggerDistance, 5.0F);
-
-	if (Dist >= DragTriggerDistance)
-	{
-		bMousePressed = false;
-	}
+	return GameCore::Pass();
 }
 
-void UStagePlayerComponent::OnMouseReleased()
+void UStagePlayerComponent::SetHp(int32 NewHp)
 {
-	if (bMousePressed)
+	auto User = GetGameplayPlayer<AGameplayUserPlayer>();
+	if (!User)
 	{
-		InteractionMouseEvent();
-	}
-	bMousePressed = false;
-}
-
-void UStagePlayerComponent::InitializeComponent()
-{
-	Super::InitializeComponent();
-
-	auto TeamSubsystem = UWorld::GetSubsystem<UGameplayTeamSubsystem>(GetWorld());
-	check(TeamSubsystem);
-
-	auto MyPlayerController = Cast<AMyPlayerController>(GetOwningPlayer());
-	auto Player = TeamSubsystem->GetPlayer(MyPlayerController->GetGenericTeamId());
-	if (!Player)
-	{
+		GameCore::Throw(GameErr::ACTOR_INVALID, TEXT("AGameplayUserPlayer"));
 		return;
 	}
 
-	UserPlayer = Cast<UGameplayUserPlayer>(Player);
-	if (!UserPlayer.IsValid())
+	auto StageSubsystem = UStageSubsystem::Get(User->GetOwningLocalPlayer());
+	if (!StageSubsystem)
 	{
+		GameCore::Throw(GameErr::SUBSYSTEM_INVALID, TEXT("UStageSubsystem"));
 		return;
 	}
 
-	UserPlayer->OwningPlayerController = MyPlayerController;
+	auto GMessageSubsystem = UGameInstance::GetSubsystem<UGMessageSubsystem>(GetGameInstance<UGameInstance>());
+	if (!GMessageSubsystem)
+	{
+		GameCore::Throw(GameErr::SUBSYSTEM_INVALID, TEXT("UGMessageSubsystem"));
+		return;
+	}
+
+	FStagePlayerHpMessage Message;
+	Message.OldValue = StageSubsystem->GetLastStage()->Hp;
+	StageSubsystem->GetLastStage()->Hp = NewHp;
+	Message.NewValue = StageSubsystem->GetLastStage()->Hp;
+	GMessageSubsystem->BroadcastMessage(Stage::Tag_Gameplay_Stage_Player_Hp_Changed, Message);
 }
 
-void UStagePlayerComponent::SetHealth(int32 NewHealth)
+void UStagePlayerComponent::AddHp(int32 AddHp)
 {
-	FStagePlayerHealthMessage Message;
-	Message.OldValue = Health;
-	Health = FMath::Max(0, NewHealth);
-	Message.NewValue = Health;
-	//UGameplayMessageSubsystem::Get(this).BroadcastMessage(Stage::Tag_Gameplay_Stage_Player_Health_Changed, Message);
+	SetHp(GetHp() + AddHp);
 }
 
-void UStagePlayerComponent::SetUsePoint(int32 NewUsePoint)
+int32 UStagePlayerComponent::GetHp() const
 {
+	auto User = GetGameplayPlayer<AGameplayUserPlayer>();
+	if (!User)
+	{
+		GameCore::Throw(GameErr::ACTOR_INVALID, TEXT("AGameplayUserPlayer"));
+		return 0;
+	}
+
+	auto StageSubsystem = UStageSubsystem::Get(User->GetOwningLocalPlayer());
+	if (!StageSubsystem)
+	{
+		GameCore::Throw(GameErr::SUBSYSTEM_INVALID, TEXT("UStageSubsystem"));
+		return 0;
+	}
+
+	return StageSubsystem->GetLastStage()->Hp;
+}
+
+void UStagePlayerComponent::SetUsePoint(int64 NewUsePoint)
+{
+	auto User = GetGameplayPlayer<AGameplayUserPlayer>();
+	if (!User)
+	{
+		GameCore::Throw(GameErr::ACTOR_INVALID, TEXT("AGameplayUserPlayer"));
+		return;
+	}
+
+	auto StageSubsystem = UStageSubsystem::Get(User->GetOwningLocalPlayer());
+	if (!StageSubsystem)
+	{
+		GameCore::Throw(GameErr::SUBSYSTEM_INVALID, TEXT("UStageSubsystem"));
+		return;
+	}
+
+	auto GMessageSubsystem = UGameInstance::GetSubsystem<UGMessageSubsystem>(GetGameInstance<UGameInstance>());
+	if (!GMessageSubsystem)
+	{
+		GameCore::Throw(GameErr::SUBSYSTEM_INVALID, TEXT("UGMessageSubsystem"));
+		return;
+	}
+
 	FStagePlayerUsePointMessage Message;
-	Message.OldValue = UsePoint;
-	UsePoint = FMath::Max(0, NewUsePoint);
-	Message.NewValue = UsePoint;
-	//UGameplayMessageSubsystem::Get(this).BroadcastMessage(Stage::Tag_Gameplay_Stage_Player_UsePoint_Changed, Message);
+	Message.OldValue = StageSubsystem->GetLastStage()->UsePoint;
+	StageSubsystem->GetLastStage()->UsePoint = NewUsePoint;
+	Message.NewValue = StageSubsystem->GetLastStage()->UsePoint;
+	GMessageSubsystem->BroadcastMessage(Stage::Tag_Gameplay_Stage_Player_UsePoint_Changed, Message);
+}
+
+void UStagePlayerComponent::AddUsePoint(int64 AddUsePoint)
+{
+	SetUsePoint(GetUsePoint() + AddUsePoint);
+}
+
+int64 UStagePlayerComponent::GetUsePoint() const
+{
+	auto User = GetGameplayPlayer<AGameplayUserPlayer>();
+	if (!User)
+	{
+		GameCore::Throw(GameErr::ACTOR_INVALID, TEXT("AGameplayUserPlayer"));
+		return 0;
+	}
+
+	auto StageSubsystem = UStageSubsystem::Get(User->GetOwningLocalPlayer());
+	if (!StageSubsystem)
+	{
+		GameCore::Throw(GameErr::SUBSYSTEM_INVALID, TEXT("UStageSubsystem"));
+		return 0;
+	}
+
+	return StageSubsystem->GetLastStage()->UsePoint;
 }

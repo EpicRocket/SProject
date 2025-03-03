@@ -11,18 +11,7 @@
 class UWorld;
 
 struct FStage;
-struct FStageDetail;
 struct FTower;
-
-USTRUCT(BlueprintType)
-struct MY_API FStageDetailSpec
-{
-    GENERATED_BODY()
-
-    int32 Level = 0;
-
-    TMap<int32, TSharedPtr<FTower>> Towers;
-};
 
 /*
  * 유저의 스테이지 별 정보를 관리하는 서브시스템
@@ -43,28 +32,22 @@ public:
     virtual void ApplyUserDocumentChanges(const TSharedRef<FFetchDocument> FetchDocument) override;
     // ~IUserDocumentMiddleware
 
-    UFUNCTION(BlueprintCallable, Category = "스테이지", meta = (ShortToolTip = "유저가 달성한 최대 스테이지 레벨"))
-    int32 GetUserStageLevel() const;
+    UFUNCTION(BlueprintCallable, Category = "스테이지", meta = (DisplayName = "GetLastStageLevel"))
+    int32 K2_GetLastStageLevel() const;
+    TSharedRef<int32> GetLastStageLevel() const;
 
-    UFUNCTION(BlueprintCallable, Category = "스테이지")
-    TArray<FTower> GetStageTowers(int32 Level) const;
-
-    UFUNCTION(BlueprintCallable, Category = "스테이지", meta = (DisplayName = "GetStage"))
-    FStage BP_GetStage() const;
-    TSharedRef<FStage> GetStage() const;
+    UFUNCTION(BlueprintCallable, Category = "스테이지", meta = (DisplayName = "GetLastStage"))
+    FStage K2_GetLastStage() const;
+    TSharedRef<FStage> GetLastStage() const;
     
-    UFUNCTION(BlueprintCallable, Category = "스테이지", meta = (DisplayName = "GetStageDetail"))
-    FStageDetailSpec BP_GetStageDetail(int32 Level) const;
-    TSharedRef<FStageDetailSpec> GetStageDetail(int32 Level) const;
-
-    UFUNCTION(BlueprintCallable, Category = "스테이지", meta = (DisplayName = "GetTower"))
-    FTower BP_GetTower(int32 Level, int32 Key) const;
-    TSharedRef<FTower> GetTower(int32 Level, int32 Key) const;
+    UFUNCTION(BlueprintCallable, Category = "스테이지", meta = (DisplayName = "GetStageLevel"))
+    FStage K2_GetStage(int32 Level) const;
+    TSharedRef<FStage> GetStage(int32 Level) const;
 
 private:
-    mutable TSharedPtr<FStage> Stage;
+    mutable TSharedPtr<int32> LastStageLevel;
 
-    mutable TMap<int32, TSharedPtr<FStageDetailSpec>> StageDetails;
+    mutable TMap<int32/*Level*/, TSharedPtr<FStage>> Stages;
 };
 
 
@@ -74,6 +57,4 @@ class MY_API UStageSubsystemHelper : public UBlueprintFunctionLibrary
     GENERATED_BODY()
 
 public:
-    UFUNCTION(BlueprintPure, Category = "스테이지|Helper")
-    static TSoftObjectPtr<UWorld> GetStageMap(int32 Level);
 };

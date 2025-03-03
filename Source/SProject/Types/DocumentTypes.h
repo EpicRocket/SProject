@@ -19,17 +19,17 @@ struct MY_API FUserDocument
 	FUserInfo UserInfo;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int64 Gold = 0;
+	int64 Gold = INDEX_NONE;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 Cash = 0;
+	int32 Cash = INDEX_NONE;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FItem> Items;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FStage Stage;
+	int32 LastStageLevel = INDEX_NONE;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<FStageDetail> StageDetails;
+	TArray<FStage> Stages;
 };

@@ -8,18 +8,21 @@
 #include "AIController.h"
 // include GameCore
 #include "GMessage/Subsystem/GMessageSubsystem.h"
-#include "Error/GErrorManager.h"
-#include "Error/GErrorTypes.h"
+#include "Error/GError.h"
 // include Project
+#include "Table/TableSubsystem.h"
+#include "Table/TowerTable.h"
 #include "Gameplay/GameplayLogging.h"
 #include "Gameplay/Team/GameplayTeamSubsystem.h"
 #include "Gameplay/Team/GameplayPlayer.h"
+#include "Gameplay/Stage/StageTableRepository.h"
+#include "Gameplay/Stage/StageLevel.h"
 #include "Gameplay/Stage/Types/StageTowerTypes.h"
 #include "Gameplay/Stage/Interface/IStageTower.h"
-#include "Gameplay/Stage/Unit/UnitStageTower.h"
-#include "Table/TableSubsystem.h"
-#include "Table/TowerTable.h"
-#include "Gameplay/Stage/StageTableRepository.h"
+#include "Gameplay/Stage/Component/StageSpawnComponent.h"
+#include "Gameplay/Stage/Component/StagePlayerComponent.h"
+#include "Gameplay/Stage/Unit/StageTowerUnit.h"
+#include "Gameplay/Stage/AI/StageAIController.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(StageBuildZone)
 
@@ -42,20 +45,17 @@ AStageBuildZone::AStageBuildZone()
 FStageTowerReceipt AStageBuildZone::GetTowerReceipt() const
 {
 	FStageTowerReceipt Receipt;
-	if (!IsValid(SpawnedTower))
+	if (!SpawnedTower.IsValid())
 	{
 		if (!BuildZoneData)
 		{
-			UE_LOG(LogGameplay, Warning, TEXT("Actor(%s)의 BuildZoneData를 찾을 수 없습니다."), *GetFName().ToString());
-			//Receipt.Error = FGErrorInfo::CreateError(TEXT("BuildZoneData를 찾을 수 없습니다."));
-			Receipt.Error.ErrType = EGErrType::Error;
 			return Receipt;
 		}
 
 		for (auto& Content : BuildZoneData->BuildContents)
 		{
-			FBuildStageTower Tower;
-			if (!UStageTableHelper::GetBuildStageTower(Content.TowerType, Content.Kind, Content.Level, Tower))
+			FStageTowerInfo Tower;
+			if (auto Err = UStageTableHelper::GetBuildStageTower(Content.TowerType, Content.Kind, Content.Level, Tower); !GameCore::IsOK(Err))
 			{
 				continue;
 			}
@@ -64,7 +64,7 @@ FStageTowerReceipt AStageBuildZone::GetTowerReceipt() const
 	}
 	else
 	{
-		Receipt.bSellable = true;
+		/*Receipt.bSellable = true;
 		Receipt.SellPrice = SpawnedTower->GetSellPrice();
 
 		int32 MaxLevel = UStageTableHelper::GetStageTowerMaxLevel(SpawnedTower->GetTowerType(), SpawnedTower->GetKind());
@@ -77,103 +77,68 @@ FStageTowerReceipt AStageBuildZone::GetTowerReceipt() const
 			FBuildStageTower NextTower;
 			UStageTableHelper::GetNextStageTower(SpawnedTower->GetTowerType(), SpawnedTower->GetKind(), SpawnedTower->GetLevel(), NextTower);
 			Receipt.BuildTowers.Emplace(NextTower);
-		}
+		}*/
 	}
 
 	return Receipt;
 }
 
-void AStageBuildZone::RequestBuildTower(const FBuildStageTower& BuildStageTower)
+void AStageBuildZone::RequestBuildTower(const FStageTowerInfo& BuildTowerInfo)
 {
-	//auto TeamSubsystem = UWorld::GetSubsystem<UGameplayTeamSubsystem>(GetWorld());
-	//check(TeamSubsystem);
+	auto TeamSubsystem = UWorld::GetSubsystem<UGameplayTeamSubsystem>(GetWorld());
+	if (!TeamSubsystem)
+	{
+		GameCore::Throw(GameErr::SUBSYSTEM_INVALID, TEXT("UGameplayTeamSubsystem"));
+		return;
+	}
 
-	//auto Player = TeamSubsystem->GetPlayer(GetGenericTeamId());
-	//if (!Player)
-	//{
-	//	return;
-	//}
+	auto Player = TeamSubsystem->GetPlayer(GetTeamID());
+	if (!Player)
+	{
+		GameCore::Throw(GameErr::OBJECT_INVALID, TEXT("Player"));
+		return;
+	}
 
-	//TSubclassOf<AUnitStageTower> TowerClass;
-	//int64 NeedUsePoint = TNumericLimits<int64>::Max();
+	auto StagePlayerCom = Player->GetComponentByClass<UStagePlayerComponent>();
+	if (!IsValid(StagePlayerCom))
+	{
+		GameCore::Throw(GameErr::COMPONENT_INVALID, TEXT("UStagePlayerComponent"));
+		return;
+	}
 
-	//switch (BuildStageTower.TowerType)
-	//{
-	//case EStageTowerType::Normal:
-	//{
-	//	auto Row = UTableHelper::GetData<FNormalTowerTableRow>(BuildStageTower.Index);
-	//	if (!Row)
-	//	{
-	//		return;
-	//	}
+	StagePlayerCom->AddUsePoint(-BuildTowerInfo.UsePoint);
 
-	//	//TowerClass = Row->UnitPath.LoadSynchronous();
-	//	NeedUsePoint = Row->UsePoint;
-	//}
-	//break;
+	// TODO: 이미 지어져있다면 어떻게 처리해야 할까?
+	if (SpawnedTower.IsValid())
+	{
+		SpawnedTower->Remove();
+	}
 
-	//default:
-	//	return;
-	//}
+	AStageTowerUnit* SpawnedUnit = nullptr;
+	if (auto Err = UStageSpawnHelper::SpawnTower(GetTeamID(), SourceStage.Get(), GetBuildLocation(), GetActorRotation(), BuildTowerInfo, nullptr, SpawnedUnit); !GameCore::IsOK(Err))
+	{
+		return;
+	}
 
-	//if (!TowerClass)
-	//{
-	//	return;
-	//}
-
-	//if (!GameCore::IsOK(Player->ConsumeUsePoint(NeedUsePoint)))
-	//{
-	//	return;
-	//}
-
-	//auto SpawnedLocation = GetBuildLocation();
-	//auto SpawnedRotation = GetActorRotation();
-
-	//AUnitStageTower* SpawnUnit = GetWorld()->SpawnActorDeferred<AUnitStageTower>(TowerClass, FTransform(SpawnedRotation, SpawnedLocation), nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
-	//SpawnUnit->AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
-
-	////
-	//SpawnUnit->SetBuildReceipt(BuildStageTower);
-	////
-
-	//float HalfHeight = SpawnUnit->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
-	//SpawnedLocation += FVector(0.0f, 0.0f, HalfHeight);
-	//SpawnUnit->FinishSpawning(FTransform(SpawnedRotation, SpawnedLocation), false, nullptr, ESpawnActorScaleMethod::MultiplyWithRoot);
-
-	//if (IsValid(SpawnedTower))
-	//{
-	//	SpawnedTower->Destroy();
-	//}
-
-	//SpawnedTower = SpawnUnit;
+	SpawnedTower = SpawnedUnit;
+	if (auto AIController = SpawnedUnit->GetController<AStageAIController>())
+	{
+		AIController->SetGenericTeamId(GetTeamID());
+		AIController->SourceStage = SourceStage;
+		AIController->AIBehaviorTree = BuildTowerInfo.AI;
+		AIController->StartAI();
+	}
 }
 
 void AStageBuildZone::RequestDemolishTower()
 {
-	//if (!IsValid(SpawnedTower))
-	//{
-	//	return;
-	//}
+	if (!SpawnedTower.IsValid())
+	{
+		return;
+	}
 
-	//auto TeamSubsystem = UWorld::GetSubsystem<UGameplayTeamSubsystem>(GetWorld());
-	//check(TeamSubsystem);
+	// TODO: 배치 포인트를 받자
 
-	//auto Player = TeamSubsystem->GetPlayer(GetGenericTeamId());
-	//if (!Player)
-	//{
-	//	return;
-	//}
-	//auto Receipt = GetTowerReceipt();
-	//if (!Receipt.bSellable)
-	//{
-	//	return;
-	//}
-
-	///*if (!GameCore::IsOK(Player->AddUsePoint(Receipt.SellPrice)))
-	//{
-	//	return;
-	//}*/
-
-	//SpawnedTower->Destroy();
-	//SpawnedTower = nullptr;
+	SpawnedTower->Kill();
+	SpawnedTower = nullptr;
 }

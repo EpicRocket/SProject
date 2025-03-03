@@ -1,0 +1,23 @@
+{
+    "FileVersion": 3,
+    "Version": 1,
+    "VersionName": "1.0",
+    "FriendlyName": "OpenXLSX",
+    "Description": "XLSX Open Thirth Party for Windows",
+    "Category": "OpenXLSX",
+    "CreatedBy": "",
+    "CreatedByURL": "",
+    "DocsURL": "",
+    "MarketplaceURL": "",
+    "SupportURL": "",
+    "CanContainContent": false,
+    "IsBetaVersion": false,
+    "Installed": false,
+    "Modules": [
+        {
+            "Name": "OpenXLSX",
+            "Type": "Editor",
+            "LoadingPhase": "Default"
+        }
+    ]
+}

@@ -1,22 +1,59 @@
 ﻿
 #include "MyGameInstance.h"
 // include Engine
-//#include "Engine/Engine.h"
+#include "Engine/Engine.h"
+#include "Engine/World.h"
 // include Project
-#include "SProject.h"
-#include "Table/TableSubsystem.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(MyGameInstance)
 
-
-void UMyGameInstance::Init()
+void UMyGameInstance::LoadStartupTable()
 {
-	Super::Init();
+	K2_OnLoadStartupTable();
+    OnLoadStartupTable();
+}
 
-	bool bTableLoadSuccess = true;
-	if (auto Subsystem = UTableSubsystem::Get(); !Subsystem->LoadTable())
+void UMyGameInstance::OnLoadStartupTable()
+{
+}
+
+void UMyGameInstance::LoadTable()
+{
+    K2_OnTableLoad();
+    OnTableLoad();
+}
+
+void UMyGameInstance::OnTableLoad()
+{
+}
+
+
+/* static */void UMyGameInstanceHelper::LoadStartupTable(UObject* WorldContextObject)
+{
+	auto World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull);
+	if (!World)
 	{
-		bTableLoadSuccess = false;
-		UE_LOG(LogProject, Error, TEXT("테이블 로드에 실패하였습니다."));
+		return;
+	}
+
+	auto GameInstance = Cast<UMyGameInstance>(World->GetGameInstance());
+	if (GameInstance)
+	{
+		GameInstance->LoadStartupTable();
+	}
+}
+
+/* static */void UMyGameInstanceHelper::LoadTable(UObject* WorldContextObject)
+{
+	auto World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull);
+	if (!World)
+	{
+		return;
+	}
+
+	auto GameInstance = Cast<UMyGameInstance>(World->GetGameInstance());
+	if (GameInstance)
+	{
+		GameInstance->LoadTable();
 	}
 }

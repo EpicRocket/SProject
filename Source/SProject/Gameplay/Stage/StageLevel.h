@@ -58,6 +58,4 @@ public:
     UPROPERTY(Transient, BlueprintReadOnly)
 	TWeakObjectPtr<AStagePlayerPawn> PlayerPawn;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-    int32 Level = INDEX_NONE;
 };

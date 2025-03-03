@@ -1,8 +1,8 @@
 ﻿
 #pragma once
 
-#include "CoreMinimal.h"
-#include "Error/GErrorTypes.h"
+#include "GMessageTypes.h"
+#include "Subsystem/GMessageSubsystem.h"
 
 #include "GMessage.generated.h"
 
@@ -11,9 +11,4 @@ struct FGMessage
 {
     GENERATED_BODY()
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TObjectPtr<UObject> Instigator;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    FGErrorInfo ErrorInfo;
 };

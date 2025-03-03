@@ -5,23 +5,23 @@
 
 #include "StageTowerUnit.generated.h"
 
-struct FBuildStageTower;
+struct FStageTowerInfo;
 
-UCLASS(Abstract)
+UCLASS(Abstract, Config = Game, BlueprintType, Blueprintable, ClassGroup = "Stage")
 class MY_API AStageTowerUnit : public AStageUnitCharacter
 {
     GENERATED_BODY()
-
-public:
-    void SetInfo(FBuildStageTower NewInfo);
-    
-    UFUNCTION(BlueprintPure)
-	FBuildStageTower GetInfo() const;
-	TSharedRef<FBuildStageTower> GetInfoRef() const;
 
 protected:
     virtual void InitailizeBaseStats() override;
 
 public:
-    TSharedPtr<FBuildStageTower> Info;
+    void SetInfo(FStageTowerInfo NewInfo);
+    
+    UFUNCTION(BlueprintPure)
+	FStageTowerInfo GetInfo() const;
+	TSharedRef<FStageTowerInfo> GetInfoRef() const;
+
+public:
+    TSharedPtr<FStageTowerInfo> Info;
 };

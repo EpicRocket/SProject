@@ -16,14 +16,14 @@ struct MY_API FFetchDocument
 	// UserDocument
 	TOptional<FUserInfo> UserInfo;
 
-	TOptional<int64> Gold = 0;
+	TOptional<int64> Gold;
 
-	TOptional<int32> Cash = 0;
+	TOptional<int32> Cash;
 
 	TOptional<TArray<FItem>> Items;
 
-	TOptional<FStage> Stage;
+	TOptional<int32> LastStageLevel;
 
-	TOptional<TArray<FStageDetail>> StageDetails;
+	TOptional<TArray<FStage>> Stages;
 	// ~UserDocument
 };

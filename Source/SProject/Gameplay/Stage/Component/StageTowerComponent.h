@@ -6,7 +6,7 @@
 
 #include "StageTowerComponent.generated.h"
 
-UCLASS(Abstract, BlueprintType)
+UCLASS(Abstract, Blueprintable, BlueprintType, ClassGroup = "Stage")
 class MY_API UStageTowerComponent : public UActorComponent
 {
     GENERATED_BODY()

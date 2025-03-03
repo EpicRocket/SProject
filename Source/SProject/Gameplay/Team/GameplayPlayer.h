@@ -1,36 +1,39 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
+#include "GameFramework/Info.h"
+#include "Team/Interface/IGTeamAgent.h"
 
 #include "GameplayPlayer.generated.h"
 
 struct FGErrorInfo;
+struct FGTeam;
+class UGameplayTeamSubsystem;
+class UGameplayPlayerComponent;
 
 UCLASS(Abstract, BlueprintType)
-class MY_API UGameplayPlayer : public UObject
+class MY_API AGameplayPlayer : public AInfo, public IGTeamAgent
 {
 	GENERATED_BODY()
 
-public:
-	UFUNCTION(BlueprintPure)
-	virtual int64 GetItemCount(int32 Key) const;
-
-	UFUNCTION(BlueprintCallable)
-	virtual FGErrorInfo ConsumeItem(int32 Key, int32 Count);
-
-	UFUNCTION(BlueprintPure)
-	int64 GetUsePoint() const;
-
-	UFUNCTION(BlueprintPure)
-	FGErrorInfo ConsumeUsePoint(int32 Count);
-
-	UFUNCTION(BlueprintPure)
-	int64 GetGold() const;
-
-	UFUNCTION(BlueprintPure)
-	FGErrorInfo ConsumedGold(int32 Count);
+	friend class UGameplayTeamSubsystem;
 
 public:
+	AGameplayPlayer();
+
+	// IGTeamAgent
+	virtual void SetGenericTeamId(const FGenericTeamId& InTeamID) override;
+	virtual FGenericTeamId GetGenericTeamId() const override;
+	// ~IGTeamAgent
+
+public:
+	TSharedRef<FGTeam> GetInfo() const;
+
+public:
+	UPROPERTY(EditInstanceOnly, Category = "Team")
+	uint8 TeamID = 255;
+
+private:
+	TWeakPtr<FGTeam> InfoPtr;
 
 };
