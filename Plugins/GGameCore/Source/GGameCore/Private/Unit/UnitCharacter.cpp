@@ -57,4 +57,5 @@ void AUnitCharacter::Remove()
 
 void AUnitCharacter::Kill()
 {
+	Destroy();
 }
