@@ -84,10 +84,10 @@ public:
 	TObjectPtr<UStageBuildZoneData> BuildZoneData;
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
-	TObjectPtr<AStageLevel> TargetLevel;
+	TWeakObjectPtr<AStageLevel> SourceStage;
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
-	TObjectPtr<AStageTowerUnit> SpawnedTower;
+	TWeakObjectPtr<AStageTowerUnit> SpawnedTower;
 
 private:
 	UPROPERTY(Category = "스테이지", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))

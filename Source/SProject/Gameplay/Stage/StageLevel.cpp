@@ -59,6 +59,7 @@ void AStageLevel::AddBuildZone(AStageBuildZone* BuildZone)
 		UE_LOG(LogStage, Warning, TEXT("이미 BuildZone이 존재합니다. 기존 BuildZone이 덮어집니다. Position(%d)"), Position);
 	}
 
+	BuildZonePtr->SourceStage = this;
 	BuildZones.Emplace(Position, BuildZonePtr);
 }
 

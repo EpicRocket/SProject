@@ -12,7 +12,7 @@ namespace Stage
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Tag_Gameplay_Stage_Player_Restart);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Tag_Gameplay_Stage_Player_Continue);
 
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Tag_Gameplay_Stage_Player_Health_Changed);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Tag_Gameplay_Stage_Player_Hp_Changed);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Tag_Gameplay_Stage_Player_UsePoint_Changed);
 
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Tag_Gameplay_Stage_Player_StartPoint);
@@ -40,7 +40,7 @@ struct FStagePlayerContinueMessage
 };
 
 USTRUCT(BlueprintType)
-struct FStagePlayerHealthMessage
+struct FStagePlayerHpMessage
 {
 	GENERATED_BODY()
 

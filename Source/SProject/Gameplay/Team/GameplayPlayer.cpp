@@ -1,39 +1,36 @@
 
 #include "GameplayPlayer.h"
+// include Engine
+#include "Engine/World.h"
 // include GameCore
 #include "Error/GErrorTypes.h"
+#include "Team/GTeamTypes.h"
 // include Project
-#include "Table/ConstTable.h"
+#include "Gameplay/Team/GameplayTeamSubsystem.h"
+#include "Gameplay/Component/GameplayPlayerComponent.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(GameplayPlayer)
 
-int64 UGameplayPlayer::GetItemCount(int32 Key) const
+AGameplayPlayer::AGameplayPlayer()
 {
-    return 0;
+	PrimaryActorTick.bCanEverTick = false;
 }
 
-FGErrorInfo UGameplayPlayer::ConsumeItem(int32 Key, int32 Count)
+void AGameplayPlayer::SetGenericTeamId(const FGenericTeamId& InTeamID)
 {
-    // FIXME: 구현되어 있지 않는 상태에서는 Erorr를 반환해줘야함...
-	return FGErrorInfo();
+	TeamID = InTeamID.GetId();
 }
 
-int64 UGameplayPlayer::GetUsePoint() const
+FGenericTeamId AGameplayPlayer::GetGenericTeamId() const
 {
-    return GetItemCount(GetDefault<UConstSettings>()->UsePointKey);
+	return FGenericTeamId(TeamID);
 }
 
-FGErrorInfo UGameplayPlayer::ConsumeUsePoint(int32 Count)
+TSharedRef<FGTeam> AGameplayPlayer::GetInfo() const
 {
-	return ConsumeItem(GetDefault<UConstSettings>()->UsePointKey, Count);
-}
-
-int64 UGameplayPlayer::GetGold() const
-{
-    return GetItemCount(GetDefault<UConstSettings>()->GoldKey);
-}
-
-FGErrorInfo UGameplayPlayer::ConsumedGold(int32 Count)
-{
-	return ConsumeItem(GetDefault<UConstSettings>()->GoldKey, Count);
+	if (!InfoPtr.IsValid())
+	{
+		return TSharedRef<FGTeam>();
+	}
+	return InfoPtr.Pin().ToSharedRef();
 }

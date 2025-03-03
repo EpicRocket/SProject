@@ -1,48 +1,35 @@
 ﻿
 #include "StageStorageComponent.h"
-// include Engine
-#include "Engine/World.h"
-#include "Engine/LevelStreamingDynamic.h"
-#include "Engine/LatentActionManager.h"
-#include "Kismet/KismetSystemLibrary.h"
 // include GameCore
 #include "Core/Action/GGameComponentLoadAction.h"
 // include Project
 #include "Types/StageTypes.h"
 #include "Gameplay/Stage/StageTableRepository.h"
+#include "Gameplay/Team/GameplayUserPlayer.h"
 #include "User/StageSubsystem.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(StageStorageComponent)
 
-FGErrorInfo UStageStorageComponent::WaitForInitialize(FLatentActionInfo LatentInfo)
+void UStageStorageComponent::OnInitialize()
 {
-	auto World = GetWorld();
-	if (!World)
+	auto User = GetGameplayPlayer<AGameplayUserPlayer>();
+	if (!User)
 	{
-		UKismetSystemLibrary::DelayUntilNextTick(World, LatentInfo);
-		return GameCore::Throw(GameErr::WORLD_INVALID);
+		GameCore::Throw(GameErr::ACTOR_INVALID, TEXT("AGameplayUserPlayer"));
+		return;
 	}
 
-	FGErrorInfo ErrorInfo;
+	auto StageSubsystem = UStageSubsystem::Get(User->GetOwningLocalPlayer());
+	if (!StageSubsystem)
+	{
+		GameCore::Throw(GameErr::SUBSYSTEM_INVALID, TEXT("StageSubsystem"));
+		return;
 
-	auto OnComplete = [this, &ErrorInfo]()
-		{
-			auto StageSubsystem = UStageSubsystem::Get(GetOwningLocalPlayer());
-			if (!StageSubsystem)
-			{
-				ErrorInfo = GameCore::Throw(GameErr::SUBSYSTEM_INVALID, TEXT("StageSubsystem"));
-				return;
-			}
+	}
 
-			auto LastStage = StageSubsystem->GetLastStage();
-			LastStageLevel = LastStage->Level;
-			Stages.Emplace(LastStage->Level, LastStage);
-		};
-
-	auto NewAction = new FGGameComponentLoadAction(LatentInfo, GetWorld(), this, OnComplete, [&ErrorInfo](FGErrorInfo Err) {ErrorInfo = Err; });
-	World->GetLatentActionManager().AddNewAction(LatentInfo.CallbackTarget, LatentInfo.UUID, NewAction);
-
-	return ErrorInfo;
+	auto LastStage = StageSubsystem->GetLastStage();
+	LastStageLevel = LastStage->Level;
+	Stages.Emplace(LastStage->Level, LastStage);
 }
 
 FStage UStageStorageComponent::GetLastStage() const

@@ -1,6 +1,6 @@
 {
 	"FileVersion": 3,
-	"EngineAssociation": "{D941F19B-45BD-A061-966C-D6AEEE9DA8B2}",
+	"EngineAssociation": "",
 	"Category": "",
 	"Description": "",
 	"Modules": [
@@ -53,10 +53,6 @@
 			"Enabled": true
 		},
 		{
-			"Name": "GameplayBehaviorSmartObjects",
-			"Enabled": true
-		},
-		{
 			"Name": "GameplayInteractions",
 			"Enabled": true
 		},
@@ -98,6 +94,10 @@
 		},
 		{
 			"Name": "ModularGameplay",
+			"Enabled": true
+		},
+		{
+			"Name": "GGameCore",
 			"Enabled": true
 		}
 	]

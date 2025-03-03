@@ -65,3 +65,8 @@
 
 	return GameCore::Throw(GameErr::VALUE_INVALID);
 }
+
+/* static */bool UGameplayHelper::IsFarFrom(const FVector& A, const FVector& B, float SourceRadius)
+{
+	return FVector::Dist(A, B) > SourceRadius;
+}

@@ -23,17 +23,11 @@ class MY_API UStageSpawnComponent : public UGGameStateComponent
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintCallable, meta = (Latent, LatentInfo = "LatentInfo"))
-	FGErrorInfo WaitForInitialize(FLatentActionInfo LatentInfo);
-
 	UFUNCTION(BlueprintCallable)
 	FGErrorInfo SpawnTower(uint8 TeamID, AStageLevel* StageLevel, FVector Location, FRotator Rotation, FStageTowerInfo Info, TSubclassOf<AAIController> AIController, AStageTowerUnit*& SpawnedUnit);
 	
 	UFUNCTION(BlueprintCallable)
 	FGErrorInfo SpawnMonster(uint8 TeamID, AStageLevel* StageLevel, FVector Location, FRotator Rotation, FStageMonsterInfo Info, TSubclassOf<AAIController> AIController, AStageMonsterUnit*& SpawnedUnit);
-
-	/*UFUNCTION(BlueprintCallable)
-	AStageMonsterUnit* SpawnMonster(FVector Location, FRotator Rotation);*/
 	
 };
 

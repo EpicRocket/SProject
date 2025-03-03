@@ -19,18 +19,17 @@ void UPlayerSelectComponent::Select(TScriptInterface<ISelectableActor> Actor)
 		return;
 	}
 
-	if (SelectedActors.Contains(Actor))
-	{
-		return;
-	}
-
 	if (!Actor->Execute_IsSelectableActor(ActorObject))
 	{
 		return;
 	}
 
+	if (!SelectedActors.Contains(Actor))
+	{
+		SelectedActors.Emplace(Actor);
+	}
+
 	Actor->Execute_SelectActor(ActorObject, GetOwningPlayer());
-	SelectedActors.Emplace(Actor);
 }
 
 void UPlayerSelectComponent::Deselect(TScriptInterface<ISelectableActor> Actor)
@@ -62,6 +61,23 @@ void UPlayerSelectComponent::ClearSelection()
 		Actor->Execute_DeselectActor(ActorObject, GetOwningPlayer());
 	}
 	SelectedActors.Empty();
+}
+
+void UPlayerSelectComponent::Exclude(const TArray<TScriptInterface<ISelectableActor>>& Actors)
+{
+	for (auto& Actor : SelectedActors)
+	{
+		if (!Actors.Contains(Actor))
+		{
+			auto ActorObject = Actor.GetObject();
+			if (!ActorObject)
+			{
+				continue;
+			}
+			Actor->Execute_DeselectActor(ActorObject, GetOwningPlayer());
+		}
+	}
+	SelectedActors = Actors;
 }
 
 bool UPlayerSelectComponent::IsSelected(TScriptInterface<ISelectableActor> Actor) const
@@ -163,6 +179,43 @@ void UPlayerSelectFunctionLibrary::ClearSelection(APlayerController* PC)
 	}
 
 	PlayerSelectComponent->ClearSelection();
+}
+
+void UPlayerSelectFunctionLibrary::ClearSelectionExceptOther(APlayerController* PC, const TSet<AActor*>& Other)
+{
+	if (!IsValid(PC))
+	{
+		return;
+	}
+
+	auto PlayerSelectComponent = PC->GetComponentByClass<UPlayerSelectComponent>();
+	if (!IsValid(PlayerSelectComponent))
+	{
+		return;
+	}
+
+	TArray<TScriptInterface<ISelectableActor>> OtherSelectableActors;
+	for (auto& Target : Other)
+	{
+		TScriptInterface<ISelectableActor> SelectableActorInterface;
+		if (Target->Implements<USelectableActor>())
+		{
+			SelectableActorInterface.SetObject(Target);
+			OtherSelectableActors.Emplace(SelectableActorInterface);
+		}
+		else
+		{
+			ISelectableActor* SelectableActor = Cast<ISelectableActor>(Target);
+			if (SelectableActor)
+			{
+				SelectableActorInterface.SetObject(Target);
+				SelectableActorInterface.SetInterface(SelectableActor);
+				OtherSelectableActors.Emplace(SelectableActorInterface);
+			}
+		}
+	}
+
+	PlayerSelectComponent->Exclude(OtherSelectableActors);
 }
 
 bool UPlayerSelectFunctionLibrary::IsSelected(APlayerController* PC, AActor* Target)

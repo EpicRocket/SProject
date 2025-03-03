@@ -19,9 +19,12 @@ public:
 	class USplineComponent* GetSpline() const;
 
 	UFUNCTION(BlueprintPure)
-	FVector GetClosestPoint(const FVector& SourceLocation) const;
+	FVector GetLocationAtInputKey(float InputKey) const;
 
 	UFUNCTION(BlueprintPure)
-	bool IsAtEnd(const FVector& SourceLocation) const;
+	float GetClosestInputKey(const FVector& Location) const;
+
+	UFUNCTION(BlueprintPure)
+	bool IsAtEnd(const FVector& Location, float Radius);
 
 };

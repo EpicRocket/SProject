@@ -6,7 +6,7 @@
 #include "GameplayComputerPlayer.generated.h"
 
 UCLASS(BlueprintType)
-class MY_API UGameplayComputerPlayer : public UGameplayPlayer
+class MY_API AGameplayComputerPlayer : public AGameplayPlayer
 {
 	GENERATED_BODY()
 

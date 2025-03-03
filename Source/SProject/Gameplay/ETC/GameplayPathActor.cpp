@@ -6,26 +6,33 @@
 
 const FName AGameplayPathActor::PathTagName = TEXT("Path");
 
-FVector AGameplayPathActor::GetClosestPoint(const FVector& SourceLocation) const
+FVector AGameplayPathActor::GetLocationAtInputKey(float InputKey) const
 {
 	auto Spline = GetSpline();
 	if (Spline == nullptr)
 	{
 		return GetActorLocation();
 	}
-	float InputKey = Spline->FindInputKeyClosestToWorldLocation(SourceLocation);
 	return Spline->GetLocationAtSplineInputKey(InputKey, ESplineCoordinateSpace::World);
 }
 
-bool AGameplayPathActor::IsAtEnd(const FVector& SourceLocation) const
+float AGameplayPathActor::GetClosestInputKey(const FVector& Location) const
 {
 	auto Spline = GetSpline();
 	if (Spline == nullptr)
 	{
-		return false;
+		return 0.0F;
 	}
+	return Spline->FindInputKeyClosestToWorldLocation(Location);
+}
 
-	// TODO: 구현 필요
-
-	return false;
+bool AGameplayPathActor::IsAtEnd(const FVector& Location, float Radius)
+{
+	auto Spline = GetSpline();
+	if (Spline == nullptr)
+	{
+		return 0.0F;
+	}
+	auto LastPoint = Spline->GetLocationAtTime(Spline->Duration, ESplineCoordinateSpace::World);
+	return FVector::Dist(Location, LastPoint) < Radius;
 }

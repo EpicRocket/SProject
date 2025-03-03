@@ -9,6 +9,7 @@
 enum class EAttackType : uint8;
 class UTexture2D;
 class AStageTowerUnit;
+class UBehaviorTree;
 
 UENUM(BlueprintType)
 enum class EStageTowerType : uint8
@@ -48,6 +49,10 @@ public:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     TObjectPtr<UTexture2D> Icon;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    TObjectPtr<UBehaviorTree> AI;
+
 };
 
 USTRUCT(BlueprintType)

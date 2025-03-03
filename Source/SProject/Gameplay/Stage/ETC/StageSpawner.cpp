@@ -36,6 +36,7 @@ FGErrorInfo AStageSpawner::SpawnMonster(const FStageMonsterSpawnParams& Params, 
 
 	if (auto AIController = SpawnedUnit->GetController<AStageAIController>())
 	{
+		AIController->SetGenericTeamId(GetTeamID());
 		AIController->SourceStage = Params.StageLevel;
 		AIController->AIBehaviorTree = Info.AI;
 		if (Params.PathPosition != INDEX_NONE)

@@ -11,7 +11,9 @@
 #include "Core/Action/GGameLoadAction.h"
 // include Project
 #include "Types/StageTypes.h"
+#include "Core/MyPlayerController.h"
 #include "Gameplay/GameWorldSubsystem.h"
+#include "Gameplay/Team/GameplayTeamSubsystem.h"
 #include "Gameplay/Stage/StageLevel.h"
 #include "Gameplay/Stage/StageTableRepository.h"
 
@@ -59,9 +61,23 @@ FGErrorInfo UStageStateComponent::WaitForPrimaryPlayerController(FLatentActionIn
 	}
 	
 	FGErrorInfo ErrorInfo;
-	auto OnSuccess = [this](APlayerController* PrimaryPlayerController)
+	auto OnSuccess = [this, World, &ErrorInfo](APlayerController* PrimaryPlayerController)
 		{
 			PrimaryPC = PrimaryPlayerController;
+			if (auto Subsystem = World->GetSubsystem<UGameplayTeamSubsystem>())
+			{
+				if (auto MyPC = Cast<AMyPlayerController>(PrimaryPlayerController))
+				{
+					auto TeamID = Subsystem->IssusePlayerTeamID(PrimaryPlayerController);
+					if (TeamID == 255)
+					{
+						ErrorInfo = GameCore::Throw(GameErr::VALUE_INVALID, TEXT("발급 할 수 있는 팀이 존재하지 않음."));
+						return;
+					}
+
+					MyPC->SetGenericTeamId(TeamID);
+				}
+			}
 		};
 	auto NewAction = new FGGameLoadAction(LatentInfo, GetWorld(), OnSuccess, [&ErrorInfo](FGErrorInfo Err) {ErrorInfo = Err; });
 	World->GetLatentActionManager().AddNewAction(LatentInfo.CallbackTarget, LatentInfo.UUID, NewAction);

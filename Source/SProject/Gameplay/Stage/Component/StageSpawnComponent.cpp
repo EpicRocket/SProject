@@ -110,22 +110,6 @@ namespace Stage
 // UStageSpawnComponent
 //////////////////////////////////////////////////////////////////////////
 
-FGErrorInfo UStageSpawnComponent::WaitForInitialize(FLatentActionInfo LatentInfo)
-{
-	auto World = GetWorld();
-	if (!World)
-	{
-		UKismetSystemLibrary::DelayUntilNextTick(World, LatentInfo);
-		return GameCore::Throw(GameErr::WORLD_INVALID);
-	}
-
-	FGErrorInfo ErrorInfo;
-	auto NewAction = new FGGameComponentLoadAction(LatentInfo, GetWorld(), this, []() {}, [&ErrorInfo](FGErrorInfo Err) {ErrorInfo = Err; });
-	World->GetLatentActionManager().AddNewAction(LatentInfo.CallbackTarget, LatentInfo.UUID, NewAction);
-
-	return ErrorInfo;
-}
-
 FGErrorInfo UStageSpawnComponent::SpawnTower(uint8 TeamID, AStageLevel* StageLevel, FVector Location, FRotator Rotation, FStageTowerInfo Info, TSubclassOf<AAIController> AIController, AStageTowerUnit*& SpawnedUnit)
 {
 	auto SpawningCallback = [&](AStageTowerUnit* Unit)

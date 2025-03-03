@@ -95,6 +95,7 @@ void UStageTableRepository::Load()
 			Ptr->AttackType = Row->AttackType;
 			Ptr->UnitClass = Row->Unit.LoadSynchronous();
 			Ptr->Icon = Row->Icon.LoadSynchronous();
+			Ptr->AI = Row->AI.LoadSynchronous();
 			TowerInfos.Emplace(Row->Level, Ptr);
 		}
 	}

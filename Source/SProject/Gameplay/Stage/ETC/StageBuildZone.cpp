@@ -16,10 +16,13 @@
 #include "Gameplay/Team/GameplayTeamSubsystem.h"
 #include "Gameplay/Team/GameplayPlayer.h"
 #include "Gameplay/Stage/StageTableRepository.h"
+#include "Gameplay/Stage/StageLevel.h"
 #include "Gameplay/Stage/Types/StageTowerTypes.h"
 #include "Gameplay/Stage/Interface/IStageTower.h"
 #include "Gameplay/Stage/Component/StageSpawnComponent.h"
+#include "Gameplay/Stage/Component/StagePlayerComponent.h"
 #include "Gameplay/Stage/Unit/StageTowerUnit.h"
+#include "Gameplay/Stage/AI/StageAIController.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(StageBuildZone)
 
@@ -42,13 +45,10 @@ AStageBuildZone::AStageBuildZone()
 FStageTowerReceipt AStageBuildZone::GetTowerReceipt() const
 {
 	FStageTowerReceipt Receipt;
-	if (!IsValid(SpawnedTower))
+	if (!SpawnedTower.IsValid())
 	{
 		if (!BuildZoneData)
 		{
-			//UE_LOG(LogGameplay, Warning, TEXT("Actor(%s)의 BuildZoneData를 찾을 수 없습니다."), *GetFName().ToString());
-			//Receipt.Error = FGErrorInfo::CreateError(TEXT("BuildZoneData를 찾을 수 없습니다."));
-			//Receipt.Error.ErrType = EGErrType::Error;
 			return Receipt;
 		}
 
@@ -83,38 +83,56 @@ FStageTowerReceipt AStageBuildZone::GetTowerReceipt() const
 	return Receipt;
 }
 
-void AStageBuildZone::RequestBuildTower(const FStageTowerInfo& BuildStageTower)
+void AStageBuildZone::RequestBuildTower(const FStageTowerInfo& BuildTowerInfo)
 {
 	auto TeamSubsystem = UWorld::GetSubsystem<UGameplayTeamSubsystem>(GetWorld());
-	check(TeamSubsystem);
+	if (!TeamSubsystem)
+	{
+		GameCore::Throw(GameErr::SUBSYSTEM_INVALID, TEXT("UGameplayTeamSubsystem"));
+		return;
+	}
 
-	auto Player = TeamSubsystem->GetPlayer(GetGenericTeamId());
+	auto Player = TeamSubsystem->GetPlayer(GetTeamID());
 	if (!Player)
 	{
+		GameCore::Throw(GameErr::OBJECT_INVALID, TEXT("Player"));
 		return;
 	}
 
-	int64 NeedUsePoint = 0;
-	if (auto Err = UStageTableHelper::GetStageTowerSellPrice(BuildStageTower.TowerType, BuildStageTower.Kind, BuildStageTower.Level, NeedUsePoint); !GameCore::IsOK(Err))
+	auto StagePlayerCom = Player->GetComponentByClass<UStagePlayerComponent>();
+	if (!IsValid(StagePlayerCom))
+	{
+		GameCore::Throw(GameErr::COMPONENT_INVALID, TEXT("UStagePlayerComponent"));
+		return;
+	}
+
+	StagePlayerCom->AddUsePoint(-BuildTowerInfo.UsePoint);
+
+	// TODO: 이미 지어져있다면 어떻게 처리해야 할까?
+	if (SpawnedTower.IsValid())
+	{
+		SpawnedTower->Remove();
+	}
+
+	AStageTowerUnit* SpawnedUnit = nullptr;
+	if (auto Err = UStageSpawnHelper::SpawnTower(GetTeamID(), SourceStage.Get(), GetBuildLocation(), GetActorRotation(), BuildTowerInfo, nullptr, SpawnedUnit); !GameCore::IsOK(Err))
 	{
 		return;
 	}
 
-	auto SpawnedLocation = GetBuildLocation();
-	auto SpawnedRotation = GetActorRotation();
-
-	AStageTowerUnit* SpawendUnit = nullptr;
-	/*if (UStageSpawnHelper::SpawnTower(GetTeamID(), TargetLevel, SpawnedLocation, SpawnedRotation, BuildStageTower, nullptr, SpawendUnit))
+	SpawnedTower = SpawnedUnit;
+	if (auto AIController = SpawnedUnit->GetController<AStageAIController>())
 	{
-		return;
-	}*/
-
-	SpawnedTower = SpawendUnit;
+		AIController->SetGenericTeamId(GetTeamID());
+		AIController->SourceStage = SourceStage;
+		AIController->AIBehaviorTree = BuildTowerInfo.AI;
+		AIController->StartAI();
+	}
 }
 
 void AStageBuildZone::RequestDemolishTower()
 {
-	if (!IsValid(SpawnedTower))
+	if (!SpawnedTower.IsValid())
 	{
 		return;
 	}

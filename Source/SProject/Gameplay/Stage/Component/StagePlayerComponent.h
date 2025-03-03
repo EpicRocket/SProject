@@ -1,7 +1,7 @@
 ﻿
 #pragma once
 
-#include "Core/Component/GPlayerComponent.h"
+#include "Gameplay/Component/GameplayPlayerComponent.h"
 
 #include "StagePlayerComponent.generated.h"
 
@@ -9,13 +9,11 @@ class AActor;
 class UGameplayUserPlayer;
 
 UCLASS(Abstract, Blueprintable, BlueprintType, HideCategories = (Trigger, PhysicsVolume), ClassGroup = "Stage")
-class MY_API UStagePlayerComponent : public UGPlayerComponent
+class MY_API UStagePlayerComponent : public UGameplayPlayerComponent
 {
 	GENERATED_BODY()
 
 public:
-	virtual void InitializeComponent() override;
-
 	UFUNCTION(BlueprintCallable)
 	FGErrorInfo NewStart();
 
@@ -25,36 +23,23 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetHp(int32 NewHp);
 
+	UFUNCTION(BlueprintCallable)
+	void AddHp(int32 AddHp);
+
 	UFUNCTION(BlueprintPure)
 	int32 GetHp() const;
 
 	UFUNCTION(BlueprintCallable)
 	void SetUsePoint(int64 NewUsePoint);
 
+	UFUNCTION(BlueprintCallable)
+	void AddUsePoint(int64 AddUsePoint);
+
 	UFUNCTION(BlueprintPure)
 	int64 GetUsePoint() const;
 
 protected:
-	UFUNCTION(BlueprintImplementableEvent)
-	void OnInteractionActor(AActor* HitActor);
-
-	UFUNCTION(BlueprintCallable, Category = "입력|이벤트")
-	void InteractionMouseEvent();
-
-	UFUNCTION(BlueprintCallable, Category = "입력|이벤트")
-	void OnMousePressed();
-
-	UFUNCTION(BlueprintCallable, Category = "입력|이벤트")
-	void OnMouseMoved();
-
-	UFUNCTION(BlueprintCallable, Category = "입력|이벤트")
-	void OnMouseReleased();
-
 	FGErrorInfo SetDefaults();
-
-protected:
-	UPROPERTY(BlueprintReadOnly)
-	TWeakObjectPtr<UGameplayUserPlayer> UserPlayer;
 
 private:
 	bool bMousePressed = false;
