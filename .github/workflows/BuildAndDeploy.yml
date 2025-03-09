@@ -111,6 +111,7 @@ jobs:
           $ErrorActionPreference = "Stop"
 
           Set-Location -Path "$env:GITHUB_WORKSPACE"
+          git config --global --add safe.directory "$env:GITHUB_WORKSPACE"
 
           git config user.name "gr(bot)"
           git config user.email "greantearocket@gmail.com"
