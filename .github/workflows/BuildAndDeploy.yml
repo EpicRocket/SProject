@@ -48,7 +48,10 @@ jobs:
         $ErrorActionPreference = "Stop"
         Set-Location -Path "$env:GITHUB_WORKSPACE"
 
-        $ueRoot = "C:/UnrealEngine"
+        cd ..
+        cd ..
+
+        $ueRoot = Join-Path Get-Location() "UnrealEngine/UnrealEngine/LocalBuilds/Engine/Windows"
         $batchFilePath = Join-Path $ueRoot "Engine/Build/BatchFiles/Build.bat"
         if (-Not (Test-Path $batchFilePath)) {
             Write-Host "Build ERROR: The batch file does not appear to be located in the root UE directory. This script must be run from within that directory."
@@ -79,7 +82,10 @@ jobs:
         $ErrorActionPreference = "Stop"
         Set-Location -Path "$env:GITHUB_WORKSPACE"
         
-        $ueRoot = "C:/UnrealEngine"
+        cd ..
+        cd ..
+
+        $ueRoot = Join-Path Get-Location() "UnrealEngine/UnrealEngine/LocalBuilds/Engine/Windows"
         $batchFilePath = Join-Path $ueRoot "Engine/Binaries/DotNET/UnrealBuildTool/UnrealBuildTool.exe"
         if (-Not (Test-Path $batchFilePath)) {
             Write-Host "Build ERROR: The batch file does not appear to be located in the root UE directory. This script must be run from within that directory."
