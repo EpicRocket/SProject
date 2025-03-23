@@ -6,7 +6,7 @@
 // include Project
 #include "Table/ConstTable.h"
 #include "Gameplay/Stage/Unit/StageUnitCharacter.h"
-#include "Gameplay/Stage/Unit/Attribute/StageUnitAttributeSet.h"
+#include "Gameplay/Stage/Unit/StageUnitAttributeSet.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(StageDamageExecutionCalculation)
 

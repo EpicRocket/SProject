@@ -3,8 +3,9 @@
 // include GameCore
 #include "AbilitySystem/GAbilitySystemComponent.h"
 // include Project
+#include "Gameplay/GameplayUnitAnimState.h"
 #include "Gameplay/Stage/StageLogging.h"
-#include "Attribute/StageUnitAttributeSet.h"
+#include "StageUnitAttributeSet.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(StageUnitCharacter)
 
@@ -31,6 +32,27 @@ void AStageUnitCharacter::BeginPlay()
 			UE_LOGFMT(LogStage, Log, "체력이 변경되었습니다. 변경된 값: {Hp}", Data.NewValue);
 		}
 	);
+}
+
+UAnimMontage* AStageUnitCharacter::GetAnimMontage(UPARAM(meta = (Categories = "AnimState")) FGameplayTag AnimState) const
+{
+	if (!IsValid(AnimStateDataAsset))
+	{
+		return nullptr;
+	}
+
+	auto Iter = AnimStateDataAsset->AnimStates.Find(AnimState);
+	if (!Iter)
+	{
+		return nullptr;
+	}
+
+	if (Iter->AnimMontages.IsEmpty())
+	{
+		return nullptr;
+	}
+
+	return Iter->AnimMontages[FMath::RandRange(0, Iter->AnimMontages.Num() - 1)];
 }
 
 const UStageUnitAttributeSet* AStageUnitCharacter::GetUnitSet() const

@@ -16,7 +16,7 @@
 #include "Gameplay/Stage/Types/StageMonsterTypes.h"
 #include "Gameplay/Stage/Unit/StageTowerUnit.h"
 #include "Gameplay/Stage/Unit/StageMonsterUnit.h"
-#include "Gameplay/Stage/Unit/Attribute/StageUnitAttributeSet.h"
+#include "Gameplay/Stage/Unit/StageUnitAttributeSet.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(StageTableRepository)
 

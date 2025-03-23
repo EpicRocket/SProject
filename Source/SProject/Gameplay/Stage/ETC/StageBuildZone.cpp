@@ -115,12 +115,16 @@ void AStageBuildZone::RequestBuildTower(const FStageTowerInfo& BuildTowerInfo)
 	}
 
 	AStageTowerUnit* SpawnedUnit = nullptr;
-	if (auto Err = UStageSpawnHelper::SpawnTower(GetTeamID(), SourceStage.Get(), GetBuildLocation(), GetActorRotation(), BuildTowerInfo, nullptr, SpawnedUnit); !GameCore::IsOK(Err))
+	auto SpawnLocation = GetBuildLocation();
+	if (auto Err = UStageSpawnHelper::SpawnTower(GetTeamID(), SourceStage.Get(), SpawnLocation, GetActorRotation(), BuildTowerInfo, nullptr, SpawnedUnit); !GameCore::IsOK(Err))
 	{
 		return;
 	}
 
 	SpawnedTower = SpawnedUnit;
+	SpawnLocation.Z = SpawnLocation.Z + SpawnedTower->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+	SpawnedTower->SetActorLocation(FVector(SpawnLocation.X, SpawnLocation.Y, SpawnLocation.Z));
+
 	if (auto AIController = SpawnedUnit->GetController<AStageAIController>())
 	{
 		AIController->SetGenericTeamId(GetTeamID());

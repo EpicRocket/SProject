@@ -49,5 +49,5 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Gameplay")
 	TObjectPtr<class UGAbilitySystemComponent> AbilitySystemComponent;
-
+	
 };
