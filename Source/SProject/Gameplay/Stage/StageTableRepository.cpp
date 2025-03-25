@@ -12,8 +12,11 @@
 #include "Table/TowerTable.h"
 #include "Table/MonsterTable.h"
 #include "Table/StageTable.h"
+#include "Table/MonsterGroupTable.h"
 #include "Gameplay/Stage/Types/StageTowerTypes.h"
 #include "Gameplay/Stage/Types/StageMonsterTypes.h"
+#include "Gameplay/Stage/Types/StageWaveTypes.h"
+#include "Gameplay/Stage/Types/StageMonsterGroupTypes.h"
 #include "Gameplay/Stage/Unit/StageTowerUnit.h"
 #include "Gameplay/Stage/Unit/StageMonsterUnit.h"
 #include "Gameplay/Stage/Unit/StageUnitAttributeSet.h"
@@ -134,6 +137,80 @@ void UStageTableRepository::Load()
 		}
 	}
 
+	// 몬스터 그룹
+	{
+		TMap<int32, TSharedPtr<FMonsterGroupTableRow>> Infos;
+		for (auto& [_, Array] : MonsterGroupInfos)
+		{
+			for (auto& Info : Array)
+			{
+				Infos.Emplace(Info->Index, Info);
+			}
+		}
+		MonsterGroupInfos.Empty();
+
+		for (auto Row : UTableHelper::GetDatas<FMonsterGroupTableRow>())
+		{
+			TSharedPtr<FMonsterGroupTableRow> Ptr;
+			if (Infos.Contains(Row->Index))
+			{
+				Ptr = Infos[Row->Index];
+			}
+			else
+			{
+				Ptr = MakeShared<FMonsterGroupTableRow>(*Row);
+			}
+
+			if (MonsterGroupInfos.Contains(Row->Group))
+			{
+				MonsterGroupInfos.Find(Row->Group)->Add(Ptr);
+			}
+			else
+			{
+				MonsterGroupInfos.Emplace(Row->Group, { Ptr });
+			}
+		}
+	}
+
+	// 웨이브
+	{	
+		TMap<int32, TSharedPtr<FStageWaveGroupInfo>> Infos;
+		for (auto& [_, Array] : WaveGroupInfos)
+		{
+			for (auto& Info : Array)
+			{
+				Infos.Emplace(Info->Index, Info);
+			}
+		}
+		WaveGroupInfos.Empty();
+
+		for (auto Row : UTableHelper::GetDatas<FWaveTableRow>())
+		{
+			TSharedPtr<FStageWaveGroupInfo> Ptr;
+			if (Infos.Contains(Row->Index))
+			{
+				Ptr = Infos[Row->Index];
+			}
+			else
+			{
+				Ptr = MakeShared<FStageWaveGroupInfo>();
+			}
+
+			Ptr->Index = Row->Index;
+			Ptr->Type = Row->Type;
+			Ptr->MonsterGroup = Row->Monster_Group;
+			
+			if (WaveGroupInfos.Contains(Row->Wave_Group))
+			{
+				WaveGroupInfos.Find(Row->Wave_Group)->Add(Ptr);
+			}
+			else
+			{
+				WaveGroupInfos.Emplace(Row->Wave_Group, { Ptr });
+			}
+		}
+	}
+
 	UE_LOG(LogTable, Display, TEXT("StageTableRepository 로드 완료(%.2f)"), FPlatformTime::Seconds() - StartTime);
 }
 
@@ -214,6 +291,28 @@ TSharedPtr<FStageMonsterInfo> UStageTableRepository::FindMonsterInfo(int32 Monst
 		return nullptr;
 	}
 	return *Result;
+}
+
+TArray<TSharedPtr<FMonsterGroupTableRow>>* UStageTableRepository::FindMonsterGroupInfo(int32 Group)
+{
+	auto Result = MonsterGroupInfos.Find(Group);
+	if (!Result)
+	{
+		UE_LOGFMT(LogTable, Warning, "MonsterGroup Info을 찾지 못하였습니다. [MonsterGroup: {Group}]", ("Group", Group));
+		return nullptr;
+	}
+	return Result;
+}
+
+TArray<TSharedPtr<FStageWaveGroupInfo>>* UStageTableRepository::FindWaveGroupInfo(int32 WaveGroup)
+{
+	auto Result = WaveGroupInfos.Find(WaveGroup);
+	if (!Result)
+	{
+		UE_LOGFMT(LogTable, Warning, "WaveGroup Info을 찾지 못하였습니다. [WaveGroup: {WaveGroup}]", ("WaveGroup", WaveGroup));
+		return nullptr;
+	}
+	return Result;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -432,3 +531,67 @@ FGErrorInfo UStageTableHelper::GetStageMap(int32 Level, TSoftObjectPtr<UWorld>& 
 
 	return GameCore::Pass();
 }
+
+FGErrorInfo UStageTableHelper::GetWaveGroupInfo(int32 WaveGroup, TArray<FStageWaveGroupInfo>& Result)
+{
+	auto Repository = UStageTableRepository::Get();
+	check(Repository);
+
+	TArray<TSharedPtr<FStageWaveGroupInfo>>* WaveGroupInfo = Repository->FindWaveGroupInfo(WaveGroup);
+
+	if (!WaveGroupInfo)
+	{
+		return GameCore::Throw(GameErr::POINTER_INVALID, FString::Printf(TEXT("FStageWaveGroup find WaveGroupInfo %d"), WaveGroup));
+	}
+
+	Result.Empty();
+	for (const auto& Info : *WaveGroupInfo) {
+		if (Info.IsValid())
+		{
+			Result.Add(*Info);
+		}
+	}
+
+	return GameCore::Pass();
+}
+
+FGErrorInfo UStageTableHelper::GetMonsterGroupInfo(int32 MonsterGroup, TArray<FMonsterGroupTableRow>& Result)
+{
+	auto Repository = UStageTableRepository::Get();
+	check(Repository);
+
+	TArray<TSharedPtr<FMonsterGroupTableRow>>* MonsterGroupInfo = Repository->FindMonsterGroupInfo(MonsterGroup);
+
+	if (!MonsterGroupInfo)
+	{
+		return GameCore::Throw(GameErr::POINTER_INVALID, FString::Printf(TEXT("FStageMonsterGroupInfo find MonsterGroupInfo %d"), MonsterGroup));
+	}
+
+	Result.Empty();
+	for (const auto& Info : *MonsterGroupInfo) {
+		if (Info.IsValid())
+		{
+			Result.Add(*Info);
+		}
+	}
+
+	return FGErrorInfo();
+}
+
+/*
+FGErrorInfo UStageTableHelper::GetMonsterGroupInfo(int32 MonsterGroup, FStageMonsterGroupInfo& Result)
+{
+	auto Repository = UStageTableRepository::Get();
+	check(Repository);
+
+	TSharedPtr<FStageMonsterGroupInfo> Info = Repository->FindMonsterGroupInfo(MonsterGroup);
+
+	if (!Info.IsValid()) {
+		return GameCore::Throw(GameErr::POINTER_INVALID, FString::Printf(TEXT("FStageMonsterGroupInfo find MonsterGroupInfo %d"), MonsterGroup));
+	}
+
+	Result = *Info;
+
+	return GameCore::Pass();
+}
+*/

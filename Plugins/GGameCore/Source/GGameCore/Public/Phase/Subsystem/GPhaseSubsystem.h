@@ -79,6 +79,9 @@ public:
     UFUNCTION(BlueprintPure, meta = (AutoCreateRefTerm = "PhaseTag"))
     bool IsPhaseActive(const FGameplayTag& PhaseTag) const;
 
+    UFUNCTION(BlueprintPure)
+    TArray<FGameplayTag> GetActivePhaseList() const;
+
 protected:
     void OnBeginPhase(const UGPhaseGameplayAbility* PhaseAbility, const FGameplayAbilitySpecHandle PhaseAbilityHandle);
     void OnEndPhase(const UGPhaseGameplayAbility* PhaseAbility, const FGameplayAbilitySpecHandle PhaseAbilityHandle);

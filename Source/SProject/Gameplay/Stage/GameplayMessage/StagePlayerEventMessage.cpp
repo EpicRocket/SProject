@@ -13,4 +13,9 @@ namespace Stage
 	UE_DEFINE_GAMEPLAY_TAG(Tag_Gameplay_Stage_Player_UsePoint_Changed, "Gameplay.Stage.Player.UsePoint.Changed");
 
 	UE_DEFINE_GAMEPLAY_TAG(Tag_Gameplay_Stage_Player_StartPoint, "Gameplay.Stage.Player.StartPoint");
+
+	UE_DEFINE_GAMEPLAY_TAG(Tag_Gameplay_Stage_Player_Wave_Start, "Gameplay.Stage.Player.Wave.Start");
+	UE_DEFINE_GAMEPLAY_TAG(Tag_Gameplay_Stage_Player_Wave_Pause, "Gameplay.Stage.Player.Wave.Pause");
+	UE_DEFINE_GAMEPLAY_TAG(Tag_Gameplay_Stage_Player_Wave_End, "Gameplay.Stage.Player.Wave.End");
+	UE_DEFINE_GAMEPLAY_TAG(Tag_Gameplay_Stage_Player_Wave_Spawn, "Gameplay.Stage.Player.Wave.Spawn");
 }

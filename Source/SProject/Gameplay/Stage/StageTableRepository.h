@@ -14,6 +14,9 @@ struct FNormalTowerTableRow;
 struct FStageTowerInfo;
 struct FStageTableRow;
 struct FStageMonsterInfo;
+struct FStageWaveGroupInfo;
+struct FStageMonsterGroupInfo;
+struct FMonsterGroupTableRow;
 class AStageTowerUnit;
 class UWorld;
 
@@ -41,6 +44,14 @@ private:
 	// 몬스터
 	TSortedMap<int32, TSharedPtr<FStageMonsterInfo>> MonsterInfos;
 	TSharedPtr<FStageMonsterInfo> FindMonsterInfo(int32 MonsterKey);
+
+	// 몬스터 그룹
+	TMap<int32/*Group*/, TArray<TSharedPtr<FMonsterGroupTableRow>>> MonsterGroupInfos;
+	TArray<TSharedPtr<FMonsterGroupTableRow>>* FindMonsterGroupInfo(int32 Group);
+
+	// 스테이지
+	TMap<int32/*Wave_Group*/, TArray<TSharedPtr<FStageWaveGroupInfo>>> WaveGroupInfos;
+	TArray<TSharedPtr<FStageWaveGroupInfo>>* FindWaveGroupInfo(int32 WaveGroup);
 };
 
 UCLASS()
@@ -75,4 +86,10 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "스테이지", meta = (ReturnDisplayName = "Find"))
 	static FGErrorInfo GetStageMap(int32 Level, TSoftObjectPtr<UWorld>& Map);
+
+	UFUNCTION(BlueprintPure, Category = "스테이지|웨이브", meta = (ReturnDisplayName = "Find"))
+	static FGErrorInfo GetWaveGroupInfo(int32 WaveGroup, TArray<FStageWaveGroupInfo>& Result);
+
+	UFUNCTION(BlueprintPure, Category = "스테이지|몬스터", meta = (ReturnDisplayName = "Find"))
+	static FGErrorInfo GetMonsterGroupInfo(int32 MonsterGroup, TArray<FMonsterGroupTableRow>& Result);
 };

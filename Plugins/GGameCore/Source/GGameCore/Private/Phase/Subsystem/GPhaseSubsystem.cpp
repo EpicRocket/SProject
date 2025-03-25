@@ -120,6 +120,16 @@ bool UGPhaseSubsystem::IsPhaseActive(const FGameplayTag& PhaseTag) const
 	return false;
 }
 
+TArray<FGameplayTag> UGPhaseSubsystem::GetActivePhaseList() const
+{
+	TArray<FGameplayTag> Array;
+	for (const auto& [_, Entry] : ActivePhaseMap)
+	{
+		Array.Add(Entry.PhaseTag);
+	}
+	return Array;
+}
+
 void UGPhaseSubsystem::OnBeginPhase(const UGPhaseGameplayAbility* PhaseAbility, const FGameplayAbilitySpecHandle PhaseAbilityHandle)
 {
 	const auto IncomingPhaseTag = PhaseAbility->PhaseTag;
