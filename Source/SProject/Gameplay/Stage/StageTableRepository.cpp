@@ -577,21 +577,3 @@ FGErrorInfo UStageTableHelper::GetMonsterGroupInfo(int32 MonsterGroup, TArray<FM
 
 	return FGErrorInfo();
 }
-
-/*
-FGErrorInfo UStageTableHelper::GetMonsterGroupInfo(int32 MonsterGroup, FStageMonsterGroupInfo& Result)
-{
-	auto Repository = UStageTableRepository::Get();
-	check(Repository);
-
-	TSharedPtr<FStageMonsterGroupInfo> Info = Repository->FindMonsterGroupInfo(MonsterGroup);
-
-	if (!Info.IsValid()) {
-		return GameCore::Throw(GameErr::POINTER_INVALID, FString::Printf(TEXT("FStageMonsterGroupInfo find MonsterGroupInfo %d"), MonsterGroup));
-	}
-
-	Result = *Info;
-
-	return GameCore::Pass();
-}
-*/

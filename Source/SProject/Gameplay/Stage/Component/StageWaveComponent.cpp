@@ -3,6 +3,7 @@
 #include "Gameplay/Team/GameplayUserPlayer.h"
 #include "User/StageSubsystem.h"
 #include "Gameplay/Stage/StageTableRepository.h"
+#include "Gameplay/Stage/StageLogging.h"
 
 void UStageWaveComponent::OnInitialize()
 {
@@ -13,7 +14,7 @@ FGErrorInfo UStageWaveComponent::SetWaveGroup(int32 TargetWaveGroup)
 {
 	WaveGroup = TargetWaveGroup;
 	UStageTableHelper::GetWaveGroupInfo(WaveGroup, WaveGroupInfo);
-	CurrentMonsterGroupIndex = 0;
+	CurrentWaveIndex = 0;
 	return FGErrorInfo();
 }
 
@@ -23,9 +24,26 @@ FGErrorInfo UStageWaveComponent::WaveStart()
 	return FGErrorInfo();
 }
 
-FGErrorInfo UStageWaveComponent::NextGroup()
+FGErrorInfo UStageWaveComponent::WaveEnd()
 {
-	CurrentMonsterGroupIndex++;
+	OnWaveEnd();
+	return FGErrorInfo();
+}
+
+FGErrorInfo UStageWaveComponent::NextWave()
+{
+	auto CurrentWaveGroup = WaveGroupInfo[CurrentWaveIndex];
+	if (CurrentWaveGroup.Type != 2)
+	{
+		UE_LOGFMT(LogStage, Log, "웨이브 {Wave} (type: {Type}) 완료. 다음 웨이브 설정.", 
+			("Wave", CurrentWaveGroup.Index), ("Type", CurrentWaveGroup.Type));
+		CurrentWaveIndex += 1;
+	}
+	else {
+		UE_LOGFMT(LogStage, Log, "웨이브 {Wave} (type: {Type}) 완료. 웨이브 반복.",
+			("Wave", CurrentWaveGroup.Index), ("Type", CurrentWaveGroup.Type));
+	}
+
 	return FGErrorInfo();
 }
 
@@ -37,6 +55,6 @@ TArray<FStageWaveGroupInfo> UStageWaveComponent::GetWaveGroupInfo()
 TArray<FMonsterGroupTableRow> UStageWaveComponent::GetCurrentMonsterGroupInfo()
 {
 	TArray<FMonsterGroupTableRow> Info;
-	UStageTableHelper::GetMonsterGroupInfo(WaveGroupInfo[CurrentMonsterGroupIndex].MonsterGroup, Info);
+	UStageTableHelper::GetMonsterGroupInfo(WaveGroupInfo[CurrentWaveIndex].MonsterGroup, Info);
 	return Info;
 }

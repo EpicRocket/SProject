@@ -22,7 +22,7 @@ private:
     int32 WaveGroup = INDEX_NONE;
 
     UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-    int32 CurrentMonsterGroupIndex = INDEX_NONE;
+    int32 CurrentWaveIndex = INDEX_NONE;
 
     UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
     TArray<FStageWaveGroupInfo> WaveGroupInfo;
@@ -31,6 +31,9 @@ protected:
 
     UFUNCTION(BlueprintImplementableEvent)
     void OnWaveStart();
+
+    UFUNCTION(BlueprintImplementableEvent)
+    void OnWaveEnd();
 public:
     UPROPERTY(BlueprintReadWrite)
     bool Paused = true;
@@ -42,7 +45,10 @@ public:
     FGErrorInfo WaveStart();
 
     UFUNCTION(BlueprintCallable)
-    FGErrorInfo NextGroup();
+    FGErrorInfo WaveEnd();
+
+    UFUNCTION(BlueprintCallable)
+    FGErrorInfo NextWave();
 
     UFUNCTION(BlueprintCallable)
     TArray<FStageWaveGroupInfo> GetWaveGroupInfo();
