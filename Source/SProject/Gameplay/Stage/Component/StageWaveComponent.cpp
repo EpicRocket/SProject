@@ -35,12 +35,12 @@ FGErrorInfo UStageWaveComponent::NextWave()
 	auto CurrentWaveGroup = WaveGroupInfo[CurrentWaveIndex];
 	if (CurrentWaveGroup.Type != 2)
 	{
-		UE_LOGFMT(LogStage, Log, "¿şÀÌºê {Wave} (type: {Type}) ¿Ï·á. ´ÙÀ½ ¿şÀÌºê ¼³Á¤.", 
+		UE_LOGFMT(LogStage, Log, "ì›¨ì´ë¸Œ {Wave} (type: {Type}) ì™„ë£Œ. ë‹¤ìŒ ì›¨ì´ë¸Œ ì„¤ì •.", 
 			("Wave", CurrentWaveGroup.Index), ("Type", CurrentWaveGroup.Type));
 		CurrentWaveIndex += 1;
 	}
 	else {
-		UE_LOGFMT(LogStage, Log, "¿şÀÌºê {Wave} (type: {Type}) ¿Ï·á. ¿şÀÌºê ¹İº¹.",
+		UE_LOGFMT(LogStage, Log, "ì›¨ì´ë¸Œ {Wave} (type: {Type}) ì™„ë£Œ. ì›¨ì´ë¸Œ ë°˜ë³µ.",
 			("Wave", CurrentWaveGroup.Index), ("Type", CurrentWaveGroup.Type));
 	}
 
