@@ -64,20 +64,22 @@ FStageTowerReceipt AStageBuildZone::GetTowerReceipt() const
 	}
 	else
 	{
-		/*Receipt.bSellable = true;
-		Receipt.SellPrice = SpawnedTower->GetSellPrice();
+		Receipt.bSellable = true;
+		// TODO - 임시 가격 -> 고정 할인가격 적용해야 할듯?
+		Receipt.SellPrice = 10; //SpawnedTower->GetSellPrice();
 
-		int32 MaxLevel = UStageTableHelper::GetStageTowerMaxLevel(SpawnedTower->GetTowerType(), SpawnedTower->GetKind());
-		if (SpawnedTower->GetLevel() >= MaxLevel)
+		auto SpawnedTowerInfo = SpawnedTower->GetInfoRef();
+		int32 MaxLevel = UStageTableHelper::GetStageTowerMaxLevel(SpawnedTowerInfo->TowerType, SpawnedTowerInfo->Kind);
+		if (SpawnedTowerInfo->Level >= MaxLevel)
 		{
 			Receipt.bMaxLevel = true;
 		}
 		else
 		{
-			FBuildStageTower NextTower;
-			UStageTableHelper::GetNextStageTower(SpawnedTower->GetTowerType(), SpawnedTower->GetKind(), SpawnedTower->GetLevel(), NextTower);
+			FStageTowerInfo NextTower;
+			UStageTableHelper::GetNextStageTower(SpawnedTowerInfo->TowerType, SpawnedTowerInfo->Kind, SpawnedTowerInfo->Level, NextTower);
 			Receipt.BuildTowers.Emplace(NextTower);
-		}*/
+		}
 	}
 
 	return Receipt;
@@ -85,7 +87,7 @@ FStageTowerReceipt AStageBuildZone::GetTowerReceipt() const
 
 void AStageBuildZone::RequestBuildTower(const FStageTowerInfo& BuildTowerInfo)
 {
-	auto TeamSubsystem = UWorld::GetSubsystem<UGameplayTeamSubsystem>(GetWorld());
+/*	auto TeamSubsystem = UWorld::GetSubsystem<UGameplayTeamSubsystem>(GetWorld());
 	if (!TeamSubsystem)
 	{
 		GameCore::Throw(GameErr::SUBSYSTEM_INVALID, TEXT("UGameplayTeamSubsystem"));
@@ -106,7 +108,8 @@ void AStageBuildZone::RequestBuildTower(const FStageTowerInfo& BuildTowerInfo)
 		return;
 	}
 
-	StagePlayerCom->AddUsePoint(-BuildTowerInfo.UsePoint);
+	StagePlayerCom->AddUsePoint(-BuildTowerInfo.UsePoint);*/
+	AddUsePoint(-BuildTowerInfo.UsePoint);
 
 	// TODO: 이미 지어져있다면 어떻게 처리해야 할까?
 	if (SpawnedTower.IsValid())
@@ -134,7 +137,7 @@ void AStageBuildZone::RequestBuildTower(const FStageTowerInfo& BuildTowerInfo)
 	}
 }
 
-void AStageBuildZone::RequestDemolishTower()
+void AStageBuildZone::RequestDemolishTower(const int64 SellPrice)
 {
 	if (!SpawnedTower.IsValid())
 	{
@@ -142,7 +145,35 @@ void AStageBuildZone::RequestDemolishTower()
 	}
 
 	// TODO: 배치 포인트를 받자
+	//StagePlayerCom->AddUsePoint(SpawnedTower->);
+	AddUsePoint(SellPrice);
 
 	SpawnedTower->Kill();
 	SpawnedTower = nullptr;
+}
+
+void AStageBuildZone::AddUsePoint(int64 Point)
+{
+	auto TeamSubsystem = UWorld::GetSubsystem<UGameplayTeamSubsystem>(GetWorld());
+	if (!TeamSubsystem)
+	{
+		GameCore::Throw(GameErr::SUBSYSTEM_INVALID, TEXT("UGameplayTeamSubsystem"));
+		return;
+	}
+
+	auto Player = TeamSubsystem->GetPlayer(GetTeamID());
+	if (!Player)
+	{
+		GameCore::Throw(GameErr::OBJECT_INVALID, TEXT("Player"));
+		return;
+	}
+
+	auto StagePlayerCom = Player->GetComponentByClass<UStagePlayerComponent>();
+	if (!IsValid(StagePlayerCom))
+	{
+		GameCore::Throw(GameErr::COMPONENT_INVALID, TEXT("UStagePlayerComponent"));
+		return;
+	}
+
+	StagePlayerCom->AddUsePoint(Point);
 }
