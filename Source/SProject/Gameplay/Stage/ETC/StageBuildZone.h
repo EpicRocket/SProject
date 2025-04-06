@@ -74,7 +74,7 @@ public:
 	void RequestBuildTower(const FStageTowerInfo& BuildStageTower);
 
 	UFUNCTION(BlueprintCallable)
-	void RequestDemolishTower();
+	void RequestDemolishTower(const int64 SellPrice);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	FVector GetBuildLocation() const;
@@ -92,4 +92,6 @@ public:
 private:
 	UPROPERTY(Category = "스테이지", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UBoxComponent> InteractionComponent;
+
+	void AddUsePoint(int64 Point);
 };
