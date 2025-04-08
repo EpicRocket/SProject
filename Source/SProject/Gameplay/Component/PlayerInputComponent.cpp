@@ -115,3 +115,21 @@ void UPlayerInputComponent::OnMouseReleased()
 	}
 	bMousePressed = false;
 }
+
+FVector2D UPlayerInputComponent::LastMousePosition() const
+{
+	auto LocalPlayer = GetOwningLocalPlayer();
+	if (!LocalPlayer)
+	{
+		return LastMousePressPosition;
+	}
+
+	UGameViewportClient* ViewportClient = LocalPlayer->ViewportClient;
+	if (!ViewportClient)
+	{
+		return LastMousePressPosition;
+	}
+
+	ViewportClient->GetMousePosition(LastMousePressPosition);
+	return LastMousePressPosition;
+}

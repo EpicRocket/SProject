@@ -26,8 +26,12 @@ public:
     UFUNCTION(BlueprintCallable, Category = "입력")
     void OnMouseReleased();
 
+    UFUNCTION(BlueprintPure, Category = "입력")
+    FVector2D LastMousePosition() const;
+
 private:
 	bool bMousePressed = false;
 	FVector2D FirstMousePressPosition = FVector2D::ZeroVector;
+    mutable FVector2D LastMousePressPosition = FVector2D::ZeroVector;
 
 };
