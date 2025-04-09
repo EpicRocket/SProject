@@ -71,7 +71,7 @@ void UPlayerInputComponent::OnMousePressed()
 		return;
 	}
 
-	bMousePressed = ViewportClient->GetMousePosition(FirstMousePressPosition);
+	bMousePressed = ViewportClient->GetMousePosition(FirstInputPosition);
 }
 
 void UPlayerInputComponent::OnMouseMoved()
@@ -94,7 +94,7 @@ void UPlayerInputComponent::OnMouseMoved()
 		return;
 	}
 
-	auto Dist = (FirstMousePressPosition - MousePosition).SizeSquared();
+	auto Dist = (FirstInputPosition - MousePosition).SizeSquared();
 	float DragTriggerDistance;
 
 	const float DragTriggerDistanceInInches = FUnitConversion::Convert(1.0f, EUnit::Millimeters, EUnit::Inches);
@@ -116,20 +116,29 @@ void UPlayerInputComponent::OnMouseReleased()
 	bMousePressed = false;
 }
 
-FVector2D UPlayerInputComponent::LastMousePosition() const
+FVector2D UPlayerInputComponent::GetFirstInputPosition() const
+{
+	return FirstInputPosition;
+}
+
+FVector2D UPlayerInputComponent::GetLastInputPosition() const
 {
 	auto LocalPlayer = GetOwningLocalPlayer();
 	if (!LocalPlayer)
 	{
-		return LastMousePressPosition;
+		return FirstInputPosition;
 	}
 
 	UGameViewportClient* ViewportClient = LocalPlayer->ViewportClient;
 	if (!ViewportClient)
 	{
-		return LastMousePressPosition;
+		return FirstInputPosition;
 	}
 
-	ViewportClient->GetMousePosition(LastMousePressPosition);
-	return LastMousePressPosition;
+	if (!ViewportClient->GetMousePosition(LastInputPosition))
+	{
+		return FirstInputPosition;
+	}
+
+	return LastInputPosition;
 }

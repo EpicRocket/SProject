@@ -27,11 +27,14 @@ public:
     void OnMouseReleased();
 
     UFUNCTION(BlueprintPure, Category = "입력")
-    FVector2D LastMousePosition() const;
+    FVector2D GetFirstInputPosition() const;
+
+    UFUNCTION(BlueprintPure, Category = "입력")
+    FVector2D GetLastInputPosition() const;
 
 private:
 	bool bMousePressed = false;
-	FVector2D FirstMousePressPosition = FVector2D::ZeroVector;
-    mutable FVector2D LastMousePressPosition = FVector2D::ZeroVector;
+	FVector2D FirstInputPosition = FVector2D::ZeroVector;
+    mutable FVector2D LastInputPosition = FVector2D::ZeroVector;
 
 };
