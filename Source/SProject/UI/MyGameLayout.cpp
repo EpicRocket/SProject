@@ -111,7 +111,7 @@ UCommonActivatableWidget* UMyGameLayoutHelper::PushContentToLayer(const APlayerC
 	}
 
 	auto GameLayout = UMyGameLayout::Get(LocalPlayer);
-	if (!ensure(GameLayout))
+	if (!GameLayout)
 	{
 		return nullptr;
 	}
@@ -149,7 +149,7 @@ void UMyGameLayoutHelper::RemoveContentFromLayer(const APlayerController* Player
 	}
 
 	auto GameLayout = UMyGameLayout::Get(LocalPlayer);
-	if (!ensure(GameLayout))
+	if (!GameLayout)
 	{
 		return;
 	}
@@ -182,7 +182,7 @@ void UMyGameLayoutHelper::RemoveContent(const APlayerController* PlayerControlle
 	}
 
 	auto GameLayout = UMyGameLayout::Get(LocalPlayer);
-	if (!ensure(GameLayout))
+	if (!GameLayout)
 	{
 		return;
 	}
@@ -212,7 +212,7 @@ void UMyGameLayoutHelper::ClearContentFromLayer(const APlayerController* PlayerC
 	}
 
 	auto GameLayout = UMyGameLayout::Get(LocalPlayer);
-	if (!ensure(GameLayout))
+	if (!GameLayout)
 	{
 		return;
 	}
@@ -240,7 +240,7 @@ void UMyGameLayoutHelper::ClearContent(const APlayerController* PlayerController
 	}
 
 	auto GameLayout = UMyGameLayout::Get(LocalPlayer);
-	if (!ensure(GameLayout))
+	if (!GameLayout)
 	{
 		return;
 	}
