@@ -1,4 +1,4 @@
-﻿
+
 #include "MasterGameLevel.h"
 // include Engine
 #include "Engine/World.h"
@@ -15,13 +15,13 @@ bool AMasterGameLevel::ShouldShowLoadingScreen(FString& OutReason) const
 	auto GameWorldSubsystem = UWorld::GetSubsystem<UGameWorldSubsystem>(GetWorld());
 	if (!GameWorldSubsystem)
 	{
-		OutReason = TEXT("월드 로드 중");
+		OutReason = TEXT("?붾뱶 濡쒕뱶 以?);
 		return true;
 	}
 
 	if (!GameWorldSubsystem->IsExistsLoadedGameWorld())
 	{
-		OutReason = TEXT("월드 찾는 중");
+		OutReason = TEXT("?붾뱶 李얜뒗 以?);
 		return true;
 	}
 

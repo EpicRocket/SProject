@@ -1,4 +1,4 @@
-﻿
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -6,7 +6,7 @@
 
 #include "StageTypes.generated.h"
 
-/** 스테이지 정보 */
+/** ?ㅽ뀒?댁? ?뺣낫 */
 USTRUCT(BlueprintType)
 struct MY_API FStage
 {
@@ -17,11 +17,11 @@ struct MY_API FStage
 		return Tie(Level, Towers) == Tie(Other.Level, Other.Towers);
 	}
 
-	/** 스테이지의 레벨(맵) */
+	/** ?ㅽ뀒?댁????덈꺼(留? */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 Level = INDEX_NONE;
 
-	/** 스테이지에 배치된 타워들 */
+	/** ?ㅽ뀒?댁???諛곗튂????뚮뱾 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FTower> Towers;
 

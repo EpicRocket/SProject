@@ -1,3 +1,3 @@
-﻿
+
 #include "Core/GLocalPlayer.h"
 

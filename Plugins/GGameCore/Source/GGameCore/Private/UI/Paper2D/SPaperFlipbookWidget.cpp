@@ -1,4 +1,4 @@
-﻿
+
 #include "UI/Paper2D/SPaperFlipbookWidget.h"
 #include "Rendering/DrawElements.h"
 #include "PaperFlipbook.h"

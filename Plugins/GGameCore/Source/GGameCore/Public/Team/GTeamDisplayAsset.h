@@ -1,4 +1,4 @@
-﻿
+
 #pragma once
 
 #include "Engine/DataAsset.h"

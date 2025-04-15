@@ -1,4 +1,4 @@
-﻿
+
 #pragma once
 
 #include "Team/Subsystem/GTeamSubsystem.h"

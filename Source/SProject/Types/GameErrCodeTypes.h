@@ -1,4 +1,4 @@
-﻿
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -10,13 +10,13 @@ enum class EGameErrCode : int32
 {
 	None = 0,
 
-	// 엔진 에러
+	// ?붿쭊 ?먮윭
 	NotFoundLocalPlayer,
 
-	// 게임 에러
+	// 寃뚯엫 ?먮윭
 	UserDocumentUnpatchable,
 
-	// 싱글플레이
+	// ?깃??뚮젅??
 	NotFoundSignleplaySubsystem,
 	NotFoundSingleplayContext,
 

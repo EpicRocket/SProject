@@ -1,4 +1,4 @@
-﻿
+
 #include "MyTestGameMode.h"
 // include Engine
 // include Project

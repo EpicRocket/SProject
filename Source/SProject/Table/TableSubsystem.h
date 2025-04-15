@@ -1,4 +1,4 @@
-﻿
+
 #pragma once
 
 #include "Subsystems/EngineSubsystem.h"
@@ -21,7 +21,7 @@ concept DerivedFromFTableRowBase = std::is_base_of<FTableRowBase, T>::value;
 DECLARE_MULTICAST_DELEGATE(FTableLoadCompleted);
 
 /*
- * 테이터 테이블 시스템
+ * ?뚯씠???뚯씠釉??쒖뒪??
  */
 UCLASS(config = SProject)
 class MY_API UTableSubsystem : public UEngineSubsystem

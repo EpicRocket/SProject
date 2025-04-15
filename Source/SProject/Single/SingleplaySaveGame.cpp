@@ -1,4 +1,4 @@
-﻿
+
 #include "SingleplaySaveGame.h"
 // include Engine
 #include "UObject/Package.h"
@@ -22,14 +22,14 @@ void USingleplaySaveGameContext::InitSingleplay()
 	auto SingleplaySettings = GetDefault<USingleplaySettings>();
 	if (!IsValid(SingleplaySettings))
 	{
-		UE_LOG(LogSingleplay, Error, TEXT("Singleplay Settings를 불러오지 못했습니다."));
+		UE_LOG(LogSingleplay, Error, TEXT("Singleplay Settings瑜?遺덈윭?ㅼ? 紐삵뻽?듬땲??"));
 		return;
 	}
 
 	SaveGame = NewObject<USingleplaySaveGame>(GetTransientPackage(), USingleplaySaveGame::StaticClass());
 	if (!IsValid(SaveGame))
 	{
-		UE_LOG(LogSingleplay, Error, TEXT("SaveGame 생성에 실패하였습니다."));
+		UE_LOG(LogSingleplay, Error, TEXT("SaveGame ?앹꽦???ㅽ뙣?섏??듬땲??"));
 		return;
 	}
 
@@ -41,7 +41,7 @@ bool USingleplaySaveGameContext::LoadSingleplay()
 	SaveGame = Cast<USingleplaySaveGame>(UGameplayStatics::LoadGameFromSlot(SlotName, 0));
 	if (!IsValid(SaveGame))
 	{
-		// NOTE: 잘못된 세이브 게임은 삭제
+		// NOTE: ?섎せ???몄씠釉?寃뚯엫? ??젣
 		UGameplayStatics::DeleteGameInSlot(SlotName, 0);
 		SaveGame = nullptr;
 		return false;
@@ -78,37 +78,37 @@ FFetchDocument USingleplaySaveGameContext::FetchDocument()
 	auto const& SrcUserDocument = SaveGame->UserDocument;
 	auto const& DestDocument = GetUserDocument().Get();
 
-	// 유저 정보
+	// ?좎? ?뺣낫
 	if (SrcUserDocument.UserInfo != DestDocument.UserInfo)
 	{
 		Document.UserInfo = SrcUserDocument.UserInfo;
 	}
 
-	// 골드
+	// 怨⑤뱶
 	if (SrcUserDocument.Gold != DestDocument.Gold)
 	{
 		Document.Gold = SrcUserDocument.Gold;
 	}
 
-	// 캐시
+	// 罹먯떆
 	if (SrcUserDocument.Cash != DestDocument.Cash)
 	{
 		Document.Cash = SrcUserDocument.Cash;
 	}
 	
-	// 아이템들
+	// ?꾩씠?쒕뱾
 	if (SrcUserDocument.Items != DestDocument.Items)
 	{
 		Document.Items = SrcUserDocument.Items;
 	}
 
-	// 스테이지 정보
+	// ?ㅽ뀒?댁? ?뺣낫
 	if(SrcUserDocument.LastStageLevel != DestDocument.LastStageLevel)
 	{
 		Document.LastStageLevel = SrcUserDocument.LastStageLevel;
 	}
 
-	// 스테이지 상세 정보
+	// ?ㅽ뀒?댁? ?곸꽭 ?뺣낫
 	if (SrcUserDocument.Stages != DestDocument.Stages)
 	{
 		Document.Stages = SrcUserDocument.Stages;

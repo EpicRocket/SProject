@@ -1,4 +1,4 @@
-﻿
+
 #pragma once
 
 #include "Core/Component/GPlayerComponent.h"
@@ -14,22 +14,22 @@ public:
     UFUNCTION(BlueprintImplementableEvent)
     void OnInteractionActor(AActor* HitActor);
 
-    UFUNCTION(BlueprintCallable, Category = "입력")
+    UFUNCTION(BlueprintCallable, Category = "?낅젰")
     void InteractionMouseEvent();
 
-    UFUNCTION(BlueprintCallable, Category = "입력")
+    UFUNCTION(BlueprintCallable, Category = "?낅젰")
     void OnMousePressed();
 
-    UFUNCTION(BlueprintCallable, Category = "입력")
+    UFUNCTION(BlueprintCallable, Category = "?낅젰")
     void OnMouseMoved();
 
-    UFUNCTION(BlueprintCallable, Category = "입력")
+    UFUNCTION(BlueprintCallable, Category = "?낅젰")
     void OnMouseReleased();
 
-    UFUNCTION(BlueprintPure, Category = "입력")
+    UFUNCTION(BlueprintPure, Category = "?낅젰")
     FVector2D GetFirstInputPosition() const;
 
-    UFUNCTION(BlueprintPure, Category = "입력")
+    UFUNCTION(BlueprintPure, Category = "?낅젰")
     FVector2D GetLastInputPosition() const;
 
 private:

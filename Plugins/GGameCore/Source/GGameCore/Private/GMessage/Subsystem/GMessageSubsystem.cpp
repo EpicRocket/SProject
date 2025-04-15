@@ -43,7 +43,7 @@ void UGMessageSubsystem::UnregisterListener(FGMessageListenerHandle Handle)
 	}
 	else
 	{
-		UE_LOG(LogGMessage, Warning, TEXT("À¯È¿ÇÏÁö ¾ÊÀº ÇÚµé µî·ÏÀ» Ãë¼ÒÇÏ·Á°í ÇÕ´Ï´Ù."));
+		UE_LOG(LogGMessage, Warning, TEXT("ìœ íš¨í•˜ì§€ ì•Šì€ í•¸ë“¤ ë“±ë¡ì„ ì·¨ì†Œí•˜ë ¤ê³  í•©ë‹ˆë‹¤."));
 	}
 }
 
@@ -87,7 +87,7 @@ void UGMessageSubsystem::BroadcastMessageInternal(FGameplayTag Channel, const US
 			{
 				if (Listener.bHadValidType && !Listener.ListenerStructType.IsValid())
 				{
-					UE_LOG(LogGMessage, Warning, TEXT("Ã¤³Î %s¿¡¼­ ¸®½º³Ê ±¸Á¶Ã¼ Å¸ÀÔÀÌ À¯È¿ÇÏÁö ¾Ê½À´Ï´Ù. ¸ñ·Ï¿¡¼­ ¸®½º³Ê Á¦°Å ÇÕ´Ï´Ù."), *Channel.ToString());
+					UE_LOG(LogGMessage, Warning, TEXT("ì±„ë„ %sì—ì„œ ë¦¬ìŠ¤ë„ˆ êµ¬ì¡°ì²´ íƒ€ìž…ì´ ìœ íš¨í•˜ì§€ ì•ŠìŠµë‹ˆë‹¤. ëª©ë¡ì—ì„œ ë¦¬ìŠ¤ë„ˆ ì œê±° í•©ë‹ˆë‹¤."), *Channel.ToString());
 					UnregisterListenerInternal(Channel, Listener.HandleID);
 					continue;
 				}
@@ -98,7 +98,7 @@ void UGMessageSubsystem::BroadcastMessageInternal(FGameplayTag Channel, const US
 				}
 				else
 				{
-					UE_LOG(LogGMessage, Error, TEXT("Ã¤³Î %s¿¡¼­ ±¸Á¶ Å¸ÀÔ ºÒÀÏÄ¡ ÇÕ´Ï´Ù. (ºê·ÎµåÄ³½ºÆ® Å¸ÀÔ %sÀÌ°í %sÀÇ ¸®½º³Ê°¡ %s Å¸ÀÔÀ» ¿¹»óÇÔ)"),
+					UE_LOG(LogGMessage, Error, TEXT("ì±„ë„ %sì—ì„œ êµ¬ì¡° íƒ€ìž… ë¶ˆì¼ì¹˜ í•©ë‹ˆë‹¤. (ë¸Œë¡œë“œìºìŠ¤íŠ¸ íƒ€ìž… %sì´ê³  %sì˜ ë¦¬ìŠ¤ë„ˆê°€ %s íƒ€ìž…ì„ ì˜ˆìƒí•¨)"),
 						*Channel.ToString(),
 						*StructType->GetPathName(),
 						*Tag.ToString(),

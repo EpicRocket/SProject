@@ -1,4 +1,4 @@
-﻿
+
 #pragma once
 
 #include "Core/Component/GGameStateComponent.h"

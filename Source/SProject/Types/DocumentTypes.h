@@ -1,4 +1,4 @@
-﻿
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -9,7 +9,7 @@
 
 #include "DocumentTypes.generated.h"
 
-/** 기본적으로 사용자에게 필요한 정보 그룹 */
+/** 湲곕낯?곸쑝濡??ъ슜?먯뿉寃??꾩슂???뺣낫 洹몃９ */
 USTRUCT(BlueprintType)
 struct MY_API FUserDocument
 {

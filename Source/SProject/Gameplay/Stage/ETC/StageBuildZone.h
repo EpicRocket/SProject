@@ -1,4 +1,4 @@
-﻿
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -90,7 +90,7 @@ public:
 	TWeakObjectPtr<AStageTowerUnit> SpawnedTower;
 
 private:
-	UPROPERTY(Category = "스테이지", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = "?ㅽ뀒?댁?", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UBoxComponent> InteractionComponent;
 
 	void AddUsePoint(int64 Point);

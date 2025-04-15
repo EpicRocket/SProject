@@ -1,4 +1,4 @@
-﻿
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -19,15 +19,15 @@ class MY_API ISelectableActor : public IInterface
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "게임플레이|액터|선택")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "寃뚯엫?뚮젅???≫꽣|?좏깮")
 	bool IsSelectableActor() const;
 	virtual bool IsSelectableActor_Implementation() const { return true; };
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "게임플레이|액터|선택")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "寃뚯엫?뚮젅???≫꽣|?좏깮")
 	void SelectActor(APlayerController* PC);
 	virtual void SelectActor_Implementation(APlayerController* PC) {};
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "게임플레이|액터|선택")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "寃뚯엫?뚮젅???≫꽣|?좏깮")
 	void DeselectActor(APlayerController* PC);
 	virtual void DeselectActor_Implementation(APlayerController* PC) {};
 };

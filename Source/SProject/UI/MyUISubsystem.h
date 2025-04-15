@@ -1,4 +1,4 @@
-﻿
+
 #pragma once
 
 #include "UI/Subsystem/GUIManagerSubsystem.h"

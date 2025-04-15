@@ -1,4 +1,4 @@
-﻿
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -61,7 +61,7 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "Automation")
 	FXLSXTableImportSettings AutomatedImportSettings;
 
-	/** 가져오기 옵션을 표시하는 데 사용할 임시 데이터 테이블 */
+	/** 媛?몄삤湲??듭뀡???쒖떆?섎뒗 ???ъ슜???꾩떆 ?곗씠???뚯씠釉?*/
 	UPROPERTY()
 	TObjectPtr<UDataTable> DataTableImportOptions;
 

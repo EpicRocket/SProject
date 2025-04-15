@@ -1,4 +1,4 @@
-﻿
+
 #include "StageSpawner.h"
 // include Engine
 #include "Engine/World.h"

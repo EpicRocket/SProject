@@ -1,4 +1,4 @@
-﻿
+
 #include "GameplayHelper.h"
 // include Engine
 #include "GameFramework/Actor.h"

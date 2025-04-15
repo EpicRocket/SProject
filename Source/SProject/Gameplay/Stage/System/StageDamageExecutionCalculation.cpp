@@ -1,4 +1,4 @@
-﻿
+
 #include "StageDamageExecutionCalculation.h"
 
 // include GameCore
@@ -13,10 +13,10 @@
 void UStageDamageExecutionCalculation::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
 {
 	/*
-	체력 - (피해량 * 받는 피해 비율)
+	泥대젰 - (?쇳빐??* 諛쏅뒗 ?쇳빐 鍮꾩쑉)
 
-	받는 피해 비율 = 1 - 피해 흡수량 * 증폭값(가변 난수 값 +-5%)
-	피해 흡수량 = 방어력 / (방어력 + 방어상수)
+	諛쏅뒗 ?쇳빐 鍮꾩쑉 = 1 - ?쇳빐 ?≪닔??* 利앺룺媛?媛蹂 ?쒖닔 媛?+-5%)
+	?쇳빐 ?≪닔??= 諛⑹뼱??/ (諛⑹뼱??+ 諛⑹뼱?곸닔)
 	*/
 
 	//const FGameplayEffectSpec& Spec = ExecutionParams.GetOwningSpec();

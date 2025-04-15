@@ -1,4 +1,4 @@
-﻿
+
 #pragma once
 
 #include "Core/Component/GPlayerComponent.h"
@@ -43,18 +43,18 @@ class MY_API UPlayerSelectFunctionLibrary : public UBlueprintFunctionLibrary
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintCallable, Category = "게임플레이|PC|선택")
+	UFUNCTION(BlueprintCallable, Category = "寃뚯엫?뚮젅??PC|?좏깮")
 	static void SelectActor(APlayerController* PC, AActor* Target);
 
-	UFUNCTION(BlueprintCallable, Category = "게임플레이|PC|선택")
+	UFUNCTION(BlueprintCallable, Category = "寃뚯엫?뚮젅??PC|?좏깮")
 	static void DeselectActor(APlayerController* PC, AActor* Target);
 
-	UFUNCTION(BlueprintCallable, Category = "게임플레이|PC|선택")
+	UFUNCTION(BlueprintCallable, Category = "寃뚯엫?뚮젅??PC|?좏깮")
 	static void ClearSelection(APlayerController* PC);
 
-	UFUNCTION(BlueprintCallable, Category = "게임플레이|PC|선택")
+	UFUNCTION(BlueprintCallable, Category = "寃뚯엫?뚮젅??PC|?좏깮")
 	static void ClearSelectionExceptOther(APlayerController* PC, const TSet<AActor*>& Other);
 
-	UFUNCTION(BlueprintPure, Category = "게임플레이|PC|선택")
+	UFUNCTION(BlueprintPure, Category = "寃뚯엫?뚮젅??PC|?좏깮")
 	static bool IsSelected(APlayerController* PC, AActor* Target);
 };

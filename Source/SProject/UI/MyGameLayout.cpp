@@ -1,4 +1,4 @@
-﻿
+
 #include "MyGameLayout.h"
 // include Engine
 #include "Engine/GameInstance.h"

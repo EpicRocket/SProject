@@ -1,4 +1,4 @@
-
+﻿
 
 using UnrealBuildTool;
 using System.IO;

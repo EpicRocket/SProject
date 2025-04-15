@@ -1,4 +1,4 @@
-﻿
+
 #include "StageUnitCharacter.h"
 // include GameCore
 #include "AbilitySystem/GAbilitySystemComponent.h"
@@ -29,7 +29,7 @@ void AStageUnitCharacter::BeginPlay()
 			{
 				Kill();
 			}
-			UE_LOGFMT(LogStage, Log, "체력이 변경되었습니다. 변경된 값: {Hp}", Data.NewValue);
+			UE_LOGFMT(LogStage, Log, "泥대젰??蹂寃쎈릺?덉뒿?덈떎. 蹂寃쎈맂 媛? {Hp}", Data.NewValue);
 		}
 	);
 }
@@ -60,7 +60,7 @@ const UStageUnitAttributeSet* AStageUnitCharacter::GetUnitSet() const
 	auto UnitSet = AbilitySystemComponent->GetSet<UStageUnitAttributeSet>();
 	if (!UnitSet)
 	{
-		UE_LOGFMT(LogStage, Error, "UnitSet을 찾을 수 없습니다.");
+		UE_LOGFMT(LogStage, Error, "UnitSet??李얠쓣 ???놁뒿?덈떎.");
 		return nullptr;
 	}
 	return UnitSet;

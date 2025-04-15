@@ -1,4 +1,4 @@
-﻿
+
 #include "SStringHelper.h"
 
 #if PLATFORM_WINDOWS

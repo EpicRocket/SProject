@@ -1,4 +1,4 @@
-﻿
+
 #include "Team/Subsystem/GTeamSubsystem.h"
 // include Engine
 #include "Engine/DataTable.h"

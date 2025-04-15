@@ -1,4 +1,4 @@
-﻿
+
 #include "Core/Action/GGameComponentLoadAction.h"
 #include "Engine/World.h"
 // inclue GameCore

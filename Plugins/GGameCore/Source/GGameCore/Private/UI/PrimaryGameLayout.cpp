@@ -1,4 +1,4 @@
-﻿
+
 #include "UI/PrimaryGameLayout.h"
 
 #include "Widgets/CommonActivatableWidgetContainer.h"

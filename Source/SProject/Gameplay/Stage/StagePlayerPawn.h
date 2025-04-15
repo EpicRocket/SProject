@@ -1,4 +1,4 @@
-﻿
+
 #pragma once
 
 #include "GameFramework/Pawn.h"
@@ -12,7 +12,7 @@ UENUM(BlueprintType, meta = (Bitflags))
 enum class EStagePlayerFlag : uint8
 {
     None                UMETA(DisplayName = "None"),
-    Build               UMETA(DisplayName = "건설"),
+    Build               UMETA(DisplayName = "嫄댁꽕"),
 };
 
 UCLASS(Abstract, BlueprintType, Blueprintable, hideCategories=(Navigation), ClassGroup = "Stage")

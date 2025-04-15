@@ -1,4 +1,4 @@
-﻿
+
 #include "Loading/GLoadingManager.h"
 // Include Engine
 #include "Engine/Engine.h"

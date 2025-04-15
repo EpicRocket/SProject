@@ -1,4 +1,4 @@
-﻿
+
 #include "TableSubsystem.h"
 // include Engine
 #include "Engine/Engine.h"
@@ -29,7 +29,7 @@ void UTableSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 
 bool UTableSubsystem::LoadTable()
 {
-	// 폴더 체크
+	// ?대뜑 泥댄겕
 	FDirectoryPath RootTablePath;
 	RootTablePath.Path = FPaths::ProjectContentDir() / RootTableRelativePath;
 
@@ -57,18 +57,18 @@ bool UTableSubsystem::LoadTable()
 		UDataTable* DataTable = Cast<UDataTable>(Asset.GetAsset());
 		if (!DataTable)
 		{
-			UE_LOG(LogTable, Warning, TEXT("에셋 로드 실패 [%s]"), *Asset.AssetName.ToString());
+			UE_LOG(LogTable, Warning, TEXT("?먯뀑 濡쒕뱶 ?ㅽ뙣 [%s]"), *Asset.AssetName.ToString());
 			continue;
 		}
 
 		auto const* ScriptStruct = DataTable->GetRowStruct();
 		if (!ScriptStruct)
 		{
-			UE_LOG(LogTable, Warning, TEXT("스크립트 구조체 로드 실패 [%s]"), *Asset.AssetName.ToString());
+			UE_LOG(LogTable, Warning, TEXT("?ㅽ겕由쏀듃 援ъ“泥?濡쒕뱶 ?ㅽ뙣 [%s]"), *Asset.AssetName.ToString());
 			continue;
 		}
 
-		UE_LOG(LogTable, Verbose, TEXT("에셋 로그 성공 [%s]"), *Asset.AssetName.ToString())
+		UE_LOG(LogTable, Verbose, TEXT("?먯뀑 濡쒓렇 ?깃났 [%s]"), *Asset.AssetName.ToString())
 
 		Tables.Emplace(GetTypeHash(ScriptStruct), DataTable);
 	}

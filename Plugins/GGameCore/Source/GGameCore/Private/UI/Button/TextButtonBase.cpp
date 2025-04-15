@@ -1,4 +1,4 @@
-﻿
+
 #include "UI/Button/TextButtonBase.h"
 #include "Framework/Text/TextLayout.h"
 #include "CommonTextBlock.h"

@@ -1,4 +1,4 @@
-﻿
+
 #pragma once
 
 #include "Core/Component/GGameCoreComponent.h"
@@ -21,7 +21,7 @@ public:
 	template <class T>
 	T* GetGameplayPlayer() const
 	{
-		static_assert(TPointerIsConvertibleFromTo<T, AGameplayPlayer>::Value, "GetGameplayPlayer의 'T' 템플릿 파라미터는 AGameplayPlayer에서 파생되어야 합니다.");
+		static_assert(TPointerIsConvertibleFromTo<T, AGameplayPlayer>::Value, "GetGameplayPlayer??'T' ?쒗뵆由??뚮씪誘명꽣??AGameplayPlayer?먯꽌 ?뚯깮?섏뼱???⑸땲??");
 		return Cast<T>(GetOwner());
 	}
 
@@ -33,7 +33,7 @@ class MY_API UGameplayPlayerHelper : public UBlueprintFunctionLibrary
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintPure, Category = "게임플레이|플레이어", meta = (DeterminesOutputType = "ComponentClass", DynamicOutputParam = "FindComponent"))
+	UFUNCTION(BlueprintPure, Category = "寃뚯엫?뚮젅???뚮젅?댁뼱", meta = (DeterminesOutputType = "ComponentClass", DynamicOutputParam = "FindComponent"))
 	static void GetGameplayPlayerComponentByPC(class APlayerController* PC, TSubclassOf<UGameplayPlayerComponent> ComponentClass, UActorComponent*& FindComponent);
 
 };

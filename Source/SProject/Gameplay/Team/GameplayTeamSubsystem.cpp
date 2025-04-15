@@ -1,4 +1,4 @@
-﻿
+
 #include "GameplayTeamSubsystem.h"
 // include Engine
 #include "Engine/World.h"
@@ -30,13 +30,13 @@ void UGameplayTeamSubsystem::OnRegisterTeams()
 		}
 		else
 		{
-			UE_LOG(LogGameplay, Warning, TEXT("플레이어 타입이 지정되지 않았습니다. ID: %d"), ID);
+			UE_LOG(LogGameplay, Warning, TEXT("?뚮젅?댁뼱 ??낆씠 吏?뺣릺吏 ?딆븯?듬땲?? ID: %d"), ID);
 			continue;
 		}
 
 		if (!Player)
 		{
-			UE_LOG(LogGameplay, Warning, TEXT("플레이어를 생성할 수 없습니다. ID: %d"), ID);
+			UE_LOG(LogGameplay, Warning, TEXT("?뚮젅?댁뼱瑜??앹꽦?????놁뒿?덈떎. ID: %d"), ID);
 			continue;
 		}
 
@@ -82,6 +82,6 @@ AGameplayPlayer* UGameplayTeamSubsystem::GetPlayer(uint8 ID) const
 	{
 		return Players[ID];
 	}
-	UE_LOG(LogGameplay, Warning, TEXT("UGameplayPlayer을 찾을 수 없습니다. [TeamID: %d]"), ID);
+	UE_LOG(LogGameplay, Warning, TEXT("UGameplayPlayer??李얠쓣 ???놁뒿?덈떎. [TeamID: %d]"), ID);
 	return nullptr;
 }

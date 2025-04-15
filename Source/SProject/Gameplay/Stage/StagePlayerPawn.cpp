@@ -1,4 +1,4 @@
-﻿
+
 #include "StagePlayerPawn.h"
 // include Engine
 #include "GameFramework/Controller.h"
@@ -26,19 +26,19 @@ void AStagePlayerPawn::PossessedBy(AController* NewController)
     //    .OnMessageReceivedCallback = [this, ThisPtr = TWeakObjectPtr<ThisClass>(this)](auto Tag, auto Message) -> void {
     //        if (!ThisPtr.IsValid())
     //        {
-    //            UE_LOG(LogStage, Warning, TEXT("Stage Player Pawn이 제거되었습니다."));
+    //            UE_LOG(LogStage, Warning, TEXT("Stage Player Pawn???쒓굅?섏뿀?듬땲??"));
     //            return;
     //        }
 
     //       /* if (!CurrentLevel.IsValid())
     //        {
-    //            UE_LOG(LogStage, Warning, TEXT("Current Level이 유효하지 않습니다."));
+    //            UE_LOG(LogStage, Warning, TEXT("Current Level???좏슚?섏? ?딆뒿?덈떎."));
     //            return;
     //        }*/
 
     //        UGameplayMessageSubsystem& GameplayMessageSubsystem = UGameplayMessageSubsystem::Get(this);
 
-    //        // TODO: 상태 조건 추가
+    //        // TODO: ?곹깭 議곌굔 異붽?
     //        GameplayMessageSubsystem.BroadcastMessage(Stage::Tag_Gameplay_Stage_Request_Build_Select, Message);
     //    }
     //};

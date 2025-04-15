@@ -1,4 +1,4 @@
-﻿
+
 #include "UI/Subsystem/GUIManagerSubsystem.h"
 // include GameCore
 #include "Core/GLocalPlayer.h"

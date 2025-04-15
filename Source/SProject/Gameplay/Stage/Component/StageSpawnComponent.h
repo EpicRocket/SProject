@@ -1,4 +1,4 @@
-﻿
+
 
 #pragma once
 
@@ -37,10 +37,10 @@ class MY_API UStageSpawnHelper : public UBlueprintFunctionLibrary
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintCallable, Category = "스테이지|스폰")
+	UFUNCTION(BlueprintCallable, Category = "?ㅽ뀒?댁?|?ㅽ룿")
 	static FGErrorInfo SpawnTower(uint8 TeamID, AStageLevel* StageLevel, FVector Location, FRotator Rotation, FStageTowerInfo Info, TSubclassOf<AAIController> AIController, AStageTowerUnit*& SpawnedUnit);
 
-	UFUNCTION(BlueprintCallable, Category = "스테이지|스폰")
+	UFUNCTION(BlueprintCallable, Category = "?ㅽ뀒?댁?|?ㅽ룿")
 	static FGErrorInfo SpawnMonster(uint8 TeamID, AStageLevel* StageLevel, FVector Location, FRotator Rotation, FStageMonsterInfo Info, TSubclassOf<AAIController> AIController, AStageMonsterUnit*& SpawnedUnit);
 
 };

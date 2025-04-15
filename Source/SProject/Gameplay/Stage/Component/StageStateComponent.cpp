@@ -1,4 +1,4 @@
-﻿
+
 #include "StageStateComponent.h"
 // include Engine
 #include "Engine/World.h"
@@ -32,7 +32,7 @@ bool UStageStateComponent::ShouldShowLoadingScreen(FString& OutReason) const
 {
 	if (!bLoadCompleted)
 	{
-		OutReason = TEXT("스테이지 로딩 중...");
+		OutReason = TEXT("?ㅽ뀒?댁? 濡쒕뵫 以?..");
 		return true;
 	}
 
@@ -71,7 +71,7 @@ FGErrorInfo UStageStateComponent::WaitForPrimaryPlayerController(FLatentActionIn
 					auto TeamID = Subsystem->IssusePlayerTeamID(PrimaryPlayerController);
 					if (TeamID == 255)
 					{
-						ErrorInfo = GameCore::Throw(GameErr::VALUE_INVALID, TEXT("발급 할 수 있는 팀이 존재하지 않음."));
+						ErrorInfo = GameCore::Throw(GameErr::VALUE_INVALID, TEXT("諛쒓툒 ?????덈뒗 ???議댁옱?섏? ?딆쓬."));
 						return;
 					}
 

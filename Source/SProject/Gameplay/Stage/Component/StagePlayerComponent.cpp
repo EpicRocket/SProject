@@ -1,4 +1,4 @@
-﻿
+
 #include "StagePlayerComponent.h"
 // include Engine
 #include "Engine/World.h"
@@ -14,7 +14,7 @@
 #include "Table/StageTable.h"
 #include "Gameplay/Team/GameplayTeamSubsystem.h"
 #include "Gameplay/Team/GameplayUserPlayer.h"
-#include "Gameplay/Stage/GameplayMessage/StagePlayerEventMessage.h"
+#include "Gameplay/Stage/Message/StagePlayerEventMessage.h"
 #include "Gameplay/Stage/StageTableRepository.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(StagePlayerComponent)

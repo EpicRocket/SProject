@@ -1,4 +1,4 @@
-﻿
+
 #pragma once
 
 #include "GameFramework/SaveGame.h"
@@ -9,7 +9,7 @@
 
 struct FFetchDocument;
 
-/** 싱글플레이 세이브 게임 */
+/** ?깃??뚮젅???몄씠釉?寃뚯엫 */
 UCLASS()
 class USingleplaySaveGame : public USaveGame
 {
@@ -23,7 +23,7 @@ public:
 	FUserDocument UserDocument;
 };
 
-/** 싱글플레이 세이브 게임 유틸 클래스 */
+/** ?깃??뚮젅???몄씠釉?寃뚯엫 ?좏떥 ?대옒??*/
 UCLASS(BlueprintType, MinimalAPI)
 class USingleplaySaveGameContext : public UObject
 {
@@ -33,19 +33,19 @@ public:
 	static FString Token;
 
 public:
-	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "싱글플레이")
+	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "?깃??뚮젅??)
 	bool IsExistSaveGame() const;
 
-	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "싱글플레이")
+	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "?깃??뚮젅??)
 	void InitSingleplay();
 
-	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "싱글플레이")
+	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "?깃??뚮젅??)
 	bool LoadSingleplay();
 
-	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "싱글플레이")
+	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "?깃??뚮젅??)
 	bool SaveSingleplay();
 
-	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "싱글플레이")
+	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "?깃??뚮젅??)
 	void DeleteSignleplay();
 
 	FFetchDocument FetchDocument();

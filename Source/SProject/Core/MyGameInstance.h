@@ -1,4 +1,4 @@
-﻿
+
 #pragma once
 
 #include "Core/GGameInstance.h"
@@ -35,9 +35,9 @@ class MY_API UMyGameInstanceHelper : public UBlueprintFunctionLibrary
     GENERATED_BODY()
 
 public:
-    UFUNCTION(BlueprintCallable, Category = "게임로드", meta = (WorldContext = "WorldContextObject"))
+    UFUNCTION(BlueprintCallable, Category = "寃뚯엫濡쒕뱶", meta = (WorldContext = "WorldContextObject"))
     static void LoadStartupTable(UObject* WorldContextObject);
 
-    UFUNCTION(BlueprintCallable, Category = "게임로드", meta = (WorldContext = "WorldContextObject"))
+    UFUNCTION(BlueprintCallable, Category = "寃뚯엫濡쒕뱶", meta = (WorldContext = "WorldContextObject"))
     static void LoadTable(UObject* WorldContextObject);
 };

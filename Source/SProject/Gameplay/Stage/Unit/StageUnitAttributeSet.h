@@ -1,4 +1,4 @@
-﻿
+
 #pragma once
 
 #include "AbilitySystemComponent.h"
@@ -11,18 +11,18 @@
 UENUM(BlueprintType)
 enum class EStageUnitAttribute : uint8
 {
-	None			= 0			UMETA(DisplayName = "없음"),
+	None			= 0			UMETA(DisplayName = "?놁쓬"),
 
-	Level			= 1			UMETA(DisplayName = "레벨"),
-	Grade			= 2			UMETA(DisplayName = "등급"),
-	Attack			= 3			UMETA(DisplayName = "공격력"),
-	Defence			= 4			UMETA(DisplayName = "방어력"),
-	MaxHp			= 5			UMETA(DisplayName = "최대체력"),
-	Hp				= 6			UMETA(DisplayName = "현재체력"),
-	AttackSpeed		= 7			UMETA(DisplayName = "공격속도"),
-	MovementSpeed	= 8			UMETA(DisplayName = "이동속도"),
-	Range			= 9			UMETA(DisplayName = "사거리"),
-	SplashScale		= 10		UMETA(DisplayName = "스플래쉬 범위"),
+	Level			= 1			UMETA(DisplayName = "?덈꺼"),
+	Grade			= 2			UMETA(DisplayName = "?깃툒"),
+	Attack			= 3			UMETA(DisplayName = "怨듦꺽??),
+	Defence			= 4			UMETA(DisplayName = "諛⑹뼱??),
+	MaxHp			= 5			UMETA(DisplayName = "理쒕?泥대젰"),
+	Hp				= 6			UMETA(DisplayName = "?꾩옱泥대젰"),
+	AttackSpeed		= 7			UMETA(DisplayName = "怨듦꺽?띾룄"),
+	MovementSpeed	= 8			UMETA(DisplayName = "?대룞?띾룄"),
+	Range			= 9			UMETA(DisplayName = "?ш굅由?),
+	SplashScale		= 10		UMETA(DisplayName = "?ㅽ뵆?섏돩 踰붿쐞"),
 
 	Max							UMETA(Hidden),
 };
@@ -83,10 +83,10 @@ class MY_API UStageUnitAttributeHelper : public UBlueprintFunctionLibrary
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintCallable, Category = "스테이지|어트리뷰트")
+	UFUNCTION(BlueprintCallable, Category = "?ㅽ뀒?댁?|?댄듃由щ럭??)
 	static FGameplayAttribute ConvertAttribute(EStageUnitAttribute Attribute);
 
-	UFUNCTION(BlueprintCallable, Category = "스테이지|어트리뷰트")
+	UFUNCTION(BlueprintCallable, Category = "?ㅽ뀒?댁?|?댄듃由щ럭??)
 	static EStageUnitAttribute ConvertAttributeType(FGameplayAttribute Attribute);
 
 };

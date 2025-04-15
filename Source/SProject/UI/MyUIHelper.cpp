@@ -1,4 +1,4 @@
-﻿
+
 #include "MyUIHelper.h"
 
 #include "CommonInputSubsystem.h"

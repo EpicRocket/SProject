@@ -1,4 +1,4 @@
-﻿
+
 #include "GameplayTeamActor.h"
 // include GameCore
 #include "Core/GPlayerController.h"

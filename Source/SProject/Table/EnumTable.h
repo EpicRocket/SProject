@@ -1,4 +1,4 @@
-// 이 파일은 자동으로 생성된 파일입니다. 수동으로 수정하지 마세요.
+// ?????뵬?? ?癒?짗??곗쨮 ??밴쉐?????뵬??낅빍?? ??롫짗??곗쨮 ??륁젟??? 筌띾뜆苑??
 
 #pragma once
 
@@ -10,30 +10,30 @@
 
 UENUM(BlueprintType)
 enum class EAttackType : uint8{
-	None = 0 UMETA(DisplayName = "안씀"),
-	TowerNomalAttack = 1 UMETA(DisplayName = "즉발형"),
-	TowerProjectileAttack = 2 UMETA(DisplayName = "투사체형"),
-	TowerRangeAttack = 3 UMETA(DisplayName = "범위 공격형"),
-	TowerSupportAttack = 4 UMETA(DisplayName = "지원형"),
-	MeleeAttack = 5 UMETA(DisplayName = "근접 공격형"),
-	RangeAttack = 6 UMETA(DisplayName = "원거리 공격형"),
-	SupportAttack = 7 UMETA(DisplayName = "몬스터 지원형"),
+	None = 0 UMETA(DisplayName = "???"),
+	TowerNomalAttack = 1 UMETA(DisplayName = "筌앸맧而??),
+	TowerProjectileAttack = 2 UMETA(DisplayName = "??沅쀯㎗?꾩굨"),
+	TowerRangeAttack = 3 UMETA(DisplayName = "甕곕뗄???⑤벀爰??),
+	TowerSupportAttack = 4 UMETA(DisplayName = "筌왖?癒곗굨"),
+	MeleeAttack = 5 UMETA(DisplayName = "域뱀눘???⑤벀爰??),
+	RangeAttack = 6 UMETA(DisplayName = "?癒?탢???⑤벀爰??),
+	SupportAttack = 7 UMETA(DisplayName = "筌뤣딅뮞??筌왖?癒곗굨"),
 	Max UMETA(Hidden)
 };
 ENUM_RANGE_BY_COUNT(EAttackType, EAttackType::Max)
 
 UENUM(BlueprintType)
 enum class EItemType : uint8{
-	None = 0 UMETA(DisplayName = "안씀"),
-	Resource = 1 UMETA(DisplayName = "재화"),
+	None = 0 UMETA(DisplayName = "???"),
+	Resource = 1 UMETA(DisplayName = "????),
 	Max UMETA(Hidden)
 };
 ENUM_RANGE_BY_COUNT(EItemType, EItemType::Max)
 
 UENUM(BlueprintType)
 enum class EUseType : uint8{
-	None = 0 UMETA(DisplayName = "안씀"),
-	GetResource = 1 UMETA(DisplayName = "재화 즉시 획득"),
+	None = 0 UMETA(DisplayName = "???"),
+	GetResource = 1 UMETA(DisplayName = "????筌앸맩????얜굣"),
 	Max UMETA(Hidden)
 };
 ENUM_RANGE_BY_COUNT(EUseType, EUseType::Max)

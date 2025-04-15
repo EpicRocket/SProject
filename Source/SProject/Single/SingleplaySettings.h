@@ -1,4 +1,4 @@
-﻿
+
 #pragma once
 
 #include "Engine/DeveloperSettings.h"
@@ -7,7 +7,7 @@
 #include "SingleplaySettings.generated.h"
 
 
-UCLASS(Config = Game, DefaultConfig, meta = (DisplayName = "싱글플레이"))
+UCLASS(Config = Game, DefaultConfig, meta = (DisplayName = "?깃??뚮젅??))
 class MY_API USingleplaySettings : public UDeveloperSettings
 {
     GENERATED_BODY()

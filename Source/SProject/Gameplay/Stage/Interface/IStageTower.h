@@ -1,4 +1,4 @@
-﻿
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -19,15 +19,15 @@ class MY_API IStageTower : public IInterface
     GENERATED_BODY()
 
 public:
-    UFUNCTION(BlueprintCallable, Category = "타워", meta = (ShortToolTip = "타워 타입"))
+    UFUNCTION(BlueprintCallable, Category = "???, meta = (ShortToolTip = "??????))
     virtual EStageTowerType GetTowerType() const = 0;
 
-    UFUNCTION(BlueprintCallable, Category = "타워", meta = (ShortToolTip = "타워 분류"))
+    UFUNCTION(BlueprintCallable, Category = "???, meta = (ShortToolTip = "???遺꾨쪟"))
 	virtual int32 GetKind() const = 0;
 
-	UFUNCTION(BlueprintCallable, Category = "타워", meta = (ShortToolTip = "타워 레벨"))
+	UFUNCTION(BlueprintCallable, Category = "???, meta = (ShortToolTip = "????덈꺼"))
 	virtual int32 GetLevel() const = 0;
 
-    UFUNCTION(BlueprintCallable, Category = "타워", meta = (ShortToolTip = "판매 가격"))
+    UFUNCTION(BlueprintCallable, Category = "???, meta = (ShortToolTip = "?먮ℓ 媛寃?))
 	virtual int64 GetSellPrice() const = 0;
 };

@@ -1,4 +1,4 @@
-﻿
+
 #include "GameplayPathActor.h"
 // include Engine
 #include "Components/SplineComponent.h"

@@ -1,4 +1,4 @@
-﻿
+
 #include "UserSubsystem.h"
 // include Engine
 #include "Engine/LocalPlayer.h"

@@ -1,4 +1,4 @@
-﻿
+
 #pragma once
 
 #include "Subsystems/LocalPlayerSubsystem.h"
@@ -16,7 +16,7 @@ DECLARE_DYNAMIC_DELEGATE_OneParam(FOnUserLoginEvent, int32, ErrCode);
 DECLARE_DYNAMIC_DELEGATE_OneParam(FOnUserLogoutEvent, int32, ErrCode);
 DECLARE_DYNAMIC_DELEGATE_OneParam(FOnUserConnectedEvent, int32, ErrCode);
 
-/** 사용자 계정 관리 시스템*/
+/** ?ъ슜??怨꾩젙 愿由??쒖뒪??/
 UCLASS()
 class MY_API UUserAccountSubsystem : public ULocalPlayerSubsystem
 {
@@ -31,25 +31,25 @@ public:
 
 	void UnbindUserDocumentMiddleware(TScriptInterface<IUserDocumentMiddleware> Middleware);
 
-	UFUNCTION(BlueprintCallable, Category = "사용자 계정", meta = (ReturnDisplayName="Success"))
+	UFUNCTION(BlueprintCallable, Category = "?ъ슜??怨꾩젙", meta = (ReturnDisplayName="Success"))
 	bool Login(EUserLoginType LoginType, FOnUserLoginEvent LoginEvent);
 
-	UFUNCTION(BlueprintCallable, Category = "사용자 계정", meta = (ReturnDisplayName = "Success"))
+	UFUNCTION(BlueprintCallable, Category = "?ъ슜??怨꾩젙", meta = (ReturnDisplayName = "Success"))
 	bool ReLogin(FOnUserLoginEvent LoginEvent);
 
-	UFUNCTION(BlueprintCallable, Category = "사용자 계정", meta = (ReturnDisplayName = "Success"))
+	UFUNCTION(BlueprintCallable, Category = "?ъ슜??怨꾩젙", meta = (ReturnDisplayName = "Success"))
 	bool Logout(FOnUserLogoutEvent LogoutEvent);
 
-	UFUNCTION(BlueprintCallable, Category = "사용자 계정", meta = (ReturnDisplayName="Success"))
+	UFUNCTION(BlueprintCallable, Category = "?ъ슜??怨꾩젙", meta = (ReturnDisplayName="Success"))
 	bool Connect(FOnUserConnectedEvent ConnectEvent);
 
-	UFUNCTION(BlueprintCallable, Category = "사용자 계정")
+	UFUNCTION(BlueprintCallable, Category = "?ъ슜??怨꾩젙")
 	bool IsLogin() const;
 
-	UFUNCTION(BlueprintCallable, Category = "사용자 계정")
+	UFUNCTION(BlueprintCallable, Category = "?ъ슜??怨꾩젙")
 	EUserLoginType GetUserLoginType() const;
 
-	UFUNCTION(BlueprintCallable, Category = "사용자 계정")
+	UFUNCTION(BlueprintCallable, Category = "?ъ슜??怨꾩젙")
 	FString GetUserLoginTypeToString() const;
 
 private:

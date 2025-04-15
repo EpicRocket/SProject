@@ -1,4 +1,4 @@
-﻿
+
 #pragma once
 
 #include "Subsystems/WorldSubsystem.h"
@@ -18,25 +18,25 @@ class MY_API UGameWorldSubsystem : public UWorldSubsystem
 public:
     virtual void OnWorldBeginPlay(UWorld& InWorld) override;
 
-    UFUNCTION(BlueprintCallable, Category = "게임플레이", meta = (Latent = "", LatentInfo = "LatentInfo", ReturnDisplayName = "Request Success"))
+    UFUNCTION(BlueprintCallable, Category = "寃뚯엫?뚮젅??, meta = (Latent = "", LatentInfo = "LatentInfo", ReturnDisplayName = "Request Success"))
     bool RequestLoadGameWorld(const TSoftObjectPtr<UWorld> Level, bool bMakeVisibleAfterLoad, bool bShouldBlockOnLoad, FLatentActionInfo LatentInfo);
 
-    // 로드 된 레벨이 존재하는지 판별
-    UFUNCTION(BlueprintCallable, Category = "게임플레이")
+    // 濡쒕뱶 ???덈꺼??議댁옱?섎뒗吏 ?먮퀎
+    UFUNCTION(BlueprintCallable, Category = "寃뚯엫?뚮젅??)
     bool IsExistsLoadedGameWorld() const;
 
-    // 레벨 로드 중인지 판별
-    UFUNCTION(BlueprintCallable, Category = "게임플레이")
+    // ?덈꺼 濡쒕뱶 以묒씤吏 ?먮퀎
+    UFUNCTION(BlueprintCallable, Category = "寃뚯엫?뚮젅??)
 	bool IsDoingLoadGameWorld() const;
 
-	// 레벨 언로드 중인지 판별
-    UFUNCTION(BlueprintCallable, Category = "게임플레이")
+	// ?덈꺼 ?몃줈??以묒씤吏 ?먮퀎
+    UFUNCTION(BlueprintCallable, Category = "寃뚯엫?뚮젅??)
 	bool IsDoingUnloadGameWorld() const;
 
-	UFUNCTION(BlueprintPure, Category = "게임플레이")
+	UFUNCTION(BlueprintPure, Category = "寃뚯엫?뚮젅??)
     AMyGameLevel* FindLoadedLevel(TSoftObjectPtr<UWorld> Level);
 
-    UFUNCTION(BlueprintPure, Category = "게임플레이")
+    UFUNCTION(BlueprintPure, Category = "寃뚯엫?뚮젅??)
     AMyGameLevel* GetTopLevel();
 
 private:

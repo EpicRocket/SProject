@@ -1,4 +1,4 @@
-﻿
+
 #include "StageDamageModMagnitudeCalculation.h"
 
 #include "Gameplay/Stage/Unit/StageUnitCharacter.h"

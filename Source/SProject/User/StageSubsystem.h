@@ -1,4 +1,4 @@
-﻿
+
 #pragma once
 
 #include "Subsystems/LocalPlayerSubsystem.h"
@@ -14,7 +14,7 @@ struct FStage;
 struct FTower;
 
 /*
- * 유저의 스테이지 별 정보를 관리하는 서브시스템
+ * ?좎????ㅽ뀒?댁? 蹂??뺣낫瑜?愿由ы븯???쒕툕?쒖뒪??
  */
 UCLASS()
 class MY_API UStageSubsystem : public ULocalPlayerSubsystem, public IUserDocumentMiddleware
@@ -32,15 +32,15 @@ public:
     virtual void ApplyUserDocumentChanges(const TSharedRef<FFetchDocument> FetchDocument) override;
     // ~IUserDocumentMiddleware
 
-    UFUNCTION(BlueprintCallable, Category = "스테이지", meta = (DisplayName = "GetLastStageLevel"))
+    UFUNCTION(BlueprintCallable, Category = "?ㅽ뀒?댁?", meta = (DisplayName = "GetLastStageLevel"))
     int32 K2_GetLastStageLevel() const;
     TSharedRef<int32> GetLastStageLevel() const;
 
-    UFUNCTION(BlueprintCallable, Category = "스테이지", meta = (DisplayName = "GetLastStage"))
+    UFUNCTION(BlueprintCallable, Category = "?ㅽ뀒?댁?", meta = (DisplayName = "GetLastStage"))
     FStage K2_GetLastStage() const;
     TSharedRef<FStage> GetLastStage() const;
     
-    UFUNCTION(BlueprintCallable, Category = "스테이지", meta = (DisplayName = "GetStageLevel"))
+    UFUNCTION(BlueprintCallable, Category = "?ㅽ뀒?댁?", meta = (DisplayName = "GetStageLevel"))
     FStage K2_GetStage(int32 Level) const;
     TSharedRef<FStage> GetStage(int32 Level) const;
 

@@ -1,4 +1,4 @@
-﻿
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -6,7 +6,7 @@
 #include "UserTypes.generated.h"
 
 /*
- * 지원하는 유저 로그인 타입
+ * 吏?먰븯???좎? 濡쒓렇?????
  */
 UENUM(BlueprintType)
 enum class EUserLoginType : uint8
@@ -38,7 +38,7 @@ struct MY_API FUserAccount
 	}
 };
 
-/** 유저 정보 */
+/** ?좎? ?뺣낫 */
 USTRUCT(BlueprintType)
 struct MY_API FUserInfo
 {

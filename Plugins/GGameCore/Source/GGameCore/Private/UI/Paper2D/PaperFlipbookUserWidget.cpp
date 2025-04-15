@@ -1,4 +1,4 @@
-﻿
+
 #include "UI/Paper2D/PaperFlipbookUserWidget.h"
 #include "Slate/SlateBrushAsset.h"
 #include "UI/Paper2D/SPaperFlipbookWidget.h"

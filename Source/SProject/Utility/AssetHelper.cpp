@@ -1,4 +1,4 @@
-﻿
+
 #include "AssetHelper.h"
 #include "Engine/Texture2D.h"
 

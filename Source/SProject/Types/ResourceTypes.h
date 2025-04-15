@@ -1,11 +1,11 @@
-﻿
+
 #pragma once
 
 #include "CoreMinimal.h"
 
 #include "ResourceTypes.generated.h"
 
-/** 아이템 정보 */
+/** ?꾩씠???뺣낫 */
 USTRUCT(BlueprintType)
 struct MY_API FItem
 {

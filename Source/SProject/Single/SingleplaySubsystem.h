@@ -1,4 +1,4 @@
-﻿
+
 #pragma once
 
 #include "Subsystems/GameInstanceSubsystem.h"
@@ -11,7 +11,7 @@ class ULocalPlayer;
 DECLARE_LOG_CATEGORY_EXTERN(LogSingleplay, Log, All);
 
 /*
- * 싱글플레이 서브시스템
+ * ?깃??뚮젅???쒕툕?쒖뒪??
  */
 UCLASS()
 class MY_API USingleplaySubsystem : public UGameInstanceSubsystem
@@ -25,10 +25,10 @@ public:
 
     virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
-	UFUNCTION(BlueprintCallable, Category = "싱글플레이")
+	UFUNCTION(BlueprintCallable, Category = "?깃??뚮젅??)
     void Load();
 
-    UFUNCTION(BlueprintCallable, Category = "싱글플레이")
+    UFUNCTION(BlueprintCallable, Category = "?깃??뚮젅??)
     USingleplaySaveGameContext* GetSaveGame() const;
 
 private:

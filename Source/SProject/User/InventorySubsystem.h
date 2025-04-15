@@ -1,4 +1,4 @@
-﻿
+
 #pragma once
 
 #include "Subsystems/LocalPlayerSubsystem.h"
@@ -11,7 +11,7 @@ struct FFetchDocument;
 struct FItem;
 
 /*
- * 유저의 자원을 관리하는 시스템
+ * ?좎????먯썝??愿由ы븯???쒖뒪??
  */
 UCLASS()
 class MY_API UInventorySubsystem : public ULocalPlayerSubsystem, public IUserDocumentMiddleware
@@ -28,13 +28,13 @@ public:
     virtual void ApplyUserDocumentChanges(const TSharedRef<FFetchDocument> FetchDocument) override;
     // ~IUserDocumentMiddleware
 
-    UFUNCTION(BlueprintCallable, Category = "인벤토리")
+    UFUNCTION(BlueprintCallable, Category = "?몃깽?좊━")
     int64 GetGold() const;
 
-    UFUNCTION(BlueprintCallable, Category = "인벤토리")
+    UFUNCTION(BlueprintCallable, Category = "?몃깽?좊━")
     int32 GetCash() const;
 
-    UFUNCTION(BlueprintCallable, Category = "인벤토리", meta = (ShortToolTip = "인벤토리에서 아이템을 찾습니다."))
+    UFUNCTION(BlueprintCallable, Category = "?몃깽?좊━", meta = (ShortToolTip = "?몃깽?좊━?먯꽌 ?꾩씠?쒖쓣 李얠뒿?덈떎."))
     FItem Get(int32 Key) const;
 
 private:
