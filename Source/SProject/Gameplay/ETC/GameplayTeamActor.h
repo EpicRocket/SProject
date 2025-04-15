@@ -15,12 +15,12 @@ class MY_API AGameplayTeamActor : public AActor, public IGTeamAgent
 	GENERATED_BODY()
 
 public:
-    // IGTeamAgent
+	// IGTeamAgent
 	virtual void SetGenericTeamId(const FGenericTeamId& InTeamID) override;
 	virtual FGenericTeamId GetGenericTeamId() const override;
-    // ~IGTeamAgent
+	// ~IGTeamAgent
 
 public:
-    UPROPERTY(EditInstanceOnly, Category = "Team")
+	UPROPERTY(EditInstanceOnly, Category = "Team")
 	uint8 TeamID = 255;
 };

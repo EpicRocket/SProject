@@ -11,7 +11,7 @@
 UCLASS()
 class UK2Node_AsyncAction_ListenForGMessage : public UK2Node_AsyncAction
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
 public:
 	// UEdGraphNode

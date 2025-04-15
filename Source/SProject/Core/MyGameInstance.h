@@ -9,35 +9,35 @@
 UCLASS()
 class MY_API UMyGameInstance : public UGGameInstance
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
 public:
-    UFUNCTION(BlueprintCallable)
-    void LoadStartupTable();
+	UFUNCTION(BlueprintCallable)
+	void LoadStartupTable();
 protected:
-    UFUNCTION(BlueprintImplementableEvent)
-    void K2_OnLoadStartupTable();
-    virtual void OnLoadStartupTable();
+	UFUNCTION(BlueprintImplementableEvent)
+	void K2_OnLoadStartupTable();
+	virtual void OnLoadStartupTable();
 
 public:
-    UFUNCTION(BlueprintCallable)
-    void LoadTable();
+	UFUNCTION(BlueprintCallable)
+	void LoadTable();
 protected:
-    UFUNCTION(BlueprintImplementableEvent)
-    void K2_OnTableLoad();
-    virtual void OnTableLoad();
+	UFUNCTION(BlueprintImplementableEvent)
+	void K2_OnTableLoad();
+	virtual void OnTableLoad();
 
 };
 
 UCLASS()
 class MY_API UMyGameInstanceHelper : public UBlueprintFunctionLibrary
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
 public:
-    UFUNCTION(BlueprintCallable, Category = "寃뚯엫濡쒕뱶", meta = (WorldContext = "WorldContextObject"))
-    static void LoadStartupTable(UObject* WorldContextObject);
+	UFUNCTION(BlueprintCallable, Category = "寃뚯엫濡쒕뱶", meta = (WorldContext = "WorldContextObject"))
+	static void LoadStartupTable(UObject* WorldContextObject);
 
-    UFUNCTION(BlueprintCallable, Category = "寃뚯엫濡쒕뱶", meta = (WorldContext = "WorldContextObject"))
-    static void LoadTable(UObject* WorldContextObject);
+	UFUNCTION(BlueprintCallable, Category = "寃뚯엫濡쒕뱶", meta = (WorldContext = "WorldContextObject"))
+	static void LoadTable(UObject* WorldContextObject);
 };

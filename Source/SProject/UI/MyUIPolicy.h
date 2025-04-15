@@ -11,6 +11,6 @@ class UMyGameLayout;
 UCLASS(Abstract, meta = (DisableNativeTick))
 class MY_API UMyUIPolicy : public UGUIPolicy
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
 };

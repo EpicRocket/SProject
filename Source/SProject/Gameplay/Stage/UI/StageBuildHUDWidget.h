@@ -11,17 +11,17 @@ class AStageBuildZone;
 UCLASS()
 class MY_API UStageBuildHUDWidget : public UCommonActivatableWidget
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
 public:
-    UFUNCTION(BlueprintCallable)
-    void Setup(AStageBuildZone* OwnerBuildZone);
+	UFUNCTION(BlueprintCallable)
+	void Setup(AStageBuildZone* OwnerBuildZone);
 
 protected:
-    UFUNCTION(BlueprintImplementableEvent)
-    void OnSetup();
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnSetup();
 
 public:
-    UPROPERTY(BlueprintReadOnly)
-    TWeakObjectPtr<AStageBuildZone> Owner;
+	UPROPERTY(BlueprintReadOnly)
+	TWeakObjectPtr<AStageBuildZone> Owner;
 };

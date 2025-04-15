@@ -7,13 +7,13 @@
 #include "SingleplaySettings.generated.h"
 
 
-UCLASS(Config = Game, DefaultConfig, meta = (DisplayName = "?깃??뚮젅??))
+UCLASS(Config = Game, DefaultConfig)
 class MY_API USingleplaySettings : public UDeveloperSettings
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
 public:
-    UPROPERTY(Config, EditAnywhere)
-    FUserDocument UserDocument;
+	UPROPERTY(Config, EditAnywhere)
+	FUserDocument UserDocument;
 
 };

@@ -19,10 +19,10 @@ class MY_API IGameplayActorTag : public IInterface
 public:
 	static const FName PositionTagName;
 
-	UFUNCTION(BlueprintCallable, Category = "寃뚯엫?뚮젅???≫꽣")
+	UFUNCTION(BlueprintCallable)
 	virtual void SetPosition(int32 InPosition);
 
-	UFUNCTION(BlueprintCallable, Category = "寃뚯엫?뚮젅???≫꽣")
+	UFUNCTION(BlueprintCallable)
 	virtual int32 GetPosition() const;
 
 };

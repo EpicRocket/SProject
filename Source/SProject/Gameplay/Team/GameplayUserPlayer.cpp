@@ -13,20 +13,20 @@
 
 APlayerController* AGameplayUserPlayer::GetOwningPlayerController() const
 {
-    if (!OwningPlayerController.IsValid())
-    {
-        return nullptr;
-    }
+	if (!OwningPlayerController.IsValid())
+	{
+		return nullptr;
+	}
 
-    return OwningPlayerController.Get();
+	return OwningPlayerController.Get();
 }
 
 ULocalPlayer* AGameplayUserPlayer::GetOwningLocalPlayer() const
 {
-    if (!OwningPlayerController.IsValid())
-    {
-        return nullptr;
-    }
+	if (!OwningPlayerController.IsValid())
+	{
+		return nullptr;
+	}
 
-    return OwningPlayerController->GetLocalPlayer();
+	return OwningPlayerController->GetLocalPlayer();
 }

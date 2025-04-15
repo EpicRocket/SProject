@@ -44,7 +44,6 @@ void USingleplaySubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	LoadedSaveGame = NewObject<USingleplaySaveGameContext>(this, USingleplaySaveGameContext::StaticClass());
 	if (!IsValid(LoadedSaveGame))
 	{
-		UE_LOG(LogSingleplay, Error, TEXT("SaveGameContext ?앹꽦???ㅽ뙣?섏??듬땲??"));
 		return;
 	}
 

@@ -11,27 +11,27 @@ class AStageLevel;
 UENUM(BlueprintType, meta = (Bitflags))
 enum class EStagePlayerFlag : uint8
 {
-    None                UMETA(DisplayName = "None"),
-    Build               UMETA(DisplayName = "嫄댁꽕"),
+	None,
+	Build,
 };
 
-UCLASS(Abstract, BlueprintType, Blueprintable, hideCategories=(Navigation), ClassGroup = "Stage")
+UCLASS(Abstract, BlueprintType, Blueprintable, hideCategories = (Navigation), ClassGroup = "Stage")
 class MY_API AStagePlayerPawn : public APawn
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
 public:
-    virtual void PossessedBy(AController* NewController) override;
-    virtual void UnPossessed() override;
+	virtual void PossessedBy(AController* NewController) override;
+	virtual void UnPossessed() override;
 
 private:
-    void OnUpdateState();
+	void OnUpdateState();
 
 protected:
-    UPROPERTY(Transient, BlueprintReadOnly)
-    TWeakObjectPtr<AStageLevel> CurrentLevel;
+	UPROPERTY(Transient, BlueprintReadOnly)
+	TWeakObjectPtr<AStageLevel> CurrentLevel;
 
 private:
-    UPROPERTY(Transient, meta = (Bitmask, BitmaskEnum = "EStagePlayerFlag"))
-    int32 PlayerFlags = 0;
+	UPROPERTY(Transient, meta = (Bitmask, BitmaskEnum = "EStagePlayerFlag"))
+	int32 PlayerFlags = 0;
 };

@@ -11,7 +11,7 @@ UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_ABILITY_SIMPLE_FAILURE_MESSAGE);
 USTRUCT(BlueprintType)
 struct FGAbilitySimpleFailureMessage
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
 public:
 	UPROPERTY(BlueprintReadWrite)

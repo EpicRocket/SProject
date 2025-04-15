@@ -18,13 +18,13 @@ public class GGameCoreEditor : ModuleRules
 				"PropertyEditor",
 				"UnrealEd",
 			}
-        );
+		);
 
-        PrivateDependencyModuleNames.AddRange(
+		PrivateDependencyModuleNames.AddRange(
 		new string[]
 			{
 				"GGameCore",
 			}
-        );
+		);
 	}
 }

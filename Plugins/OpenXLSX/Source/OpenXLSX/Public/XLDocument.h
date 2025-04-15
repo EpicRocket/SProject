@@ -13,15 +13,15 @@ class XLWorkbook;
 
 class OPENXLSX_API XLDocument {
 public:
-    XLDocument();
-    ~XLDocument();
+	XLDocument();
+	~XLDocument();
 
-    void Open(FString FilePath);
+	void Open(FString FilePath);
 
-    TSharedPtr<XLWorkbook> WorkBook;
+	TSharedPtr<XLWorkbook> WorkBook;
 
 #if PLATFORM_WINDOWS
 private:
-    TSharedPtr<OpenXLSX::XLDocument> Document;
+	TSharedPtr<OpenXLSX::XLDocument> Document;
 #endif
 };

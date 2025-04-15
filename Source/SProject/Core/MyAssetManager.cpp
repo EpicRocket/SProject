@@ -8,5 +8,5 @@ void UMyAssetManager::StartInitialLoading()
 {
 	Super::StartInitialLoading();
 
-    
+	
 }

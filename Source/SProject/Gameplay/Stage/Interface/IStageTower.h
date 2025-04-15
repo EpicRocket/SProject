@@ -11,23 +11,23 @@ enum class EStageTowerType : uint8;
 UINTERFACE(BlueprintType, meta = (CannotImplementInterfaceInBlueprint))
 class MY_API UStageTower : public UInterface
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 };
 
 class MY_API IStageTower : public IInterface
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
 public:
-    UFUNCTION(BlueprintCallable, Category = "???, meta = (ShortToolTip = "??????))
-    virtual EStageTowerType GetTowerType() const = 0;
+	UFUNCTION(BlueprintCallable)
+	virtual EStageTowerType GetTowerType() const = 0;
 
-    UFUNCTION(BlueprintCallable, Category = "???, meta = (ShortToolTip = "???遺꾨쪟"))
+	UFUNCTION(BlueprintCallable)
 	virtual int32 GetKind() const = 0;
 
-	UFUNCTION(BlueprintCallable, Category = "???, meta = (ShortToolTip = "????덈꺼"))
+	UFUNCTION(BlueprintCallable)
 	virtual int32 GetLevel() const = 0;
 
-    UFUNCTION(BlueprintCallable, Category = "???, meta = (ShortToolTip = "?먮ℓ 媛寃?))
+	UFUNCTION(BlueprintCallable)
 	virtual int64 GetSellPrice() const = 0;
 };

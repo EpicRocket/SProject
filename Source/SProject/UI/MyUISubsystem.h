@@ -11,7 +11,7 @@ class UMyLocalPlayer;
 UCLASS()
 class MY_API UMyUISubsystem : public UGUIManagerSubsystem
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
 public:
 };

@@ -11,7 +11,7 @@ class ULocalPlayer;
 UCLASS()
 class MY_API UMyUIHelper : public UBlueprintFunctionLibrary
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
 public:
 };

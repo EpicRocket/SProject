@@ -15,5 +15,5 @@ AGGameState::AGGameState()
 
 UAbilitySystemComponent* AGGameState::GetAbilitySystemComponent() const
 {
-    return AbilitySystemComponent;
+	return AbilitySystemComponent;
 }

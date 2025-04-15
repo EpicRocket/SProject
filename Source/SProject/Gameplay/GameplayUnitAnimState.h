@@ -8,21 +8,21 @@
 
 namespace Unit
 {
-    UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unit_AnimState_Attack);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unit_AnimState_Attack);
 
-    UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unit_AnimState_Death);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unit_AnimState_Death);
 }
 
 USTRUCT(BlueprintType)
 struct MY_API FGameplayUnitAnimState
 {
-    GENERATED_BODY()
-    
+	GENERATED_BODY()
+	
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FGameplayTag AnimState;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<class UAnimMontage*> AnimMontages;
 
 };
@@ -30,10 +30,10 @@ public:
 UCLASS()
 class MY_API UGameplayUnitAnimStateDataAsset : public UDataAsset
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
 public:
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ForceInlineRow, Categories = "Unit.AnimState"))
-    TMap<FGameplayTag, FGameplayUnitAnimState> AnimStates;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ForceInlineRow, Categories = "Unit.AnimState"))
+	TMap<FGameplayTag, FGameplayUnitAnimState> AnimStates;
 
 };

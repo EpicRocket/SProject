@@ -42,7 +42,6 @@ void UStageTableRepository::Load()
 	SCOPED_BOOT_TIMING("UStageTableRepository::Load");
 	const double StartTime = FPlatformTime::Seconds();
 
-	// ???
 	{
 		TMap<int32, TSharedPtr<FNormalTowerTableRow>> Rows;
 		for (auto& [_, Map] : NormalTowerTableRows)
@@ -103,7 +102,6 @@ void UStageTableRepository::Load()
 		}
 	}
 
-	// 紐ъ뒪??
 	{
 		TMap<int32, TSharedPtr<FStageMonsterInfo>> Infos;
 		for (auto& [_, Info] : MonsterInfos)
@@ -137,7 +135,6 @@ void UStageTableRepository::Load()
 		}
 	}
 
-	// 紐ъ뒪??洹몃９
 	{
 		TMap<int32, TSharedPtr<FMonsterGroupTableRow>> Infos;
 		for (auto& [_, Array] : MonsterGroupInfos)
@@ -172,7 +169,6 @@ void UStageTableRepository::Load()
 		}
 	}
 
-	// ?⑥씠釉?
 	{	
 		TMap<int32, TSharedPtr<FStageWaveGroupInfo>> Infos;
 		for (auto& [_, Array] : WaveGroupInfos)
@@ -210,8 +206,6 @@ void UStageTableRepository::Load()
 			}
 		}
 	}
-
-	UE_LOG(LogTable, Display, TEXT("StageTableRepository 濡쒕뱶 ?꾨즺(%.2f)"), FPlatformTime::Seconds() - StartTime);
 }
 
 void UStageTableRepository::Unload()
@@ -227,7 +221,6 @@ TSortedMap<int32, TSharedPtr<FNormalTowerTableRow>>* UStageTableRepository::Find
 	auto Result = NormalTowerTableRows.Find(Kind);
 	if (!Result)
 	{
-		UE_LOGFMT(LogTable, Warning, "NormalTowerTableRow??李얠? 紐삵븯??듬땲?? [Kind: {Kind}]", ("Kind", Kind));
 		return nullptr;
 	}
 	return Result;
@@ -245,7 +238,6 @@ TSharedPtr<FNormalTowerTableRow>* UStageTableRepository::FindNormalTowerTableRow
 	auto Result = KindTable->Find(Level);
 	if (!Result)
 	{
-		UE_LOGFMT(LogTable, Warning, "NormalTowerTableRow??李얠? 紐삵븯??듬땲?? [Kind: {Kind}, Level: {Level}]", ("Kind", Kind), ("Level", Level));
 		return nullptr;
 	}
 
@@ -257,7 +249,6 @@ TSortedMap<int32, TSharedPtr<FStageTowerInfo>>* UStageTableRepository::FindNorma
 	auto Result = NormalTowerInfos.Find(Kind);
 	if (!Result)
 	{
-		UE_LOGFMT(LogTable, Warning, "NormalTowerInfo??李얠? 紐삵븯??듬땲?? [Kind: {Kind}]", ("Kind", Kind));
 		return nullptr;
 	}
 
@@ -275,7 +266,6 @@ TSharedPtr<FStageTowerInfo>* UStageTableRepository::FindNormalTowerInfo(int32 Ki
 	auto Result = KindTable->Find(Level);
 	if (!Result)
 	{
-		UE_LOGFMT(LogTable, Warning, "NormalTowerInfo??李얠? 紐삵븯??듬땲?? [Kind: {Kind}, Level: {Level}]", ("Kind", Kind), ("Level", Level));
 		return nullptr;
 	}
 
@@ -287,7 +277,6 @@ TSharedPtr<FStageMonsterInfo> UStageTableRepository::FindMonsterInfo(int32 Monst
 	auto Result = MonsterInfos.Find(MonsterKey);
 	if (!Result)
 	{
-		UE_LOGFMT(LogTable, Warning, "MonsterInfo??李얠? 紐삵븯??듬땲?? [MonsterKey: {MonsterKey}]", ("MonsterKey", MonsterKey));
 		return nullptr;
 	}
 	return *Result;
@@ -298,7 +287,6 @@ TArray<TSharedPtr<FMonsterGroupTableRow>>* UStageTableRepository::FindMonsterGro
 	auto Result = MonsterGroupInfos.Find(Group);
 	if (!Result)
 	{
-		UE_LOGFMT(LogTable, Warning, "MonsterGroup Info??李얠? 紐삵븯??듬땲?? [MonsterGroup: {Group}]", ("Group", Group));
 		return nullptr;
 	}
 	return Result;
@@ -309,7 +297,6 @@ TArray<TSharedPtr<FStageWaveGroupInfo>>* UStageTableRepository::FindWaveGroupInf
 	auto Result = WaveGroupInfos.Find(WaveGroup);
 	if (!Result)
 	{
-		UE_LOGFMT(LogTable, Warning, "WaveGroup Info??李얠? 紐삵븯??듬땲?? [WaveGroup: {WaveGroup}]", ("WaveGroup", WaveGroup));
 		return nullptr;
 	}
 	return Result;
@@ -418,7 +405,6 @@ int32 UStageTableHelper::GetStageTowerMaxLevel(EStageTowerType TowerType, int32 
 	} break;
 
 	default: {
-		UE_LOG(LogTable, Warning, TEXT("?????낆씠 ?섎せ?섏뿀?듬땲?? [TowerType: %s]"), *UEnum::GetValueAsString(TowerType));
 		return 0;
 	}
 	}

@@ -8,9 +8,9 @@
 UCLASS()
 class MY_API UStageDamageExecutionCalculation : public UGameplayEffectExecutionCalculation
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
 
 protected:
-    virtual void Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const override;
+	virtual void Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const override;
 };

@@ -17,7 +17,7 @@ class UPaperSprite;
 class GGAMECORE_API SPaperFlipbookWidget : public SLeafWidget
 {
 public:
-    SLATE_BEGIN_ARGS(SPaperFlipbookWidget)
+	SLATE_BEGIN_ARGS(SPaperFlipbookWidget)
 		: _ColorAndOpacity(FLinearColor::White)
 		, _OnMouseButtonDown()
 	{

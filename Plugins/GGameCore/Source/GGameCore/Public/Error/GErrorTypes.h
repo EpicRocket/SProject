@@ -9,18 +9,18 @@
 UENUM(BlueprintType)
 enum class EGErrType : uint8
 {
-    None,
-    Verbose,
-    Warning,
-    Error
+	None,
+	Verbose,
+	Warning,
+	Error
 };
 
 USTRUCT(BlueprintType)
 struct FGErrorInfo : public FTableRowBase
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
-    FGErrorInfo() {}
+	FGErrorInfo() {}
 
 	FGErrorInfo(EGErrType InErrType, const FString& InErrCode, const FText& InDescription)
 		: ErrType(InErrType)
@@ -29,12 +29,12 @@ struct FGErrorInfo : public FTableRowBase
 	{
 	}
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    EGErrType ErrType = EGErrType::None;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	EGErrType ErrType = EGErrType::None;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    FString ErrCode;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FString ErrCode;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    FText Description;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FText Description;
 };

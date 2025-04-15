@@ -11,7 +11,7 @@ class APawn;
 UCLASS(Blueprintable)
 class GGAMECORE_API AGPlayerController : public APlayerController, public IGTeamAgent
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
 public:
 	virtual void ReceivedPlayer() override;

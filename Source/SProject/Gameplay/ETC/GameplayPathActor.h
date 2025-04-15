@@ -9,7 +9,7 @@
 UCLASS(Abstract, BlueprintType, Blueprintable)
 class MY_API AGameplayPathActor : public AActor, public IGameplayActorTag
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
 public:
 	static const FName PathTagName;

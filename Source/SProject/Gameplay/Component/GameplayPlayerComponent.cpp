@@ -11,7 +11,7 @@
 
 AGameplayPlayer* UGameplayPlayerComponent::GetGameplayPlayer() const
 {
-    return Cast<AGameplayPlayer>(GetOwner());
+	return Cast<AGameplayPlayer>(GetOwner());
 }
 
 void UGameplayPlayerHelper::GetGameplayPlayerComponentByPC(APlayerController* PC, TSubclassOf<UGameplayPlayerComponent> ComponentClass, UActorComponent*& FindComponent)

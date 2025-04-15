@@ -8,8 +8,8 @@
 USTRUCT(BlueprintType)
 struct GGAMECORE_API FGPhaseMessage
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    bool bActive = false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bActive = false;
 };

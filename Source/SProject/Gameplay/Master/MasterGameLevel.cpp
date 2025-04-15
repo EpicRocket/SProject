@@ -15,13 +15,13 @@ bool AMasterGameLevel::ShouldShowLoadingScreen(FString& OutReason) const
 	auto GameWorldSubsystem = UWorld::GetSubsystem<UGameWorldSubsystem>(GetWorld());
 	if (!GameWorldSubsystem)
 	{
-		OutReason = TEXT("?붾뱶 濡쒕뱶 以?);
+		OutReason = TEXT("게임 월드 시스템을 로드 중입니다.");
 		return true;
 	}
 
 	if (!GameWorldSubsystem->IsExistsLoadedGameWorld())
 	{
-		OutReason = TEXT("?붾뱶 李얜뒗 以?);
+		OutReason = TEXT("로드 할 맵을 찾지 못하였습니다.");
 		return true;
 	}
 

@@ -22,14 +22,12 @@ void USingleplaySaveGameContext::InitSingleplay()
 	auto SingleplaySettings = GetDefault<USingleplaySettings>();
 	if (!IsValid(SingleplaySettings))
 	{
-		UE_LOG(LogSingleplay, Error, TEXT("Singleplay Settings瑜?遺덈윭?ㅼ? 紐삵뻽?듬땲??"));
 		return;
 	}
 
 	SaveGame = NewObject<USingleplaySaveGame>(GetTransientPackage(), USingleplaySaveGame::StaticClass());
 	if (!IsValid(SaveGame))
 	{
-		UE_LOG(LogSingleplay, Error, TEXT("SaveGame ?앹꽦???ㅽ뙣?섏??듬땲??"));
 		return;
 	}
 
@@ -78,37 +76,31 @@ FFetchDocument USingleplaySaveGameContext::FetchDocument()
 	auto const& SrcUserDocument = SaveGame->UserDocument;
 	auto const& DestDocument = GetUserDocument().Get();
 
-	// ?좎? ?뺣낫
 	if (SrcUserDocument.UserInfo != DestDocument.UserInfo)
 	{
 		Document.UserInfo = SrcUserDocument.UserInfo;
 	}
 
-	// 怨⑤뱶
 	if (SrcUserDocument.Gold != DestDocument.Gold)
 	{
 		Document.Gold = SrcUserDocument.Gold;
 	}
 
-	// 罹먯떆
 	if (SrcUserDocument.Cash != DestDocument.Cash)
 	{
 		Document.Cash = SrcUserDocument.Cash;
 	}
 	
-	// ?꾩씠?쒕뱾
 	if (SrcUserDocument.Items != DestDocument.Items)
 	{
 		Document.Items = SrcUserDocument.Items;
 	}
 
-	// ?ㅽ뀒?댁? ?뺣낫
 	if(SrcUserDocument.LastStageLevel != DestDocument.LastStageLevel)
 	{
 		Document.LastStageLevel = SrcUserDocument.LastStageLevel;
 	}
 
-	// ?ㅽ뀒?댁? ?곸꽭 ?뺣낫
 	if (SrcUserDocument.Stages != DestDocument.Stages)
 	{
 		Document.Stages = SrcUserDocument.Stages;

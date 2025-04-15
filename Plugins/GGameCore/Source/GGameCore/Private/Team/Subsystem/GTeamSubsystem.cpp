@@ -15,7 +15,7 @@ DEFINE_LOG_CATEGORY(LogGTeam);
 
 namespace GTeam
 {
-    template<typename T = FTableRowBase>
+	template<typename T = FTableRowBase>
 	bool LoadTableRows(UDataTable* Table, TArray<T>& Rows)
 	{
 		Rows.Empty();
@@ -43,7 +43,7 @@ namespace GTeam
 
 bool UGTeamSubsystem::DoesSupportWorldType(const EWorldType::Type WorldType) const
 {
-    return WorldType == EWorldType::Game || WorldType == EWorldType::PIE;
+	return WorldType == EWorldType::Game || WorldType == EWorldType::PIE;
 }
 
 void UGTeamSubsystem::RegisterTeams(const TArray<FGTeamTracker>& TeamTrackers, const TArray<FGRelationshipInForceTableRow>& RelationshipInForceTableRows, const TArray<FGForcesRelationshipTableRow>& ForcesRelationshipTableRows)

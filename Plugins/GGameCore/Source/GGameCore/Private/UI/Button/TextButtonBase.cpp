@@ -32,8 +32,8 @@ void UTextButtonBase::SetText(const FText& InText)
 
 void UTextButtonBase::SetJustification(ETextJustify::Type InJustification)
 {
-    if (IsValid(ContentText))
-    {
+	if (IsValid(ContentText))
+	{
 		ContentText->SetJustification(InJustification);
-    }
+	}
 }

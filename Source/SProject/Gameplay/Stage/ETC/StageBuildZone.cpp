@@ -65,7 +65,6 @@ FStageTowerReceipt AStageBuildZone::GetTowerReceipt() const
 	else
 	{
 		Receipt.bSellable = true;
-		// TODO - ?꾩떆 媛寃?-> 怨좎젙 ?좎씤媛寃??곸슜?댁빞 ?좊벏?
 		Receipt.SellPrice = 10; //SpawnedTower->GetSellPrice();
 
 		auto SpawnedTowerInfo = SpawnedTower->GetInfoRef();
@@ -111,7 +110,6 @@ void AStageBuildZone::RequestBuildTower(const FStageTowerInfo& BuildTowerInfo)
 	StagePlayerCom->AddUsePoint(-BuildTowerInfo.UsePoint);*/
 	AddUsePoint(-BuildTowerInfo.UsePoint);
 
-	// TODO: ?대? 吏?댁졇?덈떎硫??대뼸寃?泥섎━?댁빞 ?좉퉴?
 	if (SpawnedTower.IsValid())
 	{
 		SpawnedTower->Remove();
@@ -144,7 +142,6 @@ void AStageBuildZone::RequestDemolishTower(const int64 SellPrice)
 		return;
 	}
 
-	// TODO: 諛곗튂 ?ъ씤?몃? 諛쏆옄
 	//StagePlayerCom->AddUsePoint(SpawnedTower->);
 	AddUsePoint(SellPrice);
 

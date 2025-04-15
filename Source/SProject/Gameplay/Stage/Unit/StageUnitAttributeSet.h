@@ -11,20 +11,20 @@
 UENUM(BlueprintType)
 enum class EStageUnitAttribute : uint8
 {
-	None			= 0			UMETA(DisplayName = "?놁쓬"),
+	None = 0,
 
-	Level			= 1			UMETA(DisplayName = "?덈꺼"),
-	Grade			= 2			UMETA(DisplayName = "?깃툒"),
-	Attack			= 3			UMETA(DisplayName = "怨듦꺽??),
-	Defence			= 4			UMETA(DisplayName = "諛⑹뼱??),
-	MaxHp			= 5			UMETA(DisplayName = "理쒕?泥대젰"),
-	Hp				= 6			UMETA(DisplayName = "?꾩옱泥대젰"),
-	AttackSpeed		= 7			UMETA(DisplayName = "怨듦꺽?띾룄"),
-	MovementSpeed	= 8			UMETA(DisplayName = "?대룞?띾룄"),
-	Range			= 9			UMETA(DisplayName = "?ш굅由?),
-	SplashScale		= 10		UMETA(DisplayName = "?ㅽ뵆?섏돩 踰붿쐞"),
+	Level = 1,
+	Grade = 2,
+	Attack = 3,
+	Defence = 4,
+	MaxHp = 5,
+	Hp = 6,
+	AttackSpeed = 7,
+	MovementSpeed = 8,
+	Range = 9,
+	SplashScale = 10,
 
-	Max							UMETA(Hidden),
+	Max UMETA(Hidden),
 };
 ENUM_RANGE_BY_COUNT(EStageUnitAttribute, EStageUnitAttribute::Max)
 
@@ -83,10 +83,10 @@ class MY_API UStageUnitAttributeHelper : public UBlueprintFunctionLibrary
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintCallable, Category = "?ㅽ뀒?댁?|?댄듃由щ럭??)
+	UFUNCTION(BlueprintCallable)
 	static FGameplayAttribute ConvertAttribute(EStageUnitAttribute Attribute);
 
-	UFUNCTION(BlueprintCallable, Category = "?ㅽ뀒?댁?|?댄듃由щ럭??)
+	UFUNCTION(BlueprintCallable)
 	static EStageUnitAttribute ConvertAttributeType(FGameplayAttribute Attribute);
 
 };

@@ -9,7 +9,6 @@
 
 #include "DocumentTypes.generated.h"
 
-/** 湲곕낯?곸쑝濡??ъ슜?먯뿉寃??꾩슂???뺣낫 洹몃９ */
 USTRUCT(BlueprintType)
 struct MY_API FUserDocument
 {

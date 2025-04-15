@@ -8,10 +8,10 @@
 UCLASS()
 class MY_API AMasterGameLevel : public AMyGameLevel
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
 public:
-    // IGLoadingProcessInterface
-    virtual bool ShouldShowLoadingScreen(FString& OutReason) const override;
-    // ~IGLoadingProcessInterface
+	// IGLoadingProcessInterface
+	virtual bool ShouldShowLoadingScreen(FString& OutReason) const override;
+	// ~IGLoadingProcessInterface
 };

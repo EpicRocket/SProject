@@ -8,23 +8,23 @@
 UCLASS(Abstract, HideCategories = "Input")
 class GGAMECORE_API UGPhaseGameplayAbility : public UGGameplayAbility
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
 public:
-    UGPhaseGameplayAbility();
+	UGPhaseGameplayAbility();
 
 #if WITH_EDITOR
-    virtual EDataValidationResult IsDataValid(class FDataValidationContext& Context) const override;
+	virtual EDataValidationResult IsDataValid(class FDataValidationContext& Context) const override;
 #endif
 
 protected:
-    virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
-    virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
+	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
+	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 
 private:
 	void BroadcastPhaseMessage(bool bActive);
 
 public:
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "페이즈")
-    FGameplayTag PhaseTag;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "페이즈")
+	FGameplayTag PhaseTag;
 };

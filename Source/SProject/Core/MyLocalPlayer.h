@@ -8,8 +8,8 @@
 UCLASS(Transient)
 class UMyLocalPlayer : public UGLocalPlayer
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
 public:
-    
+	
 };

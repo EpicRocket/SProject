@@ -10,7 +10,7 @@
 void UMyGameInstance::LoadStartupTable()
 {
 	K2_OnLoadStartupTable();
-    OnLoadStartupTable();
+	OnLoadStartupTable();
 }
 
 void UMyGameInstance::OnLoadStartupTable()
@@ -19,8 +19,8 @@ void UMyGameInstance::OnLoadStartupTable()
 
 void UMyGameInstance::LoadTable()
 {
-    K2_OnTableLoad();
-    OnTableLoad();
+	K2_OnTableLoad();
+	OnTableLoad();
 }
 
 void UMyGameInstance::OnTableLoad()

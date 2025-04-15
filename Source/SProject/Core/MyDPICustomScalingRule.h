@@ -9,8 +9,8 @@
 UCLASS()
 class MY_API UMyDPICustomScalingRule : public UDPICustomScalingRule
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
 public:
-    virtual float GetDPIScaleBasedOnSize(FIntPoint Size) const override;
+	virtual float GetDPIScaleBasedOnSize(FIntPoint Size) const override;
 };

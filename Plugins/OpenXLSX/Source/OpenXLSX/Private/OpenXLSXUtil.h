@@ -6,7 +6,7 @@
 #include <string>
 
 namespace OpenXLSX {
-    std::string WStringToString(const std::wstring& wstr);
+	std::string WStringToString(const std::wstring& wstr);
 
-    FString UTF8ToTCHARString(const std::string& utf8Str);
+	FString UTF8ToTCHARString(const std::string& utf8Str);
 }

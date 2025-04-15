@@ -11,7 +11,7 @@
 
 TArray<TSharedPtr<XLCell>> XLRow::Cells() const
 {
-    TArray<TSharedPtr<XLCell>> Result;
+	TArray<TSharedPtr<XLCell>> Result;
 #if PLATFORM_WINDOWS
 	if (Row.IsValid())
 	{
@@ -23,7 +23,7 @@ TArray<TSharedPtr<XLCell>> XLRow::Cells() const
 		}
 	}
 #endif
-    return Result;
+	return Result;
 }
 
 #if PLATFORM_WINDOWS

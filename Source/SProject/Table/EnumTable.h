@@ -10,30 +10,30 @@
 
 UENUM(BlueprintType)
 enum class EAttackType : uint8{
-	None = 0 UMETA(DisplayName = "???"),
-	TowerNomalAttack = 1 UMETA(DisplayName = "筌앸맧而??),
-	TowerProjectileAttack = 2 UMETA(DisplayName = "??沅쀯㎗?꾩굨"),
-	TowerRangeAttack = 3 UMETA(DisplayName = "甕곕뗄???⑤벀爰??),
-	TowerSupportAttack = 4 UMETA(DisplayName = "筌왖?癒곗굨"),
-	MeleeAttack = 5 UMETA(DisplayName = "域뱀눘???⑤벀爰??),
-	RangeAttack = 6 UMETA(DisplayName = "?癒?탢???⑤벀爰??),
-	SupportAttack = 7 UMETA(DisplayName = "筌뤣딅뮞??筌왖?癒곗굨"),
+	None = 0,
+	TowerNomalAttack = 1,
+	TowerProjectileAttack = 2,
+	TowerRangeAttack = 3,
+	TowerSupportAttack = 4,
+	MeleeAttack = 5 ,
+	RangeAttack = 6 ,
+	SupportAttack = 7 ,
 	Max UMETA(Hidden)
 };
 ENUM_RANGE_BY_COUNT(EAttackType, EAttackType::Max)
 
 UENUM(BlueprintType)
 enum class EItemType : uint8{
-	None = 0 UMETA(DisplayName = "???"),
-	Resource = 1 UMETA(DisplayName = "????),
+	None = 0,
+	Resource = 1,
 	Max UMETA(Hidden)
 };
 ENUM_RANGE_BY_COUNT(EItemType, EItemType::Max)
 
 UENUM(BlueprintType)
 enum class EUseType : uint8{
-	None = 0 UMETA(DisplayName = "???"),
-	GetResource = 1 UMETA(DisplayName = "????筌앸맩????얜굣"),
+	None = 0,
+	GetResource = 1,
 	Max UMETA(Hidden)
 };
 ENUM_RANGE_BY_COUNT(EUseType, EUseType::Max)

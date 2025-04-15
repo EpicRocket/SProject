@@ -6,7 +6,6 @@
 
 #include "StageTypes.generated.h"
 
-/** ?ㅽ뀒?댁? ?뺣낫 */
 USTRUCT(BlueprintType)
 struct MY_API FStage
 {
@@ -17,11 +16,9 @@ struct MY_API FStage
 		return Tie(Level, Towers) == Tie(Other.Level, Other.Towers);
 	}
 
-	/** ?ㅽ뀒?댁????덈꺼(留? */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 Level = INDEX_NONE;
 
-	/** ?ㅽ뀒?댁???諛곗튂????뚮뱾 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FTower> Towers;
 

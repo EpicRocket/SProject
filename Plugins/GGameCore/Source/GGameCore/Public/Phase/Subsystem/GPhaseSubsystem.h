@@ -18,12 +18,12 @@ DECLARE_DELEGATE_OneParam(FGPhaseTagDelegate, const FGameplayTag& PhaseTag);
 USTRUCT()
 struct FGPhaseEntry
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
-    UPROPERTY()
-    FGameplayTag PhaseTag;
+	UPROPERTY()
+	FGameplayTag PhaseTag;
 
-    FGPhaseDelegate PhaseEndedCallback;
+	FGPhaseDelegate PhaseEndedCallback;
 };
 
 USTRUCT()
@@ -31,67 +31,67 @@ struct FGPhaseObserver
 {
 	GENERATED_BODY()
 
-    UPROPERTY()
-    FGameplayTag PhaseTag;
+	UPROPERTY()
+	FGameplayTag PhaseTag;
 
-    UPROPERTY()
-    bool bMatchExact = true;
+	UPROPERTY()
+	bool bMatchExact = true;
 
-    FGPhaseTagDelegate PhaseCallback;
+	FGPhaseTagDelegate PhaseCallback;
 
-    bool IsMatch(const FGameplayTag& ComparePhaseTag) const
-    {
-        if (bMatchExact)
-        {
-            return ComparePhaseTag == PhaseTag;
-        }
-        else
-        {
-            return ComparePhaseTag.MatchesTag(PhaseTag);
-        }
-    }
+	bool IsMatch(const FGameplayTag& ComparePhaseTag) const
+	{
+		if (bMatchExact)
+		{
+			return ComparePhaseTag == PhaseTag;
+		}
+		else
+		{
+			return ComparePhaseTag.MatchesTag(PhaseTag);
+		}
+	}
 };
 
 UCLASS()
 class GGAMECORE_API UGPhaseSubsystem : public UWorldSubsystem
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
-    friend class UGPhaseGameplayAbility;
+	friend class UGPhaseGameplayAbility;
 
 protected:
-    virtual bool DoesSupportWorldType(const EWorldType::Type WorldType) const override;
+	virtual bool DoesSupportWorldType(const EWorldType::Type WorldType) const override;
 
 public:
-    void StartPhase(TSubclassOf<UGPhaseGameplayAbility> PhaseAbility, FGPhaseDelegate PhaseEnded = FGPhaseDelegate{});
+	void StartPhase(TSubclassOf<UGPhaseGameplayAbility> PhaseAbility, FGPhaseDelegate PhaseEnded = FGPhaseDelegate{});
 
-    UFUNCTION(BlueprintCallable, Category = "Phase", meta = (DisplayName="Start Phase", AutoCreateRefTerm = "PhaseEnded"))
+	UFUNCTION(BlueprintCallable, Category = "Phase", meta = (DisplayName="Start Phase", AutoCreateRefTerm = "PhaseEnded"))
 	void K2_StartPhase(TSubclassOf<UGPhaseGameplayAbility> PhaseAbility, const FGPhaseDynamicDelegate& PhaseEnded);
 
-    void WhenPhaseStartsOrIsActive(FGameplayTag PhaseTag, bool bMatchExact, const FGPhaseTagDelegate& WhenPhaseActive);
-    UFUNCTION(BlueprintCallable, Category = "Phase", meta = (DisplayName = "When Phase Starts or Is Active", AutoCreateRefTerm = "WhenPhaseActive"))
-    void K2_WhenPhaseStartsOrIsActive(FGameplayTag PhaseTag, bool bMatchExact, FGPhaseTagDynamicDelegate WhenPhaseActive);
+	void WhenPhaseStartsOrIsActive(FGameplayTag PhaseTag, bool bMatchExact, const FGPhaseTagDelegate& WhenPhaseActive);
+	UFUNCTION(BlueprintCallable, Category = "Phase", meta = (DisplayName = "When Phase Starts or Is Active", AutoCreateRefTerm = "WhenPhaseActive"))
+	void K2_WhenPhaseStartsOrIsActive(FGameplayTag PhaseTag, bool bMatchExact, FGPhaseTagDynamicDelegate WhenPhaseActive);
 
-    void WhenPhaseEnds(FGameplayTag PhaseTag, bool bMatchExact, const FGPhaseTagDelegate& WhenPhaseEnd);
-    UFUNCTION(BlueprintCallable, Category = "Phase", meta = (DisplayName = "When Phase Ends", AutoCreateRefTerm = "WhenPhaseEnd"))
-    void K2_WhenPhaseEnds(FGameplayTag PhaseTag, bool bMatchExact, FGPhaseTagDynamicDelegate WhenPhaseEnd);
+	void WhenPhaseEnds(FGameplayTag PhaseTag, bool bMatchExact, const FGPhaseTagDelegate& WhenPhaseEnd);
+	UFUNCTION(BlueprintCallable, Category = "Phase", meta = (DisplayName = "When Phase Ends", AutoCreateRefTerm = "WhenPhaseEnd"))
+	void K2_WhenPhaseEnds(FGameplayTag PhaseTag, bool bMatchExact, FGPhaseTagDynamicDelegate WhenPhaseEnd);
 
-    UFUNCTION(BlueprintPure, meta = (AutoCreateRefTerm = "PhaseTag"))
-    bool IsPhaseActive(const FGameplayTag& PhaseTag) const;
+	UFUNCTION(BlueprintPure, meta = (AutoCreateRefTerm = "PhaseTag"))
+	bool IsPhaseActive(const FGameplayTag& PhaseTag) const;
 
-    UFUNCTION(BlueprintPure)
-    TArray<FGameplayTag> GetActivePhaseList() const;
+	UFUNCTION(BlueprintPure)
+	TArray<FGameplayTag> GetActivePhaseList() const;
 
 protected:
-    void OnBeginPhase(const UGPhaseGameplayAbility* PhaseAbility, const FGameplayAbilitySpecHandle PhaseAbilityHandle);
-    void OnEndPhase(const UGPhaseGameplayAbility* PhaseAbility, const FGameplayAbilitySpecHandle PhaseAbilityHandle);
+	void OnBeginPhase(const UGPhaseGameplayAbility* PhaseAbility, const FGameplayAbilitySpecHandle PhaseAbilityHandle);
+	void OnEndPhase(const UGPhaseGameplayAbility* PhaseAbility, const FGameplayAbilitySpecHandle PhaseAbilityHandle);
 
 private:
-    UPROPERTY(Transient)
-    TMap<FGameplayAbilitySpecHandle, FGPhaseEntry> ActivePhaseMap;
+	UPROPERTY(Transient)
+	TMap<FGameplayAbilitySpecHandle, FGPhaseEntry> ActivePhaseMap;
 
-    UPROPERTY(Transient)
-    TArray<FGPhaseObserver> PhaseStartObservers;
+	UPROPERTY(Transient)
+	TArray<FGPhaseObserver> PhaseStartObservers;
 
 	UPROPERTY(Transient)
 	TArray<FGPhaseObserver> PhaseEndObservers;

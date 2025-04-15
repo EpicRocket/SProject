@@ -5,9 +5,6 @@
 
 #include "UserTypes.generated.h"
 
-/*
- * 吏?먰븯???좎? 濡쒓렇?????
- */
 UENUM(BlueprintType)
 enum class EUserLoginType : uint8
 {
@@ -38,7 +35,6 @@ struct MY_API FUserAccount
 	}
 };
 
-/** ?좎? ?뺣낫 */
 USTRUCT(BlueprintType)
 struct MY_API FUserInfo
 {

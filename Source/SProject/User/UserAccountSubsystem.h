@@ -16,7 +16,6 @@ DECLARE_DYNAMIC_DELEGATE_OneParam(FOnUserLoginEvent, int32, ErrCode);
 DECLARE_DYNAMIC_DELEGATE_OneParam(FOnUserLogoutEvent, int32, ErrCode);
 DECLARE_DYNAMIC_DELEGATE_OneParam(FOnUserConnectedEvent, int32, ErrCode);
 
-/** ?ъ슜??怨꾩젙 愿由??쒖뒪??/
 UCLASS()
 class MY_API UUserAccountSubsystem : public ULocalPlayerSubsystem
 {
@@ -31,25 +30,25 @@ public:
 
 	void UnbindUserDocumentMiddleware(TScriptInterface<IUserDocumentMiddleware> Middleware);
 
-	UFUNCTION(BlueprintCallable, Category = "?ъ슜??怨꾩젙", meta = (ReturnDisplayName="Success"))
+	UFUNCTION(BlueprintCallable, meta = (ReturnDisplayName="Success"))
 	bool Login(EUserLoginType LoginType, FOnUserLoginEvent LoginEvent);
 
-	UFUNCTION(BlueprintCallable, Category = "?ъ슜??怨꾩젙", meta = (ReturnDisplayName = "Success"))
+	UFUNCTION(BlueprintCallable, meta = (ReturnDisplayName = "Success"))
 	bool ReLogin(FOnUserLoginEvent LoginEvent);
 
-	UFUNCTION(BlueprintCallable, Category = "?ъ슜??怨꾩젙", meta = (ReturnDisplayName = "Success"))
+	UFUNCTION(BlueprintCallable, meta = (ReturnDisplayName = "Success"))
 	bool Logout(FOnUserLogoutEvent LogoutEvent);
 
-	UFUNCTION(BlueprintCallable, Category = "?ъ슜??怨꾩젙", meta = (ReturnDisplayName="Success"))
+	UFUNCTION(BlueprintCallable, meta = (ReturnDisplayName="Success"))
 	bool Connect(FOnUserConnectedEvent ConnectEvent);
 
-	UFUNCTION(BlueprintCallable, Category = "?ъ슜??怨꾩젙")
+	UFUNCTION(BlueprintCallable)
 	bool IsLogin() const;
 
-	UFUNCTION(BlueprintCallable, Category = "?ъ슜??怨꾩젙")
+	UFUNCTION(BlueprintCallable)
 	EUserLoginType GetUserLoginType() const;
 
-	UFUNCTION(BlueprintCallable, Category = "?ъ슜??怨꾩젙")
+	UFUNCTION(BlueprintCallable)
 	FString GetUserLoginTypeToString() const;
 
 private:

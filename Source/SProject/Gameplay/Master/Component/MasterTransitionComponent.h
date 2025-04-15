@@ -8,9 +8,9 @@
 UCLASS(Abstract, Blueprintable, meta = (BlueprintSpawnableComponent), ClassGroup = "Stage")
 class MY_API UMasterTransitionComponent : public UGGameStateComponent
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
 public:
-    
+	
 
 };

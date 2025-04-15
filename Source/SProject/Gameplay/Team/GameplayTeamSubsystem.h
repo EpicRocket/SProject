@@ -12,20 +12,20 @@ class APlayerController;
 UCLASS()
 class MY_API UGameplayTeamSubsystem : public UGTeamSubsystem
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
 protected:
-    virtual void OnRegisterTeams() override;
-    virtual void OnUnregisterTeams() override;
+	virtual void OnRegisterTeams() override;
+	virtual void OnUnregisterTeams() override;
 
 public:
-    UFUNCTION(BlueprintCallable)
-    uint8 IssusePlayerTeamID(APlayerController* PC);
+	UFUNCTION(BlueprintCallable)
+	uint8 IssusePlayerTeamID(APlayerController* PC);
 
-    UFUNCTION(BlueprintCallable)
-    AGameplayPlayer* GetPlayer(uint8 ID) const;
+	UFUNCTION(BlueprintCallable)
+	AGameplayPlayer* GetPlayer(uint8 ID) const;
 
 private:
-    UPROPERTY()
+	UPROPERTY()
 	TMap<uint8, AGameplayPlayer*> Players;
 };

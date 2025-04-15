@@ -8,33 +8,33 @@
 UCLASS(Abstract, Blueprintable, BlueprintType, HideCategories = (Trigger, PhysicsVolume), ClassGroup = "Stage")
 class MY_API UPlayerInputComponent : public UGPlayerComponent
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
 public:
-    UFUNCTION(BlueprintImplementableEvent)
-    void OnInteractionActor(AActor* HitActor);
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnInteractionActor(AActor* HitActor);
 
-    UFUNCTION(BlueprintCallable, Category = "?낅젰")
-    void InteractionMouseEvent();
+	UFUNCTION(BlueprintCallable)
+	void InteractionMouseEvent();
 
-    UFUNCTION(BlueprintCallable, Category = "?낅젰")
-    void OnMousePressed();
+	UFUNCTION(BlueprintCallable)
+	void OnMousePressed();
 
-    UFUNCTION(BlueprintCallable, Category = "?낅젰")
-    void OnMouseMoved();
+	UFUNCTION(BlueprintCallable)
+	void OnMouseMoved();
 
-    UFUNCTION(BlueprintCallable, Category = "?낅젰")
-    void OnMouseReleased();
+	UFUNCTION(BlueprintCallable)
+	void OnMouseReleased();
 
-    UFUNCTION(BlueprintPure, Category = "?낅젰")
-    FVector2D GetFirstInputPosition() const;
+	UFUNCTION(BlueprintPure)
+	FVector2D GetFirstInputPosition() const;
 
-    UFUNCTION(BlueprintPure, Category = "?낅젰")
-    FVector2D GetLastInputPosition() const;
+	UFUNCTION(BlueprintPure)
+	FVector2D GetLastInputPosition() const;
 
 private:
 	bool bMousePressed = false;
 	FVector2D FirstInputPosition = FVector2D::ZeroVector;
-    mutable FVector2D LastInputPosition = FVector2D::ZeroVector;
+	mutable FVector2D LastInputPosition = FVector2D::ZeroVector;
 
 };

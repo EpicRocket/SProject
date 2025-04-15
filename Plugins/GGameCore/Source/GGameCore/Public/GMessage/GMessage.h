@@ -9,6 +9,6 @@
 USTRUCT(BlueprintType)
 struct FGMessage
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
 };

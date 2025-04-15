@@ -8,6 +8,6 @@
 USTRUCT(BlueprintType)
 struct FGameplayTransitionMessage
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
 };

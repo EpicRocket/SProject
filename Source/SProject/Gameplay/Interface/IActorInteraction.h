@@ -20,15 +20,15 @@ class MY_API IActorInteraction : public IInterface
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "寃뚯엫?뚮젅???≫꽣|?곹샇?묒슜")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void Interact();
 	virtual void Interact_Implementation() {}
 
-    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "寃뚯엫?뚮젅???≫꽣|?곹샇?묒슜")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void InteractWithActor(AActor* Instigator);
 	virtual void InteractWithActor_Implementation(AActor* Instigator) {}
 
-    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "寃뚯엫?뚮젅???≫꽣|?곹샇?묒슜")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void InteractWithPlayer(APlayerController* Instigator);
 	virtual void InteractWithPlayer_Implementation(APlayerController* Instigator) {}
 };

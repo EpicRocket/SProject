@@ -160,7 +160,7 @@ FGErrorInfo UStageSpawnComponent::SpawnMonster(uint8 TeamID, AStageLevel* StageL
 		return Err;
 	}
 
-    return SpawnComponent->SpawnTower(TeamID, StageLevel, Location, Rotation, Info, AIController, SpawnedUnit);
+	return SpawnComponent->SpawnTower(TeamID, StageLevel, Location, Rotation, Info, AIController, SpawnedUnit);
 }
 
 /* static */FGErrorInfo UStageSpawnHelper::SpawnMonster(uint8 TeamID, AStageLevel* StageLevel, FVector Location, FRotator Rotation, FStageMonsterInfo Info, TSubclassOf<AAIController> AIController, AStageMonsterUnit*& SpawnedUnit)

@@ -12,15 +12,15 @@ class UAnimMontage;
 UINTERFACE(BlueprintType, meta = (CannotImplementInterfaceInBlueprint))
 class MY_API UStageUnitAnimMontage : public UInterface
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 };
 
 class MY_API IStageUnitAnimMontage : public IInterface
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
 public:
-    UFUNCTION(BlueprintCallable, Category = "Unit|AnimState")
-    virtual UAnimMontage* GetAnimMontage(UPARAM(meta = (Categories = "AnimState")) FGameplayTag AnimState) const { return nullptr; }
+	UFUNCTION(BlueprintCallable, Category = "Unit|AnimState")
+	virtual UAnimMontage* GetAnimMontage(UPARAM(meta = (Categories = "AnimState")) FGameplayTag AnimState) const { return nullptr; }
 
 };

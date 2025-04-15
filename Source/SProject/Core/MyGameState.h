@@ -11,7 +11,7 @@ class UGAbilitySystemComponent;
 UCLASS(BlueprintType, Blueprintable)
 class MY_API AMyGameState : public AGGameState
 {
-    GENERATED_BODY()
-    
+	GENERATED_BODY()
+	
 public:
 };

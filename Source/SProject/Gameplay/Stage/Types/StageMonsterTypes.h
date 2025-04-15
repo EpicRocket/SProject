@@ -13,30 +13,30 @@ class UBehaviorTree;
 USTRUCT(BlueprintType)
 struct MY_API FStageMonsterInfo
 {
-    GENERATED_BODY()
-    
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    int32 Index = INDEX_NONE;
+	GENERATED_BODY()
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 Index = INDEX_NONE;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    int32 Level = INDEX_NONE;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 Level = INDEX_NONE;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 Grade = INDEX_NONE;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    FText Name;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FText Name;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	EAttackType AttackType = static_cast<EAttackType>(0);
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UClass* UnitClass = nullptr;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    TObjectPtr<UTexture2D> Icon;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<UTexture2D> Icon;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    TObjectPtr<UBehaviorTree> AI;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<UBehaviorTree> AI;
 
 };

@@ -82,8 +82,8 @@ public:
 UCLASS(Abstract, HideCategories = "Input")
 class GGAMECORE_API UGGameplayAbility : public UGameplayAbility
 {
-    GENERATED_BODY()
-    friend class UGAbilitySystemComponent;
+	GENERATED_BODY()
+	friend class UGAbilitySystemComponent;
 
 public:
 

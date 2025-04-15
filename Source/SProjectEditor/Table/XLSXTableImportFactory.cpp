@@ -79,7 +79,7 @@ UObject* UXLSXTableImportFactory::FactoryCreateFile(UClass* InClass, UObject* In
 {
 	FString FileExtension = FPaths::GetExtension(Filename);
 
-	check(bText); // ?앹꽦?먯뿉???ㅼ젙?섎?濡?諛붿씠?덈━濡?濡쒕뱶瑜?吏?먰븷 ?꾩슂媛 ?놁뒿?덈떎.
+	check(bText);
 
 	FString Data = ConvertXLSXToJsonString(Filename);
 	if (Data.IsEmpty())
@@ -379,12 +379,10 @@ FString UXLSXTableImportFactory::ConvertXLSXToJsonString(const FString& Filename
 		SheetDatas.Emplace(Data);
 	}
 
-	// 鍮꾩뼱?덈뒗 ???쒓굅
 	for (auto& SheetData : SheetDatas)
 	{
 		if (SheetData.Rows.Num() <= 1)
 		{
-			// ?섎せ???쒗듃媛 議댁옱??
 			UE_LOG(LogXLSXTableImporter, Error, TEXT("Invalid sheet data [SheetName:%s]"), *SheetData.SheetName);
 			return TEXT("");
 		}
@@ -408,13 +406,11 @@ FString UXLSXTableImportFactory::ConvertXLSXToJsonString(const FString& Filename
 		}
 	}
 
-	// ?꾩슂 ?녿뒗 ???쒓굅
 	for (auto& SheetData : SheetDatas)
 	{
-		SheetData.Rows.RemoveAt(1);	// ???
+		SheetData.Rows.RemoveAt(1);
 	}
 
-	// 諛곗뿴 李얘린
 	for (auto& SheetData : SheetDatas)
 	{
 		auto& Keys = SheetData.Rows[0];
@@ -469,7 +465,6 @@ FString UXLSXTableImportFactory::ConvertXLSXToJsonString(const FString& Filename
 		}
 	}
 
-	// Row ?곗씠???앹꽦
 	for (auto& SheetData : SheetDatas)
 	{
 		for (int32 Row = 0; Row < SheetData.Rows.Num(); ++Row)
@@ -487,7 +482,6 @@ FString UXLSXTableImportFactory::ConvertXLSXToJsonString(const FString& Filename
 		}
 	}
 
-	// ?쒗듃 ?곗씠??JsonObject濡?蹂??
 	TSharedRef<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
 	TArray<TSharedPtr<FJsonValue>> JsonArray;
 
@@ -510,7 +504,6 @@ FString UXLSXTableImportFactory::ConvertXLSXToJsonString(const FString& Filename
 	}
 	JsonObject->SetArrayField(TEXT("Sheets"), JsonArray);
 	
-	// JSON??FString?쇰줈 吏곷젹??
 	TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&Result);
 	FJsonSerializer::Serialize(JsonObject, Writer);
 

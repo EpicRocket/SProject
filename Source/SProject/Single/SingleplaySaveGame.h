@@ -9,7 +9,6 @@
 
 struct FFetchDocument;
 
-/** ?깃??뚮젅???몄씠釉?寃뚯엫 */
 UCLASS()
 class USingleplaySaveGame : public USaveGame
 {
@@ -23,7 +22,6 @@ public:
 	FUserDocument UserDocument;
 };
 
-/** ?깃??뚮젅???몄씠釉?寃뚯엫 ?좏떥 ?대옒??*/
 UCLASS(BlueprintType, MinimalAPI)
 class USingleplaySaveGameContext : public UObject
 {
@@ -33,19 +31,19 @@ public:
 	static FString Token;
 
 public:
-	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "?깃??뚮젅??)
+	UFUNCTION(BlueprintCallable, BlueprintCosmetic)
 	bool IsExistSaveGame() const;
 
-	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "?깃??뚮젅??)
+	UFUNCTION(BlueprintCallable, BlueprintCosmetic)
 	void InitSingleplay();
 
-	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "?깃??뚮젅??)
+	UFUNCTION(BlueprintCallable, BlueprintCosmetic)
 	bool LoadSingleplay();
 
-	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "?깃??뚮젅??)
+	UFUNCTION(BlueprintCallable, BlueprintCosmetic)
 	bool SaveSingleplay();
 
-	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "?깃??뚮젅??)
+	UFUNCTION(BlueprintCallable, BlueprintCosmetic)
 	void DeleteSignleplay();
 
 	FFetchDocument FetchDocument();

@@ -9,17 +9,17 @@
 UINTERFACE(BlueprintType)
 class GGAMECORE_API UUpdatableWidget : public UInterface
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 };
 
 class GGAMECORE_API IUpdatableWidget : public IInterface
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
 public:
-    UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-    void UpdateUI();
-    virtual void UpdateUI_Implementation() {}
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void UpdateUI();
+	virtual void UpdateUI_Implementation() {}
 
 };
 

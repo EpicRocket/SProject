@@ -7,11 +7,11 @@
 template<typename T>
 struct FGMessageListenerParams
 {
-    bool bMatchExact = true;
+	bool bMatchExact = true;
 
 	TFunction<void(FGameplayTag, const T&)> OnMessageReceivedCallback;
-    
-    template<typename T = UObject>
+	
+	template<typename T = UObject>
 	void SetMessageReceivedCallback(T* Object, void(T::* Function)(FGameplayTag, const T&))
 	{
 		TWeakObjectPtr<T> WeakObject(Object);

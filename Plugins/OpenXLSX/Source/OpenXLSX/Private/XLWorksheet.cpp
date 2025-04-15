@@ -11,19 +11,19 @@
 
 TArray<TSharedPtr<XLRow>> XLWorksheet::Rows() const
 {
-    TArray<TSharedPtr<XLRow>> Result;
+	TArray<TSharedPtr<XLRow>> Result;
 #if PLATFORM_WINDOWS
-    if (Worksheet.IsValid())
-    {
-        for (auto& Row : Worksheet->rows())
-        {
-            TSharedPtr<XLRow> RowPtr = MakeShared<XLRow>();
-            RowPtr->SetRow(Row);
-            Result.Add(RowPtr);
-        }
-    }
+	if (Worksheet.IsValid())
+	{
+		for (auto& Row : Worksheet->rows())
+		{
+			TSharedPtr<XLRow> RowPtr = MakeShared<XLRow>();
+			RowPtr->SetRow(Row);
+			Result.Add(RowPtr);
+		}
+	}
 #endif
-    return Result;
+	return Result;
 }
 
 #if PLATFORM_WINDOWS

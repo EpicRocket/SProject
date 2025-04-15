@@ -5,7 +5,6 @@
 
 #include "ResourceTypes.generated.h"
 
-/** ?꾩씠???뺣낫 */
 USTRUCT(BlueprintType)
 struct MY_API FItem
 {

@@ -29,10 +29,10 @@ public class GGameCore : ModuleRules
 				"SlateCore",
 				"UMG",
 				"Core",
-                "InputCore",
-                "RenderCore",
-                "DeveloperSettings",
-                "AIModule",
+				"InputCore",
+				"RenderCore",
+				"DeveloperSettings",
+				"AIModule",
 				"ModularGameplay",
 			}
 		);
@@ -61,11 +61,11 @@ public class GGameCore : ModuleRules
 			}
 		);
 
-        // 2D
-        PublicDependencyModuleNames.AddRange(
-            new string[] {
-                "Paper2D",
-            }
-        );
-    }
+		// 2D
+		PublicDependencyModuleNames.AddRange(
+			new string[] {
+				"Paper2D",
+			}
+		);
+	}
 }

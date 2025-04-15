@@ -30,13 +30,11 @@ void UGameplayTeamSubsystem::OnRegisterTeams()
 		}
 		else
 		{
-			UE_LOG(LogGameplay, Warning, TEXT("?뚮젅?댁뼱 ??낆씠 吏?뺣릺吏 ?딆븯?듬땲?? ID: %d"), ID);
 			continue;
 		}
 
 		if (!Player)
 		{
-			UE_LOG(LogGameplay, Warning, TEXT("?뚮젅?댁뼱瑜??앹꽦?????놁뒿?덈떎. ID: %d"), ID);
 			continue;
 		}
 
@@ -82,6 +80,5 @@ AGameplayPlayer* UGameplayTeamSubsystem::GetPlayer(uint8 ID) const
 	{
 		return Players[ID];
 	}
-	UE_LOG(LogGameplay, Warning, TEXT("UGameplayPlayer??李얠쓣 ???놁뒿?덈떎. [TeamID: %d]"), ID);
 	return nullptr;
 }

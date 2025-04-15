@@ -6,15 +6,15 @@
 
 UTexture2D* UAssetHelper::GetTexture2DFromSoftObject(TSoftObjectPtr<UTexture2D> AssetPtr)
 {
-    if (AssetPtr.IsNull())
-    {
-        return nullptr;
-    }
+	if (AssetPtr.IsNull())
+	{
+		return nullptr;
+	}
 
-    if (!AssetPtr.IsValid())
-    {
-        AssetPtr.LoadSynchronous();
-    }
+	if (!AssetPtr.IsValid())
+	{
+		AssetPtr.LoadSynchronous();
+	}
 
-    return AssetPtr.Get();
+	return AssetPtr.Get();
 }

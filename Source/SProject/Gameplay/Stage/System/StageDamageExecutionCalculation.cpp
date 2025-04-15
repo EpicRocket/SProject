@@ -12,13 +12,6 @@
 
 void UStageDamageExecutionCalculation::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
 {
-	/*
-	泥대젰 - (?쇳빐??* 諛쏅뒗 ?쇳빐 鍮꾩쑉)
-
-	諛쏅뒗 ?쇳빐 鍮꾩쑉 = 1 - ?쇳빐 ?≪닔??* 利앺룺媛?媛蹂 ?쒖닔 媛?+-5%)
-	?쇳빐 ?≪닔??= 諛⑹뼱??/ (諛⑹뼱??+ 諛⑹뼱?곸닔)
-	*/
-
 	//const FGameplayEffectSpec& Spec = ExecutionParams.GetOwningSpec();
 	auto SourceASC = ExecutionParams.GetSourceAbilitySystemComponent();
 	auto TargetASC = ExecutionParams.GetTargetAbilitySystemComponent();

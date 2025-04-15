@@ -10,13 +10,13 @@
 UCLASS(Config = Game, DefaultConfig)
 class GGAMECORE_API UGTeamSettings : public UDeveloperSettings
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
 public:
-    UGTeamSettings();
+	UGTeamSettings();
 
 public:
-    UPROPERTY(Config, EditDefaultsOnly, Category = "Team")
-    FGTeamTracker DefaultTeamTracker;
+	UPROPERTY(Config, EditDefaultsOnly, Category = "Team")
+	FGTeamTracker DefaultTeamTracker;
 
 };

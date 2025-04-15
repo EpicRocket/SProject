@@ -10,28 +10,28 @@ class UObject;
 UCLASS(BlueprintType)
 class UGBaseAttributeSet : public UGAttributeSet
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
 public:
-    UGBaseAttributeSet();
+	UGBaseAttributeSet();
 
-    ATTRIBUTE_ACCESSORS(UGBaseAttributeSet, Health);
-    ATTRIBUTE_ACCESSORS(UGBaseAttributeSet, AttackRate);
-    ATTRIBUTE_ACCESSORS(UGBaseAttributeSet, Damage);
+	ATTRIBUTE_ACCESSORS(UGBaseAttributeSet, Health);
+	ATTRIBUTE_ACCESSORS(UGBaseAttributeSet, AttackRate);
+	ATTRIBUTE_ACCESSORS(UGBaseAttributeSet, Damage);
 
-    mutable FGAttributeEvent OnHealthChanged;
+	mutable FGAttributeEvent OnHealthChanged;
 
 protected:
 
-    UPROPERTY(BlueprintReadOnly, Category = "GameCore|BaseAttribute", Meta = (AllowPrivateAccess = true))
-    FGameplayAttributeData Health;
+	UPROPERTY(BlueprintReadOnly, Category = "GameCore|BaseAttribute", Meta = (AllowPrivateAccess = true))
+	FGameplayAttributeData Health;
 
-    bool bOutOfHealth;
+	bool bOutOfHealth;
 
-    UPROPERTY(BlueprintReadOnly, Category = "GameCore|BaseAttribute", Meta = (AllowPrivateAccess = true))
-    FGameplayAttributeData AttackRate;
+	UPROPERTY(BlueprintReadOnly, Category = "GameCore|BaseAttribute", Meta = (AllowPrivateAccess = true))
+	FGameplayAttributeData AttackRate;
 
-    UPROPERTY(BlueprintReadOnly, Category = "GameCore|BaseAttribute", Meta = (AllowPrivateAccess = true))
-    FGameplayAttributeData Damage;
+	UPROPERTY(BlueprintReadOnly, Category = "GameCore|BaseAttribute", Meta = (AllowPrivateAccess = true))
+	FGameplayAttributeData Damage;
 };
 

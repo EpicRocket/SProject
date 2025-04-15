@@ -13,7 +13,7 @@ AUnitCharacter::AUnitCharacter()
 
 void AUnitCharacter::BeginPlay()
 {
-    Super::BeginPlay();
+	Super::BeginPlay();
 
 	auto CharacterMesh = GetMesh();
 	if (CharacterMesh && DefaultAnimClassLayer != nullptr)

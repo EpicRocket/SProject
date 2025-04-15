@@ -11,13 +11,13 @@ class UGUIPolicy;
 UCLASS(Config = Game, DefaultConfig)
 class GGAMECORE_API UGUISettings : public UDeveloperSettings
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
 public:
-    UGUISettings();
+	UGUISettings();
 
 public:
-    UPROPERTY(Config, EditDefaultsOnly, Category = "UI")
-    TSoftClassPtr<UGUIPolicy> DefaultPolicyClassPtr;
+	UPROPERTY(Config, EditDefaultsOnly, Category = "UI")
+	TSoftClassPtr<UGUIPolicy> DefaultPolicyClassPtr;
 
 };

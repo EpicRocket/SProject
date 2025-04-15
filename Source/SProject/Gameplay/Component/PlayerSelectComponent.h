@@ -14,7 +14,7 @@ class AActor;
 UCLASS(meta = (BlueprintSpawnableComponent))
 class MY_API UPlayerSelectComponent : public UGPlayerComponent
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
 public:
 	UFUNCTION(BlueprintCallable)
@@ -43,18 +43,18 @@ class MY_API UPlayerSelectFunctionLibrary : public UBlueprintFunctionLibrary
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintCallable, Category = "寃뚯엫?뚮젅??PC|?좏깮")
+	UFUNCTION(BlueprintCallable)
 	static void SelectActor(APlayerController* PC, AActor* Target);
 
-	UFUNCTION(BlueprintCallable, Category = "寃뚯엫?뚮젅??PC|?좏깮")
+	UFUNCTION(BlueprintCallable)
 	static void DeselectActor(APlayerController* PC, AActor* Target);
 
-	UFUNCTION(BlueprintCallable, Category = "寃뚯엫?뚮젅??PC|?좏깮")
+	UFUNCTION(BlueprintCallable)
 	static void ClearSelection(APlayerController* PC);
 
-	UFUNCTION(BlueprintCallable, Category = "寃뚯엫?뚮젅??PC|?좏깮")
+	UFUNCTION(BlueprintCallable)
 	static void ClearSelectionExceptOther(APlayerController* PC, const TSet<AActor*>& Other);
 
-	UFUNCTION(BlueprintPure, Category = "寃뚯엫?뚮젅??PC|?좏깮")
+	UFUNCTION(BlueprintPure)
 	static bool IsSelected(APlayerController* PC, AActor* Target);
 };

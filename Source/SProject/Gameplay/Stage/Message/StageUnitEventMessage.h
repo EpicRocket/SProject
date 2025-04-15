@@ -8,7 +8,7 @@
 
 namespace Stage
 {
-    UE_DECLARE_GAMEPLAY_TAG_EXTERN(Tag_Gameplay_Stage_Unit_Attack_Player);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Tag_Gameplay_Stage_Unit_Attack_Player);
 }
 
 class AStageUnitCharacter;
@@ -16,9 +16,9 @@ class AStageUnitCharacter;
 USTRUCT(BlueprintType)
 struct MY_API FStageUnitAttackPlayerMessage
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    TObjectPtr<AStageUnitCharacter> SourceUnit;
+	TObjectPtr<AStageUnitCharacter> SourceUnit;
 
 };

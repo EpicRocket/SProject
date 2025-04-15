@@ -10,7 +10,7 @@
 UCLASS(Config = SProject)
 class MY_API UMyAssetManager : public UAssetManager
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
 public:
 	virtual void StartInitialLoading() override;

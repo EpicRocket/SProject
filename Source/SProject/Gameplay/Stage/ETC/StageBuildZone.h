@@ -90,7 +90,7 @@ public:
 	TWeakObjectPtr<AStageTowerUnit> SpawnedTower;
 
 private:
-	UPROPERTY(Category = "?ㅽ뀒?댁?", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UBoxComponent> InteractionComponent;
 
 	void AddUsePoint(int64 Point);

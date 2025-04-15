@@ -9,8 +9,8 @@
 UCLASS(Abstract, Blueprintable, BlueprintType, ClassGroup = "Stage")
 class MY_API UStageTowerComponent : public UActorComponent
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
 public:
-    
+	
 };

@@ -42,10 +42,10 @@ DECLARE_MULTICAST_DELEGATE_SixParams(FGAttributeEvent, AActor* /*EffectInstigato
 UCLASS()
 class GGAMECORE_API UGAttributeSet : public UAttributeSet
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
 public:
-    
+	
 	UGAttributeSet();
 
 	UWorld* GetWorld() const override;

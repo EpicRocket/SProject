@@ -7,26 +7,26 @@
 USTRUCT(BlueprintType)
 struct MY_API FStageMonsterGroupDetail
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    int32 Sort = INDEX_NONE;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 Sort = INDEX_NONE;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    int32 MonsterKind = INDEX_NONE;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 MonsterKind = INDEX_NONE;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    int32 Amount = INDEX_NONE;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 Amount = INDEX_NONE;
 };
 
 USTRUCT(BlueprintType)
 struct MY_API FStageMonsterGroupInfo
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    int32 Group = INDEX_NONE;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 Group = INDEX_NONE;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    TArray<FStageMonsterGroupDetail> Monsters = {};
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<FStageMonsterGroupDetail> Monsters = {};
 };

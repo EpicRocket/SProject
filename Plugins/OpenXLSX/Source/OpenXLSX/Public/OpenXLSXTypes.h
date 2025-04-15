@@ -5,9 +5,9 @@
 
 enum class EOpenXLSXType : uint8
 {
-    Null,
-    Integer,
-    Float,
-    Boolean,
-    String,
+	Null,
+	Integer,
+	Float,
+	Boolean,
+	String,
 };
