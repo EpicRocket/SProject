@@ -8,56 +8,122 @@
 #include "Widgets/SViewport.h"
 #include "Math/UnitConversion.h"
 #include "HAL/PlatformApplicationMisc.h"
+#include "EnhancedInputSubsystems.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(PlayerInputComponent)
 
-void UPlayerInputComponent::InteractionMouseEvent()
+void UPlayerInputComponent::InitializeComponent()
 {
-	auto PC = GetOwningPlayer();
-	auto LocalPlayer = GetOwningLocalPlayer();
-
-	if (!IsValid(PC) || !LocalPlayer)
+	Super::InitializeComponent();
+	if (auto Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetOwningLocalPlayer()))
 	{
-		return;
-	}
-
-	UGameViewportClient* ViewportClient = LocalPlayer->ViewportClient;
-	if (!ViewportClient)
-	{
-		return;
-	}
-
-	TSharedPtr<const FSlateUser> SlateUser = LocalPlayer->GetSlateUser();
-	bool bIsWidgetDirectlyUnderCurosr = SlateUser && SlateUser->IsWidgetDirectlyUnderCursor(ViewportClient->GetGameViewportWidget());
-	if (!bIsWidgetDirectlyUnderCurosr)
-	{
-		return;
-	}
-
-	FVector2D MousePosition;
-	FHitResult HitResult;
-	bool bHit = false;
-
-	if (!ViewportClient->GetMousePosition(MousePosition))
-	{
-		return;
-	}
-
-	bHit = PC->GetHitResultAtScreenPosition(MousePosition, PC->CurrentClickTraceChannel, true, /*out*/ HitResult);
-	if (!bHit)
-	{
-		return;
-	}
-
-	auto HitActor = HitResult.HitObjectHandle.GetCachedActor();
-
-	if (IsValid(HitActor))
-	{
-		OnInteractionActor(HitActor);
+		Subsystem->ControlMappingsRebuiltDelegate.AddDynamic(this, &UPlayerInputComponent::OnControlMappingsRebuilt);
 	}
 }
 
-void UPlayerInputComponent::OnMousePressed()
+void UPlayerInputComponent::UninitializeComponent()
+{
+	Super::UninitializeComponent();
+	if (auto Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetOwningLocalPlayer()))
+	{
+		Subsystem->ControlMappingsRebuiltDelegate.RemoveDynamic(this, &UPlayerInputComponent::OnControlMappingsRebuilt);
+	}
+}
+
+FVector2D UPlayerInputComponent::GetFirstInputPosition() const
+{
+	return FirstInputPosition;
+}
+
+FVector2D UPlayerInputComponent::GetLastInputPosition() const
+{
+	return LastInputPosition;
+}
+
+void UPlayerInputComponent::OnControlMappingsRebuilt()
+{
+	auto Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetOwningLocalPlayer());
+	if (!Subsystem)
+	{
+		return;
+	}
+
+	TSortedMap<int32, EPlayerInputType> Inputs;
+	for (auto& [Type, IMC] : GetControlMappings())
+	{
+		if (!IMC)
+		{
+			continue;
+		}
+
+		int32 Priority = 0;
+		if (!Subsystem->HasMappingContext(IMC, Priority))
+		{
+			continue;
+		}
+
+		Inputs.Emplace(Priority, Type);
+	}
+	
+	if (Inputs.IsEmpty())
+	{
+		InputMode = EPlayerInputType::None;
+		return;
+	}
+
+	for (auto& [_, Type] : Inputs)
+	{
+		InputMode = Type;
+		break;
+	}
+}
+
+void UPlayerInputComponent::OnPress()
+{
+	switch (InputMode)
+	{
+	case EPlayerInputType::Mouse:
+		OnMousePress();
+		break;
+
+	default:
+		FirstInputPosition = FVector2D::ZeroVector;
+		LastInputPosition = FVector2D::ZeroVector;
+		break;
+	}
+}
+
+void UPlayerInputComponent::OnDrag()
+{
+	switch (InputMode)
+	{
+	case EPlayerInputType::Mouse:
+		OnMouseDrag();
+		break;
+
+	default:
+		FirstInputPosition = FVector2D::ZeroVector;
+		LastInputPosition = FVector2D::ZeroVector;
+		break;
+	}
+}
+
+void UPlayerInputComponent::OnRelease()
+{
+	switch (InputMode)
+	{
+	case EPlayerInputType::Mouse:
+		OnMouseRelease();
+		break;
+
+	default:
+		FirstInputPosition = FVector2D::ZeroVector;
+		LastInputPosition = FVector2D::ZeroVector;
+		break;
+	}
+}
+
+void UPlayerInputComponent::OnMousePress()
 {
 	auto LocalPlayer = GetOwningLocalPlayer();
 	if (!LocalPlayer)
@@ -72,9 +138,12 @@ void UPlayerInputComponent::OnMousePressed()
 	}
 
 	bMousePressed = ViewportClient->GetMousePosition(FirstInputPosition);
+	UE_LOGFMT(
+		LogTemp, Log, "Mouse Pressed: {Pos}", bMousePressed ? TEXT("true") : TEXT("false")
+	);
 }
 
-void UPlayerInputComponent::OnMouseMoved()
+void UPlayerInputComponent::OnMouseDrag()
 {
 	auto LocalPlayer = GetOwningLocalPlayer();
 	if (!LocalPlayer)
@@ -88,13 +157,12 @@ void UPlayerInputComponent::OnMouseMoved()
 		return;
 	}
 
-	FVector2D MousePosition;
-	if (!ViewportClient->GetMousePosition(MousePosition))
+	if (!ViewportClient->GetMousePosition(LastInputPosition))
 	{
 		return;
 	}
 
-	auto Dist = (FirstInputPosition - MousePosition).SizeSquared();
+	auto Dist = (FirstInputPosition - LastInputPosition).SizeSquared();
 	float DragTriggerDistance;
 
 	const float DragTriggerDistanceInInches = FUnitConversion::Convert(1.0f, EUnit::Millimeters, EUnit::Inches);
@@ -107,38 +175,51 @@ void UPlayerInputComponent::OnMouseMoved()
 	}
 }
 
-void UPlayerInputComponent::OnMouseReleased()
+void UPlayerInputComponent::OnMouseRelease()
 {
 	if (bMousePressed)
 	{
-		InteractionMouseEvent();
+		auto PC = GetOwningPlayer();
+		auto LocalPlayer = GetOwningLocalPlayer();
+		if (!IsValid(PC) || !IsValid(LocalPlayer))
+		{
+			return;
+		}
+
+		UGameViewportClient* ViewportClient = LocalPlayer->ViewportClient;
+		if (!ViewportClient)
+		{
+			return;
+		}
+
+		TSharedPtr<const FSlateUser> SlateUser = LocalPlayer->GetSlateUser();
+		bool bIsWidgetDirectlyUnderCurosr = SlateUser && SlateUser->IsWidgetDirectlyUnderCursor(ViewportClient->GetGameViewportWidget());
+		if (!bIsWidgetDirectlyUnderCurosr)
+		{
+			return;
+		}
+
+		FVector2D MousePosition;
+		FHitResult HitResult;
+		bool bHit = false;
+
+		if (!ViewportClient->GetMousePosition(MousePosition))
+		{
+			return;
+		}
+
+		bHit = PC->GetHitResultAtScreenPosition(MousePosition, PC->CurrentClickTraceChannel, true, /*out*/ HitResult);
+		if (!bHit)
+		{
+			return;
+		}
+
+		auto HitActor = HitResult.HitObjectHandle.GetCachedActor();
+
+		if (IsValid(HitActor))
+		{
+			OnInteractionActor(HitActor);
+		}
 	}
 	bMousePressed = false;
-}
-
-FVector2D UPlayerInputComponent::GetFirstInputPosition() const
-{
-	return FirstInputPosition;
-}
-
-FVector2D UPlayerInputComponent::GetLastInputPosition() const
-{
-	auto LocalPlayer = GetOwningLocalPlayer();
-	if (!LocalPlayer)
-	{
-		return FirstInputPosition;
-	}
-
-	UGameViewportClient* ViewportClient = LocalPlayer->ViewportClient;
-	if (!ViewportClient)
-	{
-		return FirstInputPosition;
-	}
-
-	if (!ViewportClient->GetMousePosition(LastInputPosition))
-	{
-		return FirstInputPosition;
-	}
-
-	return LastInputPosition;
 }

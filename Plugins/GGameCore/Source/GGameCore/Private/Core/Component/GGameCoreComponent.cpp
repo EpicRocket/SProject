@@ -14,6 +14,7 @@ UGGameCoreComponent::UGGameCoreComponent(const FObjectInitializer& ObjectInitial
 	: Super(ObjectInitializer)
 {
 	bAutoActivate = true;
+	bWantsInitializeComponent = true;
 	bAllowAnyoneToDestroyMe = true;
 	PrimaryComponentTick.bCanEverTick = false;
 }
