@@ -20,6 +20,7 @@ namespace Stage
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Tag_Gameplay_Stage_Player_Wave_Start);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Tag_Gameplay_Stage_Player_Wave_Pause);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Tag_Gameplay_Stage_Player_Wave_End);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Tag_Gameplay_Stage_Player_Wave_Stop);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Tag_Gameplay_Stage_Player_Wave_Spawn);
 }
 
@@ -88,4 +89,16 @@ struct FStagePlayerWaveSpawnMessage
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 SpawnMonsterIndex = 0;
+};
+
+USTRUCT(BlueprintType)
+struct FStagePlayerWaveEndMessage
+{
+	GENERATED_BODY()
+};
+
+USTRUCT(BlueprintType)
+struct FStagePlayerWaveStopMessage
+{
+	GENERATED_BODY()
 };

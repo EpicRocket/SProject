@@ -32,7 +32,7 @@ bool UStageStateComponent::ShouldShowLoadingScreen(FString& OutReason) const
 {
 	if (!bLoadCompleted)
 	{
-		OutReason = TEXT("?ㅽ뀒?댁? 濡쒕뵫 以?..");
+		OutReason = TEXT("로딩중입니다..");
 		return true;
 	}
 
@@ -71,7 +71,7 @@ FGErrorInfo UStageStateComponent::WaitForPrimaryPlayerController(FLatentActionIn
 					auto TeamID = Subsystem->IssusePlayerTeamID(PrimaryPlayerController);
 					if (TeamID == 255)
 					{
-						ErrorInfo = GameCore::Throw(GameErr::VALUE_INVALID, TEXT("諛쒓툒 ?????덈뒗 ???議댁옱?섏? ?딆쓬."));
+						ErrorInfo = GameCore::Throw(GameErr::VALUE_INVALID, TEXT("발급한 팀 ID가 존재하지 않습니다."));
 						return;
 					}
 

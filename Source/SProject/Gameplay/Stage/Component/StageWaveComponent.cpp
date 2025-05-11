@@ -33,12 +33,12 @@ FGErrorInfo UStageWaveComponent::WaveEnd()
 FGErrorInfo UStageWaveComponent::NextWave()
 {
 	auto CurrentWaveGroup = WaveGroupInfo[CurrentWaveIndex];
-	if (CurrentWaveGroup.Type != 2)
+	if (CurrentWaveGroup.Type != 2 && CurrentWaveIndex < WaveGroupInfo.Num() - 1)
 	{
 		CurrentWaveIndex += 1;
 	}
 	else {
-
+		OnStageWaveComplete();
 	}
 
 	return FGErrorInfo();

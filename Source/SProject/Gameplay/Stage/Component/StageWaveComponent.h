@@ -34,6 +34,9 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnWaveEnd();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnStageWaveComplete();
 public:
 	UPROPERTY(BlueprintReadWrite)
 	bool Paused = true;
