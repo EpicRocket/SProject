@@ -2,11 +2,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Animation/SkeletalMeshActor.h"
 #include "Engine/DataAsset.h"
 #include "UObject/ScriptInterface.h"
 #include "NativeGameplayTags.h"
 #include "Gameplay/Interface/IGameplayActorTag.h"
-#include "Gameplay/ETC/GameplayTeamActor.h"
+#include "Team/Interface/IGTeamAgent.h"
 
 #include "StageBuildZone.generated.h"
 
@@ -58,11 +59,17 @@ public:
 };
 
 UCLASS(Abstract, BlueprintType, Blueprintable, ClassGroup = "Stage")
-class MY_API AStageBuildZone : public AGameplayTeamActor, public IGameplayActorTag
+class MY_API AStageBuildZone : public ASkeletalMeshActor, public IGameplayActorTag, public IGTeamAgent
 {
 	GENERATED_BODY()
 
 	static FName InteractionComponentName;
+
+public:
+	// IGTeamAgent
+	virtual void SetGenericTeamId(const FGenericTeamId& InTeamID) override;
+	virtual FGenericTeamId GetGenericTeamId() const override;
+	// ~IGTeamAgent
 
 public:
 	AStageBuildZone();
@@ -79,6 +86,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	FVector GetBuildLocation() const;
 
+private:
+	void AddUsePoint(int64 Point);
+
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UStageBuildZoneData> BuildZoneData;
@@ -89,9 +99,11 @@ public:
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
 	TWeakObjectPtr<AStageTowerUnit> SpawnedTower;
 
+	UPROPERTY(EditInstanceOnly, Category = "Team")
+	uint8 TeamID = 255;
+
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UBoxComponent> InteractionComponent;
 
-	void AddUsePoint(int64 Point);
 };

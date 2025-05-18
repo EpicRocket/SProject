@@ -3,6 +3,7 @@
 // include Engine
 #include "Engine/World.h"
 #include "Engine/GameInstance.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "AIController.h"
@@ -33,6 +34,16 @@ namespace Stage
 
 FName AStageBuildZone::InteractionComponentName = TEXT("InteractionComponent");
 
+void AStageBuildZone::SetGenericTeamId(const FGenericTeamId& InTeamID)
+{
+	TeamID = InTeamID.GetId();
+}
+
+FGenericTeamId AStageBuildZone::GetGenericTeamId() const
+{
+	return FGenericTeamId(TeamID);
+}
+
 AStageBuildZone::AStageBuildZone()
 {
 	InteractionComponent = CreateDefaultSubobject<UBoxComponent>(InteractionComponentName);
@@ -40,6 +51,8 @@ AStageBuildZone::AStageBuildZone()
 	static FName InteractionCollsionProfileName = FName(TEXT("UI"));
 	InteractionComponent->SetCollisionProfileName(InteractionCollsionProfileName);
 	RootComponent = InteractionComponent;
+
+	GetSkeletalMeshComponent()->SetupAttachment(RootComponent);
 }
 
 FStageTowerReceipt AStageBuildZone::GetTowerReceipt() const
