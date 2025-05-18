@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Gameplay/Component/GameplayPlayerComponent.h"
+#include "Core/Component/GGameStateComponent.h"
 #include "Gameplay/Stage/Types/StageWaveTypes.h"
 #include "Gameplay/Stage/Types/StageMonsterGroupTypes.h"
 
@@ -14,7 +14,7 @@ struct FStageMonsterGroupInfo;
 struct FMonsterGroupTableRow;
 
 UCLASS()
-class MY_API UStageWaveComponent : public UGameplayPlayerComponent 
+class MY_API UStageWaveComponent : public UGGameStateComponent
 {
 	GENERATED_BODY()
 
