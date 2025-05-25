@@ -37,3 +37,6 @@ git clone https://github.com/EpicRocket/SProject.git
 ![alt text](Resources/devenv_LEPucdzwPe.gif)
 6. `디버그(D)`메뉴에서 `디버그하지 않고 시작`을 클릭해 게임 프로젝트를 켤 수 있습니다.
    - 빌드가 완료되었다면, `SProject.uproject`를 실행하여 프로젝트를 켤 수 있습니다. 하지만 소스파일 변경 시 `빌드`가 필요합니다. <sub>추후 스토리지가 생긴다면 바이너리를 통해 업데이트 받을 수 있으면 좋겠습니다.</sub>
+
+---
+이 프로젝트는 [Unreal Engine End User License Agreement](https://www.unrealengine.com/en-US/eula/unreal)에 따라 Unreal Engine을 사용하며, Epic Games의 EULA 조건을 준수합니다.
