@@ -71,7 +71,6 @@ namespace Stage
 		SpawnUnit->FinishSpawning(FTransform(Rotation, SpawnLocation), false, nullptr, ESpawnActorScaleMethod::MultiplyWithRoot);
 
 		SpawnedUnit = SpawnUnit;
-		// TODO: Spawn ?뚮┝
 		
 		return GameCore::Pass();
 	}

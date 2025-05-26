@@ -1,9 +1,13 @@
+// Copyright (c) 2025 Team EpicRocket. All rights reserved.
 
 #pragma once
 
 #include "AIController.h"
 
 #include "StageAIController.generated.h"
+
+class AStageLevel;
+class UBehaviorTree;
 
 UCLASS(Abstract, BlueprintType, Blueprintable, ClassGroup = "Stage")
 class MY_API AStageAIController : public AAIController
@@ -19,9 +23,9 @@ public:
 
 public:
 	UPROPERTY(BlueprintReadOnly, Category = "Stage")
-	TWeakObjectPtr<class AStageLevel> SourceStage;
+	TWeakObjectPtr<AStageLevel> SourceStage;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
-	TObjectPtr<class UBehaviorTree> AIBehaviorTree;
+	TObjectPtr<UBehaviorTree> AIBehaviorTree;
 
 };

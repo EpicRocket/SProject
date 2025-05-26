@@ -1,3 +1,4 @@
+// Copyright (c) 2025 Team EpicRocket. All rights reserved.
 
 #include "StageBuildZone.h"
 // include Engine
@@ -18,6 +19,7 @@
 #include "Gameplay/Team/GameplayPlayer.h"
 #include "Gameplay/Stage/StageTableRepository.h"
 #include "Gameplay/Stage/StageLevel.h"
+#include "Gameplay/Stage/StageUnitEvent.h"
 #include "Gameplay/Stage/Types/StageTowerTypes.h"
 #include "Gameplay/Stage/Interface/IStageTower.h"
 #include "Gameplay/Stage/Component/StageSpawnComponent.h"
@@ -99,28 +101,6 @@ FStageTowerReceipt AStageBuildZone::GetTowerReceipt() const
 
 void AStageBuildZone::RequestBuildTower(const FStageTowerInfo& BuildTowerInfo)
 {
-/*	auto TeamSubsystem = UWorld::GetSubsystem<UGameplayTeamSubsystem>(GetWorld());
-	if (!TeamSubsystem)
-	{
-		GameCore::Throw(GameErr::SUBSYSTEM_INVALID, TEXT("UGameplayTeamSubsystem"));
-		return;
-	}
-
-	auto Player = TeamSubsystem->GetPlayer(GetTeamID());
-	if (!Player)
-	{
-		GameCore::Throw(GameErr::OBJECT_INVALID, TEXT("Player"));
-		return;
-	}
-
-	auto StagePlayerCom = Player->GetComponentByClass<UStagePlayerComponent>();
-	if (!IsValid(StagePlayerCom))
-	{
-		GameCore::Throw(GameErr::COMPONENT_INVALID, TEXT("UStagePlayerComponent"));
-		return;
-	}
-
-	StagePlayerCom->AddUsePoint(-BuildTowerInfo.UsePoint);*/
 	AddUsePoint(-BuildTowerInfo.UsePoint);
 
 	if (SpawnedTower.IsValid())
@@ -144,8 +124,10 @@ void AStageBuildZone::RequestBuildTower(const FStageTowerInfo& BuildTowerInfo)
 		AIController->SetGenericTeamId(GetTeamID());
 		AIController->SourceStage = SourceStage;
 		AIController->AIBehaviorTree = BuildTowerInfo.AI;
-		AIController->StartAI();
 	}
+
+	OnBuildTower(SpawnedUnit);
+	Stage::SendUnitEvent(this, Stage::NewUnitEvent<UStageUnitEvent_Spawn>(SpawnedUnit));
 }
 
 void AStageBuildZone::RequestDemolishTower(const int64 SellPrice)
@@ -155,7 +137,6 @@ void AStageBuildZone::RequestDemolishTower(const int64 SellPrice)
 		return;
 	}
 
-	//StagePlayerCom->AddUsePoint(SpawnedTower->);
 	AddUsePoint(SellPrice);
 
 	SpawnedTower->Kill();

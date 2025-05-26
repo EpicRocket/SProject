@@ -1,3 +1,4 @@
+// Copyright (c) 2025 Team EpicRocket. All rights reserved.
 
 #pragma once
 
@@ -85,6 +86,10 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	FVector GetBuildLocation() const;
+
+protected:
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnBuildTower(AStageTowerUnit* Tower);
 
 private:
 	void AddUsePoint(int64 Point);
