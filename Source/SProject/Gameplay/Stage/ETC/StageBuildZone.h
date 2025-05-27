@@ -89,7 +89,7 @@ public:
 
 protected:
 	UFUNCTION(BlueprintImplementableEvent)
-	void OnBuildTower(AStageTowerUnit* Tower);
+	void OnCompleteBuildTower(AStageTowerUnit* Tower);
 
 private:
 	void AddUsePoint(int64 Point);

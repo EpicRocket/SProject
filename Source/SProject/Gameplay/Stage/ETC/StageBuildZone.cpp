@@ -126,7 +126,7 @@ void AStageBuildZone::RequestBuildTower(const FStageTowerInfo& BuildTowerInfo)
 		AIController->AIBehaviorTree = BuildTowerInfo.AI;
 	}
 
-	OnBuildTower(SpawnedUnit);
+	OnCompleteBuildTower(SpawnedUnit);
 	Stage::SendUnitEvent(this, Stage::NewUnitEvent<UStageUnitEvent_Spawn>(SpawnedUnit));
 }
 
