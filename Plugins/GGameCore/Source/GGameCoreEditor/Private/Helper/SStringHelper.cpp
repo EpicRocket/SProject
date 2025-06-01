@@ -1,5 +1,5 @@
 
-#include "SStringHelper.h"
+#include "Helper/SStringHelper.h"
 
 #if PLATFORM_WINDOWS
 #include <Windows.h>

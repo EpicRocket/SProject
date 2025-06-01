@@ -1,4 +1,4 @@
-﻿
+
 
 using UnrealBuildTool;
 using System.IO;
@@ -32,14 +32,23 @@ public class SProject : ModuleRules
 		PrivateDependencyModuleNames.AddRange(
 			new[] {
 				"Slate",
-				"UnrealEd",
 				"EnhancedInput",
-				"DataValidation",
 				"DeveloperSettings",
 				"AssetRegistry",
 				"ApplicationCore",
 			}
 		);
+
+		// For Editor
+		if (Target.Type == TargetType.Editor)
+		{
+			PrivateDependencyModuleNames.AddRange(
+				new[] {
+				"DataValidation",
+				"UnrealEd",
+				}
+			);
+		}
 
 		// Common UI
 		PrivateDependencyModuleNames.AddRange(

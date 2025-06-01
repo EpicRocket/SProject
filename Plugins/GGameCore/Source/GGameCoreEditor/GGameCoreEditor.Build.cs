@@ -1,4 +1,4 @@
-﻿
+
 using UnrealBuildTool;
 
 public class GGameCoreEditor : ModuleRules
@@ -7,23 +7,57 @@ public class GGameCoreEditor : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-		PrivateDependencyModuleNames.AddRange(
-		new string[]
+		PublicIncludePaths.AddRange(
+			new[] {
+				ModuleDirectory,
+			}
+		);
+
+		PublicDependencyModuleNames.AddRange(
+			new[]
 			{
-				"BlueprintGraph",
 				"Core",
 				"CoreUObject",
 				"Engine",
-				"KismetCompiler",
-				"PropertyEditor",
-				"UnrealEd",
+				"InputCore",
+				"Json",
+				"JsonUtilities",
 			}
 		);
 
 		PrivateDependencyModuleNames.AddRange(
 		new string[]
 			{
+				"BlueprintGraph",
+				"KismetCompiler",
+				"PropertyEditor",
+				"UnrealEd",
+				"Slate",
+				"SlateCore",
+				"UMG",
+				"Blutility",
+				"UMGEditor",
+				"ToolMenus",
+				"AssetTools",
+				"DeveloperSettings",
+				"EditorSubsystem",
+				"ContentBrowser",
+			}
+		);
+
+		// Internal Module
+		PrivateDependencyModuleNames.AddRange(
+		new string[]
+			{
 				"GGameCore",
+			}
+		);
+
+		// External Plugins
+		PublicDependencyModuleNames.AddRange(
+			new[]
+			{
+				"OpenXLSX",
 			}
 		);
 	}

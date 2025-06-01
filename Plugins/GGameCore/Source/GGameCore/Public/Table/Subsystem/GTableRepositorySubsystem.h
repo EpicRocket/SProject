@@ -4,12 +4,12 @@
 #include "CoreMinimal.h"
 #include "Subsystems/EngineSubsystem.h"
 
-#include "TableRepositorySubsystem.generated.h"
+#include "GTableRepositorySubsystem.generated.h"
 
-class UTableSubsystem;
+class UGTableSubsystem;
 
 UCLASS(Abstract)
-class MY_API UTableRepositorySubsystem : public UEngineSubsystem
+class GGAMECORE_API UGTableRepositorySubsystem : public UEngineSubsystem
 {
 	GENERATED_BODY()
 

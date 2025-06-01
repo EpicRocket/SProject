@@ -2,7 +2,7 @@
 #pragma once
 
 #include "Kismet/BlueprintFunctionLibrary.h"
-#include "Table/TableRepositorySubsystem.h"
+#include "Table/Subsystem/GTableRepositorySubsystem.h"
 #include "Templates/SharedPointer.h"
 
 #include "StageTableRepository.generated.h"
@@ -21,7 +21,7 @@ class AStageTowerUnit;
 class UWorld;
 
 UCLASS()
-class MY_API UStageTableRepository : public UTableRepositorySubsystem
+class MY_API UStageTableRepository : public UGTableRepositorySubsystem
 {
 	GENERATED_BODY()
 

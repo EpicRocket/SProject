@@ -1,4 +1,4 @@
-﻿// Copyright Epic Games, Inc. All Rights Reserved.
+// Copyright Epic Games, Inc. All Rights Reserved.
 
 using UnrealBuildTool;
 
@@ -45,19 +45,11 @@ public class SProjectEditor : ModuleRules
 			}
 		);
 
-		// 내부 모듈
+		// Internal Dependencies
 		PrivateDependencyModuleNames.AddRange(
 			new[]
 			{
 				"SProject",
-			}
-		);
-
-		// 외부 플러그인
-		PublicDependencyModuleNames.AddRange(
-			new[]
-			{
-				"OpenXLSX",
 			}
 		);
 	}

@@ -1,5 +1,6 @@
+// Copyright (c) 2025 Team EpicRocket. All rights reserved.
 
-#include "TableSubsystem.h"
+#include "Table/Subsystem/GTableSubsystem.h"
 // include Engine
 #include "Engine/Engine.h"
 #include "UObject/SoftObjectPath.h"
@@ -8,34 +9,28 @@
 #include "AssetRegistry/IAssetRegistry.h"
 #include "AssetRegistry/ARFilter.h"
 #include "AssetRegistry/AssetData.h"
+// include GameCore
+#include "Table/GTableSettings.h"
 
-#include UE_INLINE_GENERATED_CPP_BY_NAME(TableSubsystem)
+#include UE_INLINE_GENERATED_CPP_BY_NAME(GTableSubsystem)
 
-DEFINE_LOG_CATEGORY(LogTable)
+DEFINE_LOG_CATEGORY(LogGameTable)
 
-/* static */UTableSubsystem* UTableSubsystem::Get()
+/* static */UGTableSubsystem* UGTableSubsystem::Get()
 {
 	if (GEngine == NULL)
 	{
 		return nullptr;
 	}
-	return GEngine->GetEngineSubsystem<UTableSubsystem>();
+	return GEngine->GetEngineSubsystem<UGTableSubsystem>();
 }
 
-void UTableSubsystem::Initialize(FSubsystemCollectionBase& Collection)
+bool UGTableSubsystem::LoadTable()
 {
-	Super::Initialize(Collection);
-}
-
-bool UTableSubsystem::LoadTable()
-{
-	// ?대뜑 泥댄겕
-	FDirectoryPath RootTablePath;
-	RootTablePath.Path = FPaths::ProjectContentDir() / RootTableRelativePath;
-
-	if (!FPaths::DirectoryExists(RootTablePath.Path))
+	auto& RootTableDir = GetDefault<UGTableSettings>()->RootTableDir;
+	if (!FPaths::DirectoryExists(RootTableDir.Path))
 	{
-		UE_LOG(LogTable, Error, TEXT("RootTablePath is not exist: %s"), *RootTablePath.Path);
+		UE_LOG(LogGameTable, Error, TEXT("RootTableDir is not exist: %s"), *RootTableDir.Path);
 		return false;
 	}
 
@@ -46,7 +41,7 @@ bool UTableSubsystem::LoadTable()
 
 	FARFilter Filter;
 	Filter.ClassPaths.Emplace(UDataTable::StaticClass()->GetPathName());
-	Filter.PackagePaths.Emplace(FName(*(TEXT("/Game") / RootTableRelativePath)));
+	Filter.PackagePaths.Emplace(FName(*(TEXT("/Game") / RootTableDir.Path)));
 	Filter.bRecursivePaths = true;
 
 	TArray<FAssetData> Assets;
@@ -57,18 +52,14 @@ bool UTableSubsystem::LoadTable()
 		UDataTable* DataTable = Cast<UDataTable>(Asset.GetAsset());
 		if (!DataTable)
 		{
-			UE_LOG(LogTable, Warning, TEXT("?먯뀑 濡쒕뱶 ?ㅽ뙣 [%s]"), *Asset.AssetName.ToString());
 			continue;
 		}
 
 		auto const* ScriptStruct = DataTable->GetRowStruct();
 		if (!ScriptStruct)
 		{
-			UE_LOG(LogTable, Warning, TEXT("?ㅽ겕由쏀듃 援ъ“泥?濡쒕뱶 ?ㅽ뙣 [%s]"), *Asset.AssetName.ToString());
 			continue;
 		}
-
-		UE_LOG(LogTable, Verbose, TEXT("?먯뀑 濡쒓렇 ?깃났 [%s]"), *Asset.AssetName.ToString())
 
 		Tables.Emplace(GetTypeHash(ScriptStruct), DataTable);
 	}

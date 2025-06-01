@@ -7,8 +7,8 @@
 #include "BehaviorTree/BehaviorTree.h"
 // include GameCore
 #include "Error/GError.h"
+#include "Table/GTableHelper.h"
 // include Project
-#include "Table/TableSubsystem.h"
 #include "Table/TowerTable.h"
 #include "Table/MonsterTable.h"
 #include "Table/StageTable.h"
@@ -63,7 +63,7 @@ void UStageTableRepository::Load()
 		}
 		NormalTowerInfos.Empty();
 
-		for (auto Row : UTableHelper::GetDatas<FNormalTowerTableRow>())
+		for (auto Row : UGTableHelper::GetTableDatas<FNormalTowerTableRow>())
 		{
 			auto& Datas = NormalTowerTableRows.FindOrAdd(Row->Kind);
 			if (Rows.Contains(Row->Index))
@@ -110,7 +110,7 @@ void UStageTableRepository::Load()
 		}
 		MonsterInfos.Empty();
 
-		for (auto Row : UTableHelper::GetDatas<FMonsterTableRow>())
+		for (auto Row : UGTableHelper::GetTableDatas<FMonsterTableRow>())
 		{
 			TSharedPtr<FStageMonsterInfo> Ptr;
 			if (Infos.Contains(Row->Index))
@@ -146,7 +146,7 @@ void UStageTableRepository::Load()
 		}
 		MonsterGroupInfos.Empty();
 
-		for (auto Row : UTableHelper::GetDatas<FMonsterGroupTableRow>())
+		for (auto Row : UGTableHelper::GetTableDatas<FMonsterGroupTableRow>())
 		{
 			TSharedPtr<FMonsterGroupTableRow> Ptr;
 			if (Infos.Contains(Row->Index))
@@ -180,7 +180,7 @@ void UStageTableRepository::Load()
 		}
 		WaveGroupInfos.Empty();
 
-		for (auto Row : UTableHelper::GetDatas<FWaveTableRow>())
+		for (auto Row : UGTableHelper::GetTableDatas<FWaveTableRow>())
 		{
 			TSharedPtr<FStageWaveGroupInfo> Ptr;
 			if (Infos.Contains(Row->Index))
@@ -465,7 +465,7 @@ FGErrorInfo UStageTableHelper::GetStageMonsterInfo(int32 MonsterKey, FStageMonst
 
 FGErrorInfo UStageTableHelper::GetStageMonsterBaseStats(int32 MonsterKey, TMap<EStageUnitAttribute, double>& Result)
 {
-	auto Row = UTableHelper::GetData<FMonsterTableRow>(MonsterKey);
+	auto Row = UGTableHelper::GetTableData<FMonsterTableRow>(MonsterKey);
 	if (!Row)
 	{
 		return GameCore::Throw(GameErr::POINTER_INVALID, FString::Printf(TEXT("FMonsterTableRow find MonsterKey %d"), MonsterKey));
@@ -487,7 +487,7 @@ FGErrorInfo UStageTableHelper::GetStageMonsterBaseStats(int32 MonsterKey, TMap<E
 
 FGErrorInfo UStageTableHelper::GetStage(int32 Level, FStageTableRow& Result)
 {
-	auto Row = UTableHelper::GetData<FStageTableRow>(Level);
+	auto Row = UGTableHelper::GetTableData<FStageTableRow>(Level);
 	if (!Row)
 	{
 		return GameCore::Throw(GameErr::POINTER_INVALID, FString::Printf(TEXT("FStageTableRow find Level %d"), Level));
@@ -498,7 +498,7 @@ FGErrorInfo UStageTableHelper::GetStage(int32 Level, FStageTableRow& Result)
 
 FGErrorInfo UStageTableHelper::GetStageMap(int32 Level, TSoftObjectPtr<UWorld>& Map)
 {
-	auto Row = UTableHelper::GetData<FStageTableRow>(Level);
+	auto Row = UGTableHelper::GetTableData<FStageTableRow>(Level);
 	if (!Row)
 	{
 		return GameCore::Throw(GameErr::POINTER_INVALID, FString::Printf(TEXT("FStageTableRow find Level %d"), Level));
