@@ -25,10 +25,10 @@ public:
 	//~End of IAbilitySystemInterface
 
 protected:
-	UPROPERTY(EditDefaultsOnly, Category = "어빌리티 시스템")
+	UPROPERTY(EditDefaultsOnly)
 	bool bIsReplicated_ASC = false;
 
-	UPROPERTY(EditDefaultsOnly, Category = "어빌리티 시스템")
+	UPROPERTY(EditDefaultsOnly)
 	EGameplayEffectReplicationMode ReplicationMode_ASC = static_cast<EGameplayEffectReplicationMode>(1U);
 
 private:

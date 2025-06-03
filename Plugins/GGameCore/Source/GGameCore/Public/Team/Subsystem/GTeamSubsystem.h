@@ -66,10 +66,10 @@ class GGAMECORE_API UGTeamHelper : public UBlueprintFunctionLibrary
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintCallable, Category = "팀", meta = (ReturnDisplayName = "Success"))
+	UFUNCTION(BlueprintCallable, meta = (ReturnDisplayName = "Success"))
 	static bool LoadTeamLoadAsset(TSoftObjectPtr<UGTeamLoadDataAsset> DataAsset, TArray<FGTeamTracker>& TeamTrackers, TArray<FGRelationshipInForceTableRow>& RelationshipInForceTableRows, TArray<FGForcesRelationshipTableRow>&  ForcesRelationshipTableRows);
 
-	UFUNCTION(BlueprintPure, Category = "팀", meta = (ReturnDisplayName = "Success"))
+	UFUNCTION(BlueprintPure, meta = (ReturnDisplayName = "Success"))
 	static bool IsTeamAgentOwner(APlayerController* PC, TScriptInterface<IGTeamAgent> TeamAgent);
 
 };

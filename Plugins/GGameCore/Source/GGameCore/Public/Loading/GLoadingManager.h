@@ -30,7 +30,7 @@ public:
 	virtual UWorld* GetTickableGameObjectWorld() const override;
 	// ~FTickableObjectBase
 
-	UFUNCTION(BlueprintCallable, Category = "로딩")
+	UFUNCTION(BlueprintCallable)
 	FString GetDebugReasonForShowingOrHidingLoadingScreen() const;
 
 	bool GetLoadingScreenDisplayStatus() const;

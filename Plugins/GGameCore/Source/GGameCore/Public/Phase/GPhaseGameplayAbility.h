@@ -25,6 +25,6 @@ private:
 	void BroadcastPhaseMessage(bool bActive);
 
 public:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "페이즈")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FGameplayTag PhaseTag;
 };

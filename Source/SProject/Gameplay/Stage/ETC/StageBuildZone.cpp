@@ -35,16 +35,6 @@ namespace Stage
 
 FName AStageBuildZone::InteractionComponentName = TEXT("InteractionComponent");
 
-void AStageBuildZone::SetGenericTeamId(const FGenericTeamId& InTeamID)
-{
-	TeamID = InTeamID.GetId();
-}
-
-FGenericTeamId AStageBuildZone::GetGenericTeamId() const
-{
-	return FGenericTeamId(TeamID);
-}
-
 AStageBuildZone::AStageBuildZone()
 {
 	InteractionComponent = CreateDefaultSubobject<UBoxComponent>(InteractionComponentName);
@@ -52,8 +42,6 @@ AStageBuildZone::AStageBuildZone()
 	static FName InteractionCollsionProfileName = FName(TEXT("UI"));
 	InteractionComponent->SetCollisionProfileName(InteractionCollsionProfileName);
 	RootComponent = InteractionComponent;
-
-	GetSkeletalMeshComponent()->SetupAttachment(RootComponent);
 }
 
 FStageTowerReceipt AStageBuildZone::GetTowerReceipt() const
@@ -118,12 +106,12 @@ void AStageBuildZone::RequestBuildTower(const FStageTowerInfo& BuildTowerInfo)
 	SpawnLocation.Z = SpawnLocation.Z + SpawnedTower->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
 	SpawnedTower->SetActorLocation(FVector(SpawnLocation.X, SpawnLocation.Y, SpawnLocation.Z));
 
-	if (auto AIController = SpawnedUnit->GetController<AStageAIController>())
+	/*if (auto AIController = SpawnedUnit->GetController<AStageAIController>())
 	{
 		AIController->SetGenericTeamId(GetTeamID());
 		AIController->SourceStage = SourceStage;
 		AIController->AIBehaviorTree = BuildTowerInfo.AI;
-	}
+	}*/
 
 	OnCompleteBuildTower(SpawnedUnit);
 	Stage::SendUnitEvent(this, Stage::NewUnitEvent<UStageUnitEvent_Spawn>(SpawnedUnit));
@@ -138,6 +126,7 @@ void AStageBuildZone::RequestDemolishTower(const int64 SellPrice)
 
 	AddUsePoint(SellPrice);
 
+	OnCompleteDemolishTower(SpawnedTower.Get());
 	SpawnedTower->Kill();
 	SpawnedTower = nullptr;
 }
