@@ -14,7 +14,7 @@ class UBehaviorTree;
 UENUM(BlueprintType)
 enum class EStageTowerType : uint8
 {
-	Normal = 0 UMETA(DisplayName = "?쇰컲"),
+	Normal = 0 UMETA(DisplayName = "일반"),
 };
 
 USTRUCT(BlueprintType)

@@ -13,6 +13,7 @@
 #include "Table/MonsterTable.h"
 #include "Table/StageTable.h"
 #include "Table/MonsterGroupTable.h"
+#include "Gameplay/Stage/StageLogging.h"
 #include "Gameplay/Stage/Types/StageTowerTypes.h"
 #include "Gameplay/Stage/Types/StageMonsterTypes.h"
 #include "Gameplay/Stage/Types/StageWaveTypes.h"
@@ -35,271 +36,79 @@ UStageTableRepository* UStageTableRepository::Get()
 	return GEngine->GetEngineSubsystem<UStageTableRepository>();
 }
 
-void UStageTableRepository::Load()
+void UStageTableRepository::OnLoad()
 {
-	Super::Load();
+	SCOPED_BOOT_TIMING("Active StageTableRepository Load");
 
-	SCOPED_BOOT_TIMING("UStageTableRepository::Load");
-	const double StartTime = FPlatformTime::Seconds();
-
+	
 	{
-		TMap<int32, TSharedPtr<FNormalTowerTableRow>> Rows;
-		for (auto& [_, Map] : NormalTowerTableRows)
-		{
-			for (auto& [__, Row] : Map)
-			{
-				Rows.Emplace(Row->Index, Row);
-			}
-		}
-		NormalTowerTableRows.Empty();
-
-		TMap<int32, TSharedPtr<FStageTowerInfo>> Infos;
-		for (auto& [_, Map] : NormalTowerInfos)
-		{
-			for (auto& [__, Info] : Map)
-			{
-				Infos.Emplace(Info->Index, Info);
-			}
-		}
 		NormalTowerInfos.Empty();
-
-		for (auto Row : UGTableHelper::GetTableDatas<FNormalTowerTableRow>())
+		auto NormalTowerTableRows = UGTableHelper::GetTableDatas<FNormalTowerTableRow>();
+		for (auto& Row : NormalTowerTableRows)
 		{
-			auto& Datas = NormalTowerTableRows.FindOrAdd(Row->Kind);
-			if (Rows.Contains(Row->Index))
-			{
-				auto& OldRow = Rows[Row->Index];
-				*OldRow = *Row;
-				Datas.Emplace(Row->Level, OldRow);
-			}
-			else
-			{
-				Datas.Emplace(Row->Level, MakeShared<FNormalTowerTableRow>(*Row));
-			}
+			TSharedPtr<FStageTowerInfo> NewData = MakeShared<FStageTowerInfo>();
+			NormalTowerInfos.Emplace(Row->Index, NewData);
 
-			auto& TowerInfos = NormalTowerInfos.FindOrAdd(Row->Kind);
-			TSharedPtr<FStageTowerInfo> Ptr = nullptr;
-			if (Infos.Contains(Row->Index))
-			{
-				Ptr = Infos[Row->Index];
-			}
-			else
-			{
-				Ptr = MakeShared<FStageTowerInfo>();
-			}
-
-			Ptr->TowerType = EStageTowerType::Normal;
-			Ptr->Index = Row->Index;
-			Ptr->Kind = Row->Kind;
-			Ptr->Level = Row->Level;
-			Ptr->UsePoint = Row->UsePoint;
-			Ptr->Name = Row->Name;
-			Ptr->AttackType = Row->AttackType;
-			Ptr->UnitClass = Row->Unit.LoadSynchronous();
-			Ptr->Icon = Row->Icon.LoadSynchronous();
-			Ptr->AI = Row->AI.LoadSynchronous();
-			TowerInfos.Emplace(Row->Level, Ptr);
+			NewData->TowerType = EStageTowerType::Normal;
+			NewData->Index = Row->Index;
+			NewData->Kind = Row->Kind;
+			NewData->Level = Row->Level;
+			NewData->UsePoint = Row->UsePoint;
+			NewData->Name = Row->Name;
+			NewData->AttackType = Row->AttackType;
+			RequestTask(
+				Row->Unit.ToSoftObjectPath(),
+				[this, ThisPtr = TWeakObjectPtr<UStageTableRepository>(this), AffectedData = TWeakPtr<FStageTowerInfo>(NewData), Asset = Row->Unit]()
+				{
+					if (ThisPtr.IsValid())
+					{
+						if (AffectedData.IsValid())
+						{
+							AffectedData.Pin()->UnitClass = Asset.Get();
+						}
+					}
+				}
+				);
+			RequestTask(
+				Row->Icon.ToSoftObjectPath(),
+				[this, ThisPtr = TWeakObjectPtr<UStageTableRepository>(this), AffectedData = TWeakPtr<FStageTowerInfo>(NewData), Asset = Row->Icon]()
+				{
+					if (ThisPtr.IsValid())
+					{
+						if (AffectedData.IsValid())
+						{
+							AffectedData.Pin()->Icon = Asset.Get();
+						}
+					}
+				}
+			);
+			RequestTask(
+				Row->AI.ToSoftObjectPath(),
+				[this, ThisPtr = TWeakObjectPtr<UStageTableRepository>(this), AffectedData = TWeakPtr<FStageTowerInfo>(NewData), Asset = Row->AI]()
+				{
+					if (ThisPtr.IsValid())
+					{
+						if (AffectedData.IsValid())
+						{
+							AffectedData.Pin()->AI = Asset.Get();
+						}
+					}
+				}
+			);
 		}
 	}
 
-	{
-		TMap<int32, TSharedPtr<FStageMonsterInfo>> Infos;
-		for (auto& [_, Info] : MonsterInfos)
-		{
-			Infos.Emplace(Info->Index, Info);
-		}
-		MonsterInfos.Empty();
 
-		for (auto Row : UGTableHelper::GetTableDatas<FMonsterTableRow>())
-		{
-			TSharedPtr<FStageMonsterInfo> Ptr;
-			if (Infos.Contains(Row->Index))
-			{
-				Ptr = Infos[Row->Index];
-			}
-			else
-			{
-				Ptr = MakeShared<FStageMonsterInfo>();
-			}
 
-			Ptr->Index = Row->Index;
-			Ptr->Level = Row->Level;
-			Ptr->Grade = Row->Grade;
-			Ptr->Name = Row->Name;
-			Ptr->AttackType = Row->AttackType;
-			Ptr->UnitClass = Row->Unit.LoadSynchronous();
-			Ptr->Icon = Row->Icon.LoadSynchronous();
-			Ptr->AI = Row->AI.LoadSynchronous();
 
-			MonsterInfos.Emplace(Row->Index, Ptr);
-		}
-	}
-
-	{
-		TMap<int32, TSharedPtr<FMonsterGroupTableRow>> Infos;
-		for (auto& [_, Array] : MonsterGroupInfos)
-		{
-			for (auto& Info : Array)
-			{
-				Infos.Emplace(Info->Index, Info);
-			}
-		}
-		MonsterGroupInfos.Empty();
-
-		for (auto Row : UGTableHelper::GetTableDatas<FMonsterGroupTableRow>())
-		{
-			TSharedPtr<FMonsterGroupTableRow> Ptr;
-			if (Infos.Contains(Row->Index))
-			{
-				Ptr = Infos[Row->Index];
-			}
-			else
-			{
-				Ptr = MakeShared<FMonsterGroupTableRow>(*Row);
-			}
-
-			if (MonsterGroupInfos.Contains(Row->Group))
-			{
-				MonsterGroupInfos.Find(Row->Group)->Add(Ptr);
-			}
-			else
-			{
-				MonsterGroupInfos.Emplace(Row->Group, { Ptr });
-			}
-		}
-	}
-
-	{	
-		TMap<int32, TSharedPtr<FStageWaveGroupInfo>> Infos;
-		for (auto& [_, Array] : WaveGroupInfos)
-		{
-			for (auto& Info : Array)
-			{
-				Infos.Emplace(Info->Index, Info);
-			}
-		}
-		WaveGroupInfos.Empty();
-
-		for (auto Row : UGTableHelper::GetTableDatas<FWaveTableRow>())
-		{
-			TSharedPtr<FStageWaveGroupInfo> Ptr;
-			if (Infos.Contains(Row->Index))
-			{
-				Ptr = Infos[Row->Index];
-			}
-			else
-			{
-				Ptr = MakeShared<FStageWaveGroupInfo>();
-			}
-
-			Ptr->Index = Row->Index;
-			Ptr->Type = Row->Type;
-			Ptr->MonsterGroup = Row->Monster_Group;
-			
-			if (WaveGroupInfos.Contains(Row->Wave_Group))
-			{
-				WaveGroupInfos.Find(Row->Wave_Group)->Add(Ptr);
-			}
-			else
-			{
-				WaveGroupInfos.Emplace(Row->Wave_Group, { Ptr });
-			}
-		}
-	}
+	UE_LOGFMT(LogStage, Verbose, "StageTableRepository Load Complete");
 }
 
-void UStageTableRepository::Unload()
+void UStageTableRepository::OnUnload()
 {
-	Super::Unload();
+	NormalTowerInfos.Empty();
 
-	NormalTowerTableRows.Empty();
-	MonsterInfos.Empty();
-}
-
-TSortedMap<int32, TSharedPtr<FNormalTowerTableRow>>* UStageTableRepository::FindNormalTowerTableRows(int32 Kind)
-{
-	auto Result = NormalTowerTableRows.Find(Kind);
-	if (!Result)
-	{
-		return nullptr;
-	}
-	return Result;
-
-}
-
-TSharedPtr<FNormalTowerTableRow>* UStageTableRepository::FindNormalTowerTableRow(int32 Kind, int32 Level)
-{
-	auto KindTable = FindNormalTowerTableRows(Kind);
-	if (!KindTable)
-	{
-		return nullptr;
-	}
-
-	auto Result = KindTable->Find(Level);
-	if (!Result)
-	{
-		return nullptr;
-	}
-
-	return Result;
-}
-
-TSortedMap<int32, TSharedPtr<FStageTowerInfo>>* UStageTableRepository::FindNormalTowerTableInfos(int32 Kind)
-{
-	auto Result = NormalTowerInfos.Find(Kind);
-	if (!Result)
-	{
-		return nullptr;
-	}
-
-	return Result;
-}
-
-TSharedPtr<FStageTowerInfo>* UStageTableRepository::FindNormalTowerInfo(int32 Kind, int32 Level)
-{
-	auto KindTable = FindNormalTowerTableInfos(Kind);
-	if (!KindTable)
-	{
-		return nullptr;
-	}
-
-	auto Result = KindTable->Find(Level);
-	if (!Result)
-	{
-		return nullptr;
-	}
-
-	return Result;
-}
-
-TSharedPtr<FStageMonsterInfo> UStageTableRepository::FindMonsterInfo(int32 MonsterKey)
-{
-	auto Result = MonsterInfos.Find(MonsterKey);
-	if (!Result)
-	{
-		return nullptr;
-	}
-	return *Result;
-}
-
-TArray<TSharedPtr<FMonsterGroupTableRow>>* UStageTableRepository::FindMonsterGroupInfo(int32 Group)
-{
-	auto Result = MonsterGroupInfos.Find(Group);
-	if (!Result)
-	{
-		return nullptr;
-	}
-	return Result;
-}
-
-TArray<TSharedPtr<FStageWaveGroupInfo>>* UStageTableRepository::FindWaveGroupInfo(int32 WaveGroup)
-{
-	auto Result = WaveGroupInfos.Find(WaveGroup);
-	if (!Result)
-	{
-		return nullptr;
-	}
-	return Result;
+	UE_LOGFMT(LogStage, Verbose, "StageTableRepository Unload Complete");
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -310,7 +119,7 @@ FGErrorInfo UStageTableHelper::GetBuildStageTower(EStageTowerType TowerType, int
 	auto Repository = UStageTableRepository::Get();
 	check(Repository);
 
-	switch (TowerType)
+	/*switch (TowerType)
 	{
 	case EStageTowerType::Normal: {
 		auto Info = Repository->FindNormalTowerInfo(Kind, Level);
@@ -325,7 +134,7 @@ FGErrorInfo UStageTableHelper::GetBuildStageTower(EStageTowerType TowerType, int
 	default: {
 		return GameCore::Throw(GameErr::ENUM_INVALID, UEnum::GetValueAsString(TowerType));
 	}
-	}
+	}*/
 
 	return GameCore::Pass();
 }
@@ -335,7 +144,7 @@ FGErrorInfo UStageTableHelper::GetNextStageTower(EStageTowerType TowerType, int3
 	auto Repository = UStageTableRepository::Get();
 	check(Repository);
 
-	int32 MaxLevel = GetStageTowerMaxLevel(TowerType, Kind);
+	/*int32 MaxLevel = GetStageTowerMaxLevel(TowerType, Kind);
 	if (Level >= MaxLevel)
 	{
 		return GameCore::Throw(GameErr::VALUE_INVALID, FString::Printf(TEXT("Level:%d, MaxLevel:%d"), Level, MaxLevel));
@@ -357,7 +166,7 @@ FGErrorInfo UStageTableHelper::GetNextStageTower(EStageTowerType TowerType, int3
 	default: {
 		return GameCore::Throw(GameErr::ENUM_INVALID, UEnum::GetValueAsString(TowerType));
 	}
-	}
+	}*/
 
 	return GameCore::Pass();
 }
@@ -366,7 +175,8 @@ FGErrorInfo UStageTableHelper::GetStageTowerSellPrice(EStageTowerType TowerType,
 {
 	auto Repository = UStageTableRepository::Get();
 	check(Repository);
-	switch (TowerType)
+
+	/*switch (TowerType)
 	{
 	case EStageTowerType::Normal: {
 		auto Info = Repository->FindNormalTowerInfo(Kind, Level);
@@ -381,7 +191,7 @@ FGErrorInfo UStageTableHelper::GetStageTowerSellPrice(EStageTowerType TowerType,
 	default: {
 		return GameCore::Throw(GameErr::ENUM_INVALID, UEnum::GetValueAsString(TowerType));
 	}
-	}
+	}*/
 
 	return GameCore::Pass();
 }
@@ -393,7 +203,7 @@ int32 UStageTableHelper::GetStageTowerMaxLevel(EStageTowerType TowerType, int32 
 
 	int32 Result = 0;
 
-	switch (TowerType)
+	/*switch (TowerType)
 	{
 	case EStageTowerType::Normal: {
 		auto KindTable = Repository->FindNormalTowerTableRows(Kind);
@@ -407,7 +217,7 @@ int32 UStageTableHelper::GetStageTowerMaxLevel(EStageTowerType TowerType, int32 
 	default: {
 		return 0;
 	}
-	}
+	}*/
 
 	return FMath::Max(0, Result);
 }
@@ -417,7 +227,7 @@ FGErrorInfo UStageTableHelper::GetStageTowerBaseStats(EStageTowerType TowerType,
 	auto Repository = UStageTableRepository::Get();
 	check(Repository);
 
-	switch (TowerType)
+	/*switch (TowerType)
 	{
 	case EStageTowerType::Normal: {
 		auto TowerRow = Repository->FindNormalTowerTableRow(Kind, Level);
@@ -443,7 +253,7 @@ FGErrorInfo UStageTableHelper::GetStageTowerBaseStats(EStageTowerType TowerType,
 	default: {
 		return GameCore::Throw(GameErr::ENUM_INVALID, UEnum::GetValueAsString(TowerType));
 	}
-	}
+	}*/
 
 	return GameCore::Pass();
 }
@@ -453,13 +263,14 @@ FGErrorInfo UStageTableHelper::GetStageMonsterInfo(int32 MonsterKey, FStageMonst
 	auto Repo = UStageTableRepository::Get();
 	check(Repo);
 
-	TSharedPtr<FStageMonsterInfo> MonsterInfo = Repo->FindMonsterInfo(MonsterKey);
+	/*TSharedPtr<FStageMonsterInfo> MonsterInfo = Repo->FindMonsterInfo(MonsterKey);
 	if (!MonsterInfo.IsValid())
 	{
 		return GameCore::Throw(GameErr::POINTER_INVALID, FString::Printf(TEXT("FStageMonsterInfo find MonsterKey %d"), MonsterKey));
 	}
 
-	Result = *MonsterInfo;
+	Result = *MonsterInfo;*/
+
 	return GameCore::Pass();
 }
 
@@ -523,7 +334,7 @@ FGErrorInfo UStageTableHelper::GetWaveGroupInfo(int32 WaveGroup, TArray<FStageWa
 	auto Repository = UStageTableRepository::Get();
 	check(Repository);
 
-	TArray<TSharedPtr<FStageWaveGroupInfo>>* WaveGroupInfo = Repository->FindWaveGroupInfo(WaveGroup);
+	/*TArray<TSharedPtr<FStageWaveGroupInfo>>* WaveGroupInfo = Repository->FindWaveGroupInfo(WaveGroup);
 
 	if (!WaveGroupInfo)
 	{
@@ -536,7 +347,7 @@ FGErrorInfo UStageTableHelper::GetWaveGroupInfo(int32 WaveGroup, TArray<FStageWa
 		{
 			Result.Add(*Info);
 		}
-	}
+	}*/
 
 	return GameCore::Pass();
 }
@@ -546,7 +357,7 @@ FGErrorInfo UStageTableHelper::GetMonsterGroupInfo(int32 MonsterGroup, TArray<FM
 	auto Repository = UStageTableRepository::Get();
 	check(Repository);
 
-	TArray<TSharedPtr<FMonsterGroupTableRow>>* MonsterGroupInfo = Repository->FindMonsterGroupInfo(MonsterGroup);
+	/*TArray<TSharedPtr<FMonsterGroupTableRow>>* MonsterGroupInfo = Repository->FindMonsterGroupInfo(MonsterGroup);
 
 	if (!MonsterGroupInfo)
 	{
@@ -559,7 +370,7 @@ FGErrorInfo UStageTableHelper::GetMonsterGroupInfo(int32 MonsterGroup, TArray<FM
 		{
 			Result.Add(*Info);
 		}
-	}
+	}*/
 
 	return FGErrorInfo();
 }

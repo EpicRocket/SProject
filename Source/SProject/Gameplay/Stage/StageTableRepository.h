@@ -27,27 +27,13 @@ class MY_API UStageTableRepository : public UGTableRepositorySubsystem
 
 	friend UStageTableHelper;
 	static UStageTableRepository* Get();
-public:
-	virtual void Load() override;
-	virtual void Unload() override;
+protected:
+	virtual void OnLoad() override;
+	virtual void OnUnload() override;
 
 private:
-	TMap<int32/*Kind*/, TSortedMap<int32/*Level*/, TSharedPtr<FNormalTowerTableRow>>> NormalTowerTableRows;
-	TSortedMap<int32/*Level*/, TSharedPtr<FNormalTowerTableRow>>* FindNormalTowerTableRows(int32 Kind);
-	TSharedPtr<FNormalTowerTableRow>* FindNormalTowerTableRow(int32 Kind, int32 Level);
-	
-	TMap<int32/*Kind*/, TSortedMap<int32/*Level*/, TSharedPtr<FStageTowerInfo>>> NormalTowerInfos;
-	TSortedMap<int32/*Level*/, TSharedPtr<FStageTowerInfo>>* FindNormalTowerTableInfos(int32 Kind);
-	TSharedPtr<FStageTowerInfo>* FindNormalTowerInfo(int32 Kind, int32 Level);
-	
-	TSortedMap<int32, TSharedPtr<FStageMonsterInfo>> MonsterInfos;
-	TSharedPtr<FStageMonsterInfo> FindMonsterInfo(int32 MonsterKey);
+	TMap<int32, TSharedPtr<FStageTowerInfo>> NormalTowerInfos;
 
-	TMap<int32/*Group*/, TArray<TSharedPtr<FMonsterGroupTableRow>>> MonsterGroupInfos;
-	TArray<TSharedPtr<FMonsterGroupTableRow>>* FindMonsterGroupInfo(int32 Group);
-
-	TMap<int32/*Wave_Group*/, TArray<TSharedPtr<FStageWaveGroupInfo>>> WaveGroupInfos;
-	TArray<TSharedPtr<FStageWaveGroupInfo>>* FindWaveGroupInfo(int32 WaveGroup);
 };
 
 UCLASS()
