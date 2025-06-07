@@ -66,11 +66,6 @@ void UGLoadingManager::Tick(float DeltaTime)
 	TimeUntilNextLogHeartbeatSeconds = FMath::Max(TimeUntilNextLogHeartbeatSeconds - DeltaTime, 0.0);
 }
 
-ETickableTickType UGLoadingManager::GetTickableTickType() const
-{
-	return ETickableTickType::Conditional;
-}
-
 bool UGLoadingManager::IsTickable() const
 {
 	return !HasAnyFlags(RF_ClassDefaultObject);

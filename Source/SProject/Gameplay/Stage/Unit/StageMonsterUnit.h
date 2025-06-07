@@ -1,3 +1,4 @@
+// Copyright (c) 2025 Team EpicRocket. All rights reserved.
 
 #pragma once
 
@@ -6,6 +7,7 @@
 #include "StageMonsterUnit.generated.h"
 
 struct FStageMonsterInfo;
+class UStageMonsterContext;
 
 UCLASS(Abstract, Config = Game, BlueprintType, Blueprintable, ClassGroup = "Stage")
 class MY_API AStageMonsterUnit : public AStageUnitCharacter
@@ -13,16 +15,20 @@ class MY_API AStageMonsterUnit : public AStageUnitCharacter
 	GENERATED_BODY()
 
 protected:
-	virtual void InitailizeBaseStats() override;
+	// StageUnitCharacter
+	virtual void OnInit() override;
+	virtual void OnInitBaseStats() override;
+	// ~StageUnitCharacter
 
 public:
-	void SetInfo(FStageMonsterInfo NewInfo);
+	void Setup(FStageMonsterInfo NewMonsterInfo);
 
-	UFUNCTION(BlueprintPure)
-	FStageMonsterInfo GetInfo() const;
-	TSharedRef<FStageMonsterInfo> GetInfoRef() const;
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "GetMonsterInfo", ReturnDisplayName = "Find"))
+	FGErrorInfo K2_GetMonsterInfo(FStageMonsterInfo& MonsterInfo);
+	TOptional<FStageMonsterInfo> GetMonsterInfo() const;
 
 public:
-	TSharedPtr<FStageMonsterInfo> Info;
+	UPROPERTY(Transient)
+	TObjectPtr<UStageMonsterContext> MonsterInfoContext;
 
 };

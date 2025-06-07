@@ -6,6 +6,7 @@
 #include "Engine/LocalPlayer.h"
 // include GameCore
 #include "GMessage/GMessage.h"
+#include "Table/GTableHelper.h"
 // include Project
 #include "Core/MyPlayerController.h"
 #include "Types/StageTypes.h"
@@ -35,15 +36,15 @@ FGErrorInfo UStagePlayerComponent::SetDefaults()
 
 	auto LastStage = StageSubsystem->GetLastStage();
 
-	FStageTableRow StageTableRow;
-	if (auto Err = UStageTableHelper::GetStage(LastStage->Level, StageTableRow); !GameCore::IsOK(Err))
+	auto StageRow = UGTableHelper::GetTableData<FStageTableRow>(LastStage->Level);
+	if (!StageRow)
 	{
-		return Err;
+		return GameCore::Throw(GameErr::POINTER_INVALID, FString::Printf(TEXT("FStageTableRow find Level %d"), LastStage->Level));
 	}
 
 	LastStage->Towers.Empty();
 	LastStage->Hp = GetDefault<UConstSettings>()->UserHp;
-	LastStage->UsePoint = StageTableRow.UsePoint;
+	LastStage->UsePoint = StageRow->UsePoint;
 
 	return GameCore::Pass();
 }

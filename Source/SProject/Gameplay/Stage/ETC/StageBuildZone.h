@@ -71,14 +71,14 @@ class MY_API AStageBuildZone : public AGameplayTeamActor, public IGameplayActorT
 public:
 	AStageBuildZone();
 
-	UFUNCTION(BlueprintPure)
-	FStageTowerReceipt GetTowerReceipt() const;
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "GetTowerInfo", ReturnDisplayName = "Error"))
+	FGErrorInfo K2_GetTowerReceipt(FStageTowerReceipt& Receipt);
 
 	UFUNCTION(BlueprintCallable)
-	void RequestBuildTower(const FStageTowerInfo& BuildStageTower);
+	FGErrorInfo RequestBuildTower(const FStageTowerInfo& BuildStageTower);
 
 	UFUNCTION(BlueprintCallable)
-	void RequestDemolishTower(const int64 SellPrice);
+	FGErrorInfo RequestDemolishTower(const int64 SellPrice);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	FVector GetBuildLocation() const;

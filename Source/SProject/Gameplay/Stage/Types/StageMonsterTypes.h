@@ -1,3 +1,4 @@
+// Copyright (c) 2025 Team EpicRocket. All rights reserved.
 
 #pragma once
 
@@ -38,5 +39,16 @@ struct MY_API FStageMonsterInfo
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UBehaviorTree> AI;
+
+};
+
+UCLASS()
+class MY_API UStageMonsterContext : public UObject
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY()
+	FStageMonsterInfo MonsterInfo;
 
 };

@@ -1,3 +1,4 @@
+// Copyright (c) 2025 Team EpicRocket. All rights reserved.
 
 #pragma once
 
@@ -22,7 +23,6 @@ struct MY_API FStageTowerInfo
 {
 	GENERATED_BODY()
 
-public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	EStageTowerType TowerType = EStageTowerType::Normal;
 
@@ -55,6 +55,18 @@ public:
 
 };
 
+UCLASS()
+class MY_API UStageTowerContext : public UObject
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY()
+	FStageTowerInfo TowerInfo;
+
+};
+
+
 USTRUCT(BlueprintType)
 struct FStageTowerReceipt
 {
@@ -70,5 +82,5 @@ struct FStageTowerReceipt
 	bool bSellable = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int64 SellPrice = INDEX_NONE;
+	int32 SellPrice = INDEX_NONE;
 };

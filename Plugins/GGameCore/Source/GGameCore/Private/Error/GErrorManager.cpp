@@ -155,7 +155,7 @@ bool UGErrorHelper::IsOk(const FGErrorInfo& Err)
 	return GameCore::IsOK(Err);
 }
 
-FGErrorInfo UGErrorHelper::Pass()
+const FGErrorInfo& UGErrorHelper::Pass()
 {
 	return GameCore::Pass();
 }
@@ -185,9 +185,10 @@ bool GameCore::IsOK(const FGErrorInfo& Err)
 	return false;
 }
 
-FGErrorInfo GameCore::Pass()
+const FGErrorInfo& GameCore::Pass()
 {
-	return FGErrorInfo();
+	static FGErrorInfo NotErr;
+	return NotErr;
 }
 
 GGAMECORE_API FGErrorInfo GameCore::Throw(FString ErrCode, FString More)

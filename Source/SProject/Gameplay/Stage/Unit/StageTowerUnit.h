@@ -6,6 +6,7 @@
 #include "StageTowerUnit.generated.h"
 
 struct FStageTowerInfo;
+class UStageTowerContext;
 
 UCLASS(Abstract, Config = Game, BlueprintType, Blueprintable, ClassGroup = "Stage")
 class MY_API AStageTowerUnit : public AStageUnitCharacter
@@ -13,15 +14,24 @@ class MY_API AStageTowerUnit : public AStageUnitCharacter
 	GENERATED_BODY()
 
 protected:
-	virtual void InitailizeBaseStats() override;
+	// StageUnitCharacter
+	virtual void OnInit() override;
+	virtual void OnInitBaseStats() override;
+	// ~StageUnitCharacter
 
 public:
-	void SetInfo(FStageTowerInfo NewInfo);
+	void Setup(FStageTowerInfo NewTowerInfo);
 	
-	UFUNCTION(BlueprintPure)
-	FStageTowerInfo GetInfo() const;
-	TSharedRef<FStageTowerInfo> GetInfoRef() const;
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "GetTowerInfo", ReturnDisplayName = "Error"))
+	FGErrorInfo K2_GetTowerInfo(FStageTowerInfo& TowerInfo);
+	TOptional<FStageTowerInfo> GetTowerInfo() const;
+
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "GetSellPrice", ReturnDisplayName = "Error"))
+	FGErrorInfo K2_GetSellPrice(int32& SellPrice);
+	TOptional<int32> GetSellPrice() const;
 
 public:
-	TSharedPtr<FStageTowerInfo> Info;
+	UPROPERTY(Transient)
+	TObjectPtr<UStageTowerContext> TowerInfoContext;
+
 };

@@ -1,3 +1,5 @@
+// Copyright (c) 2025 Team EpicRocket. All rights reserved.
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -18,4 +20,5 @@ struct MY_API FStageWaveGroupInfo
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 MonsterGroup = INDEX_NONE;
+	
 };

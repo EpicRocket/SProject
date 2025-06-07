@@ -109,18 +109,18 @@ namespace Stage
 // UStageSpawnComponent
 //////////////////////////////////////////////////////////////////////////
 
-FGErrorInfo UStageSpawnComponent::SpawnTower(uint8 TeamID, AStageLevel* StageLevel, FVector Location, FRotator Rotation, FStageTowerInfo Info, TSubclassOf<AAIController> AIController, AStageTowerUnit*& SpawnedUnit)
+FGErrorInfo UStageSpawnComponent::SpawnTower(uint8 TeamID, AStageLevel* StageLevel, FVector Location, FRotator Rotation, FStageTowerInfo TowerInfo, TSubclassOf<AAIController> AIController, AStageTowerUnit*& SpawnedUnit)
 {
 	auto SpawningCallback = [&](AStageTowerUnit* Unit)
 		{
-			Unit->SetInfo(Info);
+			Unit->Setup(TowerInfo);
 			if (AIController)
 			{
 				Unit->AIControllerClass = AIController;
 			}
 		};
 
-	if (auto Err = Stage::SpawnUnit<AStageTowerUnit>(TeamID, StageLevel, Location, Rotation, Info.UnitClass, SpawningCallback, SpawnedUnit); !GameCore::IsOK(Err))
+	if (auto Err = Stage::SpawnUnit<AStageTowerUnit>(TeamID, StageLevel, Location, Rotation, TowerInfo.UnitClass, SpawningCallback, SpawnedUnit); !GameCore::IsOK(Err))
 	{
 		return Err;
 	}
@@ -128,18 +128,18 @@ FGErrorInfo UStageSpawnComponent::SpawnTower(uint8 TeamID, AStageLevel* StageLev
 	return GameCore::Pass();
 }
 
-FGErrorInfo UStageSpawnComponent::SpawnMonster(uint8 TeamID, AStageLevel* StageLevel, FVector Location, FRotator Rotation, FStageMonsterInfo Info, TSubclassOf<AAIController> AIController, AStageMonsterUnit*& SpawnedUnit)
+FGErrorInfo UStageSpawnComponent::SpawnMonster(uint8 TeamID, AStageLevel* StageLevel, FVector Location, FRotator Rotation, FStageMonsterInfo MonsterInfo, TSubclassOf<AAIController> AIController, AStageMonsterUnit*& SpawnedUnit)
 {
 	auto SpawningCallback = [&](AStageMonsterUnit* Unit)
 		{
-			Unit->SetInfo(Info);
+			Unit->Setup(MonsterInfo);
 			if (AIController)
 			{
 				Unit->AIControllerClass = AIController;
 			}
 		};
 
-	if (auto Err = Stage::SpawnUnit<AStageMonsterUnit>(TeamID, StageLevel, Location, Rotation, Info.UnitClass, SpawningCallback, SpawnedUnit); !GameCore::IsOK(Err))
+	if (auto Err = Stage::SpawnUnit<AStageMonsterUnit>(TeamID, StageLevel, Location, Rotation, MonsterInfo.UnitClass, SpawningCallback, SpawnedUnit); !GameCore::IsOK(Err))
 	{
 		return Err;
 	}
@@ -151,7 +151,7 @@ FGErrorInfo UStageSpawnComponent::SpawnMonster(uint8 TeamID, AStageLevel* StageL
 // UStageSpawnHelper
 //////////////////////////////////////////////////////////////////////////
 
-/* static */FGErrorInfo UStageSpawnHelper::SpawnTower(uint8 TeamID, AStageLevel* StageLevel, FVector Location, FRotator Rotation, FStageTowerInfo Info, TSubclassOf<AAIController> AIController, AStageTowerUnit*& SpawnedUnit)
+/* static */FGErrorInfo UStageSpawnHelper::SpawnTower(uint8 TeamID, AStageLevel* StageLevel, FVector Location, FRotator Rotation, FStageTowerInfo TowerInfo, TSubclassOf<AAIController> AIController, AStageTowerUnit*& SpawnedUnit)
 {
 	UStageSpawnComponent* SpawnComponent = nullptr;
 	if (auto Err = Stage::GetSpawnComponent(StageLevel, SpawnComponent); !GameCore::IsOK(Err))
@@ -159,10 +159,10 @@ FGErrorInfo UStageSpawnComponent::SpawnMonster(uint8 TeamID, AStageLevel* StageL
 		return Err;
 	}
 
-	return SpawnComponent->SpawnTower(TeamID, StageLevel, Location, Rotation, Info, AIController, SpawnedUnit);
+	return SpawnComponent->SpawnTower(TeamID, StageLevel, Location, Rotation, TowerInfo, AIController, SpawnedUnit);
 }
 
-/* static */FGErrorInfo UStageSpawnHelper::SpawnMonster(uint8 TeamID, AStageLevel* StageLevel, FVector Location, FRotator Rotation, FStageMonsterInfo Info, TSubclassOf<AAIController> AIController, AStageMonsterUnit*& SpawnedUnit)
+/* static */FGErrorInfo UStageSpawnHelper::SpawnMonster(uint8 TeamID, AStageLevel* StageLevel, FVector Location, FRotator Rotation, FStageMonsterInfo MonsterInfo, TSubclassOf<AAIController> AIController, AStageMonsterUnit*& SpawnedUnit)
 {
 	UStageSpawnComponent* SpawnComponent = nullptr;
 	if (auto Err = Stage::GetSpawnComponent(StageLevel, SpawnComponent); !GameCore::IsOK(Err))
@@ -170,5 +170,5 @@ FGErrorInfo UStageSpawnComponent::SpawnMonster(uint8 TeamID, AStageLevel* StageL
 		return Err;
 	}
 
-	return SpawnComponent->SpawnMonster(TeamID, StageLevel, Location, Rotation, Info, AIController, SpawnedUnit);
+	return SpawnComponent->SpawnMonster(TeamID, StageLevel, Location, Rotation, MonsterInfo, AIController, SpawnedUnit);
 }

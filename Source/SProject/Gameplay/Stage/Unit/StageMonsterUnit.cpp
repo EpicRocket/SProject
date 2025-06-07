@@ -1,7 +1,6 @@
-
+// Copyright (c) 2025 Team EpicRocket. All rights reserved.
 
 #include "StageMonsterUnit.h"
-
 // include Project
 #include "Gameplay/Stage/StageLogging.h"
 #include "Gameplay/Stage/StageTableRepository.h"
@@ -9,10 +8,27 @@
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(StageMonsterUnit)
 
-void AStageMonsterUnit::InitailizeBaseStats()
+void AStageMonsterUnit::OnInit()
 {
+	EObjectFlags Flags = RF_Transient | RF_Public;
+	MonsterInfoContext = NewObject<UStageMonsterContext>(this, NAME_None, Flags);
+}
+
+void AStageMonsterUnit::OnInitBaseStats()
+{
+	if (!IsValid(MonsterInfoContext))
+	{
+		UE_LOGFMT(LogStage, Warning, "%s: MonsterInfoContext not found", *GetName());
+		return;
+	}
+
 	TMap<EStageUnitAttribute, double> BaseStats;
-	if (auto Err = UStageTableHelper::GetStageMonsterBaseStats(GetInfoRef()->Index, BaseStats); !GameCore::IsOK(Err))
+	auto Err = UStageTableHelper::GetStageMonsterBaseStats(
+		this,
+		MonsterInfoContext->MonsterInfo.Index,
+		BaseStats
+	);
+	if (!GameCore::IsOK(Err))
 	{
 		return;
 	}
@@ -20,26 +36,32 @@ void AStageMonsterUnit::InitailizeBaseStats()
 	SetBaseStats(BaseStats);
 }
 
-void AStageMonsterUnit::SetInfo(FStageMonsterInfo NewInfo)
+void AStageMonsterUnit::Setup(FStageMonsterInfo NewMonsterInfo)
 {
-	if (!Info.IsValid())
+	if (!IsValid(MonsterInfoContext))
 	{
-		Info = MakeShared<FStageMonsterInfo>();
+		return;
 	}
-	*Info = NewInfo;
+
+	MonsterInfoContext->MonsterInfo = NewMonsterInfo;
 }
 
-FStageMonsterInfo AStageMonsterUnit::GetInfo() const
+FGErrorInfo AStageMonsterUnit::K2_GetMonsterInfo(FStageMonsterInfo& MonsterInfo)
 {
-	return GetInfoRef().Get();
-}
-
-TSharedRef<FStageMonsterInfo> AStageMonsterUnit::GetInfoRef() const
-{
-	if (!Info.IsValid())
+	if(!IsValid(MonsterInfoContext))
 	{
-		return MakeShared<FStageMonsterInfo>();
+		return GameCore::Throw(GameErr::POINTER_INVALID, TEXT("MonsterInfoContext"));
 	}
-	return Info.ToSharedRef();
+
+	MonsterInfo = MonsterInfoContext->MonsterInfo;
+	return GameCore::Pass();
 }
 
+TOptional<FStageMonsterInfo> AStageMonsterUnit::GetMonsterInfo() const
+{
+	if (!IsValid(MonsterInfoContext))
+	{
+		return TOptional<FStageMonsterInfo>{};
+	}
+	return MonsterInfoContext->MonsterInfo;
+}

@@ -41,13 +41,13 @@ bool UStageStateComponent::ShouldShowLoadingScreen(FString& OutReason) const
 
 FGErrorInfo UStageStateComponent::LoadStage(const FStage& Stage)
 {
-	TSoftObjectPtr<UWorld> MapPtr;
+	/*TSoftObjectPtr<UWorld> MapPtr;
 	if (auto Err = UStageTableHelper::GetStageMap(Stage.Level, MapPtr); !GameCore::IsOK(Err))
 	{
 		return Err;
 	}
 
-	OnLoadStage(Stage, MapPtr);
+	OnLoadStage(Stage, MapPtr);*/
 	return GameCore::Pass();
 }
 

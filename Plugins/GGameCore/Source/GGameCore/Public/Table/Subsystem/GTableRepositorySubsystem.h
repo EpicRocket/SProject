@@ -1,8 +1,10 @@
+// Copyright (c) 2025 Team EpicRocket. All rights reserved.
 
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Subsystems/EngineSubsystem.h"
+#include "Subsystems/GameInstanceSubsystem.h"
+#include "Tickable.h"
 
 #include "GTableRepositorySubsystem.generated.h"
 
@@ -11,16 +13,29 @@ struct FLatentActionInfo;
 struct FSoftObjectPath;
 struct FStreamableHandle;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTableRepositoryLoaded);
+
 UCLASS(Abstract)
-class GGAMECORE_API UGTableRepositorySubsystem : public UEngineSubsystem
+class GGAMECORE_API UGTableRepositorySubsystem : public UGameInstanceSubsystem, public FTickableGameObject
 {
 	GENERATED_BODY()
 
 public:
+    // USubsystem
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+	virtual void Deinitialize() override;
+    // ~USubsystem
 
-    UFUNCTION(BlueprintCallable, meta = (Latent, LatentInfo = "LatentInfo"))
-    virtual void Load(FLatentActionInfo LatentInfo);
+    // FTickableObjectBase
+    virtual bool IsTickable() const override;
+    virtual void Tick(float DeltaTime) override;
+    virtual TStatId GetStatId() const override;
+    virtual UWorld* GetTickableGameObjectWorld() const override;
+    // ~FTickableObjectBase
+
+public:
+    UFUNCTION(BlueprintCallable)
+    virtual void Load();
 
     UFUNCTION(BlueprintCallable)
     virtual void Unload();
@@ -36,8 +51,14 @@ private:
 
     void ResetTask();
 
+public:
+    UPROPERTY(BlueprintAssignable)
+    FOnTableRepositoryLoaded OnTableRepositoryLoaded;
+
 private:
     bool bLoaded = false;
+
+    bool bWorking = false;
     TArray<TSharedPtr<FStreamableHandle>> Tasks;
     FThreadSafeCounter TaskCompleteCount;
 

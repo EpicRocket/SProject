@@ -44,49 +44,65 @@ AStageBuildZone::AStageBuildZone()
 	RootComponent = InteractionComponent;
 }
 
-FStageTowerReceipt AStageBuildZone::GetTowerReceipt() const
+FGErrorInfo AStageBuildZone::K2_GetTowerReceipt(FStageTowerReceipt& Receipt)
 {
-	FStageTowerReceipt Receipt;
-	if (!SpawnedTower.IsValid())
+	// NOTE. 타워가 이미 스폰되어 있을 경우
+	if (SpawnedTower.IsValid())
 	{
-		if (!BuildZoneData)
+		auto SellPrice = SpawnedTower->GetSellPrice();
+		if (!SellPrice.IsSet())
 		{
-			return Receipt;
+			return GameCore::Throw(GameErr::VALUE_INVALID, TEXT("SpawnedTower->GetSellPrice()"));
 		}
 
+		auto TowerInfo = SpawnedTower->GetTowerInfo();
+		if (!TowerInfo.IsSet())
+		{
+			return GameCore::Throw(GameErr::VALUE_INVALID, TEXT("SpawnedTower->GetTowerInfo()"));
+		}
+
+		int32 TowerMaxLevel = 0;
+		auto Err = UStageTableHelper::GetStageTowerMaxLevel(this, TowerInfo->TowerType, TowerInfo->Kind, TowerMaxLevel);
+		if (!GameCore::IsOK(Err))
+		{
+			return Err;
+		}
+
+		Receipt = FStageTowerReceipt{};
+		Receipt.bSellable = true;
+		Receipt.SellPrice = *SellPrice;
+		Receipt.bMaxLevel = TowerInfo->Level >= TowerMaxLevel;
+		if (Receipt.bMaxLevel)
+		{
+			FStageTowerInfo NextTower;
+			UStageTableHelper::GetNextStageTower(this, TowerInfo->TowerType, TowerInfo->Kind, TowerInfo->Level, NextTower);
+			Receipt.BuildTowers.Emplace(NextTower);
+		}
+	}
+	// NOTE. 타워가 없어 건설을 해야 하는 경우
+	else
+	{
+		if (!IsValid(BuildZoneData))
+		{
+			return GameCore::Throw(GameErr::OBJECT_INVALID, TEXT("BuildZoneData"));
+		}
+
+		Receipt = FStageTowerReceipt{};
 		for (auto& Content : BuildZoneData->BuildContents)
 		{
 			FStageTowerInfo Tower;
-			if (auto Err = UStageTableHelper::GetBuildStageTower(Content.TowerType, Content.Kind, Content.Level, Tower); !GameCore::IsOK(Err))
+			if (auto Err = UStageTableHelper::GetBuildStageTower(this, Content.TowerType, Content.Kind, Content.Level, Tower); !GameCore::IsOK(Err))
 			{
 				continue;
 			}
 			Receipt.BuildTowers.Emplace(Tower);
 		}
 	}
-	else
-	{
-		Receipt.bSellable = true;
-		Receipt.SellPrice = 10; //SpawnedTower->GetSellPrice();
 
-		auto SpawnedTowerInfo = SpawnedTower->GetInfoRef();
-		int32 MaxLevel = UStageTableHelper::GetStageTowerMaxLevel(SpawnedTowerInfo->TowerType, SpawnedTowerInfo->Kind);
-		if (SpawnedTowerInfo->Level >= MaxLevel)
-		{
-			Receipt.bMaxLevel = true;
-		}
-		else
-		{
-			FStageTowerInfo NextTower;
-			UStageTableHelper::GetNextStageTower(SpawnedTowerInfo->TowerType, SpawnedTowerInfo->Kind, SpawnedTowerInfo->Level, NextTower);
-			Receipt.BuildTowers.Emplace(NextTower);
-		}
-	}
-
-	return Receipt;
+	return GameCore::Pass();
 }
 
-void AStageBuildZone::RequestBuildTower(const FStageTowerInfo& BuildTowerInfo)
+FGErrorInfo AStageBuildZone::RequestBuildTower(const FStageTowerInfo& BuildTowerInfo)
 {
 	AddUsePoint(-BuildTowerInfo.UsePoint);
 
@@ -97,31 +113,44 @@ void AStageBuildZone::RequestBuildTower(const FStageTowerInfo& BuildTowerInfo)
 
 	AStageTowerUnit* SpawnedUnit = nullptr;
 	auto SpawnLocation = GetBuildLocation();
-	if (auto Err = UStageSpawnHelper::SpawnTower(GetTeamID(), SourceStage.Get(), SpawnLocation, GetActorRotation(), BuildTowerInfo, nullptr, SpawnedUnit); !GameCore::IsOK(Err))
+
+	auto Err = UStageSpawnHelper::SpawnTower(
+		GetTeamID(),
+		SourceStage.Get(),
+		SpawnLocation,
+		GetActorRotation(),
+		BuildTowerInfo,
+		nullptr,
+		SpawnedUnit
+	);
+
+	if (!GameCore::IsOK(Err))
 	{
-		return;
+		return Err;
 	}
 
 	SpawnedTower = SpawnedUnit;
 	SpawnLocation.Z = SpawnLocation.Z + SpawnedTower->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
 	SpawnedTower->SetActorLocation(FVector(SpawnLocation.X, SpawnLocation.Y, SpawnLocation.Z));
 
-	/*if (auto AIController = SpawnedUnit->GetController<AStageAIController>())
+	if (auto AIController = SpawnedUnit->GetController<AStageAIController>())
 	{
 		AIController->SetGenericTeamId(GetTeamID());
 		AIController->SourceStage = SourceStage;
 		AIController->AIBehaviorTree = BuildTowerInfo.AI;
-	}*/
+	}
 
 	OnCompleteBuildTower(SpawnedUnit);
 	Stage::SendUnitEvent(this, Stage::NewUnitEvent<UStageUnitEvent_Spawn>(SpawnedUnit));
+
+	return GameCore::Pass();
 }
 
-void AStageBuildZone::RequestDemolishTower(const int64 SellPrice)
+FGErrorInfo AStageBuildZone::RequestDemolishTower(const int64 SellPrice)
 {
 	if (!SpawnedTower.IsValid())
 	{
-		return;
+		return GameCore::Throw(GameErr::OBJECT_INVALID, TEXT("SpawnedTower"));
 	}
 
 	AddUsePoint(SellPrice);
@@ -129,6 +158,8 @@ void AStageBuildZone::RequestDemolishTower(const int64 SellPrice)
 	OnCompleteDemolishTower(SpawnedTower.Get());
 	SpawnedTower->Kill();
 	SpawnedTower = nullptr;
+
+	return GameCore::Pass();
 }
 
 void AStageBuildZone::AddUsePoint(int64 Point)

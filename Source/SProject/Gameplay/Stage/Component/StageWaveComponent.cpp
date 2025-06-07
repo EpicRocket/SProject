@@ -13,7 +13,7 @@ void UStageWaveComponent::OnInitialize()
 FGErrorInfo UStageWaveComponent::SetWaveGroup(int32 TargetWaveGroup)
 {
 	WaveGroup = TargetWaveGroup;
-	UStageTableHelper::GetWaveGroupInfo(WaveGroup, WaveGroupInfo);
+	//UStageTableHelper::GetWaveGroupInfo(WaveGroup, WaveGroupInfo);
 	CurrentWaveIndex = 0;
 	return FGErrorInfo();
 }
@@ -52,6 +52,6 @@ TArray<FStageWaveGroupInfo> UStageWaveComponent::GetWaveGroupInfo()
 TArray<FMonsterGroupTableRow> UStageWaveComponent::GetCurrentMonsterGroupInfo()
 {
 	TArray<FMonsterGroupTableRow> Info;
-	UStageTableHelper::GetMonsterGroupInfo(WaveGroupInfo[CurrentWaveIndex].MonsterGroup, Info);
+	//UStageTableHelper::GetMonsterGroupInfo(WaveGroupInfo[CurrentWaveIndex].MonsterGroup, Info);
 	return Info;
 }

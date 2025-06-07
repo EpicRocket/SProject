@@ -27,7 +27,8 @@ public:
 	const class UStageUnitAttributeSet* GetUnitSet() const;
 
 protected:
-	virtual void InitailizeBaseStats() {}
+	virtual void OnInit() { /*Needs implement*/ }
+	virtual void OnInitBaseStats() { /*Needs implement*/ }
 
 	void SetBaseStats(TMap<EStageUnitAttribute, double> Params);
 

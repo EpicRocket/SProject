@@ -19,7 +19,8 @@ void AStageUnitCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	InitailizeBaseStats();
+	OnInit();
+	OnInitBaseStats();
 
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UStageUnitAttributeSet::GetHpAttribute()).AddWeakLambda(
 		this,

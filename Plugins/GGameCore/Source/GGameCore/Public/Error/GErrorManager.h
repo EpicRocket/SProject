@@ -63,7 +63,7 @@ public:
 	static bool IsOk(const FGErrorInfo& Err);
 
 	UFUNCTION(BlueprintPure, Category = "Error")
-	static FGErrorInfo Pass();
+	static const FGErrorInfo& Pass();
 
 	UFUNCTION(BlueprintCallable, Category = "Error")
 	static FGErrorInfo Throw(FString ErrCode, FString More);
@@ -73,7 +73,7 @@ namespace GameCore
 {
 	GGAMECORE_API bool IsOK(const FGErrorInfo& Err);
 
-	GGAMECORE_API FGErrorInfo Pass();
+	GGAMECORE_API const FGErrorInfo& Pass();
 
 	GGAMECORE_API FGErrorInfo Throw(FString ErrCode, FString More = TEXT(""));
 
