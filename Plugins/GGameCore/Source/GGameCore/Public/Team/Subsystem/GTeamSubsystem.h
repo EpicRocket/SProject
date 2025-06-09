@@ -15,6 +15,7 @@ struct FGTeamTracker;
 struct FGTeam;
 struct FGRelationshipInForceTableRow;
 struct FGForcesRelationshipTableRow;
+struct FGErrorInfo;
 
 namespace ETeamAttitude
 {
@@ -67,7 +68,7 @@ class GGAMECORE_API UGTeamHelper : public UBlueprintFunctionLibrary
 
 public:
 	UFUNCTION(BlueprintCallable, meta = (ReturnDisplayName = "Success"))
-	static bool LoadTeamLoadAsset(TSoftObjectPtr<UGTeamLoadDataAsset> DataAsset, TArray<FGTeamTracker>& TeamTrackers, TArray<FGRelationshipInForceTableRow>& RelationshipInForceTableRows, TArray<FGForcesRelationshipTableRow>&  ForcesRelationshipTableRows);
+	static FGErrorInfo LoadTeamLoadAsset(TSoftObjectPtr<UGTeamLoadDataAsset> DataAsset, TArray<FGTeamTracker>& TeamTrackers, TArray<FGRelationshipInForceTableRow>& RelationshipInForceTableRows, TArray<FGForcesRelationshipTableRow>&  ForcesRelationshipTableRows);
 
 	UFUNCTION(BlueprintPure, meta = (ReturnDisplayName = "Success"))
 	static bool IsTeamAgentOwner(APlayerController* PC, TScriptInterface<IGTeamAgent> TeamAgent);

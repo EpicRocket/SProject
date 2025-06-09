@@ -1,3 +1,4 @@
+// Copyright (c) 2025 Team EpicRocket. All rights reserved.
 
 #pragma once
 
@@ -11,7 +12,7 @@ namespace ETextJustify
 	enum Type : int;
 }
 
-UCLASS(Abstract, BlueprintType, Blueprintable)
+UCLASS(Abstract, editinlinenew, BlueprintType, Blueprintable, ClassGroup = "UI", meta = (Category = "GameCore UI", DisableNativeTick, DontUseGenericSpawnObject = "true"))
 class GGAMECORE_API UTextButtonBase : public UCommonButtonBase
 {
 	GENERATED_BODY()

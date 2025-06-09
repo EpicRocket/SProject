@@ -19,23 +19,26 @@ UGGameCoreComponent::UGGameCoreComponent(const FObjectInitializer& ObjectInitial
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
-FGErrorInfo UGGameCoreComponent::WaitForInitialize(FLatentActionInfo LatentInfo)
+void UGGameCoreComponent::WaitForInitialize(FLatentActionInfo LatentInfo)
 {
 	auto World = GetWorld();
 	if (!World)
 	{
 		UKismetSystemLibrary::DelayUntilNextTick(World, LatentInfo);
-		return GameCore::Throw(GameErr::WORLD_INVALID);
+		GameCore::Throw(GameErr::WORLD_INVALID);
+		return;
 	}
 
-	FGErrorInfo ErrorInfo;
 	auto OnComplete = [this]()
 		{
 			OnInitialize();
 		};
 
-	auto NewAction = new FGGameComponentLoadAction(LatentInfo, GetWorld(), this, OnComplete, [&ErrorInfo](FGErrorInfo Err) {ErrorInfo = Err; });
-	World->GetLatentActionManager().AddNewAction(LatentInfo.CallbackTarget, LatentInfo.UUID, NewAction);
+	auto OnError = [](FGErrorInfo Err)
+		{
+			UE_LOG(LogTemp, Error, TEXT("Failed to initialize component: %s"), *Err.Description.ToString());
+		};
 
-	return ErrorInfo;
+	auto NewAction = new FGGameComponentLoadAction(LatentInfo, GetWorld(), this, OnComplete, OnError);
+	World->GetLatentActionManager().AddNewAction(LatentInfo.CallbackTarget, LatentInfo.UUID, NewAction);
 }

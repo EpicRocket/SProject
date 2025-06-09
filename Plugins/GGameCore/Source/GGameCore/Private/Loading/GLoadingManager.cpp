@@ -15,7 +15,7 @@
 #include "ShaderPipelineCache.h"
 // include GGameCore
 #include "GLoadingManagerSettings.h"
-#include "Loading/Interface/GLoadingProcessInterface.h"
+#include "Loading/Interface/IGLoadingProcess.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(GLoadingManager)
 
@@ -91,7 +91,7 @@ bool UGLoadingManager::GetLoadingScreenDisplayStatus() const
 	return bCurrentlyShowingLoadingScreen;
 }
 
-void UGLoadingManager::RegisterLoadingProcessor(TScriptInterface<IGLoadingProcessInterface> Interface)
+void UGLoadingManager::RegisterLoadingProcessor(TScriptInterface<IGLoadingProcess> Interface)
 {
 	if (Interface.GetObject() != nullptr)
 	{
@@ -99,7 +99,7 @@ void UGLoadingManager::RegisterLoadingProcessor(TScriptInterface<IGLoadingProces
 	}
 }
 
-void UGLoadingManager::UnregisterLoadingProcessor(TScriptInterface<IGLoadingProcessInterface> Interface)
+void UGLoadingManager::UnregisterLoadingProcessor(TScriptInterface<IGLoadingProcess> Interface)
 {
 	if (Interface.GetObject() != nullptr)
 	{
@@ -193,22 +193,22 @@ bool UGLoadingManager::CheckForAnyNeedToShowLoadingScreen()
 		return true;
 	}
 
-	if (IGLoadingProcessInterface::ShouldShowLoadingScreen(GameState, DebugReasonForShowingOrHidingLoadingScreen))
+	if (IGLoadingProcess::ShouldShowLoadingScreen(GameState, DebugReasonForShowingOrHidingLoadingScreen))
 	{
 		return true;
 	}
 
 	for (UActorComponent* TestComponent : GameState->GetComponents())
 	{
-		if (IGLoadingProcessInterface::ShouldShowLoadingScreen(TestComponent, DebugReasonForShowingOrHidingLoadingScreen))
+		if (IGLoadingProcess::ShouldShowLoadingScreen(TestComponent, DebugReasonForShowingOrHidingLoadingScreen))
 		{
 			return true;
 		}
 	}
 
-	for (const TWeakInterfacePtr<IGLoadingProcessInterface>& Processor : ExternalLoadingProcessors)
+	for (const TWeakInterfacePtr<IGLoadingProcess>& Processor : ExternalLoadingProcessors)
 	{
-		if (IGLoadingProcessInterface::ShouldShowLoadingScreen(Processor.GetObject(), DebugReasonForShowingOrHidingLoadingScreen))
+		if (IGLoadingProcess::ShouldShowLoadingScreen(Processor.GetObject(), DebugReasonForShowingOrHidingLoadingScreen))
 		{
 			return true;
 		}
@@ -225,14 +225,14 @@ bool UGLoadingManager::CheckForAnyNeedToShowLoadingScreen()
 			{
 				bFoundAnyLocalPC = true;
 
-				if (IGLoadingProcessInterface::ShouldShowLoadingScreen(PC, DebugReasonForShowingOrHidingLoadingScreen))
+				if (IGLoadingProcess::ShouldShowLoadingScreen(PC, DebugReasonForShowingOrHidingLoadingScreen))
 				{
 					return true;
 				}
 
 				for (UActorComponent* TestComponent : PC->GetComponents())
 				{
-					if (IGLoadingProcessInterface::ShouldShowLoadingScreen(TestComponent, DebugReasonForShowingOrHidingLoadingScreen))
+					if (IGLoadingProcess::ShouldShowLoadingScreen(TestComponent, DebugReasonForShowingOrHidingLoadingScreen))
 					{
 						return true;
 					}

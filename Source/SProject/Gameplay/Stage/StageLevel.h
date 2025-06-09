@@ -9,6 +9,7 @@ class AGameplayPathActor;
 class AStageBuildZone;
 class AStagePlayerPawn;
 class AStageSpawner;
+class AStageSupervisor;
 
 UCLASS()
 class MY_API AStageLevel : public AMyGameLevel
@@ -20,9 +21,12 @@ protected:
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 public:
-	// IGLoadingProcessInterface
+	// IGLoadingProcess
 	virtual bool ShouldShowLoadingScreen(FString& OutReason) const override;
-	// ~IGLoadingProcessInterface
+	// ~IGLoadingProcess
+	
+	UFUNCTION(BlueprintCallable)
+	FGErrorInfo Load();
 
 	UFUNCTION(BlueprintCallable)
 	void AddBuildZone(AStageBuildZone* BuildZone);
@@ -49,6 +53,9 @@ protected:
 	virtual void OnInitailize();
 
 public:
+	UPROPERTY(Transient, BlueprintReadOnly)
+	TObjectPtr<AStageSupervisor> Supervisor;
+
 	TMap<int32, TWeakObjectPtr<AGameplayPathActor>> PathActors;
 
 	TMap<int32, TWeakObjectPtr<AStageBuildZone>> BuildZones;

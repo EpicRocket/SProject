@@ -33,7 +33,9 @@ class MY_API UStageTableRepository : public UGTableRepositorySubsystem
 	GENERATED_BODY()
 
 	friend UStageTableHelper;
+public:
 	static UStageTableRepository* Get(const UObject* WorldContextObject);
+
 protected:
 	virtual void OnLoad() override;
 	virtual void OnUnload() override;

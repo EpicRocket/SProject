@@ -1,15 +1,15 @@
+// Copyright (c) 2025 Team EpicRocket. All rights reserved.
 
 #pragma once
 
-#include "CoreMinimal.h"
-#include "CommonActivatableWidget.h"
+#include "UI/MyActivatableWidget.h"
 
 #include "StageBuildHUDWidget.generated.h"
 
 class AStageBuildZone;
 
-UCLASS()
-class MY_API UStageBuildHUDWidget : public UCommonActivatableWidget
+UCLASS(Abstract, editinlinenew, BlueprintType, Blueprintable, ClassGroup = "UI", meta = (Category = "My UI", DisableNativeTick, DontUseGenericSpawnObject = "true"), MinimalAPI)
+class UStageBuildHUDWidget : public UMyActivatableWidget
 {
 	GENERATED_BODY()
 
@@ -24,4 +24,5 @@ protected:
 public:
 	UPROPERTY(BlueprintReadOnly)
 	TWeakObjectPtr<AStageBuildZone> Owner;
+
 };

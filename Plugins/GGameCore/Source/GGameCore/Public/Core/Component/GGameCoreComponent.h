@@ -17,7 +17,7 @@ public:
 	UGGameCoreComponent(const FObjectInitializer& ObjectInitializer);
 
 	UFUNCTION(BlueprintCallable, meta = (Latent, LatentInfo = "LatentInfo"))
-	FGErrorInfo WaitForInitialize(FLatentActionInfo LatentInfo);
+	void WaitForInitialize(FLatentActionInfo LatentInfo);
 
 protected:
 	virtual void OnInitialize() {}

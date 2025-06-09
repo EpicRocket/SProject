@@ -1,0 +1,6 @@
+// Copyright (c) 2025 Team EpicRocket. All rights reserved.
+
+#include "StageSupervisor.h"
+
+#include UE_INLINE_GENERATED_CPP_BY_NAME(StageSupervisor)
+

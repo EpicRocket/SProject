@@ -1,3 +1,4 @@
+// Copyright (c) 2025 Team EpicRocket. All rights reserved.
 
 #include "StageStateComponent.h"
 // include Engine
@@ -9,9 +10,12 @@
 // include GameCore
 #include "Error/GError.h"
 #include "Core/Action/GGameLoadAction.h"
+#include "Table/GTableHelper.h"
 // include Project
-#include "Types/StageTypes.h"
 #include "Core/MyPlayerController.h"
+#include "Types/StageTypes.h"
+#include "Table/StageTable.h"
+#include "Gameplay/Stage/StageLogging.h"
 #include "Gameplay/GameWorldSubsystem.h"
 #include "Gameplay/Team/GameplayTeamSubsystem.h"
 #include "Gameplay/Stage/StageLevel.h"
@@ -26,6 +30,28 @@ void UStageStateComponent::InitializeComponent()
 	Super::InitializeComponent();
 
 	bLoadCompleted = false;
+	auto StageTableRepo = UStageTableRepository::Get(this);
+	if (!StageTableRepo)
+	{
+		UE_LOG(LogStage, Error, TEXT("UStageTableRepository is not found!"));
+		return;
+	}
+	StageTableRepo->OnTableRepositoryLoading.AddDynamic(this, &UStageStateComponent::OnTableLoading);
+	StageTableRepo->OnTableRepositoryLoaded.AddDynamic(this, &UStageStateComponent::OnTableLoaded);
+}
+
+void UStageStateComponent::UninitializeComponent()
+{
+	Super::UninitializeComponent();
+
+	auto StageTableRepo = UStageTableRepository::Get(this);
+	if (!StageTableRepo)
+	{
+		UE_LOG(LogStage, Error, TEXT("UStageTableRepository is not found!"));
+		return;
+	}
+	StageTableRepo->OnTableRepositoryLoading.RemoveDynamic(this, &UStageStateComponent::OnTableLoading);
+	StageTableRepo->OnTableRepositoryLoaded.RemoveDynamic(this, &UStageStateComponent::OnTableLoaded);
 }
 
 bool UStageStateComponent::ShouldShowLoadingScreen(FString& OutReason) const
@@ -41,13 +67,24 @@ bool UStageStateComponent::ShouldShowLoadingScreen(FString& OutReason) const
 
 FGErrorInfo UStageStateComponent::LoadStage(const FStage& Stage)
 {
-	/*TSoftObjectPtr<UWorld> MapPtr;
-	if (auto Err = UStageTableHelper::GetStageMap(Stage.Level, MapPtr); !GameCore::IsOK(Err))
+	auto Row = UGTableHelper::GetTableData<FStageTableRow>(Stage.Level);
+	if (!Row)
 	{
-		return Err;
+		return GameCore::Throw(GameErr::POINTER_INVALID, FString::Printf(TEXT("FStageTableRow find Level %d"), Stage.Level));
 	}
 
-	OnLoadStage(Stage, MapPtr);*/
+	TSoftObjectPtr<UWorld> Map = Row->Map;
+	if (Map.IsNull())
+	{
+		return GameCore::Throw(GameErr::POINTER_INVALID, FString::Printf(TEXT("Map is empty: Level:%d"), Stage.Level));
+	}
+
+	if (!Map.IsValid())
+	{
+		return GameCore::Throw(GameErr::POINTER_INVALID, FString::Printf(TEXT("Map is invalid: Level:%d"), Stage.Level));
+	}
+
+	OnLoadStage(Stage, Map);
 	return GameCore::Pass();
 }
 
@@ -85,7 +122,10 @@ FGErrorInfo UStageStateComponent::WaitForPrimaryPlayerController(FLatentActionIn
 	return ErrorInfo;
 }
 
-void UStageStateComponent::SetTargetLevel(AMyGameLevel* Level)
+void UStageStateComponent::OnTableLoading()
 {
-	TargetStage = Cast<AStageLevel>(Level);
+}
+
+void UStageStateComponent::OnTableLoaded()
+{
 }

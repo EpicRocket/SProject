@@ -4,15 +4,15 @@
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
 
-#include "GLoadingProcessInterface.generated.h"
+#include "IGLoadingProcess.generated.h"
 
 UINTERFACE(BlueprintType)
-class GGAMECORE_API UGLoadingProcessInterface : public UInterface
+class GGAMECORE_API UGLoadingProcess : public UInterface
 {
 	GENERATED_BODY()
 };
 
-class GGAMECORE_API IGLoadingProcessInterface : public IInterface
+class GGAMECORE_API IGLoadingProcess : public IInterface
 {
 	GENERATED_BODY()
 

@@ -1,9 +1,12 @@
 
 #include "StageLevel.h"
+// include Engine
+#include "Engine/World.h"
 // include Project
 #include "StageLogging.h"
 #include "Gameplay/Stage/ETC/StageBuildZone.h"
 #include "Gameplay/Stage/ETC/StageSpawner.h"
+#include "Gameplay/Stage/ETC/StageSupervisor.h"
 #include "Gameplay/ETC/GameplayPathActor.h"
 #include "StagePlayerPawn.h"
 
@@ -20,8 +23,16 @@ void AStageLevel::BeginPlay()
 
 void AStageLevel::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	// TODO:
+	if (IsValid(Supervisor))
+	{
+		Supervisor->Destroy();
+		Supervisor = nullptr;
+	}
+
+	PathActors.Empty();
 	BuildZones.Empty();
+	Spawners.Empty();
+	PlayerPawn = nullptr;
 
 	Super::EndPlay(EndPlayReason);
 }
@@ -29,6 +40,24 @@ void AStageLevel::EndPlay(const EEndPlayReason::Type EndPlayReason)
 bool AStageLevel::ShouldShowLoadingScreen(FString& OutReason) const
 {
 	return false;
+}
+
+FGErrorInfo AStageLevel::Load()
+{
+	auto World = GetWorld();
+	if (!World)
+	{
+		return GameCore::Throw(GameErr::WORLD_INVALID, FString::Printf(TEXT("%s:World is null"), *GetName()));
+	}
+
+	{
+		FActorSpawnParameters Params;
+		Params.Owner = this;
+
+		Supervisor = World->SpawnActor<AStageSupervisor>(Params);
+	}
+
+	return GameCore::Pass();
 }
 
 void AStageLevel::AddBuildZone(AStageBuildZone* BuildZone)

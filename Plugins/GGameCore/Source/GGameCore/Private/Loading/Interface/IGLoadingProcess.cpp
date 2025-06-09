@@ -1,11 +1,11 @@
 
-#include "Loading/Interface/GLoadingProcessInterface.h"
+#include "Loading/Interface/IGLoadingProcess.h"
 
-/*static*/ bool IGLoadingProcessInterface::ShouldShowLoadingScreen(UObject* TestObject, FString& OutReason)
+/*static*/ bool IGLoadingProcess::ShouldShowLoadingScreen(UObject* TestObject, FString& OutReason)
 {
 	if (TestObject != nullptr)
 	{
-		if (auto LoadObserver = Cast<IGLoadingProcessInterface>(TestObject))
+		if (auto LoadObserver = Cast<IGLoadingProcess>(TestObject))
 		{
 			FString ObserverReason;
 			if (LoadObserver->ShouldShowLoadingScreen(/*out*/ ObserverReason))
@@ -22,7 +22,7 @@
 	return false;
 }
 
-bool IGLoadingProcessInterface::ShouldShowLoadingScreen(FString& OutReason) const
+bool IGLoadingProcess::ShouldShowLoadingScreen(FString& OutReason) const
 {
 	// implementation
 	return false;

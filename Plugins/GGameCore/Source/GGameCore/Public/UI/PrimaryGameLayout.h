@@ -8,7 +8,7 @@
 
 class UCommonActivatableWidgetContainerBase;
 
-UCLASS(Abstract, meta = (DisableNativeTick))
+UCLASS(Abstract, editinlinenew, BlueprintType, Blueprintable, ClassGroup = "UI", meta = (Category = "GameCore UI", DisableNativeTick, DontUseGenericSpawnObject = "true"))
 class GGAMECORE_API UPrimaryGameLayout : public UCommonActivatableWidget
 {
 	GENERATED_BODY()

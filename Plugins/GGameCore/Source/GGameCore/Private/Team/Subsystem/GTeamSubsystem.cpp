@@ -8,6 +8,7 @@
 #include "Team/GTeamTypes.h"
 #include "Team/GTeamLoadDataAsset.h"
 #include "Team/Interface/IGTeamAgent.h"
+#include "Error/GError.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(GTeamSubsystem)
 
@@ -145,30 +146,30 @@ TEnumAsByte<ETeamAttitude::Type> UGTeamSubsystem::GetAgentAttitudeTowards(TScrip
 // UGTeamHelper
 //////////////////////////////////////////////////////////////////////////
 
-bool UGTeamHelper::LoadTeamLoadAsset(TSoftObjectPtr<class UGTeamLoadDataAsset> DataAsset, TArray<FGTeamTracker>& TeamTrackers, TArray<FGRelationshipInForceTableRow>& RelationshipInForceTableRows, TArray<FGForcesRelationshipTableRow>& ForcesRelationshipTableRows)
+FGErrorInfo UGTeamHelper::LoadTeamLoadAsset(TSoftObjectPtr<class UGTeamLoadDataAsset> DataAsset, TArray<FGTeamTracker>& TeamTrackers, TArray<FGRelationshipInForceTableRow>& RelationshipInForceTableRows, TArray<FGForcesRelationshipTableRow>& ForcesRelationshipTableRows)
 {
 	auto Asset = DataAsset.LoadSynchronous();
 	if (!Asset)
 	{
-		return false;
+		return GameCore::Throw(GameErr::OBJECT_INVALID, TEXT("GTeamLoadDataAsset를 찾을 수 없습니다."));
 	}
 
 	if (!GTeam::LoadTableRows<FGTeamTracker>(Asset->TeamTracker, TeamTrackers))
 	{
-		return false;
+		return GameCore::Throw(GameErr::OBJECT_INVALID, TEXT("GTeamTracker 테이블을 찾을 수 없습니다."));
 	}
 
 	if (!GTeam::LoadTableRows<FGRelationshipInForceTableRow>(Asset->RelationshipInForce, RelationshipInForceTableRows))
 	{
-		return false;
+		return GameCore::Throw(GameErr::OBJECT_INVALID, TEXT("FGRelationshipInForceTableRow 테이블을 찾을 수 없습니다."));
 	}
 
 	if (!GTeam::LoadTableRows<FGForcesRelationshipTableRow>(Asset->ForcesRelationship, ForcesRelationshipTableRows))
 	{
-		return false;
+		return GameCore::Throw(GameErr::OBJECT_INVALID, TEXT("FGForcesRelationshipTableRow 테이블을 찾을 수 없습니다."));
 	}
 
-	return true;
+	return GameCore::Pass();
 }
 
 bool UGTeamHelper::IsTeamAgentOwner(APlayerController* PC, TScriptInterface<IGTeamAgent> TeamAgent)

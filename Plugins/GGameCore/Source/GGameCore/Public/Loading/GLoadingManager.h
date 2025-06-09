@@ -8,7 +8,7 @@
 
 #include "GLoadingManager.generated.h"
 
-class IGLoadingProcessInterface;
+class IGLoadingProcess;
 class ILoadingProcessInterface;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogLoading, Log, All);
@@ -34,9 +34,9 @@ public:
 
 	bool GetLoadingScreenDisplayStatus() const;
 
-	void RegisterLoadingProcessor(TScriptInterface<IGLoadingProcessInterface> Interface);
+	void RegisterLoadingProcessor(TScriptInterface<IGLoadingProcess> Interface);
 
-	void UnregisterLoadingProcessor(TScriptInterface<IGLoadingProcessInterface> Interface);
+	void UnregisterLoadingProcessor(TScriptInterface<IGLoadingProcess> Interface);
 
 private:
 	// 맵 로드 전
@@ -65,7 +65,7 @@ private:
 	TSharedPtr<SWidget> LoadingScreenWidget;
 
 	// 외부 로딩 프로세서, 컴포넌트는 로딩을 지연시키는 액터일 수 있습니다.
-	TArray<TWeakInterfacePtr<IGLoadingProcessInterface>> ExternalLoadingProcessors;
+	TArray<TWeakInterfacePtr<IGLoadingProcess>> ExternalLoadingProcessors;
 
 	// 로딩 화면이 뜨는 이유(또는 뜨지 않는 이유)
 	FString DebugReasonForShowingOrHidingLoadingScreen;

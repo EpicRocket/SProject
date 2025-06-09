@@ -85,6 +85,7 @@ void UGTableRepositorySubsystem::Load()
 	OnLoad();
 
 	bWorking = true;
+	OnTableRepositoryLoading.Broadcast();
 }
 
 void UGTableRepositorySubsystem::Unload()

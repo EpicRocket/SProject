@@ -13,7 +13,7 @@ struct FLatentActionInfo;
 struct FSoftObjectPath;
 struct FStreamableHandle;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTableRepositoryLoaded);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTableRepositoryLoadEvent);
 
 UCLASS(Abstract)
 class GGAMECORE_API UGTableRepositorySubsystem : public UGameInstanceSubsystem, public FTickableGameObject
@@ -53,7 +53,10 @@ private:
 
 public:
     UPROPERTY(BlueprintAssignable)
-    FOnTableRepositoryLoaded OnTableRepositoryLoaded;
+    FOnTableRepositoryLoadEvent OnTableRepositoryLoading;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnTableRepositoryLoadEvent OnTableRepositoryLoaded;
 
 private:
     bool bLoaded = false;
@@ -63,4 +66,3 @@ private:
     FThreadSafeCounter TaskCompleteCount;
 
 };
- 

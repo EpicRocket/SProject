@@ -11,7 +11,7 @@ class MY_API AMasterGameLevel : public AMyGameLevel
 	GENERATED_BODY()
 
 public:
-	// IGLoadingProcessInterface
+	// IGLoadingProcess
 	virtual bool ShouldShowLoadingScreen(FString& OutReason) const override;
-	// ~IGLoadingProcessInterface
+	// ~IGLoadingProcess
 };
