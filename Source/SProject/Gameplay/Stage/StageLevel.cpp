@@ -53,6 +53,17 @@ FGErrorInfo AStageLevel::Load()
 	{
 		FActorSpawnParameters Params;
 		Params.Owner = this;
+		Params.CustomPreSpawnInitalization = [ThisPtr = TWeakObjectPtr<AStageLevel>(this)](auto Actor) -> auto
+			{
+				auto Supervisor = Cast<AStageSupervisor>(Actor);
+				if (!Supervisor)
+				{
+					UE_LOG(LogStage, Warning, TEXT("StageSupervisor 캐스트 실패"));
+					return;
+				}
+
+				Supervisor->OwnerLevel = ThisPtr;
+			};
 
 		Supervisor = World->SpawnActor<AStageSupervisor>(Params);
 	}
@@ -104,6 +115,21 @@ AStageBuildZone* AStageLevel::GetBuildZone(int32 Position) const
 	return BuildZone.Get();
 }
 
+TArray<AStageBuildZone*> AStageLevel::GetBuildZones() const
+{
+	TArray<AStageBuildZone*> Result;
+
+	for (auto& [_, BuildZone] : BuildZones)
+	{
+		if (BuildZone.IsValid())
+		{
+			Result.Emplace(BuildZone.Get());
+		}
+	}
+
+	return Result;
+}
+
 void AStageLevel::SetPlayerPawn(AStagePlayerPawn* InPlayerPawn)
 {
 	PlayerPawn = InPlayerPawn;
@@ -152,6 +178,21 @@ AGameplayPathActor* AStageLevel::GetPathActor(int32 Position) const
 	return PathActor.Get();
 }
 
+TArray<AGameplayPathActor*> AStageLevel::GetPathActors() const
+{
+	TArray<AGameplayPathActor*> Result;
+
+	for (auto& [_, PathActor] : PathActors)
+	{
+		if (PathActor.IsValid())
+		{
+			Result.Emplace(PathActor.Get());
+		}
+	}
+
+	return Result;
+}
+
 void AStageLevel::AddSpawner(AStageSpawner* Spawner)
 {
 	TWeakObjectPtr<AStageSpawner> SpawnerPtr = Spawner;
@@ -189,6 +230,21 @@ AStageSpawner* AStageLevel::GetSpawner(int32 Position) const
 	}
 
 	return Spawner.Get();
+}
+
+TArray<AStageSpawner*> AStageLevel::GetSpawners() const
+{
+	TArray<AStageSpawner*> Result;
+
+	for (auto& [_, Spawner] : Spawners)
+	{
+		if (Spawner.IsValid())
+		{
+			Result.Emplace(Spawner.Get());
+		}
+	}
+
+	return Result;
 }
 
 void AStageLevel::OnInitailize()

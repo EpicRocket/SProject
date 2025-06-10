@@ -31,8 +31,11 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void AddBuildZone(AStageBuildZone* BuildZone);
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintPure)
 	AStageBuildZone* GetBuildZone(int32 Position) const;
+
+	UFUNCTION(BlueprintPure)
+	TArray<AStageBuildZone*> GetBuildZones() const;
 
 	UFUNCTION(BlueprintCallable)
 	void SetPlayerPawn(AStagePlayerPawn* InPlayerPawn);
@@ -40,14 +43,20 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void AddPathActor(AGameplayPathActor* PathActor);
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintPure)
 	AGameplayPathActor* GetPathActor(int32 Position) const;
+
+	UFUNCTION(BlueprintPure)
+	TArray<AGameplayPathActor*> GetPathActors() const;
 
 	UFUNCTION(BlueprintCallable)
 	void AddSpawner(AStageSpawner* Spawner);
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintPure)
 	AStageSpawner* GetSpawner(int32 Position) const;
+
+	UFUNCTION(BlueprintPure)
+	TArray<AStageSpawner*> GetSpawners() const;
 
 protected:
 	virtual void OnInitailize();

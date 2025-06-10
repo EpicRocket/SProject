@@ -7,11 +7,21 @@
 
 #include "StageSupervisor.generated.h"
 
+class AStageLevel;
+
 UCLASS(Blueprintable, BlueprintType, ClassGroup = "Stage")
 class MY_API AStageSupervisor : public AInfo
 {
     GENERATED_BODY()
 
+    // Actor
+protected:
+    virtual void BeginPlay() override;
+    virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+    // ~Actor
+
 public:
-    
+    UPROPERTY(BlueprintReadOnly)
+    TWeakObjectPtr<AStageLevel> OwnerLevel;
+
 };
