@@ -1,3 +1,4 @@
+// Copyright (c) 2025 Team EpicRocket. All rights reserved.
 
 #pragma once
 
@@ -19,7 +20,7 @@ public:
 	UFUNCTION(BlueprintPure)
 	virtual APlayerController* GetOwningPlayer() const;
 
-	template <class T>
+	template <typename T>
 	T* GetOwningPlayer() const
 	{
 		static_assert(TPointerIsConvertibleFromTo<T, APlayerController>::Value, "GetOwningPlayer의 'T' 템플릿 파라미터는 APlayerController에서 파생되어야 합니다.");
@@ -29,7 +30,7 @@ public:
 	UFUNCTION(BlueprintCosmetic)
 	virtual ULocalPlayer* GetOwningLocalPlayer() const;
 
-	template <class T>
+	template <typename T>
 	T* GetOwningLocalPlayer() const
 	{
 		static_assert(TPointerIsConvertibleFromTo<T, ULocalPlayer>::Value, "GetOwningLocalPlayer의 'T' 템플릿 파라미터는 ULocalPlayer에서 파생되어야 합니다.");

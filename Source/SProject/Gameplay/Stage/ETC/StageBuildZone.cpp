@@ -15,7 +15,7 @@
 #include "Table/TowerTable.h"
 #include "Gameplay/GameplayLogging.h"
 #include "Gameplay/Team/GameplayTeamSubsystem.h"
-#include "Gameplay/Team/GameplayPlayer.h"
+#include "Gameplay/GameplayPlayer.h"
 #include "Gameplay/Stage/StageTableRepository.h"
 #include "Gameplay/Stage/StageLevel.h"
 #include "Gameplay/Stage/StageUnitEvent.h"

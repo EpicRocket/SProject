@@ -17,7 +17,7 @@ void AStageSupervisor::BeginPlay()
 		return;
 	}
 
-	//OwnerLevel->GetSpawner()
+	
 }
 
 void AStageSupervisor::EndPlay(const EEndPlayReason::Type EndPlayReason)

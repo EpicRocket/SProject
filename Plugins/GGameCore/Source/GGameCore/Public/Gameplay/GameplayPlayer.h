@@ -1,3 +1,4 @@
+// Copyright (c) 2025 Team EpicRocket. All rights reserved.
 
 #pragma once
 
@@ -11,12 +12,10 @@ struct FGTeam;
 class UGameplayTeamSubsystem;
 class UGameplayPlayerComponent;
 
-UCLASS(Abstract, BlueprintType)
-class MY_API AGameplayPlayer : public AInfo, public IGTeamAgent
+UCLASS(Abstract, BlueprintType, Blueprintable, Category = "Gameplay", ClassGroup = "Gameplay")
+class GGAMECORE_API AGameplayPlayer : public AInfo, public IGTeamAgent
 {
 	GENERATED_BODY()
-
-	friend class UGameplayTeamSubsystem;
 
 public:
 	AGameplayPlayer();
@@ -26,14 +25,9 @@ public:
 	virtual FGenericTeamId GetGenericTeamId() const override;
 	// ~IGTeamAgent
 
-public:
-	TSharedRef<FGTeam> GetInfo() const;
 
 public:
 	UPROPERTY(EditInstanceOnly, Category = "Team")
 	uint8 TeamID = 255;
-
-private:
-	TWeakPtr<FGTeam> InfoPtr;
 
 };

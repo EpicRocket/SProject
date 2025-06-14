@@ -1,6 +1,6 @@
 #include "StageWaveComponent.h"
 
-#include "Gameplay/Team/GameplayUserPlayer.h"
+#include "Gameplay/GameplayUserPlayer.h"
 #include "User/StageSubsystem.h"
 #include "Gameplay/Stage/StageTableRepository.h"
 #include "Gameplay/Stage/StageLogging.h"

@@ -5,7 +5,7 @@
 // include Project
 #include "Types/StageTypes.h"
 #include "Gameplay/Stage/StageTableRepository.h"
-#include "Gameplay/Team/GameplayUserPlayer.h"
+#include "Gameplay/GameplayUserPlayer.h"
 #include "User/StageSubsystem.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(StageStorageComponent)

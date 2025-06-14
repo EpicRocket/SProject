@@ -1,13 +1,11 @@
+// Copyright (c) 2025 Team EpicRocket. All rights reserved.
 
-#include "GameplayUserPlayer.h"
+#include "Gameplay/GameplayUserPlayer.h"
 // include Engine
 #include "Engine/LocalPlayer.h"
 #include "GameFramework/PlayerController.h"
 // include GameCore
 #include "Error/GErrorTypes.h"
-// include Project
-#include "Core/MyPlayerController.h"
-#include "User/InventorySubsystem.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(GameplayUserPlayer)
 

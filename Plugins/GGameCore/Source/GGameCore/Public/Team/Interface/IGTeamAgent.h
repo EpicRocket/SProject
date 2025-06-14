@@ -7,7 +7,7 @@
 
 struct FGTeamTracker;
 
-UINTERFACE(meta = (CannotImplementInterfaceInBlueprint))
+UINTERFACE(meta = (CannotImplementInterfaceInBlueprint), Category = "Team")
 class GGAMECORE_API UGTeamAgent : public UGenericTeamAgentInterface
 {
 	GENERATED_BODY()

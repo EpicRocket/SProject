@@ -4,17 +4,17 @@
 
 #include "Core/Component/GGameCoreComponent.h"
 
-#include "GGameStateComponent.generated.h"
+#include "GGameModeComponent.generated.h"
 
-class AGameStateBase;
+class AGameModeBase;
 
 UCLASS(Abstract, Blueprintable, BlueprintType, HideCategories = (Trigger, PhysicsVolume))
-class GGAMECORE_API UGGameStateComponent : public UGGameCoreComponent
+class GGAMECORE_API UGGameModeComponent : public UGGameCoreComponent
 {
-	GENERATED_BODY()
-	
+    GENERATED_BODY()
+
 public:
-	UFUNCTION(BlueprintCallable)
-	AGameStateBase* GetGameState() const;
+    UFUNCTION(BlueprintCallable)
+    AGameModeBase* GetGameMode() const;
 
 };

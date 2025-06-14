@@ -1,3 +1,4 @@
+// Copyright (c) 2025 Team EpicRocket. All rights reserved.
 
 #pragma once
 
@@ -8,8 +9,8 @@
 class APlayerController;
 class ULocalPlayer;
 
-UCLASS(BlueprintType)
-class MY_API AGameplayUserPlayer : public AGameplayPlayer
+UCLASS()
+class GGAMECORE_API AGameplayUserPlayer : public AGameplayPlayer
 {
 	GENERATED_BODY()
 

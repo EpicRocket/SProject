@@ -7,8 +7,11 @@
 #include "Team/GTeamSettings.h"
 #include "Team/GTeamTypes.h"
 #include "Team/GTeamLoadDataAsset.h"
+#include "Team/GTeamDisplayAsset.h"
 #include "Team/Interface/IGTeamAgent.h"
 #include "Error/GError.h"
+#include "Gameplay/GameplayUserPlayer.h"
+#include "Gameplay/GameplayComputerPlayer.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(GTeamSubsystem)
 
@@ -49,48 +52,105 @@ bool UGTeamSubsystem::DoesSupportWorldType(const EWorldType::Type WorldType) con
 
 void UGTeamSubsystem::RegisterTeams(const TArray<FGTeamTracker>& TeamTrackers, const TArray<FGRelationshipInForceTableRow>& RelationshipInForceTableRows, const TArray<FGForcesRelationshipTableRow>& ForcesRelationshipTableRows)
 {
-	TArray<TSharedPtr<FGTeam>> Temp;
+	auto Flags = EObjectFlags::RF_Transient | EObjectFlags::RF_Public;
+
+	Empty();
+	Teams.Reserve(TeamTrackers.Num());
+	Forces.Reserve(RelationshipInForceTableRows.Num());
+
+	// NOTE. 팀 생성
 	for (auto& Tracker : TeamTrackers)
 	{
-		auto Team = MakeShared<FGTeam>();
-		Team->Tracker = Tracker;
+		auto Team = NewObject<UGTeam>(this, NAME_None, Flags);
 		Teams.Emplace(Tracker.ID, Team);
-		Forces.FindOrAdd(Tracker.Force).Emplace(Team);
-		Temp.Emplace(Team);
+		Forces.Emplace(Tracker.Force, Team);
+		Team->Tracker = Tracker;
+		Team->DisplayAsset = Tracker.DisplayAssetPtr.LoadSynchronous();
 	}
 
+	// NOTE. 포스내 팀 관계 설정
 	for (auto& Row : RelationshipInForceTableRows)
 	{
-		auto Force = Forces.Find(Row.Force);
-		if (Force)
+		TArray<TWeakObjectPtr<UGTeam>> Force;
+		Forces.MultiFind(Row.Force, Force);
+			
+		for (TWeakObjectPtr<UGTeam> Team : Force)
 		{
-			for (auto& Team : *Force)
+			if (!Team.IsValid())
 			{
-				for (auto& Other : Temp)
+				UE_LOG(LogGameError, Warning, TEXT("team object is invalid in %d force"), Row.Force);
+				continue;
+			}
+
+			for (TWeakObjectPtr<UGTeam> OtherTeam : Force)
+			{
+				if (Team->Tracker.ID != OtherTeam->Tracker.ID)
 				{
-					if (Team != Other)
-					{
-						Team->Relationships.Emplace(Other->Tracker.ID, Row.Relationship);
-					}
+					Team->Relationships.Emplace(OtherTeam->Tracker.ID, Row.Relationship);
 				}
 			}
 		}
 	}
-	
+
+	// NOTE. 포스간 팀 관계 설정
 	for (auto& Row : ForcesRelationshipTableRows)
 	{
-		auto ForceA = Forces.Find(Row.SourceForce);
-		auto ForceB = Forces.Find(Row.DestForce);
+		TArray<TWeakObjectPtr<UGTeam>> ForceA;
+		TArray<TWeakObjectPtr<UGTeam>> ForceB;
 
-		if (ForceA && ForceB)
+		Forces.MultiFind(Row.SourceForce, ForceA);
+		Forces.MultiFind(Row.DestForce, ForceB);
+
+		for (TWeakObjectPtr<UGTeam> TeamA : ForceA)
 		{
-			for (auto& TeamA : *ForceA)
+			if (!TeamA.IsValid())
 			{
-				for (auto& TeamB : *ForceB)
+				UE_LOG(LogGameError, Warning, TEXT("team object is invalid in %d source force"), Row.SourceForce);
+				continue;
+			}
+			for (TWeakObjectPtr<UGTeam> TeamB : ForceB)
+			{
+				if (!TeamB.IsValid())
+				{
+					UE_LOG(LogGameError, Warning, TEXT("team object is invalid in %d dest force"), Row.DestForce);
+					continue;
+				}
+				if (TeamA->Tracker.ID != TeamB->Tracker.ID)
 				{
 					TeamA->Relationships.Emplace(TeamB->Tracker.ID, Row.Relationship);
 				}
 			}
+		}
+	}
+
+	// NOTE. 게임플레이어 생성
+	{
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.ObjectFlags = Flags;
+
+		for (auto& [ID, Team] : Teams)
+		{
+			AGameplayPlayer* Player = nullptr;
+			if (Team->Tracker.PlayerType == EGTeamPlayerType::Player)
+			{
+				Player = GetWorld()->SpawnActor<AGameplayUserPlayer>(SpawnParams);
+			}
+			else if (Team->Tracker.PlayerType == EGTeamPlayerType::Computer)
+			{
+				Player = GetWorld()->SpawnActor<AGameplayComputerPlayer>(SpawnParams);
+			}
+			else
+			{
+				continue;
+			}
+
+			if (!Player)
+			{
+				continue;
+			}
+
+			Player->SetGenericTeamId(ID);
+			Players.Emplace(ID, Player);
 		}
 	}
 
@@ -99,15 +159,14 @@ void UGTeamSubsystem::RegisterTeams(const TArray<FGTeamTracker>& TeamTrackers, c
 
 void UGTeamSubsystem::UnregisterTeams()
 {
-	Teams.Empty();
-	Forces.Empty();
+	Empty();
 	OnUnregisterTeams();
 }
 
 FGTeamTracker UGTeamSubsystem::GetTeamTracker(FGenericTeamId TeamID) const
 {
 	auto Iter = Teams.Find(TeamID);
-	if (Iter && (*Iter).IsValid())
+	if (Iter && IsValid(*Iter))
 	{
 		return (*Iter)->Tracker;
 	}
@@ -140,6 +199,47 @@ TEnumAsByte<ETeamAttitude::Type> UGTeamSubsystem::GetTeamAttitudeTowards(uint8 S
 TEnumAsByte<ETeamAttitude::Type> UGTeamSubsystem::GetAgentAttitudeTowards(TScriptInterface<IGTeamAgent> Source, TScriptInterface<IGTeamAgent> Target) const
 {
 	return GetTeamAttitudeTowards(Source->GetGenericTeamId(), Target->GetGenericTeamId());
+}
+
+uint8 UGTeamSubsystem::IssusePlayerTeamID(APlayerController* PC)
+{
+	for (auto& [ID, Player] : Players)
+	{
+		auto User = Cast<AGameplayUserPlayer>(Player);
+		if (!IsValid(User))
+		{
+			continue;
+		}
+
+		if (User->OwningPlayerController == nullptr)
+		{
+			User->OwningPlayerController = PC;
+			return ID;
+		}
+	}
+
+	return 255;
+}
+
+AGameplayPlayer* UGTeamSubsystem::GetPlayer(uint8 ID) const
+{
+	if (Players.Contains(ID))
+	{
+		return Players[ID];
+	}
+	return nullptr;
+}
+
+void UGTeamSubsystem::Empty()
+{
+	Teams.Empty();
+	Forces.Empty();
+
+	for (auto& [ID, Player] : Players)
+	{
+		Player->Destroy();
+	}
+	Players.Empty();
 }
 
 //////////////////////////////////////////////////////////////////////////

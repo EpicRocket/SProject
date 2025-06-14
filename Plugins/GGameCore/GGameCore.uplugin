@@ -67,6 +67,10 @@
 			"Enabled": true
 		},
 		{
+			"Name": "GameFeatures",
+			"Enabled": true
+		},
+		{
 			"Name": "OpenXLSX",
 			"Enabled": true
 		}

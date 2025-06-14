@@ -7,7 +7,7 @@
 #include "GMessage.generated.h"
 
 USTRUCT(BlueprintType)
-struct FGMessage
+struct GGAMECORE_API FGMessage
 {
 	GENERATED_BODY()
 

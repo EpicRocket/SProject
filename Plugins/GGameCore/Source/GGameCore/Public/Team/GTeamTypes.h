@@ -46,19 +46,6 @@ struct GGAMECORE_API FGTeamRelationship
 };
 
 USTRUCT(BlueprintType)
-struct GGAMECORE_API FGTeam
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FGTeamTracker Tracker;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TMap<uint8/*TeamIndex*/, FGTeamRelationship> Relationships;
-
-};
-
-USTRUCT(BlueprintType)
 struct GGAMECORE_API FGRelationshipInForceTableRow : public FTableRowBase
 {
 	GENERATED_BODY()
@@ -87,3 +74,19 @@ struct GGAMECORE_API FGForcesRelationshipTableRow : public FTableRowBase
 
 };
 
+UCLASS()
+class UGTeam : public UObject
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY()
+	FGTeamTracker Tracker;
+
+	UPROPERTY()
+	TMap<uint8/*TeamIndex*/, FGTeamRelationship> Relationships;
+
+	UPROPERTY()
+	TObjectPtr<UGTeamDisplayAsset> DisplayAsset;
+
+};

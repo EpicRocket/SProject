@@ -7,12 +7,11 @@
 
 #include "GTeamSubsystem.generated.h"
 
-class UDataTable;
 class APlayerController;
 class IGTeamAgent;
+class UGTeam;
 struct FGenericTeamId;
 struct FGTeamTracker;
-struct FGTeam;
 struct FGRelationshipInForceTableRow;
 struct FGForcesRelationshipTableRow;
 struct FGErrorInfo;
@@ -21,16 +20,15 @@ namespace ETeamAttitude
 {
 	enum Type : int;
 }
+class AGameplayPlayer;
+class UGTeam;
 
 GGAMECORE_API DECLARE_LOG_CATEGORY_EXTERN(LogGTeam, Log, All);
 
-UCLASS(Abstract, Config = Game)
+UCLASS(Abstract, Config = Game, Category = "Team", ClassGroup = "Team")
 class GGAMECORE_API UGTeamSubsystem : public UWorldSubsystem
 {
 	GENERATED_BODY()
-
-	using FTeamIndex = uint8;
-	using FTeamForceIndex = uint8;
 
 protected:
 	virtual bool DoesSupportWorldType(const EWorldType::Type WorldType) const override;
@@ -51,14 +49,27 @@ public:
 	UFUNCTION(BlueprintPure)
 	TEnumAsByte<ETeamAttitude::Type> GetAgentAttitudeTowards(TScriptInterface<IGTeamAgent> Source, TScriptInterface<IGTeamAgent> Target) const;
 
+	UFUNCTION(BlueprintCallable)
+	uint8 IssusePlayerTeamID(APlayerController* PC);
+
+	UFUNCTION(BlueprintCallable)
+	AGameplayPlayer* GetPlayer(uint8 ID) const;
+
 protected:
 	virtual void OnRegisterTeams() {}
 	virtual void OnUnregisterTeams() {}
 
+private:
+	void Empty();
+
 protected:
-	TMap<FTeamIndex, TSharedPtr<FGTeam>> Teams;
-	TMap<FTeamForceIndex, TArray<TSharedPtr<FGTeam>>> Forces;
+	UPROPERTY(Transient)
+	TMap<uint8/*TeamIndex*/, UGTeam*> Teams;
+	TMultiMap<uint8/*ForceIndex*/, TWeakObjectPtr<UGTeam>> Forces;
 	
+	UPROPERTY(Transient)
+	TMap<uint8, AGameplayPlayer*> Players;
+
 };
 
 UCLASS()

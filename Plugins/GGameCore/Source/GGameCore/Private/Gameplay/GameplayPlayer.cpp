@@ -1,13 +1,10 @@
 
-#include "GameplayPlayer.h"
+#include "Gameplay/GameplayPlayer.h"
 // include Engine
 #include "Engine/World.h"
 // include GameCore
 #include "Error/GErrorTypes.h"
 #include "Team/GTeamTypes.h"
-// include Project
-#include "Gameplay/Team/GameplayTeamSubsystem.h"
-#include "Gameplay/Component/GameplayPlayerComponent.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(GameplayPlayer)
 
@@ -24,13 +21,4 @@ void AGameplayPlayer::SetGenericTeamId(const FGenericTeamId& InTeamID)
 FGenericTeamId AGameplayPlayer::GetGenericTeamId() const
 {
 	return FGenericTeamId(TeamID);
-}
-
-TSharedRef<FGTeam> AGameplayPlayer::GetInfo() const
-{
-	if (!InfoPtr.IsValid())
-	{
-		return TSharedRef<FGTeam>();
-	}
-	return InfoPtr.Pin().ToSharedRef();
 }

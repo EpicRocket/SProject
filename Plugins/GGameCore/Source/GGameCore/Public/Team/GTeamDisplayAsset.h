@@ -5,7 +5,7 @@
 
 #include "GTeamDisplayAsset.generated.h"
 
-UCLASS(BlueprintType, Category = "Team")
+UCLASS(BlueprintType, Category = "Team", ClassGroup = "Team")
 class GGAMECORE_API UGTeamDisplayAsset : public UDataAsset
 {
 	GENERATED_BODY()

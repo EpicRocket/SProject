@@ -3,8 +3,11 @@
 #pragma once
 
 #include "Core/Component/GGameStateComponent.h"
+// include Engine
 #include "UObject/SoftObjectPtr.h"
+// include GameCore
 #include "Loading/Interface/IGLoadingProcess.h"
+#include "Gameplay/Interface/IGameplayDataLoader.h"
 
 #include "StageStateComponent.generated.h"
 
@@ -12,7 +15,7 @@ struct FLatentActionInfo;
 struct FStage;
 
 UCLASS(Abstract, Blueprintable, BlueprintType, HideCategories = (Trigger, PhysicsVolume), ClassGroup = "Stage")
-class MY_API UStageStateComponent : public UGGameStateComponent, public IGLoadingProcess
+class MY_API UStageStateComponent : public UGGameStateComponent, public IGLoadingProcess, public IGameplayDataLoader
 {
 	GENERATED_BODY()
 
@@ -53,4 +56,11 @@ public:
 protected:
 	UPROPERTY(BlueprintReadWrite)
 	bool bLoadCompleted = false;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GameFeature", meta = (AllowedTypes = "GameplayDataAsset"))
+	FPrimaryAssetId GameplayDataAssetReference;
+
+	UPROPERTY(Transient, BlueprintReadWrite, Category = "GameFeature")
+	TObjectPtr<const class UGameplayDataAsset> GameplayDataAsset;
+
 };

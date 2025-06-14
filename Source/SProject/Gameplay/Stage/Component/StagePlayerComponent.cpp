@@ -14,7 +14,7 @@
 #include "Table/ConstTable.h"
 #include "Table/StageTable.h"
 #include "Gameplay/Team/GameplayTeamSubsystem.h"
-#include "Gameplay/Team/GameplayUserPlayer.h"
+#include "Gameplay/GameplayUserPlayer.h"
 #include "Gameplay/Stage/Message/StagePlayerEventMessage.h"
 #include "Gameplay/Stage/StageTableRepository.h"
 

@@ -46,6 +46,13 @@ public class GGameCore : ModuleRules
 			}
 		);
 
+		// GameFeatures
+		PublicDependencyModuleNames.AddRange(
+			new string[] {
+				"GameFeatures",
+			}
+		);
+
 		// UI
 		PublicDependencyModuleNames.AddRange(
 			new string[] {
