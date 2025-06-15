@@ -8,6 +8,7 @@
 #include "StageSupervisor.generated.h"
 
 class AStageLevel;
+class UStageTableReceipt;
 
 UCLASS(Blueprintable, BlueprintType, Category = "Stage", ClassGroup = "Stage")
 class MY_API AStageSupervisor : public AInfo
@@ -20,11 +21,15 @@ protected:
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
     // ~Actor
 
+private:
+    UFUNCTION()
+    void OnTableLoaded(UStageTableReceipt* Receipt);
+
 public:
     UPROPERTY(BlueprintReadOnly)
     TWeakObjectPtr<AStageLevel> OwnerLevel;
 
-    UPROPERTY(BlueprintReadOnly)
-    int32 Level = INDEX_NONE;
-
+private:
+    UPROPERTY()
+	UStageTableReceipt* StageTableReceipt = nullptr;
 };

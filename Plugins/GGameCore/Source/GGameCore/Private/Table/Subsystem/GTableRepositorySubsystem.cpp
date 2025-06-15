@@ -13,36 +13,6 @@
 // UGTableRepositorySubsystem
 ////////////////////////////////////////////////////////////////
 
-void UGTableRepositorySubsystem::Initialize(FSubsystemCollectionBase& Collection)
-{
-	auto TableSubsystem = UGTableSubsystem::Get();
-	if (!TableSubsystem)
-	{
-		return;
-	}
-
-	TableSubsystem->TableLoadCompleted.AddWeakLambda(this, [this, ThisPtr = TWeakObjectPtr<ThisClass>(this)]()
-		{
-			if (ThisPtr.IsValid())
-			{
-				Patch();
-			}
-		});
-}
-
-void UGTableRepositorySubsystem::Deinitialize()
-{
-	auto TableSubsystem = UGTableSubsystem::Get();
-	if (!TableSubsystem)
-	{
-		return;
-	}
-
-	TableSubsystem->TableLoadCompleted.RemoveAll(this);
-
-	Unload();
-}
-
 bool UGTableRepositorySubsystem::IsTickable() const
 {
 	return !HasAnyFlags(RF_ClassDefaultObject) && bWorking;
@@ -64,7 +34,7 @@ void UGTableRepositorySubsystem::Tick(float DeltaTime)
 	if (bComplete)
 	{
 		ResetTask();
-		OnTableRepositoryLoaded.Broadcast();
+		// TODO: Future Set
 	}
 }
 
@@ -76,23 +46,6 @@ TStatId UGTableRepositorySubsystem::GetStatId() const
 UWorld* UGTableRepositorySubsystem::GetTickableGameObjectWorld() const
 {
 	return GetGameInstance()->GetWorld();
-}
-
-void UGTableRepositorySubsystem::Load()
-{
-	bLoaded = true;
-	ResetTask();
-	OnLoad();
-
-	bWorking = true;
-	OnTableRepositoryLoading.Broadcast();
-}
-
-void UGTableRepositorySubsystem::Unload()
-{
-	bLoaded = false;
-	ResetTask();
-	OnUnload();
 }
 
 void UGTableRepositorySubsystem::RequestTask(FSoftObjectPath Path, TFunction<void()> ComplateCallback)
@@ -121,14 +74,6 @@ void UGTableRepositorySubsystem::RequestTask(FSoftObjectPath Path, TFunction<voi
 	);
 
 	Tasks.Emplace(Handle);
-}
-
-void UGTableRepositorySubsystem::Patch()
-{
-	if (bLoaded)
-	{
-		Load();
-	}
 }
 
 void UGTableRepositorySubsystem::ResetTask()

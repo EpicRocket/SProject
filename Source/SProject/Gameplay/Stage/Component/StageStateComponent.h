@@ -13,6 +13,7 @@
 
 struct FLatentActionInfo;
 struct FStage;
+class AMyGameLevel;
 
 UCLASS(Abstract, Blueprintable, BlueprintType, HideCategories = (Trigger, PhysicsVolume), ClassGroup = "Stage")
 class MY_API UStageStateComponent : public UGGameStateComponent, public IGLoadingProcess, public IGameplayDataLoader
@@ -39,12 +40,8 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnLoadStage(const FStage& Stage, const TSoftObjectPtr<class UWorld>& Level);
 
-private:
-	UFUNCTION()
-	void OnTableLoading();
-
-	UFUNCTION()
-	void OnTableLoaded();
+	UFUNCTION(BlueprintCallable)
+	FGErrorInfo SetStageLevel(const FStage& Stage, AMyGameLevel* GameLevel);
 
 public:
 	UPROPERTY(Transient, BlueprintReadOnly)

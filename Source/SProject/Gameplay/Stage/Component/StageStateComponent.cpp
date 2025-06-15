@@ -19,7 +19,6 @@
 #include "Gameplay/GameWorldSubsystem.h"
 #include "Gameplay/Team/GameplayTeamSubsystem.h"
 #include "Gameplay/Stage/StageLevel.h"
-#include "Gameplay/Stage/StageTableRepository.h"
 
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(StageStateComponent)
@@ -28,30 +27,12 @@
 void UStageStateComponent::InitializeComponent()
 {
 	Super::InitializeComponent();
-
 	bLoadCompleted = false;
-	auto StageTableRepo = UStageTableRepository::Get(this);
-	if (!StageTableRepo)
-	{
-		UE_LOG(LogStage, Error, TEXT("UStageTableRepository is not found!"));
-		return;
-	}
-	StageTableRepo->OnTableRepositoryLoading.AddDynamic(this, &UStageStateComponent::OnTableLoading);
-	StageTableRepo->OnTableRepositoryLoaded.AddDynamic(this, &UStageStateComponent::OnTableLoaded);
 }
 
 void UStageStateComponent::UninitializeComponent()
 {
 	Super::UninitializeComponent();
-
-	auto StageTableRepo = UStageTableRepository::Get(this);
-	if (!StageTableRepo)
-	{
-		UE_LOG(LogStage, Error, TEXT("UStageTableRepository is not found!"));
-		return;
-	}
-	StageTableRepo->OnTableRepositoryLoading.RemoveDynamic(this, &UStageStateComponent::OnTableLoading);
-	StageTableRepo->OnTableRepositoryLoaded.RemoveDynamic(this, &UStageStateComponent::OnTableLoaded);
 }
 
 bool UStageStateComponent::ShouldShowLoadingScreen(FString& OutReason) const
@@ -117,10 +98,13 @@ FGErrorInfo UStageStateComponent::WaitForPrimaryPlayerController(FLatentActionIn
 	return ErrorInfo;
 }
 
-void UStageStateComponent::OnTableLoading()
+FGErrorInfo UStageStateComponent::SetStageLevel(const FStage& Stage, AMyGameLevel* GameLevel)
 {
-}
+	auto StageLevel = Cast<AStageLevel>(GameLevel);
+	if (!StageLevel)
+	{
+		return GameCore::Throw(GameErr::POINTER_INVALID, FString::Printf(TEXT("GameLevel is not AStageLevel: %s"), *GameLevel->GetName()));
+	}
 
-void UStageStateComponent::OnTableLoaded()
-{
+	return StageLevel->Setup(Stage.Level);
 }

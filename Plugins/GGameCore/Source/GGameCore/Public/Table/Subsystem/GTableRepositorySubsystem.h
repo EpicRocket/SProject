@@ -13,19 +13,12 @@ struct FLatentActionInfo;
 struct FSoftObjectPath;
 struct FStreamableHandle;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTableRepositoryLoadEvent);
-
 UCLASS(Abstract)
 class GGAMECORE_API UGTableRepositorySubsystem : public UGameInstanceSubsystem, public FTickableGameObject
 {
 	GENERATED_BODY()
 
 public:
-    // USubsystem
-	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
-	virtual void Deinitialize() override;
-    // ~USubsystem
-
     // FTickableObjectBase
     virtual bool IsTickable() const override;
     virtual void Tick(float DeltaTime) override;
@@ -33,30 +26,11 @@ public:
     virtual UWorld* GetTickableGameObjectWorld() const override;
     // ~FTickableObjectBase
 
-public:
-    UFUNCTION(BlueprintCallable)
-    virtual void Load();
-
-    UFUNCTION(BlueprintCallable)
-    virtual void Unload();
-
 protected:
-    virtual void OnLoad() { /*needs implement*/ }
-    virtual void OnUnload() { /*needs implement*/ }
     void RequestTask(FSoftObjectPath Path, TFunction<void()> ComplateCallback);
 
 private:
-    UFUNCTION()
-    void Patch();
-
     void ResetTask();
-
-public:
-    UPROPERTY(BlueprintAssignable)
-    FOnTableRepositoryLoadEvent OnTableRepositoryLoading;
-
-    UPROPERTY(BlueprintAssignable)
-    FOnTableRepositoryLoadEvent OnTableRepositoryLoaded;
 
 private:
     bool bLoaded = false;

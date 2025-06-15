@@ -27,7 +27,7 @@ public:
 	// ~IGLoadingProcess
 	
 	UFUNCTION(BlueprintCallable)
-	FGErrorInfo Load(int32 StageLevel);
+	FGErrorInfo Setup(int32 InStageLevel);
 
 	UFUNCTION(BlueprintCallable)
 	void AddBuildZone(AStageBuildZone* BuildZone);
@@ -74,5 +74,8 @@ public:
 
 	UPROPERTY(Transient, BlueprintReadOnly)
 	TWeakObjectPtr<AStagePlayerPawn> PlayerPawn;
+
+	UPROPERTY(Transient, BlueprintReadOnly)
+	int32 StageLevel = INDEX_NONE;
 
 };

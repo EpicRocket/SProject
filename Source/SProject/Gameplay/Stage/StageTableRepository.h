@@ -5,6 +5,7 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "Table/Subsystem/GTableRepositorySubsystem.h"
 #include "Templates/SharedPointer.h"
+#include "Async/Future.h"
 
 #include "StageTableRepository.generated.h"
 
@@ -28,6 +29,19 @@ struct FStageMonsterGroupInfo;
 struct FStageWaveGroupInfo;
 
 UCLASS()
+struct UStageTableReceipt
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY()
+	TArray<UStageTowerContext*> NormalTowerContexts;
+
+	UPROPERTY()
+	TArray<UStageMonsterContext*> MonsterContexts;
+};
+
+UCLASS()
 class MY_API UStageTableRepository : public UGTableRepositorySubsystem
 {
 	GENERATED_BODY()
@@ -36,21 +50,13 @@ class MY_API UStageTableRepository : public UGTableRepositorySubsystem
 public:
 	static UStageTableRepository* Get(const UObject* WorldContextObject);
 
-protected:
-	virtual void OnLoad() override;
-	virtual void OnUnload() override;
+	TFuture<UStageTableReceipt*> Load(int32 StageLevel, TMap<EStageTowerType, TSet<int32>> TowerList);
+
+	void Unload(const UStageTableReceipt* Receipt);
 
 private:
-	UPROPERTY()
-	TMap<int32, UStageTowerContext*> NormalTowerContexts;
-	using StageTowerInfotKey = TTuple<int32/*Kind*/, int32/*Level*/>;
-	TMap<StageTowerInfotKey, TWeakObjectPtr<UStageTowerContext>> NormalTowerByCompositeKey;
-	TMap<int32/*Kind*/, int32/*Level*/> NormalTowerMaxLevels;
 	TWeakObjectPtr<UStageTowerContext> FindNormalTowerContext(int32 Kind, int32 Level) const;
 	TOptional<int32> FindNormalTowerMaxLevel(int32 Kind) const;
-
-	UPROPERTY()
-	TMap<int32, UStageMonsterContext*> MonsterContexts;
 	TWeakObjectPtr<UStageMonsterContext> FindNormalMonsterContext(int32 Key) const;
 
 };
