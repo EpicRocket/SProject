@@ -36,7 +36,10 @@ struct SPROJECT_API FMonsterTableRow : public FTableRowBase
 	int32 Attack = INDEX_NONE;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 Defence = INDEX_NONE;
+	int32 Defense = INDEX_NONE;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 DefenseConstant = INDEX_NONE;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 Hp = INDEX_NONE;
