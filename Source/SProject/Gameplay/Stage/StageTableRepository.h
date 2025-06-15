@@ -29,7 +29,7 @@ struct FStageMonsterGroupInfo;
 struct FStageWaveGroupInfo;
 
 UCLASS()
-struct UStageTableReceipt
+class UStageTableReceipt
 {
 	GENERATED_BODY()
 
