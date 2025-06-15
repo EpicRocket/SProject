@@ -16,4 +16,5 @@ class GGAMECORE_API UGGameCoreBlueprintFunctionLibrary : public UBlueprintFuncti
 public:
 	UFUNCTION(BlueprintPure, meta = (WorldContext = "WorldContextObject"))
 	static APlayerController* GetPrimaryPlayerController(UObject* WorldContextObject);
+
 };

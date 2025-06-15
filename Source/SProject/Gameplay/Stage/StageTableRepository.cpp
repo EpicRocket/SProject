@@ -210,7 +210,7 @@ TWeakObjectPtr<UStageMonsterContext> UStageTableRepository::FindNormalMonsterCon
 FGErrorInfo UStageTableHelper::GetBuildStageTower(const UObject* WorldContextObject, EStageTowerType TowerType, int32 Kind, int32 Level, FStageTowerInfo& Result)
 {
 	auto Repository = UStageTableRepository::Get(WorldContextObject);
-	if (ensure(Repository))
+	if (!Repository)
 	{
 		return GameCore::Throw(GameErr::SUBSYSTEM_INVALID);
 	}
@@ -239,7 +239,7 @@ FGErrorInfo UStageTableHelper::GetBuildStageTower(const UObject* WorldContextObj
 FGErrorInfo UStageTableHelper::GetNextStageTower(const UObject* WorldContextObject, EStageTowerType TowerType, int32 Kind, int32 Level, FStageTowerInfo& Result)
 {
 	auto Repository = UStageTableRepository::Get(WorldContextObject);
-	if (ensure(Repository))
+	if (!Repository)
 	{
 		return GameCore::Throw(GameErr::SUBSYSTEM_INVALID);
 	}
@@ -279,7 +279,7 @@ FGErrorInfo UStageTableHelper::GetNextStageTower(const UObject* WorldContextObje
 FGErrorInfo UStageTableHelper::GetStageTowerMaxLevel(const UObject* WorldContextObject, EStageTowerType TowerType, int32 Kind, int32& Result)
 {
 	auto Repository = UStageTableRepository::Get(WorldContextObject);
-	if (ensure(Repository))
+	if (!Repository)
 	{
 		return GameCore::Throw(GameErr::SUBSYSTEM_INVALID);
 	}
@@ -307,7 +307,7 @@ FGErrorInfo UStageTableHelper::GetStageTowerMaxLevel(const UObject* WorldContext
 FGErrorInfo UStageTableHelper::GetStageTowerBaseStats(const UObject* WorldContextObject, EStageTowerType TowerType, int32 Kind, int32 Level, TMap<EStageUnitAttribute, double>& Result)
 {
 	auto Repository = UStageTableRepository::Get(WorldContextObject);
-	if (ensure(Repository))
+	if (!Repository)
 	{
 		return GameCore::Throw(GameErr::SUBSYSTEM_INVALID);
 	}
@@ -331,7 +331,7 @@ FGErrorInfo UStageTableHelper::GetStageTowerBaseStats(const UObject* WorldContex
 		Result.FindOrAdd(EStageUnitAttribute::Level) = TowerRow->Level;
 		Result.FindOrAdd(EStageUnitAttribute::Grade) = TowerRow->Grade;
 		Result.FindOrAdd(EStageUnitAttribute::Attack) = TowerRow->Attack;
-		Result.FindOrAdd(EStageUnitAttribute::Defence) = TowerRow->Defence;
+		Result.FindOrAdd(EStageUnitAttribute::Defence) = TowerRow->Defense;
 		Result.FindOrAdd(EStageUnitAttribute::MaxHp) = TowerRow->Hp;
 		Result.FindOrAdd(EStageUnitAttribute::Hp) = TowerRow->Hp;
 		Result.FindOrAdd(EStageUnitAttribute::AttackSpeed) = TowerRow->AttackSpeed;
@@ -352,7 +352,7 @@ FGErrorInfo UStageTableHelper::GetStageTowerBaseStats(const UObject* WorldContex
 FGErrorInfo UStageTableHelper::GetStageMonsterInfo(const UObject* WorldContextObject, int32 MonsterKey, FStageMonsterInfo& Result)
 {
 	auto Repository = UStageTableRepository::Get(WorldContextObject);
-	if (ensure(Repository))
+	if (!Repository)
 	{
 		return GameCore::Throw(GameErr::SUBSYSTEM_INVALID);
 	}
@@ -371,7 +371,7 @@ FGErrorInfo UStageTableHelper::GetStageMonsterInfo(const UObject* WorldContextOb
 FGErrorInfo UStageTableHelper::GetStageMonsterBaseStats(const UObject* WorldContextObject, int32 MonsterKey, TMap<EStageUnitAttribute, double>& Result)
 {
 	auto Repository = UStageTableRepository::Get(WorldContextObject);
-	if (ensure(Repository))
+	if (!Repository)
 	{
 		return GameCore::Throw(GameErr::SUBSYSTEM_INVALID);
 	}
@@ -386,7 +386,7 @@ FGErrorInfo UStageTableHelper::GetStageMonsterBaseStats(const UObject* WorldCont
 	Result.FindOrAdd(EStageUnitAttribute::Level) = Row->Level;
 	Result.FindOrAdd(EStageUnitAttribute::Grade) = Row->Grade;
 	Result.FindOrAdd(EStageUnitAttribute::Attack) = Row->Attack;
-	Result.FindOrAdd(EStageUnitAttribute::Defence) = Row->Defence;
+	Result.FindOrAdd(EStageUnitAttribute::Defence) = Row->Defense;
 	Result.FindOrAdd(EStageUnitAttribute::MaxHp) = Row->Hp;
 	Result.FindOrAdd(EStageUnitAttribute::Hp) = Row->Hp;
 	Result.FindOrAdd(EStageUnitAttribute::AttackSpeed) = Row->AttackSpeed;

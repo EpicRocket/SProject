@@ -42,7 +42,7 @@ bool AStageLevel::ShouldShowLoadingScreen(FString& OutReason) const
 	return false;
 }
 
-FGErrorInfo AStageLevel::Load()
+FGErrorInfo AStageLevel::Load(int32 StageLevel)
 {
 	auto World = GetWorld();
 	if (!World)
@@ -53,9 +53,9 @@ FGErrorInfo AStageLevel::Load()
 	{
 		FActorSpawnParameters Params;
 		Params.Owner = this;
-		Params.CustomPreSpawnInitalization = [ThisPtr = TWeakObjectPtr<AStageLevel>(this)](auto Actor) -> auto
+		Params.CustomPreSpawnInitalization = [StageLevel, ThisPtr = TWeakObjectPtr<AStageLevel>(this)](auto Actor) -> auto
 			{
-				auto Supervisor = Cast<AStageSupervisor>(Actor);
+				AStageSupervisor* Supervisor = Cast<AStageSupervisor>(Actor);
 				if (!Supervisor)
 				{
 					UE_LOG(LogStage, Warning, TEXT("StageSupervisor 캐스트 실패"));
@@ -63,6 +63,7 @@ FGErrorInfo AStageLevel::Load()
 				}
 
 				Supervisor->OwnerLevel = ThisPtr;
+				Supervisor->Level = StageLevel;
 			};
 
 		Supervisor = World->SpawnActor<AStageSupervisor>(Params);

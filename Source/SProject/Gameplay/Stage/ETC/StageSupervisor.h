@@ -9,7 +9,7 @@
 
 class AStageLevel;
 
-UCLASS(Blueprintable, BlueprintType, ClassGroup = "Stage")
+UCLASS(Blueprintable, BlueprintType, Category = "Stage", ClassGroup = "Stage")
 class MY_API AStageSupervisor : public AInfo
 {
     GENERATED_BODY()
@@ -23,5 +23,8 @@ protected:
 public:
     UPROPERTY(BlueprintReadOnly)
     TWeakObjectPtr<AStageLevel> OwnerLevel;
+
+    UPROPERTY(BlueprintReadOnly)
+    int32 Level = INDEX_NONE;
 
 };

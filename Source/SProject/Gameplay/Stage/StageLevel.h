@@ -10,6 +10,7 @@ class AStageBuildZone;
 class AStagePlayerPawn;
 class AStageSpawner;
 class AStageSupervisor;
+struct FStage;
 
 UCLASS()
 class MY_API AStageLevel : public AMyGameLevel
@@ -26,7 +27,7 @@ public:
 	// ~IGLoadingProcess
 	
 	UFUNCTION(BlueprintCallable)
-	FGErrorInfo Load();
+	FGErrorInfo Load(int32 StageLevel);
 
 	UFUNCTION(BlueprintCallable)
 	void AddBuildZone(AStageBuildZone* BuildZone);

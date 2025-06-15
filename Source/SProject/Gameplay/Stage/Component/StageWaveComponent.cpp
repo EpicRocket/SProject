@@ -5,8 +5,10 @@
 #include "Gameplay/Stage/StageTableRepository.h"
 #include "Gameplay/Stage/StageLogging.h"
 
-void UStageWaveComponent::OnInitialize()
+void UStageWaveComponent::InitializeComponent()
 {
+	Super::InitializeComponent();
+
 	Paused = true;
 }
 

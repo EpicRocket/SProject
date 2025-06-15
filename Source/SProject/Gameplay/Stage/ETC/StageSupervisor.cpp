@@ -1,6 +1,8 @@
 // Copyright (c) 2025 Team EpicRocket. All rights reserved.
 
 #include "StageSupervisor.h"
+// include Engine
+#include "Components/GameFrameworkComponentManager.h"
 // include Project
 #include "Gameplay/Stage/StageLevel.h"
 #include "Gameplay/Stage/StageLogging.h"
@@ -10,6 +12,8 @@
 void AStageSupervisor::BeginPlay()
 {
 	Super::BeginPlay();
+
+	UGameFrameworkComponentManager::AddGameFrameworkComponentReceiver(this);
 
 	if (!OwnerLevel.IsValid())
 	{
@@ -22,7 +26,7 @@ void AStageSupervisor::BeginPlay()
 
 void AStageSupervisor::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-
+	UGameFrameworkComponentManager::RemoveGameFrameworkComponentReceiver(this);
 
 	Super::EndPlay(EndPlayReason);
 }

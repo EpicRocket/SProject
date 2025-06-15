@@ -79,11 +79,6 @@ FGErrorInfo UStageStateComponent::LoadStage(const FStage& Stage)
 		return GameCore::Throw(GameErr::POINTER_INVALID, FString::Printf(TEXT("Map is empty: Level:%d"), Stage.Level));
 	}
 
-	if (!Map.IsValid())
-	{
-		return GameCore::Throw(GameErr::POINTER_INVALID, FString::Printf(TEXT("Map is invalid: Level:%d"), Stage.Level));
-	}
-
 	OnLoadStage(Stage, Map);
 	return GameCore::Pass();
 }

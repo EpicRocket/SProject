@@ -10,8 +10,10 @@
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(StageStorageComponent)
 
-void UStageStorageComponent::OnInitialize()
+void UStageStorageComponent::InitializeComponent()
 {
+	Super::InitializeComponent();
+
 	auto User = GetGameplayPlayer<AGameplayUserPlayer>();
 	if (!User)
 	{

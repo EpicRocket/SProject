@@ -13,7 +13,9 @@ class MY_API UStageStorageComponent : public UGameplayPlayerComponent
 	GENERATED_BODY()
 
 protected:
-	virtual void OnInitialize() override;
+	// UActorComponent
+	virtual void InitializeComponent() override;
+	// ~UActorComponent
 
 public:
 	UFUNCTION(BlueprintPure)

@@ -74,11 +74,6 @@ bool UGGameInstance::RemoveLocalPlayer(ULocalPlayer* ExistingPlayer)
 	return Super::RemoveLocalPlayer(ExistingPlayer);
 }
 
-UGLocalPlayer* UGGameInstance::GetPrimaryPlayer() const
-{
-	return GetLocalPlayer(0);
-}
-
 UGLocalPlayer* UGGameInstance::GetLocalPlayer(uint8 UniqueId) const
 {
 	if (LocalPlayers.Contains(UniqueId))

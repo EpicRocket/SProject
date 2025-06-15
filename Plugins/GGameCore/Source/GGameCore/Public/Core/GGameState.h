@@ -11,7 +11,7 @@
 class UGAbilitySystemComponent;
 enum class EGameplayEffectReplicationMode : uint8;
 
-UCLASS(BlueprintType, Blueprintable)
+UCLASS(BlueprintType, Blueprintable, Category = "Core", ClassGroup = "Core")
 class GGAMECORE_API AGGameState : public AGameState, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
@@ -21,6 +21,13 @@ class GGAMECORE_API AGGameState : public AGameState, public IAbilitySystemInterf
 public:
 	AGGameState();
 
+protected:
+	// AActor
+	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+	// ~AActor
+
+public:
 	//~IAbilitySystemInterface
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	//~End of IAbilitySystemInterface
@@ -34,4 +41,5 @@ protected:
 
 private:
 	TObjectPtr<UGAbilitySystemComponent> AbilitySystemComponent;
+
 };
