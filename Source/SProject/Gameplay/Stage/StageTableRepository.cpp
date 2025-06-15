@@ -48,43 +48,43 @@ UStageTableRepository* UStageTableRepository::Get(const UObject* WorldContextObj
 	return Repo;
 }
 
-TFuture<UStageTableReceipt*> UStageTableRepository::Load(int32 StageLevel, TMap<EStageTowerType, TSet<int32>> TowerList)
-{
-	TPromise<UStageTableReceipt*> Promise;
+//TFuture<UStageTableReceipt*> UStageTableRepository::Load(int32 StageLevel, TMap<EStageTowerType, TSet<int32>> TowerList)
+//{
+//	TPromise<UStageTableReceipt*> Promise;
+//
+//	//if (auto Stage = UGTableHelper::GetTableData<FStageTableRow>(StageLevel))
+//	//{
+//	//	int32 WaveGroup = Stage->WaveGroup;
+//	//	auto WaveFilter = [WaveGroup](const FWaveTableRow& Row)
+//	//		{
+//	//			return Row.WaveGroup == WaveGroup;
+//	//		};
+//
+//	//	for (auto& WaveTableRow : UGTableHelper::GetTableDatas<FWaveTableRow>().FilterByPredicate(WaveFilter))
+//	//	{
+//	//		int32 MonsterGroup 
+//	//	}
+//
+//	//	/*auto WaveTableRows = UGTableHelper::GetTableDatas<FWaveTableRow>().FilterByPredicate(
+//	//		[WaveGroup](const FWaveTableRow& Row)
+//	//		{
+//	//			return Row.Wave_Group == WaveGroup;
+//	//		}
+//	//	);*/
+//
+//	//	
+//
+//	//}
+//
+//
+//
+//	return Promise.GetFuture();
+//}
 
-	//if (auto Stage = UGTableHelper::GetTableData<FStageTableRow>(StageLevel))
-	//{
-	//	int32 WaveGroup = Stage->WaveGroup;
-	//	auto WaveFilter = [WaveGroup](const FWaveTableRow& Row)
-	//		{
-	//			return Row.WaveGroup == WaveGroup;
-	//		};
-
-	//	for (auto& WaveTableRow : UGTableHelper::GetTableDatas<FWaveTableRow>().FilterByPredicate(WaveFilter))
-	//	{
-	//		int32 MonsterGroup 
-	//	}
-
-	//	/*auto WaveTableRows = UGTableHelper::GetTableDatas<FWaveTableRow>().FilterByPredicate(
-	//		[WaveGroup](const FWaveTableRow& Row)
-	//		{
-	//			return Row.Wave_Group == WaveGroup;
-	//		}
-	//	);*/
-
-	//	
-
-	//}
-
-
-
-	return Promise.GetFuture();
-}
-
-void UStageTableRepository::Unload(const UStageTableReceipt* Receipt)
-{
-
-}
+//void UStageTableRepository::Unload(const UStageTableReceipt* Receipt)
+//{
+//
+//}
 
 /*
 void UStageTableRepository::OnLoad()

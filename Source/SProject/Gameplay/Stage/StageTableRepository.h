@@ -28,18 +28,18 @@ struct FStageMonsterGroupInfo;
 
 struct FStageWaveGroupInfo;
 
-UCLASS()
-class UStageTableReceipt
-{
-	GENERATED_BODY()
-
-public:
-	UPROPERTY()
-	TArray<UStageTowerContext*> NormalTowerContexts;
-
-	UPROPERTY()
-	TArray<UStageMonsterContext*> MonsterContexts;
-};
+//UCLASS()
+//class UStageTableReceipt
+//{
+//	GENERATED_BODY()
+//
+//public:
+//	UPROPERTY()
+//	TArray<UStageTowerContext*> NormalTowerContexts;
+//
+//	UPROPERTY()
+//	TArray<UStageMonsterContext*> MonsterContexts;
+//};
 
 UCLASS()
 class MY_API UStageTableRepository : public UGTableRepositorySubsystem
@@ -50,9 +50,9 @@ class MY_API UStageTableRepository : public UGTableRepositorySubsystem
 public:
 	static UStageTableRepository* Get(const UObject* WorldContextObject);
 
-	TFuture<UStageTableReceipt*> Load(int32 StageLevel, TMap<EStageTowerType, TSet<int32>> TowerList);
+	//TFuture<UStageTableReceipt*> Load(int32 StageLevel, TMap<EStageTowerType, TSet<int32>> TowerList);
 
-	void Unload(const UStageTableReceipt* Receipt);
+	//void Unload(const UStageTableReceipt* Receipt);
 
 private:
 	TWeakObjectPtr<UStageTowerContext> FindNormalTowerContext(int32 Kind, int32 Level) const;
