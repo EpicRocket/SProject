@@ -35,6 +35,11 @@ public:
 		}
 
 		DataT const* Data = Table->FindRow<DataT>(FName(*FString::FromInt(Key)), FString{});
+		if (!Data)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Table data not found for Key: %d in table: %s"), Key, *DataT::StaticStruct()->GetName());
+			return nullptr;
+		}
 
 		return Data;
 	}

@@ -8,7 +8,7 @@
 #include "StageSupervisor.generated.h"
 
 class AStageLevel;
-//class UStageTableReceipt;
+class UStageTableReceipt;
 
 UCLASS(Blueprintable, BlueprintType, Category = "Stage", ClassGroup = "Stage")
 class MY_API AStageSupervisor : public AInfo
@@ -22,14 +22,14 @@ protected:
     // ~Actor
 
 private:
-    /*UFUNCTION()
-    void OnTableLoaded(UStageTableReceipt* Receipt);*/
+    UFUNCTION()
+    void OnTableLoaded(UStageTableReceipt* Receipt);
 
 public:
     UPROPERTY(BlueprintReadOnly)
     TWeakObjectPtr<AStageLevel> OwnerLevel;
 
 private:
-    /*UPROPERTY()
-	UStageTableReceipt* StageTableReceipt = nullptr;*/
+    UPROPERTY()
+	UStageTableReceipt* StageTableReceipt = nullptr;
 };

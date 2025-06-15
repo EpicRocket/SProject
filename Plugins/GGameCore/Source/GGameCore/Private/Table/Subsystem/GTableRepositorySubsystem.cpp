@@ -13,79 +13,52 @@
 // UGTableRepositorySubsystem
 ////////////////////////////////////////////////////////////////
 
-bool UGTableRepositorySubsystem::IsTickable() const
+void UGTableRepositorySubsystem::Deinitialize()
 {
-	return !HasAnyFlags(RF_ClassDefaultObject) && bWorking;
-}
-
-void UGTableRepositorySubsystem::Tick(float DeltaTime)
-{
-	if (!bLoaded || !bWorking)
+	for (auto& [Id, Task] : Tasks)
 	{
-		return;
+		if (Task.IsValid())
+		{
+			Task->ReleaseHandle();
+		}
+		TaskIdPool.Release(Id);
 	}
 
-	int32 TaskCount = Tasks.Num();
-	bool bComplete
-		=	TaskCount == 0
-		||	TaskCount == TaskCompleteCount.GetValue()
-		;
+	Tasks.Empty();
+}
 
-	if (bComplete)
+void UGTableRepositorySubsystem::RequestTasks(TArray<FSoftObjectPath> RawAssetList, TUniqueFunction<void()> CompleteCallback)
+{
+	if (RawAssetList.Num() == 0)
 	{
-		ResetTask();
-		// TODO: Future Set
-	}
-}
-
-TStatId UGTableRepositorySubsystem::GetStatId() const
-{
-	RETURN_QUICK_DECLARE_CYCLE_STAT(UGTableRepositorySubsystem, STATGROUP_Tickables);
-}
-
-UWorld* UGTableRepositorySubsystem::GetTickableGameObjectWorld() const
-{
-	return GetGameInstance()->GetWorld();
-}
-
-void UGTableRepositorySubsystem::RequestTask(FSoftObjectPath Path, TFunction<void()> ComplateCallback)
-{
-	if (Path.IsNull())
-	{
-		UE_LOG(LogGameTable, Warning, TEXT("Task request failed: Path is empty"));
+		if (CompleteCallback)
+		{
+			CompleteCallback();
+		}
 		return;
 	}
 
 	FStreamableManager& Streamable = UAssetManager::GetStreamableManager();
 
+	int32 Id = TaskIdPool.GetNext();
+	TSharedPtr<TUniqueFunction<void()>> CallbackPtr = MakeShared<TUniqueFunction<void()>>(MoveTemp(CompleteCallback));
+
 	auto Handle = Streamable.RequestAsyncLoad(
-		Path,
-		FStreamableDelegate::CreateLambda([this, ThisPtr = TWeakObjectPtr<UGTableRepositorySubsystem>(this), ComplateCallback]()
+		RawAssetList,
+		FStreamableDelegate::CreateLambda([this, Id, ThisPtr = TWeakObjectPtr<UGTableRepositorySubsystem>(this), CallbackPtr]()
 			{
 				if (ThisPtr.IsValid())
 				{
-					TaskCompleteCount.Increment();
-					if (ComplateCallback)
+					if (CallbackPtr.IsValid() && *CallbackPtr)
 					{
-						ComplateCallback();
+						(*CallbackPtr)();
 					}
+
+					Tasks.Remove(Id);
+					TaskIdPool.Release(Id);
 				}
 			})
 	);
 
-	Tasks.Emplace(Handle);
-}
-
-void UGTableRepositorySubsystem::ResetTask()
-{
-	bWorking = false;
-	for (TSharedPtr<FStreamableHandle> Handle : Tasks)
-	{
-		if (Handle.IsValid())
-		{
-			Handle->CancelHandle();
-		}
-	}
-	Tasks.Empty();
-	TaskCompleteCount.Reset();
+	Tasks.Emplace(Id, Handle);
 }

@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
-#include "Tickable.h"
+#include "Containers/Queue.h"
 
 #include "GTableRepositorySubsystem.generated.h"
 
@@ -13,30 +13,43 @@ struct FLatentActionInfo;
 struct FSoftObjectPath;
 struct FStreamableHandle;
 
+struct FRecyclableIdPool
+{
+public:
+	int32 GetNext()
+	{
+		int32 Recycled;
+		if (FreeIds.Dequeue(Recycled))
+		{
+			return Recycled;
+		}
+		return NextId++;
+	}
+
+	void Release(int32 Id)
+	{
+		FreeIds.Enqueue(Id);
+	}
+
+private:
+	int32 NextId = 0;
+	TQueue<int32> FreeIds;
+
+};
+
 UCLASS(Abstract)
-class GGAMECORE_API UGTableRepositorySubsystem : public UGameInstanceSubsystem, public FTickableGameObject
+class GGAMECORE_API UGTableRepositorySubsystem : public UGameInstanceSubsystem
 {
 	GENERATED_BODY()
 
 public:
-    // FTickableObjectBase
-    virtual bool IsTickable() const override;
-    virtual void Tick(float DeltaTime) override;
-    virtual TStatId GetStatId() const override;
-    virtual UWorld* GetTickableGameObjectWorld() const override;
-    // ~FTickableObjectBase
+	virtual void Deinitialize() override;
 
 protected:
-    void RequestTask(FSoftObjectPath Path, TFunction<void()> ComplateCallback);
+    void RequestTasks(TArray<FSoftObjectPath> RawAssetList, TUniqueFunction<void()> CompleteCallback);
 
 private:
-    void ResetTask();
-
-private:
-    bool bLoaded = false;
-
-    bool bWorking = false;
-    TArray<TSharedPtr<FStreamableHandle>> Tasks;
-    FThreadSafeCounter TaskCompleteCount;
+    TMap<int32, TSharedPtr<FStreamableHandle>> Tasks;
+	FRecyclableIdPool TaskIdPool;
 
 };

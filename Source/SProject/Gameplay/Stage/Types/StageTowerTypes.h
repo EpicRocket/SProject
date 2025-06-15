@@ -44,11 +44,20 @@ struct MY_API FStageTowerInfo
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	EAttackType AttackType = static_cast<EAttackType>(0);
 
+	UPROPERTY()
+	TSoftClassPtr<AStageTowerUnit> UnitClassPtr;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<AStageTowerUnit> UnitClass;
 
+	UPROPERTY()
+	TSoftObjectPtr<UTexture2D> IconPtr;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UTexture2D> Icon;
+
+	UPROPERTY()
+	TSoftObjectPtr<UBehaviorTree> AIPtr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UBehaviorTree> AI;

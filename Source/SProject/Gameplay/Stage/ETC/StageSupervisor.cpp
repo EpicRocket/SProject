@@ -47,7 +47,7 @@ void AStageSupervisor::BeginPlay()
 	}
 
 	// NOTE. 테이블 로드 요청
-	/*StageTableRepo->Load(OwnerLevel->StageLevel, LoadTowerList).Then(
+	StageTableRepo->Load(OwnerLevel->StageLevel, LoadTowerList).Then(
 		[this, ThisPtr = TWeakObjectPtr<AStageSupervisor>(this)](TFuture<UStageTableReceipt*> Receipt)
 		{
 			if (!ThisPtr.IsValid())
@@ -57,7 +57,7 @@ void AStageSupervisor::BeginPlay()
 
 			OnTableLoaded(Receipt.Get());
 		}
-	);*/
+	);
 }
 
 void AStageSupervisor::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -73,7 +73,7 @@ void AStageSupervisor::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 }
 
-//void AStageSupervisor::OnTableLoaded(UStageTableReceipt* Receipt)
-//{
-//	StageTableReceipt = Receipt;
-//}
+void AStageSupervisor::OnTableLoaded(UStageTableReceipt* Receipt)
+{
+	StageTableReceipt = Receipt;
+}

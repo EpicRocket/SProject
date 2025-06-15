@@ -48,43 +48,125 @@ UStageTableRepository* UStageTableRepository::Get(const UObject* WorldContextObj
 	return Repo;
 }
 
-//TFuture<UStageTableReceipt*> UStageTableRepository::Load(int32 StageLevel, TMap<EStageTowerType, TSet<int32>> TowerList)
-//{
-//	TPromise<UStageTableReceipt*> Promise;
-//
-//	//if (auto Stage = UGTableHelper::GetTableData<FStageTableRow>(StageLevel))
-//	//{
-//	//	int32 WaveGroup = Stage->WaveGroup;
-//	//	auto WaveFilter = [WaveGroup](const FWaveTableRow& Row)
-//	//		{
-//	//			return Row.WaveGroup == WaveGroup;
-//	//		};
-//
-//	//	for (auto& WaveTableRow : UGTableHelper::GetTableDatas<FWaveTableRow>().FilterByPredicate(WaveFilter))
-//	//	{
-//	//		int32 MonsterGroup 
-//	//	}
-//
-//	//	/*auto WaveTableRows = UGTableHelper::GetTableDatas<FWaveTableRow>().FilterByPredicate(
-//	//		[WaveGroup](const FWaveTableRow& Row)
-//	//		{
-//	//			return Row.Wave_Group == WaveGroup;
-//	//		}
-//	//	);*/
-//
-//	//	
-//
-//	//}
-//
-//
-//
-//	return Promise.GetFuture();
-//}
+void UStageTableRepository::Initialize(FSubsystemCollectionBase& Collection)
+{
+	Super::Initialize(Collection);
 
-//void UStageTableRepository::Unload(const UStageTableReceipt* Receipt)
-//{
-//
-//}
+	StageTableReceipt = NewObject<UStageTableReceipt>(this, NAME_None, RF_Public | RF_Transient);
+}
+
+TFuture<UStageTableReceipt*> UStageTableRepository::Load(int32 StageLevel, TMap<EStageTowerType, TSet<int32>> TowerList)
+{
+	TPromise<UStageTableReceipt*> Promise;
+	TFuture<UStageTableReceipt*> Future = Promise.GetFuture();
+
+	// Streamable List
+	TSet<FSoftObjectPath> RawAssetList;
+
+	// Load List
+	TArray<UStageTowerContext*> NormalTowerContexts;
+	TArray<UStageMonsterContext*> MonsterContexts;
+
+	if (auto Stage = UGTableHelper::GetTableData<FStageTableRow>(StageLevel))
+	{
+		int32 WaveGroup = Stage->WaveGroup;
+		auto WaveFilter = [WaveGroup](const FWaveTableRow* Row) -> bool
+			{
+				return Row->WaveGroup == WaveGroup;
+			};
+
+		for (auto& WaveTableRow : UGTableHelper::GetTableDatas<FWaveTableRow>().FilterByPredicate(WaveFilter))
+		{
+			int32 MonsterGroup = WaveTableRow->MonsterGroup;
+			auto MonsterGroupFilter = [MonsterGroup](const FMonsterGroupTableRow* Row) -> bool
+				{
+					return Row->Index == MonsterGroup;
+				};
+
+			// NOTE. 몬스터 데이터 추가
+			for (auto& MonsterGroupTableRow : UGTableHelper::GetTableDatas<FMonsterGroupTableRow>().FilterByPredicate(MonsterGroupFilter))
+			{
+				auto MonsterTableRow = UGTableHelper::GetTableData<FMonsterTableRow>(MonsterGroupTableRow->MonsterKind);
+				if (!MonsterTableRow)
+				{
+					continue;
+				}
+
+				auto Context = NewObject<UStageMonsterContext>(this, NAME_None, RF_Public | RF_Transient);
+				MonsterContexts.Add(Context);
+
+				Context->MonsterInfo.Index = MonsterTableRow->Index;
+				Context->MonsterInfo.Level = MonsterTableRow->Level;
+				Context->MonsterInfo.Grade = MonsterTableRow->Grade;
+				Context->MonsterInfo.Name = MonsterTableRow->Name;
+				Context->MonsterInfo.AttackType = MonsterTableRow->AttackType;
+				Context->MonsterInfo.UnitClassPtr = MonsterTableRow->Unit;
+				RawAssetList.Emplace(MonsterTableRow->Unit.ToSoftObjectPath());
+				Context->MonsterInfo.IconPtr = MonsterTableRow->Icon;
+				RawAssetList.Emplace(MonsterTableRow->Icon.ToSoftObjectPath());
+				Context->MonsterInfo.AIPtr = MonsterTableRow->AI;
+				RawAssetList.Emplace(MonsterTableRow->AI.ToSoftObjectPath());
+			}
+		}
+	}
+
+	for (auto& [Type, Towers] : TowerList)
+	{
+		switch (Type)
+		{
+		case EStageTowerType::Normal:
+		{
+			for (int32 Kind : Towers)
+			{
+				auto TowerTableRow = UGTableHelper::GetTableData<FNormalTowerTableRow>(Kind);
+				if (!TowerTableRow)
+				{
+					continue;
+				}
+				auto Context = NewObject<UStageTowerContext>(this, NAME_None, RF_Public | RF_Transient);
+				NormalTowerContexts.Add(Context);
+				Context->TowerInfo.TowerType = Type;
+				Context->TowerInfo.Index = TowerTableRow->Index;
+				Context->TowerInfo.Kind = TowerTableRow->Kind;
+				Context->TowerInfo.Level = TowerTableRow->Level;
+				Context->TowerInfo.UsePoint = TowerTableRow->UsePoint;
+				Context->TowerInfo.Name = TowerTableRow->Name;
+				Context->TowerInfo.AttackType = TowerTableRow->AttackType;
+				Context->TowerInfo.UnitClassPtr = TowerTableRow->Unit;
+				RawAssetList.Emplace(TowerTableRow->Unit.ToSoftObjectPath());
+				Context->TowerInfo.IconPtr = TowerTableRow->Icon;
+				RawAssetList.Emplace(TowerTableRow->Icon.ToSoftObjectPath());
+				Context->TowerInfo.AIPtr = TowerTableRow->AI;
+				RawAssetList.Emplace(TowerTableRow->AI.ToSoftObjectPath());
+			}
+		}
+		}
+	}
+
+	// Load Assets
+	RequestTasks(
+		RawAssetList.Array(),
+		[this
+		, ThisPtr = TWeakObjectPtr<UStageTableRepository>(this)
+		, Promise = MoveTemp(Promise)
+		]()
+		{
+			if (!ThisPtr.IsValid())
+			{
+				return;
+			}
+
+
+		}
+	);
+
+	return Future;
+}
+
+void UStageTableRepository::Unload(const UStageTableReceipt* Receipt)
+{
+
+}
 
 /*
 void UStageTableRepository::OnLoad()
