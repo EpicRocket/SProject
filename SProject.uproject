@@ -99,10 +99,6 @@
 		{
 			"Name": "GGameCore",
 			"Enabled": true
-		},
-		{
-			"Name": "VisualStudioTools",
-			"Enabled": true
 		}
 	]
 }
