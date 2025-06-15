@@ -17,10 +17,6 @@
 	],
 	"Plugins": [
 		{
-			"Name": "CLionSourceCodeAccess",
-			"Enabled": false
-		},
-		{
 			"Name": "AnimationLocomotionLibrary",
 			"Enabled": true
 		},
