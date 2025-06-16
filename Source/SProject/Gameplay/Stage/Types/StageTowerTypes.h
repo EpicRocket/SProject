@@ -65,9 +65,12 @@ struct MY_API FStageTowerInfo
 };
 
 UCLASS()
-class MY_API UStageTowerContext : public UObject
+class MY_API UStageTowerContext : public UGContext
 {
 	GENERATED_BODY()
+
+public:
+	virtual void Load() override;
 
 public:
 	UPROPERTY()

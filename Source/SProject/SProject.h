@@ -2,9 +2,12 @@
 
 #pragma once
 
+// include Engine
 #include "CoreMinimal.h"
 #include "Logging/StructuredLog.h"
+// include GameCore
 #include "Error/GError.h"
+#include "Core/GContext.h"
 
 #define MY_API SPROJECT_API
 

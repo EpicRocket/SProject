@@ -53,9 +53,12 @@ struct MY_API FStageMonsterInfo
 };
 
 UCLASS()
-class MY_API UStageMonsterContext : public UObject
+class MY_API UStageMonsterContext : public UGContext
 {
 	GENERATED_BODY()
+
+public:
+	virtual void Load() override;
 
 public:
 	UPROPERTY()

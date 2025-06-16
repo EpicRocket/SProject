@@ -48,24 +48,19 @@ UStageTableRepository* UStageTableRepository::Get(const UObject* WorldContextObj
 	return Repo;
 }
 
-void UStageTableRepository::Initialize(FSubsystemCollectionBase& Collection)
+TFuture<FGErrorInfo> UStageTableRepository::Load(UStageTableReceipt*& Receipt, int32 StageLevel, TMap<EStageTowerType, TSet<int32>> TowerList)
 {
-	Super::Initialize(Collection);
+	TPromise<FGErrorInfo> Promise;
+	auto Future = Promise.GetFuture();
 
-	StageTableReceipt = NewObject<UStageTableReceipt>(this, NAME_None, RF_Public | RF_Transient);
-}
-
-TFuture<UStageTableReceipt*> UStageTableRepository::Load(int32 StageLevel, TMap<EStageTowerType, TSet<int32>> TowerList)
-{
-	TPromise<UStageTableReceipt*> Promise;
-	TFuture<UStageTableReceipt*> Future = Promise.GetFuture();
+	if (!IsValid(Receipt))
+	{
+		Promise.EmplaceValue(GameCore::Throw(GameErr::POINTER_INVALID, TEXT("Receipt")));
+		return Future;
+	}
 
 	// Streamable List
 	TSet<FSoftObjectPath> RawAssetList;
-
-	// Load List
-	TArray<UStageTowerContext*> NormalTowerContexts;
-	TArray<UStageMonsterContext*> MonsterContexts;
 
 	if (auto Stage = UGTableHelper::GetTableData<FStageTableRow>(StageLevel))
 	{
@@ -92,20 +87,29 @@ TFuture<UStageTableReceipt*> UStageTableRepository::Load(int32 StageLevel, TMap<
 					continue;
 				}
 
-				auto Context = NewObject<UStageMonsterContext>(this, NAME_None, RF_Public | RF_Transient);
-				MonsterContexts.Add(Context);
+				TWeakObjectPtr<UStageMonsterContext> Context = MonsterContexts.FindOrAdd(MonsterTableRow->Index);
+				if (Context.IsValid())
+				{
+					Receipt->Contexts.Emplace(Context.Get());
+				}
+				else
+				{
+					auto NewContext = NewObject<UStageMonsterContext>(this, NAME_None, RF_Public | RF_Transient);
+					Context = NewContext;
+					Receipt->Contexts.Emplace(NewContext);
 
-				Context->MonsterInfo.Index = MonsterTableRow->Index;
-				Context->MonsterInfo.Level = MonsterTableRow->Level;
-				Context->MonsterInfo.Grade = MonsterTableRow->Grade;
-				Context->MonsterInfo.Name = MonsterTableRow->Name;
-				Context->MonsterInfo.AttackType = MonsterTableRow->AttackType;
-				Context->MonsterInfo.UnitClassPtr = MonsterTableRow->Unit;
-				RawAssetList.Emplace(MonsterTableRow->Unit.ToSoftObjectPath());
-				Context->MonsterInfo.IconPtr = MonsterTableRow->Icon;
-				RawAssetList.Emplace(MonsterTableRow->Icon.ToSoftObjectPath());
-				Context->MonsterInfo.AIPtr = MonsterTableRow->AI;
-				RawAssetList.Emplace(MonsterTableRow->AI.ToSoftObjectPath());
+					Context->MonsterInfo.Index = MonsterTableRow->Index;
+					Context->MonsterInfo.Level = MonsterTableRow->Level;
+					Context->MonsterInfo.Grade = MonsterTableRow->Grade;
+					Context->MonsterInfo.Name = MonsterTableRow->Name;
+					Context->MonsterInfo.AttackType = MonsterTableRow->AttackType;
+					Context->MonsterInfo.UnitClassPtr = MonsterTableRow->Unit;
+					RawAssetList.Emplace(MonsterTableRow->Unit.ToSoftObjectPath());
+					Context->MonsterInfo.IconPtr = MonsterTableRow->Icon;
+					RawAssetList.Emplace(MonsterTableRow->Icon.ToSoftObjectPath());
+					Context->MonsterInfo.AIPtr = MonsterTableRow->AI;
+					RawAssetList.Emplace(MonsterTableRow->AI.ToSoftObjectPath());
+				}
 			}
 		}
 	}
@@ -123,21 +127,32 @@ TFuture<UStageTableReceipt*> UStageTableRepository::Load(int32 StageLevel, TMap<
 				{
 					continue;
 				}
-				auto Context = NewObject<UStageTowerContext>(this, NAME_None, RF_Public | RF_Transient);
-				NormalTowerContexts.Add(Context);
-				Context->TowerInfo.TowerType = Type;
-				Context->TowerInfo.Index = TowerTableRow->Index;
-				Context->TowerInfo.Kind = TowerTableRow->Kind;
-				Context->TowerInfo.Level = TowerTableRow->Level;
-				Context->TowerInfo.UsePoint = TowerTableRow->UsePoint;
-				Context->TowerInfo.Name = TowerTableRow->Name;
-				Context->TowerInfo.AttackType = TowerTableRow->AttackType;
-				Context->TowerInfo.UnitClassPtr = TowerTableRow->Unit;
-				RawAssetList.Emplace(TowerTableRow->Unit.ToSoftObjectPath());
-				Context->TowerInfo.IconPtr = TowerTableRow->Icon;
-				RawAssetList.Emplace(TowerTableRow->Icon.ToSoftObjectPath());
-				Context->TowerInfo.AIPtr = TowerTableRow->AI;
-				RawAssetList.Emplace(TowerTableRow->AI.ToSoftObjectPath());
+
+				TWeakObjectPtr<UStageTowerContext> Context = NormalTowerContexts.FindOrAdd(MakeTuple(TowerTableRow->Kind, TowerTableRow->Level));
+				if (Context.IsValid())
+				{
+					Receipt->Contexts.Emplace(Context.Get());
+				}
+				else
+				{
+					auto NewContext = NewObject<UStageTowerContext>(this, NAME_None, RF_Public | RF_Transient);
+					Context = NewContext;
+					Receipt->Contexts.Emplace(Context.Get());
+
+					Context->TowerInfo.TowerType = Type;
+					Context->TowerInfo.Index = TowerTableRow->Index;
+					Context->TowerInfo.Kind = TowerTableRow->Kind;
+					Context->TowerInfo.Level = TowerTableRow->Level;
+					Context->TowerInfo.UsePoint = TowerTableRow->UsePoint;
+					Context->TowerInfo.Name = TowerTableRow->Name;
+					Context->TowerInfo.AttackType = TowerTableRow->AttackType;
+					Context->TowerInfo.UnitClassPtr = TowerTableRow->Unit;
+					RawAssetList.Emplace(TowerTableRow->Unit.ToSoftObjectPath());
+					Context->TowerInfo.IconPtr = TowerTableRow->Icon;
+					RawAssetList.Emplace(TowerTableRow->Icon.ToSoftObjectPath());
+					Context->TowerInfo.AIPtr = TowerTableRow->AI;
+					RawAssetList.Emplace(TowerTableRow->AI.ToSoftObjectPath());
+				}
 			}
 		}
 		}
@@ -149,161 +164,20 @@ TFuture<UStageTableReceipt*> UStageTableRepository::Load(int32 StageLevel, TMap<
 		[this
 		, ThisPtr = TWeakObjectPtr<UStageTableRepository>(this)
 		, Promise = MoveTemp(Promise)
-		]()
+		]() mutable
 		{
 			if (!ThisPtr.IsValid())
 			{
+				Promise.EmplaceValue(GameCore::Throw(GameErr::SUBSYSTEM_INVALID, TEXT("UStageTableRepository")));
 				return;
 			}
 
-
+			Promise.EmplaceValue(GameCore::Pass());
 		}
 	);
 
 	return Future;
 }
-
-void UStageTableRepository::Unload(const UStageTableReceipt* Receipt)
-{
-
-}
-
-/*
-void UStageTableRepository::OnLoad()
-{
-	SCOPED_BOOT_TIMING("Active StageTableRepository Load");
-
-	//EObjectFlags Flags = RF_Public | RF_Transient;
-
-	//// NOTE. 타워
-	//{
-	//	NormalTowerContexts.Empty();
-	//	auto NormalTowerTableRows = UGTableHelper::GetTableDatas<FNormalTowerTableRow>();
-	//	for (FNormalTowerTableRow* Row : NormalTowerTableRows)
-	//	{
-	//		auto Context = NewObject<UStageTowerContext>(this, NAME_None, Flags);
-	//		NormalTowerContexts.Emplace(Row->Index, Context);
-	//		NormalTowerByCompositeKey.Emplace(MakeTuple(Row->Kind, Row->Level), Context);
-	//		auto& MaxLevel = NormalTowerMaxLevels.FindOrAdd(Row->Kind);
-	//		MaxLevel = FMath::Max(MaxLevel, Row->Level);
-
-	//		Context->TowerInfo.TowerType = EStageTowerType::Normal;
-	//		Context->TowerInfo.Index = Row->Index;
-	//		Context->TowerInfo.Kind = Row->Kind;
-	//		Context->TowerInfo.Level = Row->Level;
-	//		Context->TowerInfo.UsePoint = Row->UsePoint;
-	//		Context->TowerInfo.Name = Row->Name;
-	//		Context->TowerInfo.AttackType = Row->AttackType;
-	//		RequestTask(
-	//			Row->Unit.ToSoftObjectPath(),
-	//			[this, ThisPtr = TWeakObjectPtr<UStageTableRepository>(this), WeakContext = TWeakObjectPtr<UStageTowerContext>(Context), Asset = Row->Unit]()
-	//			{
-	//				if (ThisPtr.IsValid())
-	//				{
-	//					if (WeakContext.IsValid())
-	//					{
-	//						WeakContext->TowerInfo.UnitClass = Asset.Get();
-	//					}
-	//				}
-	//			}
-	//			);
-	//		RequestTask(
-	//			Row->Icon.ToSoftObjectPath(),
-	//			[this, ThisPtr = TWeakObjectPtr<UStageTableRepository>(this), WeakContext = TWeakObjectPtr<UStageTowerContext>(Context), Asset = Row->Icon]()
-	//			{
-	//				if (ThisPtr.IsValid())
-	//				{
-	//					if (WeakContext.IsValid())
-	//					{
-	//						WeakContext->TowerInfo.Icon = Asset.Get();
-	//					}
-	//				}
-	//			}
-	//		);
-	//		RequestTask(
-	//			Row->AI.ToSoftObjectPath(),
-	//			[this, ThisPtr = TWeakObjectPtr<UStageTableRepository>(this), WeakContext = TWeakObjectPtr<UStageTowerContext>(Context), Asset = Row->AI]()
-	//			{
-	//				if (ThisPtr.IsValid())
-	//				{
-	//					if (WeakContext.IsValid())
-	//					{
-	//						WeakContext->TowerInfo.AI = Asset.Get();
-	//					}
-	//				}
-	//			}
-	//		);
-	//	}
-	//}
-
-	//// NOTE. Monster
-	//{
-	//	MonsterContexts.Empty();
-	//	auto MonsterTableRows = UGTableHelper::GetTableDatas<FMonsterTableRow>();
-	//	for (FMonsterTableRow* Row : MonsterTableRows)
-	//	{
-	//		auto Context = NewObject<UStageMonsterContext>(this, NAME_None, Flags);
-	//		MonsterContexts.Emplace(Row->Index, Context);
-
-	//		Context->MonsterInfo.Index = Row->Index;
-	//		Context->MonsterInfo.Level = Row->Level;
-	//		Context->MonsterInfo.Grade = Row->Grade;
-	//		Context->MonsterInfo.Name = Row->Name;
-	//		Context->MonsterInfo.AttackType = Row->AttackType;
-	//		RequestTask(
-	//			Row->Unit.ToSoftObjectPath(),
-	//			[this, ThisPtr = TWeakObjectPtr<UStageTableRepository>(this), WeakContext = TWeakObjectPtr<UStageMonsterContext>(Context), Asset = Row->Unit]()
-	//			{
-	//				if (ThisPtr.IsValid())
-	//				{
-	//					if (WeakContext.IsValid())
-	//					{
-	//						WeakContext->MonsterInfo.UnitClass = Asset.Get();
-	//					}
-	//				}
-	//			}
-	//		);
-
-	//		RequestTask(
-	//			Row->Icon.ToSoftObjectPath(),
-	//			[this, ThisPtr = TWeakObjectPtr<UStageTableRepository>(this), WeakContext = TWeakObjectPtr<UStageMonsterContext>(Context), Asset = Row->Icon]()
-	//			{
-	//				if (ThisPtr.IsValid())
-	//				{
-	//					if (WeakContext.IsValid())
-	//					{
-	//						WeakContext->MonsterInfo.Icon = Asset.Get();
-	//					}
-	//				}
-	//			}
-	//		);
-
-	//		RequestTask(
-	//			Row->AI.ToSoftObjectPath(),
-	//			[this, ThisPtr = TWeakObjectPtr<UStageTableRepository>(this), WeakContext = TWeakObjectPtr<UStageMonsterContext>(Context), Asset = Row->AI]()
-	//			{
-	//				if (ThisPtr.IsValid())
-	//				{
-	//					if (WeakContext.IsValid())
-	//					{
-	//						WeakContext->MonsterInfo.AI = Asset.Get();
-	//					}
-	//				}
-	//			}
-	//		);
-	//	}
-	//}
-}
-*/
-/*
-void UStageTableRepository::OnUnload()
-{
-	NormalTowerContexts.Empty();
-	NormalTowerByCompositeKey.Empty();
-	NormalTowerMaxLevels.Empty();
-
-	UE_LOGFMT(LogStage, Log, "StageTableRepository Unload Complete");
-}*/
 
 TWeakObjectPtr<UStageTowerContext> UStageTableRepository::FindNormalTowerContext(int32 Kind, int32 Level) const
 {

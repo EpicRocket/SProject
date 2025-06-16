@@ -23,7 +23,7 @@ protected:
 
 private:
     UFUNCTION()
-    void OnTableLoaded(UStageTableReceipt* Receipt);
+    void OnTableLoaded();
 
 public:
     UPROPERTY(BlueprintReadOnly)

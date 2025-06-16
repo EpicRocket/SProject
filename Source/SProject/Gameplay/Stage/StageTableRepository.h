@@ -35,10 +35,8 @@ class UStageTableReceipt : public UObject
 
 public:
 	UPROPERTY()
-	TArray<UStageTowerContext*> NormalTowerContexts;
+	TArray<UGContext*> Contexts;
 
-	UPROPERTY()
-	TArray<UStageMonsterContext*> MonsterContexts;
 };
 
 UCLASS()
@@ -46,19 +44,21 @@ class MY_API UStageTableRepository : public UGTableRepositorySubsystem
 {
 	GENERATED_BODY()
 
-	friend UStageTableHelper;
+	friend class UStageTableHelper;
 public:
 	static UStageTableRepository* Get(const UObject* WorldContextObject);
 
-	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
-
-	TFuture<UStageTableReceipt*> Load(int32 StageLevel, TMap<EStageTowerType, TSet<int32>> TowerList);
-
-	void Unload(const UStageTableReceipt* Receipt);
+	TFuture<FGErrorInfo> Load(UStageTableReceipt*& Receipt, int32 StageLevel, TMap<EStageTowerType, TSet<int32>> TowerList);
 
 private:
-	UPROPERTY()
-	UStageTableReceipt* StageTableReceipt = nullptr;
+	using TableKey = int32;
+	using KindType = int32;
+	using LevelType = int32;
+
+	using TowerKeyType = TTuple<KindType, LevelType>;
+	TMap<TowerKeyType, TWeakObjectPtr<UStageTowerContext>> NormalTowerContexts;
+
+	TMap<TableKey, TWeakObjectPtr<UStageMonsterContext>> MonsterContexts;
 
 	TWeakObjectPtr<UStageTowerContext> FindNormalTowerContext(int32 Kind, int32 Level) const;
 	TOptional<int32> FindNormalTowerMaxLevel(int32 Kind) const;
