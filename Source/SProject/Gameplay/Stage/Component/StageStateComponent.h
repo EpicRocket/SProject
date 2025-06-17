@@ -5,6 +5,7 @@
 #include "Core/Component/GGameStateComponent.h"
 // include Engine
 #include "UObject/SoftObjectPtr.h"
+#include "Misc/EnumClassFlags.h"
 // include GameCore
 #include "Loading/Interface/IGLoadingProcess.h"
 #include "Gameplay/Interface/IGameplayDataLoader.h"
@@ -14,6 +15,23 @@
 struct FLatentActionInfo;
 struct FStage;
 class AMyGameLevel;
+
+UENUM(BlueprintType, meta = (Bitflags, UseEnumValuesAsMaskValuesInEditor = "true"))
+enum class EStageLoadFlags : uint8
+{
+	None = 0,
+
+	World = 0x00000001,
+	Repository = 0x00000002,
+
+	All				
+	= World
+	| Repository
+	UMETA(Hidden),
+
+	Complete = 0x000000FF UMETA(Hidden),	// 255
+};
+ENUM_CLASS_FLAGS(EStageLoadFlags);
 
 UCLASS(Abstract, Blueprintable, BlueprintType, HideCategories = (Trigger, PhysicsVolume), ClassGroup = "Stage")
 class MY_API UStageStateComponent : public UGGameStateComponent, public IGLoadingProcess, public IGameplayDataLoader
@@ -33,6 +51,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FGErrorInfo LoadStage(const FStage& Stage);
 
+	UFUNCTION(BlueprintCallable)
+	void AddStageLoadFlags(EStageLoadFlags Flags, FGErrorInfo Error);
+
 protected:
 	UFUNCTION(BlueprintCallable, meta = (Latent, LatentInfo = "LatentInfo"))
 	FGErrorInfo WaitForPrimaryPlayerController(FLatentActionInfo LatentInfo);
@@ -42,6 +63,9 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 	FGErrorInfo SetStageLevel(const FStage& Stage, AMyGameLevel* GameLevel);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnLoadComplete();
 
 public:
 	UPROPERTY(Transient, BlueprintReadOnly)
@@ -59,5 +83,8 @@ protected:
 
 	UPROPERTY(Transient, BlueprintReadWrite, Category = "GameFeature")
 	TObjectPtr<const class UGameplayDataAsset> GameplayDataAsset;
+
+private:
+	EStageLoadFlags StageLoadFlags = EStageLoadFlags::None;
 
 };

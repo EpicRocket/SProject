@@ -60,8 +60,26 @@ FGErrorInfo UStageStateComponent::LoadStage(const FStage& Stage)
 		return GameCore::Throw(GameErr::POINTER_INVALID, FString::Printf(TEXT("Map is empty: Level:%d"), Stage.Level));
 	}
 
+	StageLoadFlags = EStageLoadFlags::None;
+
 	OnLoadStage(Stage, Map);
 	return GameCore::Pass();
+}
+
+void UStageStateComponent::AddStageLoadFlags(EStageLoadFlags Flags, FGErrorInfo Error)
+{
+	if (!GameCore::IsOK(Error))
+	{
+		// TODO: 해당 Flags에서 오류가 발생함... 예외 처리 해줘야하는 로직 추가
+		return;
+	}
+
+	StageLoadFlags |= Flags;
+	if (StageLoadFlags == EStageLoadFlags::All)
+	{
+		StageLoadFlags = EStageLoadFlags::Complete;
+		OnLoadComplete();
+	}
 }
 
 FGErrorInfo UStageStateComponent::WaitForPrimaryPlayerController(FLatentActionInfo LatentInfo)

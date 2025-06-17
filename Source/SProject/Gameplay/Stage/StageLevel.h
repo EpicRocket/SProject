@@ -26,7 +26,6 @@ public:
 	virtual bool ShouldShowLoadingScreen(FString& OutReason) const override;
 	// ~IGLoadingProcess
 	
-	UFUNCTION(BlueprintCallable)
 	FGErrorInfo Setup(int32 InStageLevel);
 
 	UFUNCTION(BlueprintCallable)
