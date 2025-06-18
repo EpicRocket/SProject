@@ -29,7 +29,7 @@ public:
 	virtual UWorld* GetTickableGameObjectWorld() const override;
 	// ~FTickableObjectBase
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Loading")
 	FString GetDebugReasonForShowingOrHidingLoadingScreen() const;
 
 	bool GetLoadingScreenDisplayStatus() const;
@@ -37,6 +37,12 @@ public:
 	void RegisterLoadingProcessor(TScriptInterface<IGLoadingProcess> Interface);
 
 	void UnregisterLoadingProcessor(TScriptInterface<IGLoadingProcess> Interface);
+
+	UFUNCTION(BlueprintCallable, Category = "Transition")
+	void BeginTransition();
+
+	UFUNCTION(BlueprintCallable, Category = "Transition")
+	void EndTransition();
 
 private:
 	// 맵 로드 전
@@ -57,11 +63,14 @@ private:
 
 	bool IsShowingInitialLoadingScreen();
 
-	void RemoveWidgetFromViewport();
+	void RemoveLoadingWidgetFromViewport();
+
+	void RemoveTransitionWidgetFromViewport();
 
 	void ChangePerformanceSettings(bool bEnabingLoadingScreen);
 
 private:
+	// Loading Screen Widget Reference
 	TSharedPtr<SWidget> LoadingScreenWidget;
 
 	// 외부 로딩 프로세서, 컴포넌트는 로딩을 지연시키는 액터일 수 있습니다.
@@ -82,6 +91,13 @@ private:
 	// PreLoadMap과 PostLoadMap 사이에 있을 때 참입니다
 	bool bCurrentlyInLoadMap = false;
 
-	// 현재 로딩 화면이 표시되고 있을 때 참입니다
+	// 현재 로딩 화면이 표시되고 있는지?
 	bool bCurrentlyShowingLoadingScreen = false;
+
+	// Transition Screen Widget Reference
+	TSharedPtr<SWidget> TransitionScreenWidget;
+
+	// 현재 전환 화면이 표시되고 있는지?
+	bool bCurrentlyShowingTransitionScreen = false;
+
 };

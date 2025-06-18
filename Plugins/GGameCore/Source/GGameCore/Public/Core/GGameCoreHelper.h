@@ -7,6 +7,7 @@
 #include "GGameCoreHelper.generated.h"
 
 class APlayerController;
+class ULocalPlayer;
 
 UCLASS()
 class GGAMECORE_API UGGameCoreBlueprintFunctionLibrary : public UBlueprintFunctionLibrary

@@ -54,7 +54,8 @@ void UGLoadingManager::Initialize(FSubsystemCollectionBase& Collection)
 
 void UGLoadingManager::Deinitialize()
 {
-	RemoveWidgetFromViewport();
+	RemoveLoadingWidgetFromViewport();
+	RemoveTransitionWidgetFromViewport();
 	FCoreUObjectDelegates::PreLoadMap.RemoveAll(this);
 	FCoreUObjectDelegates::PostLoadMapWithWorld.RemoveAll(this);
 }
@@ -106,6 +107,68 @@ void UGLoadingManager::UnregisterLoadingProcessor(TScriptInterface<IGLoadingProc
 		ExternalLoadingProcessors.Remove(Interface.GetObject());
 	}
 
+}
+
+void UGLoadingManager::BeginTransition()
+{
+	if (bCurrentlyShowingTransitionScreen)
+	{
+		return;
+	}
+
+	auto Settings = GetDefault<UGLoadingManagerSettings>();
+
+	bCurrentlyShowingTransitionScreen = true;
+
+	auto GameInstance = GetGameInstance();
+
+	TSubclassOf<UUserWidget> TransitionScreenWidgetClass = Settings->TransitionScreenWidget.TryLoadClass<UUserWidget>();
+	if (UUserWidget* UserWidget = UUserWidget::CreateWidgetInstance(*GameInstance, TransitionScreenWidgetClass, NAME_None))
+	{
+		TransitionScreenWidget = UserWidget->TakeWidget();
+	}
+	else
+	{
+		UE_LOG(LogLoading, Error, TEXT("전환 화면 위젯 %s을(를) 로드하지 못하여 자리 표시자로 되돌아갔습니다."), *Settings->TransitionScreenWidget.ToString());
+		TransitionScreenWidget = SNew(SThrobber);
+	}
+
+	UGameViewportClient* GameViewportClient = GameInstance->GetGameViewportClient();
+	GameViewportClient->AddViewportWidgetContent(TransitionScreenWidget.ToSharedRef(), Settings->LoadingScreenZOrder - 1000);
+
+	if (!GIsEditor || Settings->ForceTickLoadingScreenEvenInEditor)
+	{
+		// 전환 화면이 즉시 표시되도록 슬레이트를 체크합니다.
+		FSlateApplication::Get().Tick();
+	}
+}
+
+void UGLoadingManager::EndTransition()
+{
+	if (!bCurrentlyShowingTransitionScreen)
+	{
+		return;
+	}
+	
+	GEngine->ForceGarbageCollection(true);
+	
+	// TODO: 위젯에 종료를 알리기
+	if (TransitionScreenWidget.IsValid())
+	{
+
+	}
+
+	/*if (TransitionScreenWidget.IsValid())
+	{
+		auto GameInstance = GetGameInstance();
+		if (UGameViewportClient* GameViewportClient = GameInstance->GetGameViewportClient())
+		{
+			GameViewportClient->RemoveViewportWidgetContent(TransitionScreenWidget.ToSharedRef());
+		}
+		TransitionScreenWidget.Reset();
+	}*/
+
+	bCurrentlyShowingTransitionScreen = false;
 }
 
 void UGLoadingManager::HandlePreLoadMap(const FWorldContext& WorldContext, const FString& MapName)
@@ -372,7 +435,7 @@ void UGLoadingManager::HideLoadingScreen()
 		UE_LOG(LogLoading, Log, TEXT("로드 화면 삭제 전 가비지 수집"));
 		GEngine->ForceGarbageCollection(true);
 
-		RemoveWidgetFromViewport();
+		RemoveLoadingWidgetFromViewport();
 		ChangePerformanceSettings(false);
 	}
 
@@ -438,7 +501,7 @@ bool UGLoadingManager::IsShowingInitialLoadingScreen()
 	return false;
 }
 
-void UGLoadingManager::RemoveWidgetFromViewport()
+void UGLoadingManager::RemoveLoadingWidgetFromViewport()
 {
 	if (LoadingScreenWidget.IsValid())
 	{
@@ -448,6 +511,19 @@ void UGLoadingManager::RemoveWidgetFromViewport()
 			GameViewportClient->RemoveViewportWidgetContent(LoadingScreenWidget.ToSharedRef());
 		}
 		LoadingScreenWidget.Reset();
+	}
+}
+
+void UGLoadingManager::RemoveTransitionWidgetFromViewport()
+{
+	if (TransitionScreenWidget.IsValid())
+	{
+		auto GameInstance = GetGameInstance();
+		if (UGameViewportClient* GameViewportClient = GameInstance->GetGameViewportClient())
+		{
+			GameViewportClient->RemoveViewportWidgetContent(TransitionScreenWidget.ToSharedRef());
+		}
+		TransitionScreenWidget.Reset();
 	}
 }
 
