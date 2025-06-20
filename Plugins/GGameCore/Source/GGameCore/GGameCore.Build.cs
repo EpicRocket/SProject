@@ -1,4 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+// Copyright (c) 2025 Team EpicRocket. All rights reserved.
 
 using UnrealBuildTool;
 

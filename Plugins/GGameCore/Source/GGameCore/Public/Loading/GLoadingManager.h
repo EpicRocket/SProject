@@ -10,6 +10,7 @@
 
 class IGLoadingProcess;
 class ILoadingProcessInterface;
+class UGLoadingWidget;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogLoading, Log, All);
 
@@ -71,7 +72,8 @@ private:
 
 private:
 	// Loading Screen Widget Reference
-	TSharedPtr<SWidget> LoadingScreenWidget;
+	TSharedPtr<SWidget> LoadingScreenWidgetPtr;
+	TWeakObjectPtr<UGLoadingWidget> LoadingScreenWidget;
 
 	// 외부 로딩 프로세서, 컴포넌트는 로딩을 지연시키는 액터일 수 있습니다.
 	TArray<TWeakInterfacePtr<IGLoadingProcess>> ExternalLoadingProcessors;
@@ -95,7 +97,8 @@ private:
 	bool bCurrentlyShowingLoadingScreen = false;
 
 	// Transition Screen Widget Reference
-	TSharedPtr<SWidget> TransitionScreenWidget;
+	TSharedPtr<SWidget> TransitionScreenWidgetPtr;
+	TWeakObjectPtr<UGLoadingWidget> TransitionScreenWidget;
 
 	// 현재 전환 화면이 표시되고 있는지?
 	bool bCurrentlyShowingTransitionScreen = false;

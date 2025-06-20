@@ -8,3 +8,4 @@ const FText UMyActivatableWidget::GetPaletteCategory()
     return FText::FromString(TEXT("My UI"));
 }
 #endif
+ 

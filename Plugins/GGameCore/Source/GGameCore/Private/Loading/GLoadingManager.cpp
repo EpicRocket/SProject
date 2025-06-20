@@ -16,6 +16,7 @@
 // include GGameCore
 #include "GLoadingManagerSettings.h"
 #include "Loading/Interface/IGLoadingProcess.h"
+#include "Loading/UI/GLoadingWidget.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(GLoadingManager)
 
@@ -54,8 +55,11 @@ void UGLoadingManager::Initialize(FSubsystemCollectionBase& Collection)
 
 void UGLoadingManager::Deinitialize()
 {
+	// 위젯 삭제
 	RemoveLoadingWidgetFromViewport();
 	RemoveTransitionWidgetFromViewport();
+
+	// 바인딩 제거
 	FCoreUObjectDelegates::PreLoadMap.RemoveAll(this);
 	FCoreUObjectDelegates::PostLoadMapWithWorld.RemoveAll(this);
 }
@@ -125,16 +129,21 @@ void UGLoadingManager::BeginTransition()
 	TSubclassOf<UUserWidget> TransitionScreenWidgetClass = Settings->TransitionScreenWidget.TryLoadClass<UUserWidget>();
 	if (UUserWidget* UserWidget = UUserWidget::CreateWidgetInstance(*GameInstance, TransitionScreenWidgetClass, NAME_None))
 	{
-		TransitionScreenWidget = UserWidget->TakeWidget();
+		TransitionScreenWidgetPtr = UserWidget->TakeWidget();
+		TransitionScreenWidget = Cast<UGLoadingWidget>(UserWidget);
+		if (TransitionScreenWidget.IsValid())
+		{
+			TransitionScreenWidget->ActivateWidget();
+		}
 	}
 	else
 	{
 		UE_LOG(LogLoading, Error, TEXT("전환 화면 위젯 %s을(를) 로드하지 못하여 자리 표시자로 되돌아갔습니다."), *Settings->TransitionScreenWidget.ToString());
-		TransitionScreenWidget = SNew(SThrobber);
+		TransitionScreenWidgetPtr = SNew(SThrobber);
 	}
 
 	UGameViewportClient* GameViewportClient = GameInstance->GetGameViewportClient();
-	GameViewportClient->AddViewportWidgetContent(TransitionScreenWidget.ToSharedRef(), Settings->LoadingScreenZOrder - 1000);
+	GameViewportClient->AddViewportWidgetContent(TransitionScreenWidgetPtr.ToSharedRef(), Settings->LoadingScreenZOrder - 1000);
 
 	if (!GIsEditor || Settings->ForceTickLoadingScreenEvenInEditor)
 	{
@@ -152,21 +161,14 @@ void UGLoadingManager::EndTransition()
 	
 	GEngine->ForceGarbageCollection(true);
 	
-	// TODO: 위젯에 종료를 알리기
 	if (TransitionScreenWidget.IsValid())
 	{
-
+		TransitionScreenWidget->DeactivateWidget();
 	}
-
-	/*if (TransitionScreenWidget.IsValid())
+	else
 	{
-		auto GameInstance = GetGameInstance();
-		if (UGameViewportClient* GameViewportClient = GameInstance->GetGameViewportClient())
-		{
-			GameViewportClient->RemoveViewportWidgetContent(TransitionScreenWidget.ToSharedRef());
-		}
-		TransitionScreenWidget.Reset();
-	}*/
+		RemoveTransitionWidgetFromViewport();
+	}
 
 	bCurrentlyShowingTransitionScreen = false;
 }
@@ -394,16 +396,21 @@ void UGLoadingManager::ShowLoadingScreen()
 		TSubclassOf<UUserWidget> LoadingScreenWidgetClass = Settings->LoadingScreenWidget.TryLoadClass<UUserWidget>();
 		if (UUserWidget* UserWidget = UUserWidget::CreateWidgetInstance(*GameInstance, LoadingScreenWidgetClass, NAME_None))
 		{
-			LoadingScreenWidget = UserWidget->TakeWidget();
+			LoadingScreenWidgetPtr = UserWidget->TakeWidget();
+			LoadingScreenWidget = Cast<UGLoadingWidget>(UserWidget);
+			if (LoadingScreenWidget.IsValid())
+			{
+				LoadingScreenWidget->ActivateWidget();
+			}
 		}
 		else
 		{
 			UE_LOG(LogLoading, Error, TEXT("로딩 화면 위젯 %s을(를) 로드하지 못하여 자리 표시자로 되돌아갔습니다."), *Settings->LoadingScreenWidget.ToString());
-			LoadingScreenWidget = SNew(SThrobber);
+			LoadingScreenWidgetPtr = SNew(SThrobber);
 		}
 
 		UGameViewportClient* GameViewportClient = GameInstance->GetGameViewportClient();
-		GameViewportClient->AddViewportWidgetContent(LoadingScreenWidget.ToSharedRef(), Settings->LoadingScreenZOrder);
+		GameViewportClient->AddViewportWidgetContent(LoadingScreenWidgetPtr.ToSharedRef(), Settings->LoadingScreenZOrder);
 
 		ChangePerformanceSettings(true);
 
@@ -435,7 +442,14 @@ void UGLoadingManager::HideLoadingScreen()
 		UE_LOG(LogLoading, Log, TEXT("로드 화면 삭제 전 가비지 수집"));
 		GEngine->ForceGarbageCollection(true);
 
-		RemoveLoadingWidgetFromViewport();
+		if (LoadingScreenWidget.IsValid())
+		{
+			LoadingScreenWidget->DeactivateWidget();
+		}
+		else
+		{
+			RemoveLoadingWidgetFromViewport();
+		}
 		ChangePerformanceSettings(false);
 	}
 
@@ -503,28 +517,32 @@ bool UGLoadingManager::IsShowingInitialLoadingScreen()
 
 void UGLoadingManager::RemoveLoadingWidgetFromViewport()
 {
-	if (LoadingScreenWidget.IsValid())
+	if (LoadingScreenWidgetPtr.IsValid())
 	{
 		auto GameInstance = GetGameInstance();
 		if (UGameViewportClient* GameViewportClient = GameInstance->GetGameViewportClient())
 		{
-			GameViewportClient->RemoveViewportWidgetContent(LoadingScreenWidget.ToSharedRef());
+			GameViewportClient->RemoveViewportWidgetContent(LoadingScreenWidgetPtr.ToSharedRef());
 		}
-		LoadingScreenWidget.Reset();
+		LoadingScreenWidgetPtr.Reset();
 	}
+
+	LoadingScreenWidget.Reset();
 }
 
 void UGLoadingManager::RemoveTransitionWidgetFromViewport()
 {
-	if (TransitionScreenWidget.IsValid())
+	if (TransitionScreenWidgetPtr.IsValid())
 	{
 		auto GameInstance = GetGameInstance();
 		if (UGameViewportClient* GameViewportClient = GameInstance->GetGameViewportClient())
 		{
-			GameViewportClient->RemoveViewportWidgetContent(TransitionScreenWidget.ToSharedRef());
+			GameViewportClient->RemoveViewportWidgetContent(TransitionScreenWidgetPtr.ToSharedRef());
 		}
-		TransitionScreenWidget.Reset();
+		TransitionScreenWidgetPtr.Reset();
 	}
+
+	TransitionScreenWidget.Reset();
 }
 
 void UGLoadingManager::ChangePerformanceSettings(bool bEnabingLoadingScreen)

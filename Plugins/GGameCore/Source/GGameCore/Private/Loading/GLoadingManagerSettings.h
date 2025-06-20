@@ -43,7 +43,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Loading")
 	bool HoldLoadingScreenAdditionalSecsEvenInEditor = false;
 
-	UPROPERTY(Config, EditDefaultsOnly, Category = "Transition", meta = (MetaClass = "/Script/UMG.UserWidget"))
+	UPROPERTY(Config, EditDefaultsOnly, Category = "Transition", meta = (MetaClass = "/Script/GGameCore.GLoadingWidget"))
 	FSoftClassPath TransitionScreenWidget;
 
 };
