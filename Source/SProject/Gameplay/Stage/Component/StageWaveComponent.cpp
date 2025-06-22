@@ -28,12 +28,17 @@ FGErrorInfo UStageWaveComponent::WaveStart()
 
 FGErrorInfo UStageWaveComponent::WaveEnd()
 {
+
 	OnWaveEnd();
 	return FGErrorInfo();
 }
 
 FGErrorInfo UStageWaveComponent::NextWave()
 {
+	if (CurrentWaveIndex < WaveGroupInfo.Num()) {
+		return FGErrorInfo();
+	}
+
 	auto CurrentWaveGroup = WaveGroupInfo[CurrentWaveIndex];
 	if (CurrentWaveGroup.Type != 2 && CurrentWaveIndex < WaveGroupInfo.Num() - 1)
 	{
