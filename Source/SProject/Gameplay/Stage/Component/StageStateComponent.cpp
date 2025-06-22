@@ -16,7 +16,7 @@
 #include "Types/StageTypes.h"
 #include "Table/StageTable.h"
 #include "Gameplay/Stage/StageLogging.h"
-#include "Gameplay/GameWorldSubsystem.h"
+#include "Gameplay/Subsystem/GameplayWorldSubsystem.h"
 #include "Gameplay/Team/GameplayTeamSubsystem.h"
 #include "Gameplay/Stage/StageLevel.h"
 
@@ -116,13 +116,13 @@ FGErrorInfo UStageStateComponent::WaitForPrimaryPlayerController(FLatentActionIn
 	return ErrorInfo;
 }
 
-FGErrorInfo UStageStateComponent::SetStageLevel(const FStage& Stage, AMyGameLevel* GameLevel)
+FGErrorInfo UStageStateComponent::SetStageLevel(const FStage& Stage, AGameplayLevel* GameplayLevel)
 {
-	auto StageLevel = Cast<AStageLevel>(GameLevel);
+	auto StageLevel = Cast<AStageLevel>(GameplayLevel);
 	if (!StageLevel)
 	{
-		return GameCore::Throw(GameErr::POINTER_INVALID, FString::Printf(TEXT("GameLevel is not AStageLevel: %s"), *GameLevel->GetName()));
+		return GameCore::Throw(GameErr::POINTER_INVALID, FString::Printf(TEXT("GameplayLevel is not AStageLevel: %s"), *GameplayLevel->GetName()));
 	}
-
+	TargetStage = StageLevel;
 	return StageLevel->Setup(Stage.Level);
 }

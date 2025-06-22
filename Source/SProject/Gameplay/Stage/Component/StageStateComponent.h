@@ -14,7 +14,7 @@
 
 struct FLatentActionInfo;
 struct FStage;
-class AMyGameLevel;
+class AGameplayLevel;
 
 UENUM(BlueprintType, meta = (Bitflags, UseEnumValuesAsMaskValuesInEditor = "true"))
 enum class EStageLoadFlags : uint8
@@ -62,7 +62,7 @@ protected:
 	void OnLoadStage(const FStage& Stage, const TSoftObjectPtr<class UWorld>& Level);
 
 	UFUNCTION(BlueprintCallable)
-	FGErrorInfo SetStageLevel(const FStage& Stage, AMyGameLevel* GameLevel);
+	FGErrorInfo SetStageLevel(const FStage& Stage, AGameplayLevel* GameplayLevel);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnLoadComplete();

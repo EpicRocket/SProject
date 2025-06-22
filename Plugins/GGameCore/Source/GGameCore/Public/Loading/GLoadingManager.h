@@ -14,6 +14,8 @@ class UGLoadingWidget;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogLoading, Log, All);
 
+DECLARE_DYNAMIC_DELEGATE(FOnDynamicLoadingWidgetAnimationDelegate);
+
 UCLASS()
 class GGAMECORE_API UGLoadingManager : public UGameInstanceSubsystem, public FTickableGameObject
 {
@@ -40,7 +42,7 @@ public:
 	void UnregisterLoadingProcessor(TScriptInterface<IGLoadingProcess> Interface);
 
 	UFUNCTION(BlueprintCallable, Category = "Transition")
-	void BeginTransition();
+	void BeginTransition(FOnDynamicLoadingWidgetAnimationDelegate BeginEvent, FOnDynamicLoadingWidgetAnimationDelegate EndEvent);
 
 	UFUNCTION(BlueprintCallable, Category = "Transition")
 	void EndTransition();

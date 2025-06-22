@@ -1,5 +1,6 @@
+// Copyright (c) 2025 Team EpicRocket. All rights reserved.
 
-#include "GameWorldSubsystem.h"
+#include "Gameplay/Subsystem/GameplayWorldSubsystem.h"
 // include Engine
 #include "Engine/Engine.h"
 #include "Engine/World.h"
@@ -10,14 +11,14 @@
 #include "GameFramework/PlayerController.h"
 #include "Misc/PackageName.h"
 #include "Kismet/KismetSystemLibrary.h"
-// include Project
-#include "MyGameLevel.h"
-#include "GameplayLogging.h"
+// include GameCore
+#include "Gameplay/GameplayLevel.h"
+#include "Error/GError.h"
 
-#include UE_INLINE_GENERATED_CPP_BY_NAME(GameWorldSubsystem)
+#include UE_INLINE_GENERATED_CPP_BY_NAME(GameplayWorldSubsystem)
 
 
-void UGameWorldSubsystem::OnWorldBeginPlay(UWorld& InWorld)
+void UGameplayWorldSubsystem::OnWorldBeginPlay(UWorld& InWorld)
 {
 	StreamingLevels.Empty();
 	ScheduledLoadedLevels.Empty();
@@ -30,51 +31,48 @@ void UGameWorldSubsystem::OnWorldBeginPlay(UWorld& InWorld)
 			continue;
 		}
 
-		LevelStreaming->OnLevelLoaded.AddDynamic(this, &UGameWorldSubsystem::OnLevelLoaded);
-		LevelStreaming->OnLevelUnloaded.AddDynamic(this, &UGameWorldSubsystem::OnLevelUnloaded);
+		LevelStreaming->OnLevelLoaded.AddDynamic(this, &UGameplayWorldSubsystem::OnLevelLoaded);
+		LevelStreaming->OnLevelUnloaded.AddDynamic(this, &UGameplayWorldSubsystem::OnLevelUnloaded);
 
 		StreamingLevels.Emplace(LevelStreaming);
 	}
 }
 
-bool UGameWorldSubsystem::RequestLoadGameWorld(const TSoftObjectPtr<UWorld> Level, bool bMakeVisibleAfterLoad, bool bShouldBlockOnLoad, FLatentActionInfo LatentInfo)
+FGErrorInfo UGameplayWorldSubsystem::RequestLoadGameplayLevel(const TSoftObjectPtr<UWorld> Level, bool bMakeVisibleAfterLoad, bool bShouldBlockOnLoad, FLatentActionInfo LatentInfo)
 {
 	auto World = GetWorld();
-
-	if (World == nullptr)
+	if (!World)
 	{
-		UE_LOG(LogGameplay, Error, TEXT("World is nullptr"));
 		UKismetSystemLibrary::DelayUntilNextTick(World, LatentInfo);
-		return false;
+		return GameCore::Throw(GameErr::WORLD_INVALID);
 	}
 
 	if (Level.IsNull())
 	{
-		UE_LOG(LogGameplay, Error, TEXT("Level is nullptr"));
 		UKismetSystemLibrary::DelayUntilNextTick(World, LatentInfo);
-		return false;
+		return GameCore::Throw(GameErr::WORLD_INVALID, TEXT("Level is null"));
 	}
 
 	const FName LevelName = FName(*FPackageName::ObjectPathToPackageName(Level.ToString()));
 	auto LevelStreaming = FindAndCacheLevelStreamingObject(LevelName);
 
-	if (LevelStreaming == nullptr)
+	if (!LevelStreaming)
 	{
 		UKismetSystemLibrary::DelayUntilNextTick(World, LatentInfo);
-		return false;
+		return GameCore::Throw(GameErr::WORLD_INVALID, TEXT("LevelStreaming is null"));
 	}
 
 	if (LevelStreaming->IsLevelLoaded())
 	{
 		UKismetSystemLibrary::DelayUntilNextTick(World, LatentInfo);
-		return false;
+		return GameCore::Pass();
 	}
 
 	FLatentActionManager& LatentManager = World->GetLatentActionManager();
 	if (LatentManager.FindExistingAction<FStreamLevelAction>(LatentInfo.CallbackTarget, LatentInfo.UUID) != nullptr)
 	{
 		UKismetSystemLibrary::DelayUntilNextTick(World, LatentInfo);
-		return false;
+		return GameCore::Pass();
 	}
 
 	ScheduledLoadedLevels.Emplace(LevelStreaming);
@@ -82,10 +80,49 @@ bool UGameWorldSubsystem::RequestLoadGameWorld(const TSoftObjectPtr<UWorld> Leve
 	FStreamLevelAction* NewAction = new FStreamLevelAction(true, LevelName, bMakeVisibleAfterLoad, bShouldBlockOnLoad, LatentInfo, World);
 	LatentManager.AddNewAction(LatentInfo.CallbackTarget, LatentInfo.UUID, NewAction);
 
-	return true;
+	return GameCore::Pass();
 }
 
-bool UGameWorldSubsystem::IsExistsLoadedGameWorld() const
+FGErrorInfo UGameplayWorldSubsystem::RequestUnloadGameplayLevel(const TSoftObjectPtr<UWorld> Level, bool bShouldBlockOnUnload, FLatentActionInfo LatentInfo)
+{
+	auto World = GetWorld();
+	if (!World)
+	{
+		UKismetSystemLibrary::DelayUntilNextTick(World, LatentInfo);
+		return GameCore::Throw(GameErr::WORLD_INVALID);
+	}
+
+	const FName LevelName = FName(*FPackageName::ObjectPathToPackageName(Level.ToString()));
+	auto LevelStreaming = FindAndCacheLevelStreamingObject(LevelName);
+
+	if (!LevelStreaming)
+	{
+		UKismetSystemLibrary::DelayUntilNextTick(World, LatentInfo);
+		return GameCore::Throw(GameErr::WORLD_INVALID, TEXT("LevelStreaming is null"));
+	}
+
+	if (!LevelStreaming->IsLevelLoaded())
+	{
+		UKismetSystemLibrary::DelayUntilNextTick(World, LatentInfo);
+		return GameCore::Pass();
+	}
+
+	FLatentActionManager& LatentManager = World->GetLatentActionManager();
+	if (LatentManager.FindExistingAction<FStreamLevelAction>(LatentInfo.CallbackTarget, LatentInfo.UUID) != nullptr)
+	{
+		UKismetSystemLibrary::DelayUntilNextTick(World, LatentInfo);
+		return GameCore::Pass();
+	}
+
+	ScheduledUnloadedLevels.Emplace(LevelStreaming);
+
+	FStreamLevelAction* NewAction = new FStreamLevelAction(false, LevelName, false, bShouldBlockOnUnload, LatentInfo, World);
+	LatentManager.AddNewAction(LatentInfo.CallbackTarget, LatentInfo.UUID, NewAction);
+
+	return GameCore::Pass();
+}
+
+bool UGameplayWorldSubsystem::IsExistsLoadedGameplayLevel() const
 {
 	int32 LoadedLevelCount = 0;
 
@@ -100,17 +137,17 @@ bool UGameWorldSubsystem::IsExistsLoadedGameWorld() const
 	return LoadedLevelCount > 0;
 }
 
-bool UGameWorldSubsystem::IsDoingLoadGameWorld() const
+bool UGameplayWorldSubsystem::IsDoingLoadGameplayLevel() const
 {
 	return ScheduledLoadedLevels.Num() > 0;
 }
 
-bool UGameWorldSubsystem::IsDoingUnloadGameWorld() const
+bool UGameplayWorldSubsystem::IsDoingUnloadGameplayLevel() const
 {
 	return ScheduledUnloadedLevels.Num() > 0;
 }
 
-AMyGameLevel* UGameWorldSubsystem::FindLoadedLevel(TSoftObjectPtr<UWorld> Level)
+AGameplayLevel* UGameplayWorldSubsystem::FindLoadedLevel(TSoftObjectPtr<UWorld> Level)
 {
 	const FName LevelName = FName(*FPackageName::ObjectPathToPackageName(Level.ToString()));
 	auto LevelStreaming = FindAndCacheLevelStreamingObject(LevelName);
@@ -125,21 +162,21 @@ AMyGameLevel* UGameWorldSubsystem::FindLoadedLevel(TSoftObjectPtr<UWorld> Level)
 		return nullptr;
 	}
 
-	return Cast<AMyGameLevel>(LevelStreaming->GetLevelScriptActor());
+	return Cast<AGameplayLevel>(LevelStreaming->GetLevelScriptActor());
 }
 
-AMyGameLevel* UGameWorldSubsystem::GetTopLevel()
+AGameplayLevel* UGameplayWorldSubsystem::GetTopLevel()
 {
-	return Cast<AMyGameLevel>(GetWorld()->GetCurrentLevel()->GetLevelScriptActor());
+	return Cast<AGameplayLevel>(GetWorld()->GetCurrentLevel()->GetLevelScriptActor());
 }
 
-FString UGameWorldSubsystem::MakeSafeLevelName(const FName& LevelName) const
+FString UGameplayWorldSubsystem::MakeSafeLevelName(const FName& LevelName) const
 {
 	auto World = GetWorld();
 
 	if (World == nullptr)
 	{
-		UE_LOG(LogGameplay, Error, TEXT("World is nullptr"));
+		//UE_LOG(LogGameplay, Error, TEXT("World is nullptr"));
 		return LevelName.ToString();
 	}
 
@@ -162,13 +199,13 @@ FString UGameWorldSubsystem::MakeSafeLevelName(const FName& LevelName) const
 	return LevelName.ToString();
 }
 
-ULevelStreaming* UGameWorldSubsystem::FindAndCacheLevelStreamingObject(const FName LevelName) const
+ULevelStreaming* UGameplayWorldSubsystem::FindAndCacheLevelStreamingObject(const FName LevelName) const
 {
 	auto World = GetWorld();
 
 	if (World == nullptr)
 	{
-		UE_LOG(LogGameplay, Error, TEXT("World is nullptr"));
+		//UE_LOG(LogGameplay, Error, TEXT("World is nullptr"));
 		return nullptr;
 	}
 
@@ -190,7 +227,7 @@ ULevelStreaming* UGameWorldSubsystem::FindAndCacheLevelStreamingObject(const FNa
 	return nullptr;
 }
 
-void UGameWorldSubsystem::OnLevelLoaded()
+void UGameplayWorldSubsystem::OnLevelLoaded()
 {
 	for (const auto& LevelStreaming : StreamingLevels)
 	{
@@ -211,7 +248,7 @@ void UGameWorldSubsystem::OnLevelLoaded()
 	}
 }
 
-void UGameWorldSubsystem::OnLevelUnloaded()
+void UGameplayWorldSubsystem::OnLevelUnloaded()
 {
 	for (const auto& LevelStreaming : StreamingLevels)
 	{

@@ -3,6 +3,8 @@
 #include "StageSupervisor.h"
 // include Engine
 #include "Components/GameFrameworkComponentManager.h"
+// include GGameCore
+#include "Core/GGameCoreHelper.h"
 // include Project
 #include "Gameplay/Stage/StageLevel.h"
 #include "Gameplay/Stage/StageLogging.h"
@@ -10,6 +12,7 @@
 #include "Gameplay/Stage/ETC/StageBuildZone.h"
 #include "Gameplay/Stage/Types/StageTowerTypes.h"
 #include "Gameplay/Stage/Types/StageMonsterTypes.h"
+#include "Gameplay/Stage/Component/StageStateComponent.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(StageSupervisor)
 
@@ -78,6 +81,13 @@ void AStageSupervisor::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void AStageSupervisor::OnTableLoaded()
 {
+	auto StageStateComp = UGGameCoreBlueprintFunctionLibrary::GetGameStateComponent<UStageStateComponent>(this);
+	if (!StageStateComp)
+	{
+		GameCore::Throw(GameErr::COMPONENT_INVALID, TEXT("StageStateComponent"));
+		return;
+	}
+
 	if (!IsValid(StageTableReceipt))
 	{
 		GameCore::Throw(GameErr::POINTER_INVALID, TEXT("StageTableReceipt"));
@@ -88,4 +98,6 @@ void AStageSupervisor::OnTableLoaded()
 	{
 		Context->Load();
 	}
+
+	StageStateComp->AddStageLoadFlags(EStageLoadFlags::Repository, GameCore::Pass());
 }

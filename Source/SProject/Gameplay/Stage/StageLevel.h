@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "Gameplay/MyGameLevel.h"
+#include "Gameplay/GameplayLevel.h"
 
 #include "StageLevel.generated.h"
 
@@ -13,7 +13,7 @@ class AStageSupervisor;
 struct FStage;
 
 UCLASS()
-class MY_API AStageLevel : public AMyGameLevel
+class MY_API AStageLevel : public AGameplayLevel
 {
 	GENERATED_BODY()
 
