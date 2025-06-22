@@ -151,12 +151,12 @@ void UGLoadingManager::BeginTransition(FOnDynamicLoadingWidgetAnimationDelegate 
 				TransitionScreenWidget->BindToEndAnimationFinished(
 					FOnLoadingWidgetAnimationDelegate::CreateWeakLambda(
 						this,
-						[CreatedWidget = TSharedPtr<SWidget>(UserWidget->TakeWidget()), GameInstance = GetGameInstance()]() {
+						[CreatedWidget = TWeakPtr<SWidget>(UserWidget->TakeWidget()), GameInstance = GetGameInstance()]() {
 							if (CreatedWidget.IsValid() && IsValid(GameInstance))
 							{
 								if (UGameViewportClient* GameViewportClient = GameInstance->GetGameViewportClient())
 								{
-									GameViewportClient->RemoveViewportWidgetContent(CreatedWidget.ToSharedRef());
+									GameViewportClient->RemoveViewportWidgetContent(CreatedWidget.Pin().ToSharedRef());
 								}
 							}
 						}
@@ -483,12 +483,12 @@ void UGLoadingManager::ShowLoadingScreen()
 					LoadingScreenWidget->BindToEndAnimationFinished(
 						FOnLoadingWidgetAnimationDelegate::CreateWeakLambda(
 							this,
-							[CreatedWidget = TSharedPtr<SWidget>(UserWidget->TakeWidget()), GameInstance = GetGameInstance()]() {
+							[CreatedWidget = TWeakPtr<SWidget>(UserWidget->TakeWidget()), GameInstance = GetGameInstance()]() {
 								if (CreatedWidget.IsValid() && IsValid(GameInstance))
 								{
 									if (UGameViewportClient* GameViewportClient = GameInstance->GetGameViewportClient())
 									{
-										GameViewportClient->RemoveViewportWidgetContent(CreatedWidget.ToSharedRef());
+										GameViewportClient->RemoveViewportWidgetContent(CreatedWidget.Pin().ToSharedRef());
 									}
 								}
 							}
