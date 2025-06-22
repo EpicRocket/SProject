@@ -24,22 +24,44 @@ void UGLoadingWidget::NativeOnInitialized()
 
 	if (IsValid(BeginAnimation))
 	{
-		FWidgetAnimationDynamicEvent NewEvent;
-		NewEvent.BindDynamic(this, &UGLoadingWidget::OnBeginAnimationFinished);
-		BindToAnimationFinished(
-			BeginAnimation,
-			NewEvent
-		);
+		{
+			FWidgetAnimationDynamicEvent NewEvent;
+			NewEvent.BindDynamic(this, &UGLoadingWidget::OnBeginAnimationStarted);
+			BindToAnimationStarted(
+				BeginAnimation,
+				NewEvent
+			);
+		}
+
+		{
+			FWidgetAnimationDynamicEvent NewEvent;
+			NewEvent.BindDynamic(this, &UGLoadingWidget::OnBeginAnimationFinished);
+			BindToAnimationFinished(
+				BeginAnimation,
+				NewEvent
+			);
+		}
 	}
 
 	if (IsValid(EndAnimation))
 	{
-		FWidgetAnimationDynamicEvent NewEvent;
-		NewEvent.BindDynamic(this, &UGLoadingWidget::OnEndAnimationFinished);
-		BindToAnimationFinished(
-			EndAnimation,
-			NewEvent
-		);
+		{
+			FWidgetAnimationDynamicEvent NewEvent;
+			NewEvent.BindDynamic(this, &UGLoadingWidget::OnEndAnimationStarted);
+			BindToAnimationStarted(
+				EndAnimation,
+				NewEvent
+			);
+		}
+
+		{
+			FWidgetAnimationDynamicEvent NewEvent;
+			NewEvent.BindDynamic(this, &UGLoadingWidget::OnEndAnimationFinished);
+			BindToAnimationFinished(
+				EndAnimation,
+				NewEvent
+			);
+		}
 	}
 }
 
@@ -77,9 +99,12 @@ bool UGLoadingWidget::IsExistBeginAnimation() const
 	return IsValid(BeginAnimation);
 }
 
-bool UGLoadingWidget::IsExistBeginAnimationTask() const
+void UGLoadingWidget::BindToBeginAnimationStarted(const FOnLoadingWidgetAnimationDelegate& Task)
 {
-	return BeginAnimationFinishedTasks.Num() > 0;
+	if (Task.IsBound())
+	{
+		BeginAnimationFinishedTasks.Add(Task);
+	}
 }
 
 void UGLoadingWidget::BindToBeginAnimationFinished(const FOnLoadingWidgetAnimationDelegate& Task)
@@ -95,9 +120,12 @@ bool UGLoadingWidget::IsExistEndAnimation() const
 	return IsValid(EndAnimation);
 }
 
-bool UGLoadingWidget::IsExistEndAnimationTask() const
+void UGLoadingWidget::BindToEndAnimationStarted(const FOnLoadingWidgetAnimationDelegate& Task)
 {
-	return EndAnimationFinishedTasks.Num() > 0;
+	if (Task.IsBound())
+	{
+		EndAnimationFinishedTasks.Add(Task);
+	}
 }
 
 void UGLoadingWidget::BindToEndAnimationFinished(const FOnLoadingWidgetAnimationDelegate& Task)
@@ -108,21 +136,41 @@ void UGLoadingWidget::BindToEndAnimationFinished(const FOnLoadingWidgetAnimation
 	}
 }
 
-void UGLoadingWidget::OnBeginAnimationFinished()
+void UGLoadingWidget::OnBeginAnimationStarted()
 {
-	if (IsActivated())
+	for (auto& Task : BeginAnimationStartedTasks)
 	{
-		for (auto& Task : BeginAnimationFinishedTasks)
+		if (Task.IsBound())
 		{
-			if (Task.IsBound())
-			{
-				Task.ExecuteIfBound();
-			}
+			Task.ExecuteIfBound();
 		}
 	}
-	else if (IsValid(EndAnimation))
+}
+
+void UGLoadingWidget::OnBeginAnimationFinished()
+{
+	for (auto& Task : BeginAnimationFinishedTasks)
+	{
+		if (Task.IsBound())
+		{
+			Task.ExecuteIfBound();
+		}
+	}
+
+	if (!IsActivated())
 	{
 		PlayAnimation(EndAnimation);
+	}
+}
+
+void UGLoadingWidget::OnEndAnimationStarted()
+{
+	for (auto& Task : EndAnimationStartedTasks)
+	{
+		if (Task.IsBound())
+		{
+			Task.ExecuteIfBound();
+		}
 	}
 }
 

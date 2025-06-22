@@ -35,16 +35,22 @@ protected:
 
 public:
 	bool IsExistBeginAnimation() const;
-	bool IsExistBeginAnimationTask() const;
+	void BindToBeginAnimationStarted(const FOnLoadingWidgetAnimationDelegate& Task);
 	void BindToBeginAnimationFinished(const FOnLoadingWidgetAnimationDelegate& Task);
 
 	bool IsExistEndAnimation() const;
-	bool IsExistEndAnimationTask() const;
+	void BindToEndAnimationStarted(const FOnLoadingWidgetAnimationDelegate& Task);
 	void BindToEndAnimationFinished(const FOnLoadingWidgetAnimationDelegate& Task);
 
 private:
 	UFUNCTION()
+	void OnBeginAnimationStarted();
+
+	UFUNCTION()
 	void OnBeginAnimationFinished();
+
+	UFUNCTION()
+	void OnEndAnimationStarted();
 
 	UFUNCTION()
 	void OnEndAnimationFinished();
@@ -57,7 +63,9 @@ protected:
 	UWidgetAnimation* EndAnimation;
 
 private:
+	TArray<FOnLoadingWidgetAnimationDelegate> BeginAnimationStartedTasks;
 	TArray<FOnLoadingWidgetAnimationDelegate> BeginAnimationFinishedTasks;
+	TArray<FOnLoadingWidgetAnimationDelegate> EndAnimationStartedTasks;
 	TArray<FOnLoadingWidgetAnimationDelegate> EndAnimationFinishedTasks;
 
 };
