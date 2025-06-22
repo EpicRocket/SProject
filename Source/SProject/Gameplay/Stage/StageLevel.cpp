@@ -137,6 +137,17 @@ void AStageLevel::SetPlayerPawn(AStagePlayerPawn* InPlayerPawn)
 	PlayerPawn = InPlayerPawn;
 }
 
+APawn* AStageLevel::GetPlayerPawn() const
+{
+	if (!PlayerPawn.IsValid())
+	{
+		GameCore::Throw(GameErr::ACTOR_INVALID, TEXT("[AStageLevel::GetPlayerPawn]PlayerPawn is not valid"));
+		return nullptr;
+	}
+
+	return PlayerPawn.Get();
+}
+
 void AStageLevel::AddPathActor(AGameplayPathActor* PathActor)
 {
 	TWeakObjectPtr<AGameplayPathActor> PathActorPtr = PathActor;

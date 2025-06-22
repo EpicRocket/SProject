@@ -124,5 +124,8 @@ FGErrorInfo UStageStateComponent::SetStageLevel(const FStage& Stage, AGameplayLe
 		return GameCore::Throw(GameErr::POINTER_INVALID, FString::Printf(TEXT("GameplayLevel is not AStageLevel: %s"), *GameplayLevel->GetName()));
 	}
 	TargetStage = StageLevel;
+
+	PrimaryPC->Possess(StageLevel->GetPlayerPawn());
+
 	return StageLevel->Setup(Stage.Level);
 }

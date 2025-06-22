@@ -17,14 +17,14 @@ void UStageStorageComponent::InitializeComponent()
 	auto User = GetGameplayPlayer<AGameplayUserPlayer>();
 	if (!User)
 	{
-		GameCore::Throw(GameErr::ACTOR_INVALID, TEXT("AGameplayUserPlayer"));
+		GameCore::Throw(GameErr::ACTOR_INVALID, TEXT("[UStageStorageComponent::InitializeComponent]AGameplayUserPlayer"));
 		return;
 	}
 
 	auto StageSubsystem = UStageSubsystem::Get(User->GetOwningLocalPlayer());
 	if (!StageSubsystem)
 	{
-		GameCore::Throw(GameErr::SUBSYSTEM_INVALID, TEXT("StageSubsystem"));
+		GameCore::Throw(GameErr::SUBSYSTEM_INVALID, TEXT("[UStageStorageComponent::InitializeComponent]StageSubsystem"));
 		return;
 
 	}

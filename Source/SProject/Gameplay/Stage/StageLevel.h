@@ -40,6 +40,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetPlayerPawn(AStagePlayerPawn* InPlayerPawn);
 
+	UFUNCTION(BlueprintPure)
+	APawn* GetPlayerPawn() const;
+
 	UFUNCTION(BlueprintCallable)
 	void AddPathActor(AGameplayPathActor* PathActor);
 
