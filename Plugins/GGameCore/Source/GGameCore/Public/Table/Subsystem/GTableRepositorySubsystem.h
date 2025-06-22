@@ -9,6 +9,7 @@
 #include "GTableRepositorySubsystem.generated.h"
 
 class UGTableSubsystem;
+class UGContext;
 struct FLatentActionInfo;
 struct FSoftObjectPath;
 struct FStreamableHandle;
@@ -48,8 +49,24 @@ public:
 protected:
     void RequestTasks(TArray<FSoftObjectPath> RawAssetList, TUniqueFunction<void()> CompleteCallback);
 
+	template<typename T>
+	T* CreateContext()
+	{
+		static_assert(TPointerIsConvertibleFromTo<T, UGContext>::Value, "'T' template parameter to CreateContext must be derived from UGContext");
+		auto NewContext = NewObject<T>(this, NAME_None, RF_Public | RF_Transient);
+		if (!NewContext)
+		{
+			return nullptr;
+		}
+		ExceptionContexts.Emplace(NewContext);
+		return NewContext;
+	}
+
 private:
     TMap<int32, TSharedPtr<FStreamableHandle>> Tasks;
 	FRecyclableIdPool TaskIdPool;
+
+	UPROPERTY(Transient)
+	TArray<UGContext*> ExceptionContexts;
 
 };

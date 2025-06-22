@@ -60,9 +60,9 @@ private:
 
 	TMap<TableKey, TWeakObjectPtr<UStageMonsterContext>> MonsterContexts;
 
-	TWeakObjectPtr<UStageTowerContext> FindNormalTowerContext(int32 Kind, int32 Level) const;
-	TOptional<int32> FindNormalTowerMaxLevel(int32 Kind) const;
-	TWeakObjectPtr<UStageMonsterContext> FindNormalMonsterContext(int32 Key) const;
+	TWeakObjectPtr<UStageTowerContext> FindNormalTowerContext(int32 Kind, int32 Level);
+	TOptional<int32> FindNormalTowerMaxLevel(int32 Kind);
+	TWeakObjectPtr<UStageMonsterContext> FindNormalMonsterContext(int32 Key);
 
 };
 

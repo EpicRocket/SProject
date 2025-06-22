@@ -122,36 +122,38 @@ TFuture<FGErrorInfo> UStageTableRepository::Load(UStageTableReceipt*& Receipt, i
 		{
 			for (int32 Kind : Towers)
 			{
-				auto TowerTableRow = UGTableHelper::GetTableData<FNormalTowerTableRow>(Kind);
-				if (!TowerTableRow)
+				auto TowerTableFilter = [Kind](const FNormalTowerTableRow* Row) -> bool
 				{
-					continue;
-				}
+					return Row->Kind == Kind;
+				};
 
-				TWeakObjectPtr<UStageTowerContext> Context = NormalTowerContexts.FindOrAdd(MakeTuple(TowerTableRow->Kind, TowerTableRow->Level));
-				if (Context.IsValid())
+				for (const auto& TowerTableRow : UGTableHelper::GetTableDatas<FNormalTowerTableRow>().FilterByPredicate(TowerTableFilter))
 				{
-					Receipt->Contexts.Emplace(Context.Get());
-				}
-				else
-				{
-					auto NewContext = NewObject<UStageTowerContext>(this, NAME_None, RF_Public | RF_Transient);
-					Context = NewContext;
-					Receipt->Contexts.Emplace(Context.Get());
+					TWeakObjectPtr<UStageTowerContext> Context = NormalTowerContexts.FindOrAdd(MakeTuple(TowerTableRow->Kind, TowerTableRow->Level));
+					if (Context.IsValid())
+					{
+						Receipt->Contexts.Emplace(Context.Get());
+					}
+					else
+					{
+						auto NewContext = NewObject<UStageTowerContext>(this, NAME_None, RF_Public | RF_Transient);
+						Context = NewContext;
+						Receipt->Contexts.Emplace(Context.Get());
 
-					Context->TowerInfo.TowerType = Type;
-					Context->TowerInfo.Index = TowerTableRow->Index;
-					Context->TowerInfo.Kind = TowerTableRow->Kind;
-					Context->TowerInfo.Level = TowerTableRow->Level;
-					Context->TowerInfo.UsePoint = TowerTableRow->UsePoint;
-					Context->TowerInfo.Name = TowerTableRow->Name;
-					Context->TowerInfo.AttackType = TowerTableRow->AttackType;
-					Context->TowerInfo.UnitClassPtr = TowerTableRow->Unit;
-					RawAssetList.Emplace(TowerTableRow->Unit.ToSoftObjectPath());
-					Context->TowerInfo.IconPtr = TowerTableRow->Icon;
-					RawAssetList.Emplace(TowerTableRow->Icon.ToSoftObjectPath());
-					Context->TowerInfo.AIPtr = TowerTableRow->AI;
-					RawAssetList.Emplace(TowerTableRow->AI.ToSoftObjectPath());
+						Context->TowerInfo.TowerType = Type;
+						Context->TowerInfo.Index = TowerTableRow->Index;
+						Context->TowerInfo.Kind = TowerTableRow->Kind;
+						Context->TowerInfo.Level = TowerTableRow->Level;
+						Context->TowerInfo.UsePoint = TowerTableRow->UsePoint;
+						Context->TowerInfo.Name = TowerTableRow->Name;
+						Context->TowerInfo.AttackType = TowerTableRow->AttackType;
+						Context->TowerInfo.UnitClassPtr = TowerTableRow->Unit;
+						RawAssetList.Emplace(TowerTableRow->Unit.ToSoftObjectPath());
+						Context->TowerInfo.IconPtr = TowerTableRow->Icon;
+						RawAssetList.Emplace(TowerTableRow->Icon.ToSoftObjectPath());
+						Context->TowerInfo.AIPtr = TowerTableRow->AI;
+						RawAssetList.Emplace(TowerTableRow->AI.ToSoftObjectPath());
+					}
 				}
 			}
 		}
@@ -179,34 +181,94 @@ TFuture<FGErrorInfo> UStageTableRepository::Load(UStageTableReceipt*& Receipt, i
 	return Future;
 }
 
-TWeakObjectPtr<UStageTowerContext> UStageTableRepository::FindNormalTowerContext(int32 Kind, int32 Level) const
+TWeakObjectPtr<UStageTowerContext> UStageTableRepository::FindNormalTowerContext(int32 Kind, int32 Level)
 {
-	/*auto Iter = NormalTowerByCompositeKey.Find(MakeTuple(Kind, Level));
-	if (Iter && Iter->IsValid())
+	auto ContextIter = NormalTowerContexts.Find(MakeTuple(Kind, Level));
+	if (ContextIter && ContextIter->IsValid())
 	{
-		return *Iter;
-	}*/
-	return TWeakObjectPtr<UStageTowerContext>{};
+		return *ContextIter;
+	}
+
+	auto TowerTableFilter = [Kind, Level](const FNormalTowerTableRow* Row) -> bool
+	{
+		return Row->Kind == Kind && Row->Level == Level;
+	};
+
+	auto TableRowIter = UGTableHelper::GetTableDatas<FNormalTowerTableRow>().FindByPredicate(TowerTableFilter);
+	if (!TableRowIter)
+	{
+		GameCore::Throw(GameErr::POINTER_INVALID, FString::Printf(TEXT("TowerTableRow를 찾을 수 없습니다: Kind:%d, Level:%d"), Kind, Level));
+		return TWeakObjectPtr<UStageTowerContext>{};
+	}
+
+	auto TowerTableRow = *TableRowIter;
+
+	auto NewContext = NewObject<UStageTowerContext>(this, NAME_None, RF_Public | RF_Transient);
+	NewContext->TowerInfo.TowerType = EStageTowerType::Normal;
+	NewContext->TowerInfo.Index = TowerTableRow->Index;
+	NewContext->TowerInfo.Kind = TowerTableRow->Kind;
+	NewContext->TowerInfo.Level = TowerTableRow->Level;
+	NewContext->TowerInfo.UsePoint = TowerTableRow->UsePoint;
+	NewContext->TowerInfo.Name = TowerTableRow->Name;
+	NewContext->TowerInfo.AttackType = TowerTableRow->AttackType;
+	NewContext->TowerInfo.UnitClassPtr = TowerTableRow->Unit;
+	NewContext->TowerInfo.UnitClass = TowerTableRow->Unit.LoadSynchronous();
+	NewContext->TowerInfo.IconPtr = TowerTableRow->Icon;
+	NewContext->TowerInfo.Icon = TowerTableRow->Icon.LoadSynchronous();
+	NewContext->TowerInfo.AIPtr = TowerTableRow->AI;
+	NewContext->TowerInfo.AI = TowerTableRow->AI.LoadSynchronous();
+
+	return NewContext;
 }
 
-TOptional<int32> UStageTableRepository::FindNormalTowerMaxLevel(int32 Kind) const
+TOptional<int32> UStageTableRepository::FindNormalTowerMaxLevel(int32 Kind)
 {
-	/*auto Iter = NormalTowerMaxLevels.Find(Kind);
-	if (Iter)
+	auto TowerTableFilter = [Kind](const FNormalTowerTableRow* Row) -> bool
+		{
+			return Row->Kind == Kind;
+		};
+
+	TOptional<int32> MaxLevel = 0;
+	for (const auto& TableRow : UGTableHelper::GetTableDatas<FNormalTowerTableRow>().FilterByPredicate(TowerTableFilter))
 	{
-		return *Iter;
-	}*/
-	return TOptional<int32>{};
+		if (TableRow->Level > *MaxLevel)
+		{
+			MaxLevel = TableRow->Level;
+		}
+	}
+
+	return MaxLevel;
 }
 
-TWeakObjectPtr<UStageMonsterContext> UStageTableRepository::FindNormalMonsterContext(int32 Key) const
+TWeakObjectPtr<UStageMonsterContext> UStageTableRepository::FindNormalMonsterContext(int32 Key)
 {
-	/*auto Iter = MonsterContexts.Find(Key);
-	if (Iter && IsValid((*Iter)))
+	auto ContextIter = MonsterContexts.Find(Key);
+	if (ContextIter && ContextIter->IsValid())
 	{
-		return *Iter;
-	}*/
-	return TWeakObjectPtr<UStageMonsterContext>{};
+		return *ContextIter;
+	}
+
+	auto MonsterTableRow = UGTableHelper::GetTableData<FMonsterTableRow>(Key);
+	if (!MonsterTableRow)
+	{
+		GameCore::Throw(GameErr::POINTER_INVALID, FString::Printf(TEXT("MonsterTableRow를 찾을 수 없습니다: Key:%d"), Key));
+		return TWeakObjectPtr<UStageMonsterContext>{};
+	}
+
+	auto NewContext = NewObject<UStageMonsterContext>(this, NAME_None, RF_Public | RF_Transient);
+	NewContext->MonsterInfo.Index = MonsterTableRow->Index;
+	NewContext->MonsterInfo.Level = MonsterTableRow->Level;
+	NewContext->MonsterInfo.Grade = MonsterTableRow->Grade;
+	NewContext->MonsterInfo.Name = MonsterTableRow->Name;
+	NewContext->MonsterInfo.AttackType = MonsterTableRow->AttackType;
+	NewContext->MonsterInfo.UnitClassPtr = MonsterTableRow->Unit;
+	NewContext->MonsterInfo.UnitClass = MonsterTableRow->Unit.LoadSynchronous();
+	NewContext->MonsterInfo.IconPtr = MonsterTableRow->Icon;
+	NewContext->MonsterInfo.Icon = MonsterTableRow->Icon.LoadSynchronous();
+	NewContext->MonsterInfo.AIPtr = MonsterTableRow->AI;
+	NewContext->MonsterInfo.AI = MonsterTableRow->AI.LoadSynchronous();
+
+	return NewContext;
 }
 
 //////////////////////////////////////////////////////////////////////////
