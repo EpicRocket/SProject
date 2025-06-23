@@ -33,6 +33,9 @@ public:
 	// ~FTickableObjectBase
 
 	UFUNCTION(BlueprintCallable, Category = "Loading")
+	void SetUseLoadingScreen(bool bValue);
+
+	UFUNCTION(BlueprintCallable, Category = "Loading")
 	FString GetDebugReasonForShowingOrHidingLoadingScreen() const;
 
 	bool GetLoadingScreenDisplayStatus() const;
@@ -73,6 +76,8 @@ private:
 	void ChangePerformanceSettings(bool bEnabingLoadingScreen);
 
 private:
+	bool bUseLoadingScreen = false;
+
 	// Loading Screen Widget Reference
 	TSharedPtr<SWidget> LoadingScreenWidgetPtr;
 	TWeakObjectPtr<UGLoadingWidget> LoadingScreenWidget;

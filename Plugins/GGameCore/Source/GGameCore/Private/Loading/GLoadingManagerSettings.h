@@ -32,16 +32,16 @@ public:
 	float LogLoadingScreenHeartbeatInterval = 5.0f;
 
 	UPROPERTY(Config, EditDefaultsOnly, Category = "Loading")
-	bool ForceTickLoadingScreenEvenInEditor = true;
+	bool bForceTickLoadingScreenEvenInEditor = true;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Loading", meta = (ConsoleVariable = "GLoading.LogLoadingScreenReasonEveryFrame"))
-	bool LogLoadingScreenReasonEveryFrame = 0;
+	bool bLogLoadingScreenReasonEveryFrame = true;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Loading", meta = (ConsoleVariable = "GLoading.AlwaysShow"))
-	bool ForceLoadingScreenVisible = false;
+	bool bForceLoadingScreenVisible = false;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Loading")
-	bool HoldLoadingScreenAdditionalSecsEvenInEditor = false;
+	bool bHoldLoadingScreenAdditionalSecsEvenInEditor = false;
 
 	UPROPERTY(Config, EditDefaultsOnly, Category = "Transition", meta = (MetaClass = "/Script/GGameCore.GLoadingWidget"))
 	FSoftClassPath TransitionScreenWidget;
