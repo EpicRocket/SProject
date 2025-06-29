@@ -57,8 +57,11 @@ public:
 	FGErrorInfo NextWave();
 
 	UFUNCTION(BlueprintCallable)
-	TArray<FStageWaveGroupInfo> GetWaveGroupInfo();
+	TArray<FStageWaveGroupInfo> GetWaveGroupInfos();
 
 	UFUNCTION(BlueprintCallable)
 	TArray<FMonsterGroupTableRow> GetCurrentMonsterGroupInfo();
+
+	UFUNCTION(BlueprintCallable)
+	TArray<FMonsterGroupTableRow> GetMonsterGroupInfos(int32 MonsterGroup);
 };

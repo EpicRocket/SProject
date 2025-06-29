@@ -86,6 +86,7 @@ TFuture<FGErrorInfo> UStageTableRepository::Load(UStageTableReceipt*& Receipt, i
 			WaveGroupInfo.Index = WaveTableRow->Index;
 			WaveGroupInfo.MonsterGroup = WaveTableRow->MonsterGroup;
 			WaveGroupInfo.Type = WaveTableRow->Type;
+			WaveGroupInfo.DelayTime = WaveTableRow->DelayTime;
 			StageWaveGroup.Add(WaveGroupInfo);
 			UE_LOG(LogStage, Log, TEXT("Stage Wave Row 있음 : %d"), WaveTableRow->Index);
 

@@ -20,5 +20,8 @@ struct MY_API FStageWaveGroupInfo
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 MonsterGroup = INDEX_NONE;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 DelayTime = INDEX_NONE;
 	
 };

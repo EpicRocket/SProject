@@ -51,7 +51,7 @@ FGErrorInfo UStageWaveComponent::NextWave()
 	return FGErrorInfo();
 }
 
-TArray<FStageWaveGroupInfo> UStageWaveComponent::GetWaveGroupInfo()
+TArray<FStageWaveGroupInfo> UStageWaveComponent::GetWaveGroupInfos()
 {
 	return WaveGroupInfo;
 }
@@ -60,5 +60,12 @@ TArray<FMonsterGroupTableRow> UStageWaveComponent::GetCurrentMonsterGroupInfo()
 {
 	TArray<FMonsterGroupTableRow> Info;
 	UStageTableHelper::GetMonsterGroupInfo(this, WaveGroupInfo[CurrentWaveIndex].MonsterGroup, Info);
+	return Info;
+}
+
+TArray<FMonsterGroupTableRow> UStageWaveComponent::GetMonsterGroupInfos(int32 MonsterGroup)
+{
+	TArray<FMonsterGroupTableRow> Info;
+	UStageTableHelper::GetMonsterGroupInfo(this, MonsterGroup, Info);
 	return Info;
 }
