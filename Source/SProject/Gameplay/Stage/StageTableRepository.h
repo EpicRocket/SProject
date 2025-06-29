@@ -24,8 +24,8 @@ class UStageTowerContext;
 struct FStageMonsterInfo;
 class UStageMonsterContext;
 
+struct FStageMonsterGroupDetail;
 struct FStageMonsterGroupInfo;
-
 struct FStageWaveGroupInfo;
 
 UCLASS()
@@ -54,16 +54,19 @@ private:
 	using TableKey = int32;
 	using KindType = int32;
 	using LevelType = int32;
+	using MonsterGroupType = int32;
 
 	using TowerKeyType = TTuple<KindType, LevelType>;
 	TMap<TowerKeyType, TWeakObjectPtr<UStageTowerContext>> NormalTowerContexts;
 
 	TMap<TableKey, TWeakObjectPtr<UStageMonsterContext>> MonsterContexts;
 
+	TArray<FStageWaveGroupInfo> StageWaveGroup;
+	TMap<MonsterGroupType, TArray<FMonsterGroupTableRow>> StageMonsterGroup;
+
 	TWeakObjectPtr<UStageTowerContext> FindNormalTowerContext(int32 Kind, int32 Level);
 	TOptional<int32> FindNormalTowerMaxLevel(int32 Kind);
 	TWeakObjectPtr<UStageMonsterContext> FindNormalMonsterContext(int32 Key);
-
 };
 
 UCLASS()

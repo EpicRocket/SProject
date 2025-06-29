@@ -62,6 +62,10 @@ TFuture<FGErrorInfo> UStageTableRepository::Load(UStageTableReceipt*& Receipt, i
 	// Streamable List
 	TSet<FSoftObjectPath> RawAssetList;
 
+	// Stage 정보 초기화
+	StageWaveGroup.Empty();
+	StageMonsterGroup.Empty();
+
 	if (auto Stage = UGTableHelper::GetTableData<FStageTableRow>(StageLevel))
 	{
 		int32 WaveGroup = Stage->WaveGroup;
@@ -75,12 +79,23 @@ TFuture<FGErrorInfo> UStageTableRepository::Load(UStageTableReceipt*& Receipt, i
 			int32 MonsterGroup = WaveTableRow->MonsterGroup;
 			auto MonsterGroupFilter = [MonsterGroup](const FMonsterGroupTableRow* Row) -> bool
 				{
-					return Row->Index == MonsterGroup;
+					return Row->Group == MonsterGroup;
 				};
+
+			FStageWaveGroupInfo WaveGroupInfo;
+			WaveGroupInfo.Index = WaveTableRow->Index;
+			WaveGroupInfo.MonsterGroup = WaveTableRow->MonsterGroup;
+			WaveGroupInfo.Type = WaveTableRow->Type;
+			StageWaveGroup.Add(WaveGroupInfo);
+			UE_LOG(LogStage, Log, TEXT("Stage Wave Row 있음 : %d"), WaveTableRow->Index);
 
 			// NOTE. 몬스터 데이터 추가
 			for (auto& MonsterGroupTableRow : UGTableHelper::GetTableDatas<FMonsterGroupTableRow>().FilterByPredicate(MonsterGroupFilter))
 			{
+				auto& MonsterGroupInfos = StageMonsterGroup.FindOrAdd(WaveTableRow->MonsterGroup);
+				UE_LOG(LogStage, Log, TEXT("Monster group row 있음 : %d"), MonsterGroupTableRow->Index);
+				MonsterGroupInfos.Add(*MonsterGroupTableRow);
+
 				auto MonsterTableRow = UGTableHelper::GetTableData<FMonsterTableRow>(MonsterGroupTableRow->MonsterKind);
 				if (!MonsterTableRow)
 				{
@@ -465,46 +480,34 @@ FGErrorInfo UStageTableHelper::GetStageMonsterBaseStats(const UObject* WorldCont
 
 FGErrorInfo UStageTableHelper::GetWaveGroupInfo(const UObject* WorldContextObject, int32 WaveGroup, TArray<FStageWaveGroupInfo>& Result)
 {
-	/*auto Repository = UStageTableRepository::Get();
-	check(Repository);*/
-
-	/*TArray<TSharedPtr<FStageWaveGroupInfo>>* WaveGroupInfo = Repository->FindWaveGroupInfo(WaveGroup);
-
-	if (!WaveGroupInfo)
+	auto Repository = UStageTableRepository::Get(WorldContextObject);
+	if (!Repository)
 	{
-		return GameCore::Throw(GameErr::POINTER_INVALID, FString::Printf(TEXT("FStageWaveGroup find WaveGroupInfo %d"), WaveGroup));
+		return GameCore::Throw(GameErr::SUBSYSTEM_INVALID);
 	}
 
-	Result.Empty();
-	for (const auto& Info : *WaveGroupInfo) {
-		if (Info.IsValid())
-		{
-			Result.Add(*Info);
-		}
-	}*/
-
+	Result = Repository->StageWaveGroup;
 	return GameCore::Pass();
 }
 
 FGErrorInfo UStageTableHelper::GetMonsterGroupInfo(const UObject* WorldContextObject, int32 MonsterGroup, TArray<FMonsterGroupTableRow>& Result)
 {
-	/*auto Repository = UStageTableRepository::Get();
-	check(Repository);*/
-
-	/*TArray<TSharedPtr<FMonsterGroupTableRow>>* MonsterGroupInfo = Repository->FindMonsterGroupInfo(MonsterGroup);
-
-	if (!MonsterGroupInfo)
+	auto Repository = UStageTableRepository::Get(WorldContextObject);
+	if (!Repository)
 	{
-		return GameCore::Throw(GameErr::POINTER_INVALID, FString::Printf(TEXT("FStageMonsterGroupInfo find MonsterGroupInfo %d"), MonsterGroup));
+		return GameCore::Throw(GameErr::SUBSYSTEM_INVALID);
 	}
 
-	Result.Empty();
-	for (const auto& Info : *MonsterGroupInfo) {
-		if (Info.IsValid())
-		{
-			Result.Add(*Info);
-		}
-	}*/
+	Result.Reset();
+	if (const TArray<FMonsterGroupTableRow>* Found = Repository->StageMonsterGroup.Find(MonsterGroup))
+	{
+		Result.Append(*Found);
+	}
+	else
+	{
+		// 에러 바꾸기
+		return GameCore::Throw(GameErr::SUBSYSTEM_INVALID);
+	}
 
 	return FGErrorInfo();
 }
