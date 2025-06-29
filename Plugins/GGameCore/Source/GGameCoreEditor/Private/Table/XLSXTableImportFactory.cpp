@@ -399,9 +399,9 @@ FString UXLSXTableImportFactory::ConvertXLSXToJsonString(const FString& Filename
 
 		for (auto& Row : SheetData.Rows)
 		{
-			for (int32 Index : DeleteRows)
+			for (auto Iter = DeleteRows.rbegin(); Iter != DeleteRows.rend(); ++Iter)
 			{
-				Row.RemoveAt(Index);
+				Row.RemoveAt(*Iter);
 			}
 		}
 	}
