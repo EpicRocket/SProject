@@ -12,8 +12,6 @@
 
 void AStageTowerUnit::OnInit()
 {
-	EObjectFlags Flags = RF_Transient | RF_Public;
-	TowerInfoContext = NewObject<UStageTowerContext>(this, NAME_None, Flags);
 }
 
 void AStageTowerUnit::OnInitBaseStats()
@@ -44,11 +42,8 @@ void AStageTowerUnit::OnInitBaseStats()
 
 void AStageTowerUnit::Setup(FStageTowerInfo NewTowerInfo)
 {
-	if (!IsValid(TowerInfoContext))
-	{
-		return;
-	}
-
+	EObjectFlags Flags = RF_Transient | RF_Public;
+	TowerInfoContext = NewObject<UStageTowerContext>(this, NAME_None, Flags);
 	TowerInfoContext->TowerInfo = NewTowerInfo;
 }
 

@@ -210,7 +210,8 @@ TWeakObjectPtr<UStageTowerContext> UStageTableRepository::FindNormalTowerContext
 		return Row->Kind == Kind && Row->Level == Level;
 	};
 
-	auto TableRowIter = UGTableHelper::GetTableDatas<FNormalTowerTableRow>().FindByPredicate(TowerTableFilter);
+	auto Rows = UGTableHelper::GetTableDatas<FNormalTowerTableRow>();
+	auto TableRowIter = Rows.FindByPredicate(TowerTableFilter);
 	if (!TableRowIter)
 	{
 		GameCore::Throw(GameErr::POINTER_INVALID, FString::Printf(TEXT("TowerTableRow를 찾을 수 없습니다: Kind:%d, Level:%d"), Kind, Level));
@@ -401,7 +402,7 @@ FGErrorInfo UStageTableHelper::GetStageTowerBaseStats(const UObject* WorldContex
 		auto Context = Repository->FindNormalTowerContext(Kind, Level);
 		if (!Context.IsValid())
 		{
-			return GameCore::Throw(GameErr::POINTER_INVALID, FString::Printf(TEXT("데이터를 찾을 수 없습니다: TowerType:%s, Kind:%s, Level:%s"), *UEnum::GetValueAsString(TowerType), Kind, Level));
+			return GameCore::Throw(GameErr::POINTER_INVALID, FString::Printf(TEXT("데이터를 찾을 수 없습니다: TowerType:%s, Kind:%d, Level:%d"), *UEnum::GetValueAsString(TowerType), Kind, Level));
 		}
 
 		auto TowerRow = UGTableHelper::GetTableData<FNormalTowerTableRow>(Context->TowerInfo.Index);

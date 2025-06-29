@@ -74,8 +74,8 @@ public:
 
 	void Load(FTower LoadedTowerData);
 
-	UFUNCTION(BlueprintPure, meta = (DisplayName = "GetTowerInfo", ReturnDisplayName = "Error"))
-	FGErrorInfo K2_GetTowerReceipt(FStageTowerReceipt& Receipt);
+	UFUNCTION(BlueprintPure, meta = (ReturnDisplayName = "Error"))
+	FGErrorInfo GetTowerReceipt(FStageTowerReceipt& Receipt);
 
 	UFUNCTION(BlueprintCallable)
 	FGErrorInfo RequestBuildTower(const FStageTowerInfo& BuildStageTower);

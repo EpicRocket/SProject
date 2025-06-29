@@ -50,7 +50,7 @@ void AStageBuildZone::Load(FTower LoadedTowerData)
 
 }
 
-FGErrorInfo AStageBuildZone::K2_GetTowerReceipt(FStageTowerReceipt& Receipt)
+FGErrorInfo AStageBuildZone::GetTowerReceipt(FStageTowerReceipt& Receipt)
 {
 	// NOTE. 타워가 이미 스폰되어 있을 경우
 	if (SpawnedTower.IsValid())
