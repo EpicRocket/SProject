@@ -32,10 +32,10 @@ public:
 	virtual UWorld* GetTickableGameObjectWorld() const override;
 	// ~FTickableObjectBase
 
-	UFUNCTION(BlueprintCallable, Category = "Loading")
+	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "Loading")
 	void SetUseLoadingScreen(bool bValue);
 
-	UFUNCTION(BlueprintCallable, Category = "Loading")
+	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "Loading")
 	FString GetDebugReasonForShowingOrHidingLoadingScreen() const;
 
 	bool GetLoadingScreenDisplayStatus() const;
@@ -44,11 +44,14 @@ public:
 
 	void UnregisterLoadingProcessor(TScriptInterface<IGLoadingProcess> Interface);
 
-	UFUNCTION(BlueprintCallable, Category = "Transition")
+	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "Transition")
 	void BeginTransition(FOnDynamicLoadingWidgetAnimationDelegate BeginEvent, FOnDynamicLoadingWidgetAnimationDelegate EndEvent);
 
-	UFUNCTION(BlueprintCallable, Category = "Transition")
+	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "Transition")
 	void EndTransition();
+
+	UFUNCTION(BlueprintPure, BlueprintCosmetic, Category = "Transition")
+	bool IsTransition() const;
 
 private:
 	// 맵 로드 전

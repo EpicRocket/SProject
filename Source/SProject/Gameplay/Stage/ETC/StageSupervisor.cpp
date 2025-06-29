@@ -81,7 +81,7 @@ void AStageSupervisor::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void AStageSupervisor::OnTableLoaded()
 {
-	auto StageStateComp = UGGameCoreBlueprintFunctionLibrary::GetGameStateComponent<UStageStateComponent>(this);
+	auto StageStateComp = UGGameCoreHelper::GetGameStateComponent<UStageStateComponent>(this);
 	if (!StageStateComp)
 	{
 		GameCore::Throw(GameErr::COMPONENT_INVALID, TEXT("StageStateComponent"));
@@ -100,4 +100,13 @@ void AStageSupervisor::OnTableLoaded()
 	}
 
 	StageStateComp->AddStageLoadFlags(EStageLoadFlags::Repository, GameCore::Pass());
+
+	if (OwnerLevel.IsValid())
+	{
+		OwnerLevel->LoadGameplayData();
+	}
+	else
+	{
+		GameCore::Throw(GameErr::POINTER_INVALID, TEXT("OwnerLevel is not valid"));
+	}
 }

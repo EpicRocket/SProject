@@ -14,24 +14,15 @@ void UStageStorageComponent::InitializeComponent()
 {
 	Super::InitializeComponent();
 
-	auto User = GetGameplayPlayer<AGameplayUserPlayer>();
-	if (!User)
-	{
-		GameCore::Throw(GameErr::ACTOR_INVALID, TEXT("[UStageStorageComponent::InitializeComponent]AGameplayUserPlayer"));
-		return;
-	}
-
-	auto StageSubsystem = UStageSubsystem::Get(User->GetOwningLocalPlayer());
+	auto StageSubsystem = UStageSubsystem::Get(GetOwningLocalPlayer());
 	if (!StageSubsystem)
 	{
 		GameCore::Throw(GameErr::SUBSYSTEM_INVALID, TEXT("[UStageStorageComponent::InitializeComponent]StageSubsystem"));
 		return;
-
 	}
 
-	auto LastStage = StageSubsystem->GetLastStage();
-	LastStageLevel = LastStage->Level;
-	Stages.Emplace(LastStage->Level, LastStage);
+	// NOTE. 첫 스테이지에 대한 정보 초기화
+	GetStage(*StageSubsystem->GetLastStageLevel());
 }
 
 FStage UStageStorageComponent::GetLastStage() const
@@ -42,4 +33,27 @@ FStage UStageStorageComponent::GetLastStage() const
 		return **Iter;
 	}
 	return FStage{};
+}
+
+FStage UStageStorageComponent::GetStage(int32 StageLevel)
+{
+	if (Stages.Contains(StageLevel))
+	{
+		LastStageLevel = StageLevel;
+		return *Stages[StageLevel];
+	}
+
+	auto StageSubsystem = UStageSubsystem::Get(GetOwningLocalPlayer());
+	if (!StageSubsystem)
+	{
+		GameCore::Throw(GameErr::SUBSYSTEM_INVALID, TEXT("[UStageStorageComponent::InitializeComponent]StageSubsystem"));
+		return FStage{};
+	}
+
+	TSharedPtr<FStage> Temp = MakeShared<FStage>();
+	*Temp = *StageSubsystem->GetStage(StageLevel);
+	LastStageLevel = StageLevel;
+	Stages.Add(StageLevel, Temp);
+
+	return *Temp;
 }

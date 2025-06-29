@@ -23,10 +23,12 @@ enum class EStageLoadFlags : uint8
 
 	World = 0x00000001,
 	Repository = 0x00000002,
+	GameplayData = 0x00000004,
 
 	All				
 	= World
 	| Repository
+	| GameplayData
 	UMETA(Hidden),
 
 	Complete = 0x000000FF UMETA(Hidden),	// 255
@@ -53,6 +55,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void AddStageLoadFlags(EStageLoadFlags Flags, FGErrorInfo Error);
+
+	UFUNCTION(BlueprintPure)
+	bool IsStageLoadFlags(EStageLoadFlags Flags) const;
 
 protected:
 	UFUNCTION(BlueprintCallable, meta = (Latent, LatentInfo = "LatentInfo"))

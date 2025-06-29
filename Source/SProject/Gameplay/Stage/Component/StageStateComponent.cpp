@@ -74,12 +74,20 @@ void UStageStateComponent::AddStageLoadFlags(EStageLoadFlags Flags, FGErrorInfo 
 		return;
 	}
 
+	UE_LOGFMT(LogStage, Log, "AddStageLoadFlags: {FlagName}", *UEnum::GetValueAsString(Flags));
+
 	StageLoadFlags |= Flags;
 	if (StageLoadFlags == EStageLoadFlags::All)
 	{
+		UE_LOGFMT(LogStage, Log, "Stage Load Complete");
 		StageLoadFlags = EStageLoadFlags::Complete;
 		OnLoadComplete();
 	}
+}
+
+bool UStageStateComponent::IsStageLoadFlags(EStageLoadFlags Flags) const
+{
+	return (StageLoadFlags & Flags) == Flags;
 }
 
 FGErrorInfo UStageStateComponent::WaitForPrimaryPlayerController(FLatentActionInfo LatentInfo)

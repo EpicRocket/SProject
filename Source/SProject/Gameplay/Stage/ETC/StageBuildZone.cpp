@@ -12,6 +12,7 @@
 #include "GMessage/Subsystem/GMessageSubsystem.h"
 #include "Error/GError.h"
 // include Project
+#include "Types/UnitTypes.h"
 #include "Table/TowerTable.h"
 #include "Gameplay/GameplayLogging.h"
 #include "Gameplay/Team/GameplayTeamSubsystem.h"
@@ -42,6 +43,11 @@ AStageBuildZone::AStageBuildZone()
 	static FName InteractionCollsionProfileName = FName(TEXT("UI"));
 	InteractionComponent->SetCollisionProfileName(InteractionCollsionProfileName);
 	RootComponent = InteractionComponent;
+}
+
+void AStageBuildZone::Load(FTower LoadedTowerData)
+{
+
 }
 
 FGErrorInfo AStageBuildZone::K2_GetTowerReceipt(FStageTowerReceipt& Receipt)

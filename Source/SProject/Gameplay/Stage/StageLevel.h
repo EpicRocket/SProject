@@ -27,6 +27,7 @@ public:
 	// ~IGLoadingProcess
 	
 	FGErrorInfo Setup(int32 InStageLevel);
+	void LoadGameplayData();
 
 	UFUNCTION(BlueprintCallable)
 	void AddBuildZone(AStageBuildZone* BuildZone);

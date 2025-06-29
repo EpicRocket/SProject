@@ -217,6 +217,11 @@ void UGLoadingManager::EndTransition()
 	bCurrentlyShowingTransitionScreen = false;
 }
 
+bool UGLoadingManager::IsTransition() const
+{
+	return bCurrentlyShowingTransitionScreen;
+}
+
 void UGLoadingManager::HandlePreLoadMap(const FWorldContext& WorldContext, const FString& MapName)
 {
 	if (WorldContext.OwningGameInstance == GetGameInstance())

@@ -21,15 +21,15 @@ struct MY_API FTower
 	int32 Level = INDEX_NONE;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 Location = INDEX_NONE;
+	int32 Position = INDEX_NONE;
 
 	bool operator==(const FTower& Other) const
 	{
-		return Tie(Key, Level, Location) == Tie(Other.Key, Other.Level, Other.Location);
+		return Tie(Key, Level, Position) == Tie(Other.Key, Other.Level, Other.Position);
 	}
 
 	bool operator<(const FTower& Other) const
 	{
-		return Tie(Key, Level, Location) < Tie(Other.Key, Other.Level, Other.Location);
+		return Tie(Key, Level, Position) < Tie(Other.Key, Other.Level, Other.Position);
 	}
 };
