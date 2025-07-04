@@ -7,8 +7,6 @@
 #include "Core/GGameCoreHelper.h"
 // include Project
 #include "StageLogging.h"
-#include "Gameplay/Stage/Component/StageStateComponent.h"
-#include "Gameplay/Stage/Component/StageStorageComponent.h"
 #include "Gameplay/Stage/ETC/StageBuildZone.h"
 #include "Gameplay/Stage/ETC/StageSpawner.h"
 #include "Gameplay/Stage/ETC/StageSupervisor.h"
@@ -62,55 +60,10 @@ FGErrorInfo AStageLevel::Setup(int32 InStageLevel)
 	{
 		FActorSpawnParameters Params;
 		Params.Owner = this;
-		Params.CustomPreSpawnInitalization = [ThisPtr = TWeakObjectPtr<AStageLevel>(this)](auto Actor) -> auto
-			{
-				AStageSupervisor* Supervisor = Cast<AStageSupervisor>(Actor);
-				if (!Supervisor)
-				{
-					UE_LOG(LogStage, Warning, TEXT("StageSupervisor 캐스트 실패"));
-					return;
-				}
-
-				Supervisor->OwnerLevel = ThisPtr;
-			};
-
 		Supervisor = World->SpawnActor<AStageSupervisor>(Params);
 	}
 
 	return GameCore::Pass();
-}
-
-void AStageLevel::LoadGameplayData()
-{
-	auto StageStateComp = UGGameCoreHelper::GetGameStateComponent<UStageStateComponent>(this);
-	if (!StageStateComp)
-	{
-		GameCore::Throw(GameErr::COMPONENT_INVALID, TEXT("StageStateComponent"));
-		return;
-	}
-
-	auto StageStorageComp = UGGameCoreHelper::GetPlayerControllerComponent<UStageStorageComponent>(StageStateComp->PrimaryPC.Get());
-	if (!StageStorageComp)
-	{
-		GameCore::Throw(GameErr::COMPONENT_INVALID, TEXT("StageStorageComponent"));
-		return;
-	}
-
-	auto Stage = StageStorageComp->GetStage(StageLevel);
-
-	for (auto& TowerData : Stage.Towers)
-	{
-		auto SelectedBuildZone = GetBuildZone(TowerData.Position);
-		if (!IsValid(SelectedBuildZone))
-		{
-			UE_LOG(LogStage, Warning, TEXT("GetBuildZone failed for Position: %d"), TowerData.Position);
-			continue;
-		}
-
-		SelectedBuildZone->Load(TowerData);
-	}
-
-	StageStateComp->AddStageLoadFlags(EStageLoadFlags::GameplayData, GameCore::Pass());
 }
 
 void AStageLevel::AddBuildZone(AStageBuildZone* BuildZone)

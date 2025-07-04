@@ -1,11 +1,10 @@
 // Copyright (c) 2025 Team EpicRocket. All rights reserved.
 
 #include "StageSupervisor.h"
-// include Engine
-#include "Components/GameFrameworkComponentManager.h"
 // include GGameCore
 #include "Core/GGameCoreHelper.h"
 // include Project
+#include "Types/StageTypes.h"
 #include "Gameplay/Stage/StageLevel.h"
 #include "Gameplay/Stage/StageLogging.h"
 #include "Gameplay/Stage/StageTableRepository.h"
@@ -13,6 +12,7 @@
 #include "Gameplay/Stage/Types/StageTowerTypes.h"
 #include "Gameplay/Stage/Types/StageMonsterTypes.h"
 #include "Gameplay/Stage/Component/StageStateComponent.h"
+#include "Gameplay/Stage/Component/StageStorageComponent.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(StageSupervisor)
 
@@ -20,21 +20,34 @@ void AStageSupervisor::BeginPlay()
 {
 	Super::BeginPlay();
 
-	UGameFrameworkComponentManager::AddGameFrameworkComponentReceiver(this);
-
+	OwnerLevel = Cast<AStageLevel>(GetOuter());
 	if (!OwnerLevel.IsValid())
 	{
-		UE_LOG(LogStage, Error, TEXT("OwnerLevel를 찾을 수 없습니다."));
+		GameCore::Throw(GameErr::WORLD_INVALID, TEXT("AStageSupervisor::BeginPlay() OwnerLevel를 찾을 수 없습니다."));
 		return;
 	}
+
+	StageStateComponent = UGGameCoreHelper::GetGameStateComponent<UStageStateComponent>(this);
+	if (!StageStateComponent.IsValid())
+	{
+		GameCore::Throw(GameErr::COMPONENT_INVALID, TEXT("AStageSupervisor::BeginPlay() StageStateComponent를 찾을 수 없습니다."));
+		return;
+	}
+
+	StageStorageComponent = UGGameCoreHelper::GetPlayerControllerComponent<UStageStorageComponent>(StageStateComponent->PrimaryPC.Get());
+	if (!StageStorageComponent.IsValid())
+	{
+		GameCore::Throw(GameErr::COMPONENT_INVALID, TEXT("AStageSupervisor::BeginPlay() StageStorageComponent를 찾을 수 없습니다."));
+		return;
+	}
+
+	StageTableReceipt = NewObject<UStageTableReceipt>(this, NAME_None, RF_Public | RF_Transient);
 
 	auto StageTableRepo = UStageTableRepository::Get(this);
 	if (!StageTableRepo)
 	{
 		return;
 	}
-	
-	StageTableReceipt = NewObject<UStageTableReceipt>(this, NAME_None, RF_Public | RF_Transient);
 
 	// NOTE. 스테이지에서 사용 할 로드 리스트 생성
 	TMap<EStageTowerType, TSet<int32>> LoadTowerList;
@@ -74,23 +87,18 @@ void AStageSupervisor::BeginPlay()
 
 void AStageSupervisor::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	UGameFrameworkComponentManager::RemoveGameFrameworkComponentReceiver(this);
-
 	Super::EndPlay(EndPlayReason);
 }
 
 void AStageSupervisor::OnTableLoaded()
 {
-	auto StageStateComp = UGGameCoreHelper::GetGameStateComponent<UStageStateComponent>(this);
-	if (!StageStateComp)
+	if (!StageStateComponent.IsValid())
 	{
-		GameCore::Throw(GameErr::COMPONENT_INVALID, TEXT("StageStateComponent"));
 		return;
 	}
 
 	if (!IsValid(StageTableReceipt))
 	{
-		GameCore::Throw(GameErr::POINTER_INVALID, TEXT("StageTableReceipt"));
 		return;
 	}
 
@@ -99,14 +107,40 @@ void AStageSupervisor::OnTableLoaded()
 		Context->Load();
 	}
 
-	StageStateComp->AddStageLoadFlags(EStageLoadFlags::Repository, GameCore::Pass());
+	StageStateComponent->AddStageLoadFlags(EStageLoadFlags::Repository, GameCore::Pass());
 
-	if (OwnerLevel.IsValid())
+	OnGameplayDataLoad();
+}
+
+void AStageSupervisor::OnGameplayDataLoad()
+{
+	if (!OwnerLevel.IsValid())
 	{
-		OwnerLevel->LoadGameplayData();
+		return;
 	}
-	else
+
+	if (!StageStateComponent.IsValid())
 	{
-		GameCore::Throw(GameErr::POINTER_INVALID, TEXT("OwnerLevel is not valid"));
+		return;
 	}
+
+	if (!StageStorageComponent.IsValid())
+	{
+		return;
+	}
+
+	auto Stage = StageStorageComponent->GetStage(OwnerLevel->StageLevel);
+
+	for (auto& TowerData : Stage.Towers)
+	{
+		auto SelectedBuildZone = OwnerLevel->GetBuildZone(TowerData.Position);
+		if (!IsValid(SelectedBuildZone))
+		{
+			continue;
+		}
+
+		SelectedBuildZone->Load(TowerData);
+	}
+
+	StageStateComponent->AddStageLoadFlags(EStageLoadFlags::GameplayData, GameCore::Pass());
 }

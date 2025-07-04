@@ -7,29 +7,35 @@
 
 #include "StageSupervisor.generated.h"
 
-class AStageLevel;
-class UStageTableReceipt;
-
 UCLASS(Blueprintable, BlueprintType, Category = "Stage", ClassGroup = "Stage")
 class MY_API AStageSupervisor : public AInfo
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
-    // Actor
+	// Actor
 protected:
-    virtual void BeginPlay() override;
-    virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
-    // ~Actor
+	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+	// ~Actor
 
 private:
-    UFUNCTION()
-    void OnTableLoaded();
+	UFUNCTION()
+	void OnTableLoaded();
+
+	void OnGameplayDataLoad();
 
 public:
-    UPROPERTY(BlueprintReadOnly)
-    TWeakObjectPtr<AStageLevel> OwnerLevel;
+	UPROPERTY(Transient, BlueprintReadOnly)
+	TWeakObjectPtr<class AStageLevel> OwnerLevel;
+
+	UPROPERTY(Transient, BlueprintReadOnly)
+	TWeakObjectPtr<class UStageStateComponent> StageStateComponent;
+
+	UPROPERTY(Transient, BlueprintReadOnly)
+	TWeakObjectPtr<class UStageStorageComponent> StageStorageComponent;
 
 private:
-    UPROPERTY()
-	UStageTableReceipt* StageTableReceipt = nullptr;
+	UPROPERTY(Transient)
+	class UStageTableReceipt* StageTableReceipt = nullptr;
+
 };
