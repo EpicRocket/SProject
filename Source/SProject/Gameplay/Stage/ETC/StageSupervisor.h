@@ -9,6 +9,8 @@
 
 struct FStage;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnUserStatusChanged, int32, OldValue, int32, NewValue);
+
 UCLASS(Blueprintable, BlueprintType, Category = "Stage", ClassGroup = "Stage")
 class MY_API AStageSupervisor : public AInfo
 {
@@ -21,7 +23,17 @@ protected:
 	// ~Actor
 
 public:
+	UFUNCTION(BlueprintCallable)
+	void SetHp(int32 NewValue);
 
+	UFUNCTION(BlueprintPure)
+	int32 GetHp() const;
+
+	UFUNCTION(BlueprintCallable)
+	void SetUsePoint(int32 NewValue);
+
+	UFUNCTION(BlueprintPure)
+	int32 GetUsePoint() const;
 
 private:
 	UFUNCTION()
@@ -39,9 +51,16 @@ public:
 	UPROPERTY(Transient, BlueprintReadOnly)
 	TWeakObjectPtr<class UStageStorageComponent> StageStorageComponent;
 
+	UPROPERTY(BlueprintAssignable)
+	FOnUserStatusChanged OnHpChanged;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnUserStatusChanged OnUsePointChanged;
+
 private:
 	UPROPERTY(Transient)
 	class UStageTableReceipt* StageTableReceipt = nullptr;
 
 	TWeakPtr<FStage> Stage;
+
 };

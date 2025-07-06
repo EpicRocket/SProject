@@ -90,6 +90,46 @@ void AStageSupervisor::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 }
 
+void AStageSupervisor::SetHp(int32 NewValue)
+{
+	if (Stage.IsValid())
+	{
+		return;
+	}
+	int32 OldValue = Stage.Pin()->Hp;
+	Stage.Pin()->Hp = NewValue;
+	OnHpChanged.Broadcast(OldValue, NewValue);
+}
+
+int32 AStageSupervisor::GetHp() const
+{
+	if (!Stage.IsValid())
+	{
+		return 0;
+	}
+	return Stage.Pin()->Hp;
+}
+
+void AStageSupervisor::SetUsePoint(int32 NewValue)
+{
+	if (!Stage.IsValid())
+	{
+		return;
+	}
+	int32 OldValue = Stage.Pin()->UsePoint;
+	Stage.Pin()->UsePoint = NewValue;
+	OnUsePointChanged.Broadcast(OldValue, NewValue);
+}
+
+int32 AStageSupervisor::GetUsePoint() const
+{
+	if (!Stage.IsValid())
+	{
+		return 0;
+	}
+	return Stage.Pin()->UsePoint;
+}
+
 void AStageSupervisor::OnTableLoaded()
 {
 	if (!StageStateComponent.IsValid())
