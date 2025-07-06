@@ -7,6 +7,8 @@
 
 #include "StageSupervisor.generated.h"
 
+struct FStage;
+
 UCLASS(Blueprintable, BlueprintType, Category = "Stage", ClassGroup = "Stage")
 class MY_API AStageSupervisor : public AInfo
 {
@@ -17,6 +19,9 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	// ~Actor
+
+public:
+
 
 private:
 	UFUNCTION()
@@ -38,4 +43,5 @@ private:
 	UPROPERTY(Transient)
 	class UStageTableReceipt* StageTableReceipt = nullptr;
 
+	TWeakPtr<FStage> Stage;
 };

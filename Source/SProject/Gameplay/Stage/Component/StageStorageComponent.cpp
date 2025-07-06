@@ -25,29 +25,24 @@ void UStageStorageComponent::InitializeComponent()
 	GetStage(*StageSubsystem->GetLastStageLevel());
 }
 
-FStage UStageStorageComponent::GetLastStage() const
+int32 UStageStorageComponent::GetLastStageLevel() const
 {
-	auto Iter = Stages.Find(LastStageLevel);
-	if (Iter)
-	{
-		return **Iter;
-	}
-	return FStage{};
+	return LastStageLevel;
 }
 
-FStage UStageStorageComponent::GetStage(int32 StageLevel)
+TSharedPtr<FStage> UStageStorageComponent::GetStage(int32 StageLevel) const
 {
 	if (Stages.Contains(StageLevel))
 	{
 		LastStageLevel = StageLevel;
-		return *Stages[StageLevel];
+		return Stages[StageLevel];
 	}
 
 	auto StageSubsystem = UStageSubsystem::Get(GetOwningLocalPlayer());
 	if (!StageSubsystem)
 	{
 		GameCore::Throw(GameErr::SUBSYSTEM_INVALID, TEXT("[UStageStorageComponent::InitializeComponent]StageSubsystem"));
-		return FStage{};
+		return TSharedPtr<FStage>{};
 	}
 
 	TSharedPtr<FStage> Temp = MakeShared<FStage>();
@@ -55,5 +50,5 @@ FStage UStageStorageComponent::GetStage(int32 StageLevel)
 	LastStageLevel = StageLevel;
 	Stages.Add(StageLevel, Temp);
 
-	return *Temp;
+	return Temp;
 }

@@ -20,7 +20,7 @@ void AStageSupervisor::BeginPlay()
 {
 	Super::BeginPlay();
 
-	OwnerLevel = Cast<AStageLevel>(GetOuter());
+	OwnerLevel = Cast<AStageLevel>(GetOwner());
 	if (!OwnerLevel.IsValid())
 	{
 		GameCore::Throw(GameErr::WORLD_INVALID, TEXT("AStageSupervisor::BeginPlay() OwnerLevel를 찾을 수 없습니다."));
@@ -129,9 +129,13 @@ void AStageSupervisor::OnGameplayDataLoad()
 		return;
 	}
 
-	auto Stage = StageStorageComponent->GetStage(OwnerLevel->StageLevel);
+	Stage = StageStorageComponent->GetStage(OwnerLevel->StageLevel);
+	if (!Stage.IsValid())
+	{
+		return;
+	}
 
-	for (auto& TowerData : Stage.Towers)
+	for (auto& TowerData : Stage.Pin()->Towers)
 	{
 		auto SelectedBuildZone = OwnerLevel->GetBuildZone(TowerData.Position);
 		if (!IsValid(SelectedBuildZone))

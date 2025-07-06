@@ -46,23 +46,23 @@ bool UStageStateComponent::ShouldShowLoadingScreen(FString& OutReason) const
 	return false;
 }
 
-FGErrorInfo UStageStateComponent::LoadStage(const FStage& Stage)
+FGErrorInfo UStageStateComponent::LoadStage(int32 StageLevel)
 {
-	auto Row = UGTableHelper::GetTableData<FStageTableRow>(Stage.Level);
+	auto Row = UGTableHelper::GetTableData<FStageTableRow>(StageLevel);
 	if (!Row)
 	{
-		return GameCore::Throw(GameErr::POINTER_INVALID, FString::Printf(TEXT("FStageTableRow find Level %d"), Stage.Level));
+		return GameCore::Throw(GameErr::POINTER_INVALID, FString::Printf(TEXT("FStageTableRow find Level %d"), StageLevel));
 	}
 
 	TSoftObjectPtr<UWorld> Map = Row->Map;
 	if (Map.IsNull())
 	{
-		return GameCore::Throw(GameErr::POINTER_INVALID, FString::Printf(TEXT("Map is empty: Level:%d"), Stage.Level));
+		return GameCore::Throw(GameErr::POINTER_INVALID, FString::Printf(TEXT("Map is empty: Level:%d"), StageLevel));
 	}
 
 	StageLoadFlags = EStageLoadFlags::None;
 
-	OnLoadStage(Stage, Map);
+	OnLoadStage(StageLevel, Map);
 	return GameCore::Pass();
 }
 
@@ -124,16 +124,16 @@ FGErrorInfo UStageStateComponent::WaitForPrimaryPlayerController(FLatentActionIn
 	return ErrorInfo;
 }
 
-FGErrorInfo UStageStateComponent::SetStageLevel(const FStage& Stage, AGameplayLevel* GameplayLevel)
+FGErrorInfo UStageStateComponent::SetStageLevel(int32 StageLevel, AGameplayLevel* GameplayLevel)
 {
-	auto StageLevel = Cast<AStageLevel>(GameplayLevel);
-	if (!StageLevel)
+	auto SelectedStageLevel = Cast<AStageLevel>(GameplayLevel);
+	if (!SelectedStageLevel)
 	{
 		return GameCore::Throw(GameErr::POINTER_INVALID, FString::Printf(TEXT("GameplayLevel is not AStageLevel: %s"), *GameplayLevel->GetName()));
 	}
-	TargetStage = StageLevel;
+	TargetStage = SelectedStageLevel;
 
-	PrimaryPC->Possess(StageLevel->GetPlayerPawn());
+	PrimaryPC->Possess(SelectedStageLevel->GetPlayerPawn());
 
-	return StageLevel->Setup(Stage.Level);
+	return SelectedStageLevel->Setup(StageLevel);
 }

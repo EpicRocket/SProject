@@ -51,7 +51,7 @@ public:
 	// ~IGLoadingProcess
 
 	UFUNCTION(BlueprintCallable)
-	FGErrorInfo LoadStage(const FStage& Stage);
+	FGErrorInfo LoadStage(int32 StageLevel);
 
 	UFUNCTION(BlueprintCallable)
 	void AddStageLoadFlags(EStageLoadFlags Flags, FGErrorInfo Error);
@@ -64,10 +64,10 @@ protected:
 	FGErrorInfo WaitForPrimaryPlayerController(FLatentActionInfo LatentInfo);
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void OnLoadStage(const FStage& Stage, const TSoftObjectPtr<class UWorld>& Level);
+	void OnLoadStage(int32 StageLevel, const TSoftObjectPtr<class UWorld>& Level);
 
 	UFUNCTION(BlueprintCallable)
-	FGErrorInfo SetStageLevel(const FStage& Stage, AGameplayLevel* GameplayLevel);
+	FGErrorInfo SetStageLevel(int32 StageLevel, AGameplayLevel* GameplayLevel);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnLoadComplete();
