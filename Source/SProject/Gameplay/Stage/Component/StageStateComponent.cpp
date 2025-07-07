@@ -135,5 +135,5 @@ FGErrorInfo UStageStateComponent::SetStageLevel(int32 StageLevel, AGameplayLevel
 
 	PrimaryPC->Possess(SelectedStageLevel->GetPlayerPawn());
 
-	return SelectedStageLevel->Setup(StageLevel);
+	return SelectedStageLevel->Setup(StageLevel, StageSupervisorClass);
 }

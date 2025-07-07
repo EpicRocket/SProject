@@ -47,20 +47,25 @@ bool AStageLevel::ShouldShowLoadingScreen(FString& OutReason) const
 	return false;
 }
 
-FGErrorInfo AStageLevel::Setup(int32 InStageLevel)
+FGErrorInfo AStageLevel::Setup(int32 InStageLevel, TSubclassOf<AStageSupervisor> InSupervisorClass)
 {
 	StageLevel = InStageLevel;
 
 	auto World = GetWorld();
 	if (!World)
 	{
-		return GameCore::Throw(GameErr::WORLD_INVALID, FString::Printf(TEXT("%s:World is null"), *GetName()));
+		return GameCore::Throw(GameErr::WORLD_INVALID, FString::Printf(TEXT("AStageLevel::Setup(InStageLevel: %d, InSupervisorClass: %s):월드를 찾을 수 없습니다."), InStageLevel, InSupervisorClass ? TEXT("Exist") : TEXT("NotExist")));
+	}
+
+	if (!InSupervisorClass)
+	{
+		return GameCore::Throw(GameErr::POINTER_INVALID, FString::Printf(TEXT("AStageLevel::Setup(InStageLevel: %d, InSupervisorClass: %s):SupervisorClass를 찾을 수 없습니다."), InStageLevel, InSupervisorClass ? TEXT("Exist") : TEXT("NotExist")));
 	}
 
 	{
 		FActorSpawnParameters Params;
 		Params.Owner = this;
-		Supervisor = World->SpawnActor<AStageSupervisor>(Params);
+		Supervisor = World->SpawnActor<AStageSupervisor>(InSupervisorClass, Params);
 	}
 
 	return GameCore::Pass();

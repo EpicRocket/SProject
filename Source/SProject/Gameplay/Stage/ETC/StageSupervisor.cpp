@@ -3,8 +3,11 @@
 #include "StageSupervisor.h"
 // include GGameCore
 #include "Core/GGameCoreHelper.h"
+#include "Table/GTableHelper.h"
 // include Project
 #include "Types/StageTypes.h"
+#include "Table/ConstTable.h"
+#include "Table/StageTable.h"
 #include "Gameplay/Stage/StageLevel.h"
 #include "Gameplay/Stage/StageLogging.h"
 #include "Gameplay/Stage/StageTableRepository.h"
@@ -130,6 +133,98 @@ int32 AStageSupervisor::GetUsePoint() const
 	return Stage.Pin()->UsePoint;
 }
 
+void AStageSupervisor::StartStage()
+{
+	if (!Stage.IsValid())
+	{
+		// TODO: 에러... 스테이지에 대한 정보를 찾지 못한거라서 로그인 페이지로 돌아가게 하던가 돌아갈 수 있는 스테이지가 있으면 거기로 이동 시켜줘야 할듯함...
+		return;
+	}
+
+	auto StageRef = Stage.Pin().ToSharedRef();
+	auto Flags = static_cast<EStageFlags>(StageRef->Flags);
+
+	// NOTE. 상태가 없다면 신규 상태로 만든다.
+	if (Flags == EStageFlags::None)
+	{
+		EnumAddFlags(Flags, EStageFlags::New);
+	}
+
+	bool bComplated = EnumHasAnyFlags(Flags, EStageFlags::Completed);
+	auto Result = [&Flags, bComplated](EStageFlags Target)
+		{
+			Flags = Target;
+			if (bComplated)
+			{
+				EnumAddFlags(Flags, EStageFlags::Completed);
+			}
+		};
+
+	if (EnumHasAnyFlags(Flags, EStageFlags::New))
+	{
+		Result(EStageFlags::New);
+		StageRef->Flags = static_cast<uint8>(Flags);
+		OnNewStage();
+	}
+	else if (EnumHasAnyFlags(Flags, EStageFlags::Defeat))
+	{
+		Result(EStageFlags::Defeat);
+		StageRef->Flags = static_cast<uint8>(Flags);
+		OnDefeatStage();
+	}
+	else if (EnumHasAnyFlags(Flags, EStageFlags::Clear))
+	{
+		Result(EStageFlags::Clear);
+		StageRef->Flags = static_cast<uint8>(Flags);
+		OnClearStage();
+	}
+	else if (bComplated)
+	{
+		// NOTE. 완료 한 스테이지 이지만 선택 된 경우
+		StageRef->Flags = static_cast<uint8>(EStageFlags::Completed);
+		OnCompletedStage();
+	}
+	else
+	{
+		Result(EStageFlags::Playing);
+		StageRef->Flags = static_cast<uint8>(Flags);
+		OnPlayingStage();
+	}
+}
+
+void AStageSupervisor::ResetStageData()
+{
+	if (!Stage.IsValid())
+	{
+		return;
+	}
+
+	if (!StageStorageComponent.IsValid())
+	{
+		return;
+	}
+
+	auto StageRef = Stage.Pin().ToSharedRef();
+	auto StageTableRow = UGTableHelper::GetTableData<FStageTableRow>(StageRef->Level);
+	if (!StageTableRow)
+	{
+		return;
+	}
+
+	// NOTE. New 플래그 제거
+	auto Flags = static_cast<EStageFlags>(StageRef->Flags);
+	EnumRemoveFlags(Flags, EStageFlags::New);
+	StageRef->Flags = static_cast<uint8>(Flags);
+
+	StageRef->Wave = 0;
+	StageRef->Towers.Empty();
+	StageRef->Hp = GetDefault<UConstSettings>()->UserHp;
+	StageRef->UsePoint = StageTableRow->UsePoint;
+
+	StageStorageComponent->SetStage(*StageRef);
+	OnGameplayDataReload();
+}
+
 void AStageSupervisor::OnTableLoaded()
 {
 	if (!StageStateComponent.IsValid())
@@ -175,6 +270,11 @@ void AStageSupervisor::OnGameplayDataLoad()
 		return;
 	}
 
+	for (auto BuildZone : OwnerLevel->GetBuildZones())
+	{
+		BuildZone->Reset();
+	}
+
 	for (auto& TowerData : Stage.Pin()->Towers)
 	{
 		auto SelectedBuildZone = OwnerLevel->GetBuildZone(TowerData.Position);
@@ -187,4 +287,22 @@ void AStageSupervisor::OnGameplayDataLoad()
 	}
 
 	StageStateComponent->AddStageLoadFlags(EStageLoadFlags::GameplayData, GameCore::Pass());
+}
+
+void AStageSupervisor::OnGameplayDataReload()
+{
+	if (!OwnerLevel.IsValid())
+	{
+		return;
+	}
+
+	if (!StageStateComponent.IsValid())
+	{
+		return;
+	}
+
+	for (auto BuildZone : OwnerLevel->GetBuildZones())
+	{
+		BuildZone->Reset();
+	}
 }

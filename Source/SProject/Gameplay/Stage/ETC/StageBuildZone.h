@@ -72,6 +72,8 @@ class MY_API AStageBuildZone : public AGameplayTeamActor, public IGameplayActorT
 public:
 	AStageBuildZone();
 
+	void Reset();
+
 	void Load(FTower LoadedTowerData);
 
 	UFUNCTION(BlueprintPure, meta = (ReturnDisplayName = "Error"))

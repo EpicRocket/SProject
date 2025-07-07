@@ -26,7 +26,7 @@ public:
 	virtual bool ShouldShowLoadingScreen(FString& OutReason) const override;
 	// ~IGLoadingProcess
 	
-	FGErrorInfo Setup(int32 InStageLevel);
+	FGErrorInfo Setup(int32 InStageLevel, TSubclassOf<AStageSupervisor> InSupervisorClass);
 
 	UFUNCTION(BlueprintCallable)
 	void AddBuildZone(AStageBuildZone* BuildZone);
@@ -66,7 +66,7 @@ protected:
 
 public:
 	UPROPERTY(Transient, BlueprintReadOnly)
-	TObjectPtr<AStageSupervisor> Supervisor;
+	AStageSupervisor* Supervisor;
 
 	TMap<int32, TWeakObjectPtr<AGameplayPathActor>> PathActors;
 

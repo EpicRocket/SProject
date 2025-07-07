@@ -11,7 +11,7 @@ struct FStage;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnUserStatusChanged, int32, OldValue, int32, NewValue);
 
-UCLASS(Blueprintable, BlueprintType, Category = "Stage", ClassGroup = "Stage")
+UCLASS(Abstract, Blueprintable, BlueprintType, Category = "Stage", ClassGroup = "Stage", hidecategories = (Input, Movement, Collision, Rendering, HLOD, WorldPartition, DataLayers, Transformation, Physics))
 class MY_API AStageSupervisor : public AInfo
 {
 	GENERATED_BODY()
@@ -35,11 +35,35 @@ public:
 	UFUNCTION(BlueprintPure)
 	int32 GetUsePoint() const;
 
+protected:
+	UFUNCTION(BlueprintCallable)
+	void StartStage();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnNewStage();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnPlayingStage();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnDefeatStage();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnClearStage();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnCompletedStage();
+
+	UFUNCTION(BlueprintCallable)
+	void ResetStageData();
+
 private:
 	UFUNCTION()
 	void OnTableLoaded();
 
 	void OnGameplayDataLoad();
+
+	void OnGameplayDataReload();
 
 public:
 	UPROPERTY(Transient, BlueprintReadOnly)

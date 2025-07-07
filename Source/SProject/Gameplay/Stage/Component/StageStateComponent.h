@@ -89,6 +89,9 @@ protected:
 	UPROPERTY(Transient, BlueprintReadWrite, Category = "GameFeature")
 	TObjectPtr<const class UGameplayDataAsset> GameplayDataAsset;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Stage")
+	TSubclassOf<class AStageSupervisor> StageSupervisorClass;
+
 private:
 	EStageLoadFlags StageLoadFlags = EStageLoadFlags::None;
 

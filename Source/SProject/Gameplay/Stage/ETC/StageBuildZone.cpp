@@ -45,6 +45,10 @@ AStageBuildZone::AStageBuildZone()
 	RootComponent = InteractionComponent;
 }
 
+void AStageBuildZone::Reset()
+{
+}
+
 void AStageBuildZone::Load(FTower LoadedTowerData)
 {
 

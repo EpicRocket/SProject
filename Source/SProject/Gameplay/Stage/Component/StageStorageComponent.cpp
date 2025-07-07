@@ -30,12 +30,12 @@ int32 UStageStorageComponent::GetLastStageLevel() const
 	return LastStageLevel;
 }
 
-TSharedPtr<FStage> UStageStorageComponent::GetStage(int32 StageLevel) const
+TSharedPtr<FStage> UStageStorageComponent::GetStage(int32 InStageLevel) const
 {
-	if (Stages.Contains(StageLevel))
+	if (Stages.Contains(InStageLevel))
 	{
-		LastStageLevel = StageLevel;
-		return Stages[StageLevel];
+		LastStageLevel = InStageLevel;
+		return Stages[InStageLevel];
 	}
 
 	auto StageSubsystem = UStageSubsystem::Get(GetOwningLocalPlayer());
@@ -46,9 +46,23 @@ TSharedPtr<FStage> UStageStorageComponent::GetStage(int32 StageLevel) const
 	}
 
 	TSharedPtr<FStage> Temp = MakeShared<FStage>();
-	*Temp = *StageSubsystem->GetStage(StageLevel);
-	LastStageLevel = StageLevel;
-	Stages.Add(StageLevel, Temp);
+	*Temp = *StageSubsystem->GetStage(InStageLevel);
+	LastStageLevel = InStageLevel;
+	Stages.Add(InStageLevel, Temp);
 
 	return Temp;
+}
+
+void UStageStorageComponent::SetStage(const FStage& InStage)
+{
+	if (!Stages.Contains(InStage.Level))
+	{
+		return;
+	}
+	*Stages[InStage.Level] = InStage;
+}
+
+void UStageStorageComponent::Flush()
+{
+	// TODO: Flush 함수 구현 - 이 기능은 실제 유저의 정보를 저장 해야 합니다.
 }

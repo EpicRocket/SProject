@@ -23,6 +23,7 @@ namespace GameErr
 	static const FString POINTER_INVALID = TEXT("POINTER_INVALID");
 	static const FString VALUE_INVALID = TEXT("VALUE_INVALID");
 	static const FString ENUM_INVALID = TEXT("ENUM_INVALID");
+	static const FString CLASS_INVALID = TEXT("CLASS_INVALID");
 }
 
 UCLASS()
