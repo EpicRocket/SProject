@@ -26,6 +26,7 @@
 #include "Gameplay/Stage/Component/StagePlayerComponent.h"
 #include "Gameplay/Stage/Unit/StageTowerUnit.h"
 #include "Gameplay/Stage/AI/StageAIController.h"
+#include "Gameplay/Stage/ETC/StageSupervisor.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(StageBuildZone)
 
@@ -51,7 +52,11 @@ void AStageBuildZone::Reset()
 
 void AStageBuildZone::Load(FTower LoadedTowerData)
 {
+}
 
+void AStageBuildZone::Setup(AStageSupervisor* InSupervisor)
+{
+	Supervisor = InSupervisor;
 }
 
 FGErrorInfo AStageBuildZone::GetTowerReceipt(FStageTowerReceipt& Receipt)
@@ -114,6 +119,11 @@ FGErrorInfo AStageBuildZone::GetTowerReceipt(FStageTowerReceipt& Receipt)
 
 FGErrorInfo AStageBuildZone::RequestBuildTower(const FStageTowerInfo& BuildTowerInfo)
 {
+	if (!Supervisor.IsValid())
+	{
+		return GameCore::Throw(GameErr::ACTOR_INVALID, TEXT("AStageBuildZone::RequestBuildTower(BuildTowerInfo): Supervisor를 찾지 못했습니다."));
+	}
+
 	AddUsePoint(-BuildTowerInfo.UsePoint);
 
 	if (SpawnedTower.IsValid())
@@ -124,7 +134,7 @@ FGErrorInfo AStageBuildZone::RequestBuildTower(const FStageTowerInfo& BuildTower
 	AStageTowerUnit* SpawnedUnit = nullptr;
 	auto SpawnLocation = GetBuildLocation();
 
-	auto Err = UStageSpawnHelper::SpawnTower(
+	/*auto Err = UStageSpawnHelper::SpawnTower(
 		GetTeamID(),
 		SourceStage.Get(),
 		SpawnLocation,
@@ -132,12 +142,12 @@ FGErrorInfo AStageBuildZone::RequestBuildTower(const FStageTowerInfo& BuildTower
 		BuildTowerInfo,
 		nullptr,
 		SpawnedUnit
-	);
+	);*/
 
-	if (!GameCore::IsOK(Err))
+	/*if (!GameCore::IsOK(Err))
 	{
 		return Err;
-	}
+	}*/
 
 	SpawnedTower = SpawnedUnit;
 	SpawnLocation.Z = SpawnLocation.Z + SpawnedTower->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
@@ -146,7 +156,7 @@ FGErrorInfo AStageBuildZone::RequestBuildTower(const FStageTowerInfo& BuildTower
 	if (auto AIController = SpawnedUnit->GetController<AStageAIController>())
 	{
 		AIController->SetGenericTeamId(GetTeamID());
-		AIController->SourceStage = SourceStage;
+		//AIController->SourceStage = SourceStage;
 		AIController->AIBehaviorTree = BuildTowerInfo.AI;
 	}
 

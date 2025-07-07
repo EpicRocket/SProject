@@ -18,9 +18,6 @@ enum class EStageTowerType : uint8;
 struct FStageTowerInfo;
 struct FStageTowerReceipt;
 struct FTower;
-class UBoxComponent;
-class AAIController;
-class AStageLevel;
 class AStageTowerUnit;
 
 namespace Stage
@@ -76,6 +73,8 @@ public:
 
 	void Load(FTower LoadedTowerData);
 
+	void Setup(AStageSupervisor* InSupervisor);
+
 	UFUNCTION(BlueprintPure, meta = (ReturnDisplayName = "Error"))
 	FGErrorInfo GetTowerReceipt(FStageTowerReceipt& Receipt);
 
@@ -103,13 +102,13 @@ public:
 	TObjectPtr<UStageBuildZoneData> BuildZoneData;
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
-	TWeakObjectPtr<AStageLevel> SourceStage;
+	TWeakObjectPtr<class AStageSupervisor> Supervisor;
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
 	TWeakObjectPtr<AStageTowerUnit> SpawnedTower;
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UBoxComponent> InteractionComponent;
+	TObjectPtr<class UBoxComponent> InteractionComponent;
 
 };

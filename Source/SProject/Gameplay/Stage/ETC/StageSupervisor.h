@@ -23,6 +23,9 @@ protected:
 	// ~Actor
 
 public:
+	UFUNCTION(BlueprintImplementableEvent)
+	class UStageSpawnComponent* GetSpawnComponent();
+
 	UFUNCTION(BlueprintCallable)
 	void SetHp(int32 NewValue);
 

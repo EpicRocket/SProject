@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "Core/Component/GGameStateComponent.h"
+#include "Core/Component/GGameCoreComponent.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 
 #include "StageSpawnComponent.generated.h"
@@ -18,7 +18,7 @@ class AStageMonsterUnit;
 struct FStageMonsterInfo;
 
 UCLASS(Abstract, Blueprintable, meta = (BlueprintSpawnableComponent), ClassGroup = "Stage")
-class MY_API UStageSpawnComponent : public UGGameStateComponent
+class MY_API UStageSpawnComponent : public UGGameCoreComponent
 {
 	GENERATED_BODY()
 
