@@ -1,3 +1,4 @@
+// Copyright (c) 2025 Team EpicRocket. All rights reserved.
 
 #include "StageSpawnComponent.h"
 // include Engine
@@ -9,7 +10,7 @@
 // include GameCore
 #include "Core/Action/GGameComponentLoadAction.h"
 // include Project
-#include "Gameplay/Stage/StageLogging.h"
+#include "Gameplay/Stage/Stage.h"
 #include "Gameplay/Stage/StageLevel.h"
 #include "Gameplay/Stage/StageTableRepository.h"
 #include "Gameplay/Stage/Types/StageTowerTypes.h"

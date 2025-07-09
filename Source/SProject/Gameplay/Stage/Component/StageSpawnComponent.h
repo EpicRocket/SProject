@@ -1,4 +1,4 @@
-
+// Copyright (c) 2025 Team EpicRocket. All rights reserved.
 
 #pragma once
 
@@ -17,7 +17,7 @@ struct FStageTowerInfo;
 class AStageMonsterUnit;
 struct FStageMonsterInfo;
 
-UCLASS(Abstract, Blueprintable, meta = (BlueprintSpawnableComponent), ClassGroup = "Stage")
+UCLASS(Abstract, Blueprintable, meta = (BlueprintSpawnableComponent), Category = "Stage", ClassGroup = "Stage")
 class MY_API UStageSpawnComponent : public UGGameCoreComponent
 {
 	GENERATED_BODY()

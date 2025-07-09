@@ -19,6 +19,7 @@ struct FStageTowerInfo;
 struct FStageTowerReceipt;
 struct FTower;
 class AStageTowerUnit;
+class AStageSupervisor;
 
 namespace Stage
 {
@@ -102,7 +103,7 @@ public:
 	TObjectPtr<UStageBuildZoneData> BuildZoneData;
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
-	TWeakObjectPtr<class AStageSupervisor> Supervisor;
+	TWeakObjectPtr<AStageSupervisor> Supervisor;
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
 	TWeakObjectPtr<AStageTowerUnit> SpawnedTower;

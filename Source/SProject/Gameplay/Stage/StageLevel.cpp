@@ -1,3 +1,4 @@
+// Copyright (c) 2025 Team EpicRocket. All rights reserved.
 
 #include "StageLevel.h"
 // include Engine
@@ -6,7 +7,7 @@
 // include GGameCore
 #include "Core/GGameCoreHelper.h"
 // include Project
-#include "StageLogging.h"
+#include "Gameplay/Stage/Stage.h"
 #include "Gameplay/Stage/ETC/StageBuildZone.h"
 #include "Gameplay/Stage/ETC/StageSpawner.h"
 #include "Gameplay/Stage/ETC/StageSupervisor.h"
@@ -24,11 +25,6 @@ void AStageLevel::EndPlay(const EEndPlayReason::Type EndPlayReason)
 		Supervisor->Destroy();
 		Supervisor = nullptr;
 	}
-
-	PathActors.Empty();
-	BuildZones.Empty();
-	Spawners.Empty();
-	PlayerPawn = nullptr;
 
 	Super::EndPlay(EndPlayReason);
 }

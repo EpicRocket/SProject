@@ -2,7 +2,7 @@
 
 #include "StageMonsterUnit.h"
 // include Project
-#include "Gameplay/Stage/StageLogging.h"
+#include "Gameplay/Stage/Stage.h"
 #include "Gameplay/Stage/StageTableRepository.h"
 #include "Gameplay/Stage/Types/StageMonsterTypes.h"
 

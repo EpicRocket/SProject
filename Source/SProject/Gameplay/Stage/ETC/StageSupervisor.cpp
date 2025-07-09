@@ -9,7 +9,7 @@
 #include "Table/ConstTable.h"
 #include "Table/StageTable.h"
 #include "Gameplay/Stage/StageLevel.h"
-#include "Gameplay/Stage/StageLogging.h"
+#include "Gameplay/Stage/Stage.h"
 #include "Gameplay/Stage/StageTableRepository.h"
 #include "Gameplay/Stage/ETC/StageBuildZone.h"
 #include "Gameplay/Stage/Types/StageTowerTypes.h"
@@ -88,10 +88,20 @@ void AStageSupervisor::BeginPlay()
 	);
 }
 
-void AStageSupervisor::EndPlay(const EEndPlayReason::Type EndPlayReason)
+FGErrorInfo AStageSupervisor::SpawnTower(uint8 TeamID, FVector Location, FRotator Rotation, FStageTowerInfo TowerInfo, AStageTowerUnit*& SpawnedUnit)
 {
-	Super::EndPlay(EndPlayReason);
+	return FGErrorInfo();
 }
+
+FGErrorInfo AStageSupervisor::SpawnMonster(uint8 TeamID, FVector Location, FRotator Rotation, FStageMonsterInfo MonsterInfo, AStageMonsterUnit*& SpawnedUnit)
+{
+	return FGErrorInfo();
+}
+
+//FGErrorInfo AStageSupervisor::K2_SpawnUnit(uint8 TeamID, FVector Location, FRotator Rotation, TSubclassOf<AStageUnitCharacter> StageUnitClass, AStageUnitCharacter*& SpawnedUnit)
+//{
+//	return FGErrorInfo();
+//}
 
 void AStageSupervisor::SetHp(int32 NewValue)
 {
@@ -131,6 +141,12 @@ int32 AStageSupervisor::GetUsePoint() const
 		return 0;
 	}
 	return Stage.Pin()->UsePoint;
+}
+
+FGErrorInfo AStageSupervisor::PayUsePoint(int32 Cost)
+{
+	// TODO: 재화 소모
+	return GameCore::Pass();
 }
 
 void AStageSupervisor::StartStage()

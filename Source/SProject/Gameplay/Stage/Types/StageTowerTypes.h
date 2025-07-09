@@ -62,6 +62,23 @@ struct MY_API FStageTowerInfo
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UBehaviorTree> AI;
 
+	bool operator==(const FStageTowerInfo& Other) const {
+		return TowerType == Other.TowerType
+			&& Index == Other.Index
+			&& Kind == Other.Kind
+			&& Level == Other.Level;
+	}
+
+	FString ToString() const {
+		return FString::Printf(
+			TEXT("[Name:%s][Type:%s][Index:%d][Kind:%d][Level:%d]")
+			, *Name.ToString()
+			, *UEnum::GetValueAsString(TowerType)
+			, Index
+			, Kind
+			, Level
+		);
+	}
 };
 
 UCLASS()

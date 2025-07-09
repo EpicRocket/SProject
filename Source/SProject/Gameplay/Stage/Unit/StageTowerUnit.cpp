@@ -1,9 +1,10 @@
+// Copyright (c) 2025 Team EpicRocket. All rights reserved.
 
 #include "StageTowerUnit.h"
 // include GameCore
 #include "AbilitySystem/GAbilitySystemComponent.h"
 // include Project
-#include "Gameplay/Stage/StageLogging.h"
+#include "Gameplay/Stage/Stage.h"
 #include "Gameplay/Stage/StageTableRepository.h"
 #include "Gameplay/Stage/Types/StageTowerTypes.h"
 #include "Gameplay/Stage/Unit/StageUnitAttributeSet.h"

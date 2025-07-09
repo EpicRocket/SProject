@@ -1,3 +1,4 @@
+// Copyright (c) 2025 Team EpicRocket. All rights reserved.
 
 #include "StageSpawner.h"
 // include Engine
@@ -7,7 +8,7 @@
 // include Project
 #include "Gameplay/GameplayHelper.h"
 #include "Gameplay/ETC/GameplayPathActor.h"
-#include "Gameplay/Stage/StageLogging.h"
+#include "Gameplay/Stage/Stage.h"
 #include "Gameplay/Stage/StageLevel.h"
 #include "Gameplay/Stage/StageTableRepository.h"
 #include "Gameplay/Stage/Types/StageMonsterTypes.h"

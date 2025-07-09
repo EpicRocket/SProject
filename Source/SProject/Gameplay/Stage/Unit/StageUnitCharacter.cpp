@@ -1,10 +1,11 @@
+// Copyright (c) 2025 Team EpicRocket. All rights reserved.
 
 #include "StageUnitCharacter.h"
 // include GameCore
 #include "AbilitySystem/GAbilitySystemComponent.h"
 // include Project
 #include "Gameplay/GameplayUnitAnimState.h"
-#include "Gameplay/Stage/StageLogging.h"
+#include "Gameplay/Stage/Stage.h"
 #include "StageUnitAttributeSet.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(StageUnitCharacter)

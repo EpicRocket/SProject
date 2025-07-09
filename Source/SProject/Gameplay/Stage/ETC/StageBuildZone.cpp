@@ -17,6 +17,7 @@
 #include "Gameplay/GameplayLogging.h"
 #include "Gameplay/Team/GameplayTeamSubsystem.h"
 #include "Gameplay/GameplayPlayer.h"
+#include "Gameplay/Stage/Stage.h"
 #include "Gameplay/Stage/StageTableRepository.h"
 #include "Gameplay/Stage/StageLevel.h"
 #include "Gameplay/Stage/StageUnitEvent.h"
@@ -61,19 +62,21 @@ void AStageBuildZone::Setup(AStageSupervisor* InSupervisor)
 
 FGErrorInfo AStageBuildZone::GetTowerReceipt(FStageTowerReceipt& Receipt)
 {
+	Receipt = FStageTowerReceipt{};
+
 	// NOTE. 타워가 이미 스폰되어 있을 경우
 	if (SpawnedTower.IsValid())
 	{
 		auto SellPrice = SpawnedTower->GetSellPrice();
 		if (!SellPrice.IsSet())
 		{
-			return GameCore::Throw(GameErr::VALUE_INVALID, TEXT("SpawnedTower->GetSellPrice()"));
+			return GameCore::Throw(GameErr::VALUE_INVALID, TEXT("AStageBuildZone::GetTowerReceipt(Receipt):SellPrice를 찾지 못하였습니다."));
 		}
 
 		auto TowerInfo = SpawnedTower->GetTowerInfo();
 		if (!TowerInfo.IsSet())
 		{
-			return GameCore::Throw(GameErr::VALUE_INVALID, TEXT("SpawnedTower->GetTowerInfo()"));
+			return GameCore::Throw(GameErr::VALUE_INVALID, TEXT("AStageBuildZone::GetTowerReceipt(Receipt):TowerInfo를 찾지 못하였습니다."));
 		}
 
 		int32 TowerMaxLevel = 0;
@@ -83,11 +86,10 @@ FGErrorInfo AStageBuildZone::GetTowerReceipt(FStageTowerReceipt& Receipt)
 			return Err;
 		}
 
-		Receipt = FStageTowerReceipt{};
 		Receipt.bSellable = true;
 		Receipt.SellPrice = *SellPrice;
 		Receipt.bMaxLevel = TowerInfo->Level >= TowerMaxLevel;
-		if (Receipt.bMaxLevel)
+		if (!Receipt.bMaxLevel)
 		{
 			FStageTowerInfo NextTower;
 			UStageTableHelper::GetNextStageTower(this, TowerInfo->TowerType, TowerInfo->Kind, TowerInfo->Level, NextTower);
@@ -99,10 +101,9 @@ FGErrorInfo AStageBuildZone::GetTowerReceipt(FStageTowerReceipt& Receipt)
 	{
 		if (!IsValid(BuildZoneData))
 		{
-			return GameCore::Throw(GameErr::OBJECT_INVALID, TEXT("BuildZoneData"));
+			return GameCore::Throw(GameErr::OBJECT_INVALID, TEXT("AStageBuildZone::GetTowerReceipt(Receipt):BuildZoneData가 유효하지 않습니다."));
 		}
 
-		Receipt = FStageTowerReceipt{};
 		for (auto& Content : BuildZoneData->BuildContents)
 		{
 			FStageTowerInfo Tower;
@@ -121,10 +122,26 @@ FGErrorInfo AStageBuildZone::RequestBuildTower(const FStageTowerInfo& BuildTower
 {
 	if (!Supervisor.IsValid())
 	{
-		return GameCore::Throw(GameErr::ACTOR_INVALID, TEXT("AStageBuildZone::RequestBuildTower(BuildTowerInfo): Supervisor를 찾지 못했습니다."));
+		return GameCore::Throw(GameErr::ACTOR_INVALID, TEXT("AStageBuildZone::RequestBuildTower(BuildTowerInfo):Supervisor를 찾지 못했습니다."));
 	}
 
-	AddUsePoint(-BuildTowerInfo.UsePoint);
+	FStageTowerReceipt Receipt;
+	if (auto Err = GetTowerReceipt(Receipt); !GameCore::IsOK(Err))
+	{
+		return Err;
+	}
+
+	// NOTE. 건설 가능한 목록에 있는지 검증
+	if (!Receipt.BuildTowers.ContainsByPredicate([&BuildTowerInfo](const FStageTowerInfo& Item) { return Item == BuildTowerInfo; }))
+	{
+		return GameCore::Throw(GameErr::Stage::CANNOT_BUILD_TOWER, FString::Printf(TEXT("AStageBuildZone::RequestBuildTower(BuildTowerInfo):건설 할 타워를 찾지 못하였습니다.%s"), *BuildTowerInfo.ToString()));
+	}
+
+	// NOTE. 비용 지불
+	if (auto Err = Supervisor->PayUsePoint(BuildTowerInfo.UsePoint); !GameCore::IsOK(Err))
+	{
+		return Err;
+	}
 
 	if (SpawnedTower.IsValid())
 	{
@@ -133,21 +150,16 @@ FGErrorInfo AStageBuildZone::RequestBuildTower(const FStageTowerInfo& BuildTower
 
 	AStageTowerUnit* SpawnedUnit = nullptr;
 	auto SpawnLocation = GetBuildLocation();
-
-	/*auto Err = UStageSpawnHelper::SpawnTower(
-		GetTeamID(),
-		SourceStage.Get(),
-		SpawnLocation,
-		GetActorRotation(),
-		BuildTowerInfo,
-		nullptr,
-		SpawnedUnit
-	);*/
-
-	/*if (!GameCore::IsOK(Err))
+	
+	// NOTE. 타워 생성
+	if (auto Err = Supervisor->SpawnTower(GetTeamID(), SpawnLocation, GetActorRotation(), BuildTowerInfo, SpawnedUnit); !GameCore::IsOK(Err))
 	{
 		return Err;
-	}*/
+	}
+	else if (!SpawnedUnit)
+	{
+		return GameCore::Throw(GameErr::ACTOR_INVALID, TEXT("AStageBuildZone::RequestBuildTower(BuildTowerInfo):SpawnedUnit가 유효하지 않습니다."));
+	}
 
 	SpawnedTower = SpawnedUnit;
 	SpawnLocation.Z = SpawnLocation.Z + SpawnedTower->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
@@ -161,7 +173,7 @@ FGErrorInfo AStageBuildZone::RequestBuildTower(const FStageTowerInfo& BuildTower
 	}
 
 	OnCompleteBuildTower(SpawnedUnit);
-	Stage::SendUnitEvent(this, Stage::NewUnitEvent<UStageUnitEvent_Spawn>(SpawnedUnit));
+	//Stage::SendUnitEvent(this, Stage::NewUnitEvent<UStageUnitEvent_Spawn>(SpawnedUnit));
 
 	return GameCore::Pass();
 }

@@ -1,9 +1,11 @@
+// Copyright (c) 2025 Team EpicRocket. All rights reserved.
+
 #include "StageWaveComponent.h"
 
 #include "Gameplay/GameplayUserPlayer.h"
 #include "User/StageSubsystem.h"
 #include "Gameplay/Stage/StageTableRepository.h"
-#include "Gameplay/Stage/StageLogging.h"
+#include "Gameplay/Stage/Stage.h"
 
 void UStageWaveComponent::InitializeComponent()
 {
