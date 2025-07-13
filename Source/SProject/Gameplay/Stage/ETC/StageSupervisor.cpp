@@ -16,6 +16,7 @@
 #include "Gameplay/Stage/Types/StageMonsterTypes.h"
 #include "Gameplay/Stage/Component/StageStateComponent.h"
 #include "Gameplay/Stage/Component/StageStorageComponent.h"
+//#include "Gameplay/Stage/Component/Stage"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(StageSupervisor)
 
@@ -90,6 +91,13 @@ void AStageSupervisor::BeginPlay()
 
 FGErrorInfo AStageSupervisor::SpawnTower(uint8 TeamID, FVector Location, FRotator Rotation, FStageTowerInfo TowerInfo, AStageTowerUnit*& SpawnedUnit)
 {
+	/*auto SpawnComponent = GetSpawnComponent();
+	if (!IsValid(SpawnComponent))
+	{
+
+	}*/
+
+
 	return FGErrorInfo();
 }
 

@@ -17,12 +17,20 @@ struct FStageTowerInfo;
 class AStageMonsterUnit;
 struct FStageMonsterInfo;
 
+class AStageUnitCharacter;
+
 UCLASS(Abstract, Blueprintable, meta = (BlueprintSpawnableComponent), Category = "Stage", ClassGroup = "Stage")
 class MY_API UStageSpawnComponent : public UGGameCoreComponent
 {
 	GENERATED_BODY()
 
 public:
+	/*UFUNCTION(BlueprintCallable)
+	FGErrorInfo BeginSpawn();
+
+	UFUNCTION(BlueprintCallable)
+	FGErrorInfo EndSpawn();*/
+
 	UFUNCTION(BlueprintCallable)
 	FGErrorInfo SpawnTower(uint8 TeamID, AStageLevel* StageLevel, FVector Location, FRotator Rotation, FStageTowerInfo TowerInfo, TSubclassOf<AAIController> AIController, AStageTowerUnit*& SpawnedUnit);
 	
