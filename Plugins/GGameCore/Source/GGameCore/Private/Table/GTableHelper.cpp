@@ -20,11 +20,13 @@ UDataTable* UGTableHelper::GetTable(uint32 HashKey)
 	auto Subsystem = UGTableSubsystem::Get();
 	if (!Subsystem)
 	{
+		UE_LOG(LogGameTable, Error, TEXT("UGTableSubsystem isn't found"));
 		return nullptr;
 	}
 
 	if (!Subsystem->Tables.Contains(HashKey))
 	{
+		UE_LOG(LogGameTable, Error, TEXT("HashKey isn't found"));
 		return nullptr;
 	}
 

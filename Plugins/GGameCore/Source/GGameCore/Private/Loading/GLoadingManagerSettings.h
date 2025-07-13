@@ -16,30 +16,34 @@ public:
 	UGLoadingManagerSettings();
 
 public:
-	UPROPERTY(Config, EditDefaultsOnly, meta = (MetaClass = "/Script/UMG.UserWidget"))
+	UPROPERTY(Config, EditDefaultsOnly, Category = "Loading", meta = (MetaClass = "/Script/UMG.UserWidget"))
 	FSoftClassPath LoadingScreenWidget;
 
-	UPROPERTY(Config, EditDefaultsOnly)
+	UPROPERTY(Config, EditDefaultsOnly, Category = "Loading")
 	int32 LoadingScreenZOrder = 10000;
 
-	UPROPERTY(Config, EditDefaultsOnly, meta = (ForceUnits = s, ConsoleVariable = "GLoading.HoldLoadingScreenAdditionalSecs"))
+	UPROPERTY(Config, EditDefaultsOnly, Category = "Loading", meta = (ForceUnits = s, ConsoleVariable = "GLoading.HoldLoadingScreenAdditionalSecs"))
 	float HoldLoadingScreenAdditionalSecs = 2.0F;
 
-	UPROPERTY(Config, EditDefaultsOnly, meta = (ForceUnits = s))
+	UPROPERTY(Config, EditDefaultsOnly, Category = "Loading", meta = (ForceUnits = s))
 	float LoadingScreenHeartbeatHangDuration = 0.0F;
 
-	UPROPERTY(Config, EditDefaultsOnly, meta = (ForceUnits = s))
+	UPROPERTY(Config, EditDefaultsOnly, Category = "Loading", meta = (ForceUnits = s))
 	float LogLoadingScreenHeartbeatInterval = 5.0f;
 
-	UPROPERTY(config, EditDefaultsOnly)
-	bool ForceTickLoadingScreenEvenInEditor = true;
+	UPROPERTY(Config, EditDefaultsOnly, Category = "Loading")
+	bool bForceTickLoadingScreenEvenInEditor = true;
 
-	UPROPERTY(Transient, EditDefaultsOnly, meta = (ConsoleVariable = "GLoading.LogLoadingScreenReasonEveryFrame"))
-	bool LogLoadingScreenReasonEveryFrame = 0;
+	UPROPERTY(EditDefaultsOnly, Category = "Loading", meta = (ConsoleVariable = "GLoading.LogLoadingScreenReasonEveryFrame"))
+	bool bLogLoadingScreenReasonEveryFrame = true;
 
-	UPROPERTY(Transient, EditDefaultsOnly, meta = (ConsoleVariable = "GLoading.AlwaysShow"))
-	bool ForceLoadingScreenVisible = false;
+	UPROPERTY(EditDefaultsOnly, Category = "Loading", meta = (ConsoleVariable = "GLoading.AlwaysShow"))
+	bool bForceLoadingScreenVisible = false;
 
-	UPROPERTY(Transient, EditDefaultsOnly)
-	bool HoldLoadingScreenAdditionalSecsEvenInEditor = false;
+	UPROPERTY(EditDefaultsOnly, Category = "Loading")
+	bool bHoldLoadingScreenAdditionalSecsEvenInEditor = false;
+
+	UPROPERTY(Config, EditDefaultsOnly, Category = "Transition", meta = (MetaClass = "/Script/GGameCore.GLoadingWidget"))
+	FSoftClassPath TransitionScreenWidget;
+
 };

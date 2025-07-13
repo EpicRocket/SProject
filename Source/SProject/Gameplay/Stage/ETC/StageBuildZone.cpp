@@ -12,6 +12,7 @@
 #include "GMessage/Subsystem/GMessageSubsystem.h"
 #include "Error/GError.h"
 // include Project
+#include "Types/UnitTypes.h"
 #include "Table/TowerTable.h"
 #include "Gameplay/GameplayLogging.h"
 #include "Gameplay/Team/GameplayTeamSubsystem.h"
@@ -44,7 +45,16 @@ AStageBuildZone::AStageBuildZone()
 	RootComponent = InteractionComponent;
 }
 
-FGErrorInfo AStageBuildZone::K2_GetTowerReceipt(FStageTowerReceipt& Receipt)
+void AStageBuildZone::Reset()
+{
+}
+
+void AStageBuildZone::Load(FTower LoadedTowerData)
+{
+
+}
+
+FGErrorInfo AStageBuildZone::GetTowerReceipt(FStageTowerReceipt& Receipt)
 {
 	// NOTE. 타워가 이미 스폰되어 있을 경우
 	if (SpawnedTower.IsValid())

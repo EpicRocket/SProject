@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "Gameplay/MyGameLevel.h"
+#include "Gameplay/GameplayLevel.h"
 
 #include "StageLevel.generated.h"
 
@@ -10,9 +10,10 @@ class AStageBuildZone;
 class AStagePlayerPawn;
 class AStageSpawner;
 class AStageSupervisor;
+struct FStage;
 
 UCLASS()
-class MY_API AStageLevel : public AMyGameLevel
+class MY_API AStageLevel : public AGameplayLevel
 {
 	GENERATED_BODY()
 
@@ -25,8 +26,7 @@ public:
 	virtual bool ShouldShowLoadingScreen(FString& OutReason) const override;
 	// ~IGLoadingProcess
 	
-	UFUNCTION(BlueprintCallable)
-	FGErrorInfo Load();
+	FGErrorInfo Setup(int32 InStageLevel, TSubclassOf<AStageSupervisor> InSupervisorClass);
 
 	UFUNCTION(BlueprintCallable)
 	void AddBuildZone(AStageBuildZone* BuildZone);
@@ -39,6 +39,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void SetPlayerPawn(AStagePlayerPawn* InPlayerPawn);
+
+	UFUNCTION(BlueprintPure)
+	APawn* GetPlayerPawn() const;
 
 	UFUNCTION(BlueprintCallable)
 	void AddPathActor(AGameplayPathActor* PathActor);
@@ -63,7 +66,7 @@ protected:
 
 public:
 	UPROPERTY(Transient, BlueprintReadOnly)
-	TObjectPtr<AStageSupervisor> Supervisor;
+	AStageSupervisor* Supervisor;
 
 	TMap<int32, TWeakObjectPtr<AGameplayPathActor>> PathActors;
 
@@ -73,5 +76,8 @@ public:
 
 	UPROPERTY(Transient, BlueprintReadOnly)
 	TWeakObjectPtr<AStagePlayerPawn> PlayerPawn;
+
+	UPROPERTY(Transient, BlueprintReadOnly)
+	int32 StageLevel = INDEX_NONE;
 
 };

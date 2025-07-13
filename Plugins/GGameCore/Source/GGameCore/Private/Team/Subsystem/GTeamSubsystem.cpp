@@ -227,6 +227,7 @@ AGameplayPlayer* UGTeamSubsystem::GetPlayer(uint8 ID) const
 	{
 		return Players[ID];
 	}
+	UE_LOG(LogGTeam, Warning, TEXT("Player with ID %d not found."), ID);
 	return nullptr;
 }
 

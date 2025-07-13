@@ -1,12 +1,12 @@
 
 #pragma once
 
-#include "Gameplay/MyGameLevel.h"
+#include "Gameplay/GameplayLevel.h"
 
 #include "MasterGameLevel.generated.h"
 
 UCLASS()
-class MY_API AMasterGameLevel : public AMyGameLevel
+class MY_API AMasterGameLevel : public AGameplayLevel
 {
 	GENERATED_BODY()
 

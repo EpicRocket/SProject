@@ -19,11 +19,9 @@ public:
 	virtual bool RemoveLocalPlayer(ULocalPlayer* ExistingPlayer) override;
 
 	UFUNCTION(BlueprintCallable)
-	UGLocalPlayer* GetPrimaryPlayer() const;
-
-	UFUNCTION(BlueprintCallable)
 	UGLocalPlayer* GetLocalPlayer(uint8 UniqueId) const;
 
 private:
 	TSortedMap<uint8, TWeakObjectPtr<UGLocalPlayer>> LocalPlayers;
+
 };

@@ -16,10 +16,9 @@
 #include "Types/StageTypes.h"
 #include "Table/StageTable.h"
 #include "Gameplay/Stage/StageLogging.h"
-#include "Gameplay/GameWorldSubsystem.h"
+#include "Gameplay/Subsystem/GameplayWorldSubsystem.h"
 #include "Gameplay/Team/GameplayTeamSubsystem.h"
 #include "Gameplay/Stage/StageLevel.h"
-#include "Gameplay/Stage/StageTableRepository.h"
 
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(StageStateComponent)
@@ -28,30 +27,12 @@
 void UStageStateComponent::InitializeComponent()
 {
 	Super::InitializeComponent();
-
 	bLoadCompleted = false;
-	auto StageTableRepo = UStageTableRepository::Get(this);
-	if (!StageTableRepo)
-	{
-		UE_LOG(LogStage, Error, TEXT("UStageTableRepository is not found!"));
-		return;
-	}
-	StageTableRepo->OnTableRepositoryLoading.AddDynamic(this, &UStageStateComponent::OnTableLoading);
-	StageTableRepo->OnTableRepositoryLoaded.AddDynamic(this, &UStageStateComponent::OnTableLoaded);
 }
 
 void UStageStateComponent::UninitializeComponent()
 {
 	Super::UninitializeComponent();
-
-	auto StageTableRepo = UStageTableRepository::Get(this);
-	if (!StageTableRepo)
-	{
-		UE_LOG(LogStage, Error, TEXT("UStageTableRepository is not found!"));
-		return;
-	}
-	StageTableRepo->OnTableRepositoryLoading.RemoveDynamic(this, &UStageStateComponent::OnTableLoading);
-	StageTableRepo->OnTableRepositoryLoaded.RemoveDynamic(this, &UStageStateComponent::OnTableLoaded);
 }
 
 bool UStageStateComponent::ShouldShowLoadingScreen(FString& OutReason) const
@@ -65,27 +46,48 @@ bool UStageStateComponent::ShouldShowLoadingScreen(FString& OutReason) const
 	return false;
 }
 
-FGErrorInfo UStageStateComponent::LoadStage(const FStage& Stage)
+FGErrorInfo UStageStateComponent::LoadStage(int32 StageLevel)
 {
-	auto Row = UGTableHelper::GetTableData<FStageTableRow>(Stage.Level);
+	auto Row = UGTableHelper::GetTableData<FStageTableRow>(StageLevel);
 	if (!Row)
 	{
-		return GameCore::Throw(GameErr::POINTER_INVALID, FString::Printf(TEXT("FStageTableRow find Level %d"), Stage.Level));
+		return GameCore::Throw(GameErr::POINTER_INVALID, FString::Printf(TEXT("FStageTableRow find Level %d"), StageLevel));
 	}
 
 	TSoftObjectPtr<UWorld> Map = Row->Map;
 	if (Map.IsNull())
 	{
-		return GameCore::Throw(GameErr::POINTER_INVALID, FString::Printf(TEXT("Map is empty: Level:%d"), Stage.Level));
+		return GameCore::Throw(GameErr::POINTER_INVALID, FString::Printf(TEXT("Map is empty: Level:%d"), StageLevel));
 	}
 
-	if (!Map.IsValid())
-	{
-		return GameCore::Throw(GameErr::POINTER_INVALID, FString::Printf(TEXT("Map is invalid: Level:%d"), Stage.Level));
-	}
+	StageLoadFlags = EStageLoadFlags::None;
 
-	OnLoadStage(Stage, Map);
+	OnLoadStage(StageLevel, Map);
 	return GameCore::Pass();
+}
+
+void UStageStateComponent::AddStageLoadFlags(EStageLoadFlags Flags, FGErrorInfo Error)
+{
+	if (!GameCore::IsOK(Error))
+	{
+		// TODO: 해당 Flags에서 오류가 발생함... 예외 처리 해줘야하는 로직 추가
+		return;
+	}
+
+	UE_LOGFMT(LogStage, Log, "AddStageLoadFlags: {FlagName}", *UEnum::GetValueAsString(Flags));
+
+	StageLoadFlags |= Flags;
+	if (StageLoadFlags == EStageLoadFlags::All)
+	{
+		UE_LOGFMT(LogStage, Log, "Stage Load Complete");
+		StageLoadFlags = EStageLoadFlags::Complete;
+		OnLoadComplete();
+	}
+}
+
+bool UStageStateComponent::IsStageLoadFlags(EStageLoadFlags Flags) const
+{
+	return (StageLoadFlags & Flags) == Flags;
 }
 
 FGErrorInfo UStageStateComponent::WaitForPrimaryPlayerController(FLatentActionInfo LatentInfo)
@@ -122,10 +124,16 @@ FGErrorInfo UStageStateComponent::WaitForPrimaryPlayerController(FLatentActionIn
 	return ErrorInfo;
 }
 
-void UStageStateComponent::OnTableLoading()
+FGErrorInfo UStageStateComponent::SetStageLevel(int32 StageLevel, AGameplayLevel* GameplayLevel)
 {
-}
+	auto SelectedStageLevel = Cast<AStageLevel>(GameplayLevel);
+	if (!SelectedStageLevel)
+	{
+		return GameCore::Throw(GameErr::POINTER_INVALID, FString::Printf(TEXT("GameplayLevel is not AStageLevel: %s"), *GameplayLevel->GetName()));
+	}
+	TargetStage = SelectedStageLevel;
 
-void UStageStateComponent::OnTableLoaded()
-{
+	PrimaryPC->Possess(SelectedStageLevel->GetPlayerPawn());
+
+	return SelectedStageLevel->Setup(StageLevel, StageSupervisorClass);
 }

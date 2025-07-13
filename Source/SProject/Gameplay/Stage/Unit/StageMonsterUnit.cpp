@@ -10,8 +10,6 @@
 
 void AStageMonsterUnit::OnInit()
 {
-	EObjectFlags Flags = RF_Transient | RF_Public;
-	MonsterInfoContext = NewObject<UStageMonsterContext>(this, NAME_None, Flags);
 }
 
 void AStageMonsterUnit::OnInitBaseStats()
@@ -38,11 +36,8 @@ void AStageMonsterUnit::OnInitBaseStats()
 
 void AStageMonsterUnit::Setup(FStageMonsterInfo NewMonsterInfo)
 {
-	if (!IsValid(MonsterInfoContext))
-	{
-		return;
-	}
-
+	EObjectFlags Flags = RF_Transient | RF_Public;
+	MonsterInfoContext = NewObject<UStageMonsterContext>(this, NAME_None, Flags);
 	MonsterInfoContext->MonsterInfo = NewMonsterInfo;
 }
 

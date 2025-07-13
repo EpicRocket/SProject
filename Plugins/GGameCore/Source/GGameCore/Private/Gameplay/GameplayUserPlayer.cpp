@@ -4,10 +4,23 @@
 // include Engine
 #include "Engine/LocalPlayer.h"
 #include "GameFramework/PlayerController.h"
+#include "Components/GameFrameworkComponentManager.h"
 // include GameCore
 #include "Error/GErrorTypes.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(GameplayUserPlayer)
+
+void AGameplayUserPlayer::BeginPlay()
+{
+	Super::BeginPlay();
+	UGameFrameworkComponentManager::AddGameFrameworkComponentReceiver(this);
+}
+
+void AGameplayUserPlayer::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	UGameFrameworkComponentManager::RemoveGameFrameworkComponentReceiver(this);
+	Super::EndPlay(EndPlayReason);
+}
 
 APlayerController* AGameplayUserPlayer::GetOwningPlayerController() const
 {

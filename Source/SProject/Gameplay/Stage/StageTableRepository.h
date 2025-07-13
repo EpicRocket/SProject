@@ -5,6 +5,7 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "Table/Subsystem/GTableRepositorySubsystem.h"
 #include "Templates/SharedPointer.h"
+#include "Async/Future.h"
 
 #include "StageTableRepository.generated.h"
 
@@ -23,36 +24,49 @@ class UStageTowerContext;
 struct FStageMonsterInfo;
 class UStageMonsterContext;
 
+struct FStageMonsterGroupDetail;
 struct FStageMonsterGroupInfo;
-
 struct FStageWaveGroupInfo;
+
+UCLASS()
+class UStageTableReceipt : public UObject
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY()
+	TArray<UGContext*> Contexts;
+
+};
 
 UCLASS()
 class MY_API UStageTableRepository : public UGTableRepositorySubsystem
 {
 	GENERATED_BODY()
 
-	friend UStageTableHelper;
+	friend class UStageTableHelper;
 public:
 	static UStageTableRepository* Get(const UObject* WorldContextObject);
 
-protected:
-	virtual void OnLoad() override;
-	virtual void OnUnload() override;
+	TFuture<FGErrorInfo> Load(UStageTableReceipt*& Receipt, int32 StageLevel, TMap<EStageTowerType, TSet<int32>> TowerList);
 
 private:
-	UPROPERTY()
-	TMap<int32, UStageTowerContext*> NormalTowerContexts;
-	using StageTowerInfotKey = TTuple<int32/*Kind*/, int32/*Level*/>;
-	TMap<StageTowerInfotKey, TWeakObjectPtr<UStageTowerContext>> NormalTowerByCompositeKey;
-	TMap<int32/*Kind*/, int32/*Level*/> NormalTowerMaxLevels;
-	TWeakObjectPtr<UStageTowerContext> FindNormalTowerContext(int32 Kind, int32 Level) const;
-	TOptional<int32> FindNormalTowerMaxLevel(int32 Kind) const;
+	using TableKey = int32;
+	using KindType = int32;
+	using LevelType = int32;
+	using MonsterGroupType = int32;
 
-	UPROPERTY()
-	TMap<int32, UStageMonsterContext*> MonsterContexts;
-	TWeakObjectPtr<UStageMonsterContext> FindNormalMonsterContext(int32 Key) const;
+	using TowerKeyType = TTuple<KindType, LevelType>;
+	TMap<TowerKeyType, TWeakObjectPtr<UStageTowerContext>> NormalTowerContexts;
 
+	TMap<TableKey, TWeakObjectPtr<UStageMonsterContext>> MonsterContexts;
+
+	TArray<FStageWaveGroupInfo> StageWaveGroup;
+	TMap<MonsterGroupType, TArray<FMonsterGroupTableRow>> StageMonsterGroup;
+
+	TWeakObjectPtr<UStageTowerContext> FindNormalTowerContext(int32 Kind, int32 Level);
+	TOptional<int32> FindNormalTowerMaxLevel(int32 Kind);
+	TWeakObjectPtr<UStageMonsterContext> FindNormalMonsterContext(int32 Key);
 };
 
 UCLASS()

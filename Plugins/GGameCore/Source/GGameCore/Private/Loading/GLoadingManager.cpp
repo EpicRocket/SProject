@@ -13,9 +13,11 @@
 #include "PreLoadScreen.h"
 #include "PreLoadScreenManager.h"
 #include "ShaderPipelineCache.h"
+#include "Animation/WidgetAnimationEvents.h"
 // include GGameCore
 #include "GLoadingManagerSettings.h"
 #include "Loading/Interface/IGLoadingProcess.h"
+#include "Loading/UI/GLoadingWidget.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(GLoadingManager)
 
@@ -31,17 +33,17 @@ namespace GLoadingCVars
 		TEXT("텍스처 스트리밍이 흐릿해지지 않도록 하기 위해 다른 로딩이 완료된 후 로딩 화면을 얼마나 오래 유지할지(초)"),
 		ECVF_Default | ECVF_Preview);
 
-	static bool LogLoadingScreenReasonEveryFrame = false;
+	static bool bLogLoadingScreenReasonEveryFrame = false;
 	static FAutoConsoleVariableRef CVarLogLoadingScreenReasonEveryFrame(
 		TEXT("GLoading.LogLoadingScreenReasonEveryFrame"),
-		LogLoadingScreenReasonEveryFrame,
+		bLogLoadingScreenReasonEveryFrame,
 		TEXT("참이면 로딩 화면이 표시되거나 숨겨지는 이유가 매 프레임마다 로그에 출력됩니다."),
 		ECVF_Default);
 
-	static bool ForceLoadingScreenVisible = false;
+	static bool bForceLoadingScreenVisible = false;
 	static FAutoConsoleVariableRef CVarForceLoadingScreenVisible(
 		TEXT("GLoading.AlwaysShow"),
-		ForceLoadingScreenVisible,
+		bForceLoadingScreenVisible,
 		TEXT("로딩 화면이 강제로 표시되도록 합니다."),
 		ECVF_Default);
 }
@@ -54,7 +56,11 @@ void UGLoadingManager::Initialize(FSubsystemCollectionBase& Collection)
 
 void UGLoadingManager::Deinitialize()
 {
-	RemoveWidgetFromViewport();
+	// 위젯 삭제
+	RemoveLoadingWidgetFromViewport();
+	RemoveTransitionWidgetFromViewport();
+
+	// 바인딩 제거
 	FCoreUObjectDelegates::PreLoadMap.RemoveAll(this);
 	FCoreUObjectDelegates::PostLoadMapWithWorld.RemoveAll(this);
 }
@@ -79,6 +85,11 @@ TStatId UGLoadingManager::GetStatId() const
 UWorld* UGLoadingManager::GetTickableGameObjectWorld() const
 {
 	return GetGameInstance()->GetWorld();
+}
+
+void UGLoadingManager::SetUseLoadingScreen(bool bValue)
+{
+	bUseLoadingScreen = bValue;
 }
 
 FString UGLoadingManager::GetDebugReasonForShowingOrHidingLoadingScreen() const
@@ -108,6 +119,109 @@ void UGLoadingManager::UnregisterLoadingProcessor(TScriptInterface<IGLoadingProc
 
 }
 
+void UGLoadingManager::BeginTransition(FOnDynamicLoadingWidgetAnimationDelegate BeginEvent, FOnDynamicLoadingWidgetAnimationDelegate EndEvent)
+{
+	if (bCurrentlyShowingTransitionScreen)
+	{
+		return;
+	}
+
+	auto Settings = GetDefault<UGLoadingManagerSettings>();
+
+	bCurrentlyShowingTransitionScreen = true;
+
+	auto GameInstance = GetGameInstance();
+
+	TSubclassOf<UUserWidget> TransitionScreenWidgetClass = Settings->TransitionScreenWidget.TryLoadClass<UUserWidget>();
+	if (UUserWidget* UserWidget = UUserWidget::CreateWidgetInstance(*GameInstance, TransitionScreenWidgetClass, NAME_None))
+	{
+		TransitionScreenWidgetPtr = UserWidget->TakeWidget();
+		TransitionScreenWidget = Cast<UGLoadingWidget>(UserWidget);
+		if (TransitionScreenWidget.IsValid())
+		{
+			if (TransitionScreenWidget->IsExistBeginAnimation())
+			{
+				TransitionScreenWidget->BindToBeginAnimationFinished(
+					FOnLoadingWidgetAnimationDelegate::CreateWeakLambda(
+						this,
+						[BeginEvent]() {
+							BeginEvent.ExecuteIfBound();
+						}
+					)
+				);
+			}
+
+			if (TransitionScreenWidget->IsExistEndAnimation())
+			{
+				TransitionScreenWidget->BindToEndAnimationFinished(
+					FOnLoadingWidgetAnimationDelegate::CreateWeakLambda(
+						this,
+						[CreatedWidget = TWeakPtr<SWidget>(UserWidget->TakeWidget()), GameInstance = GetGameInstance()]() {
+							if (CreatedWidget.IsValid() && IsValid(GameInstance))
+							{
+								if (UGameViewportClient* GameViewportClient = GameInstance->GetGameViewportClient())
+								{
+									GameViewportClient->RemoveViewportWidgetContent(CreatedWidget.Pin().ToSharedRef());
+								}
+							}
+						}
+					)
+				);
+
+				TransitionScreenWidget->BindToEndAnimationFinished(
+					FOnLoadingWidgetAnimationDelegate::CreateWeakLambda(
+						this,
+						[EndEvent]() {
+							EndEvent.ExecuteIfBound();
+						}
+					)
+				);
+			}
+			TransitionScreenWidget->ActivateWidget();
+		}
+	}
+	else
+	{
+		UE_LOG(LogLoading, Error, TEXT("전환 화면 위젯 %s을(를) 로드하지 못하여 자리 표시자로 되돌아갔습니다."), *Settings->TransitionScreenWidget.ToString());
+		TransitionScreenWidgetPtr = SNew(SThrobber);
+	}
+
+	UGameViewportClient* GameViewportClient = GameInstance->GetGameViewportClient();
+	GameViewportClient->AddViewportWidgetContent(TransitionScreenWidgetPtr.ToSharedRef(), Settings->LoadingScreenZOrder - 1000);
+
+	if (!GIsEditor || Settings->bForceTickLoadingScreenEvenInEditor)
+	{
+		// 전환 화면이 즉시 표시되도록 슬레이트를 체크합니다.
+		FSlateApplication::Get().Tick();
+	}
+}
+
+void UGLoadingManager::EndTransition()
+{
+	if (!bCurrentlyShowingTransitionScreen)
+	{
+		return;
+	}
+	
+	GEngine->ForceGarbageCollection(true);
+	
+	if (TransitionScreenWidget.IsValid())
+	{
+		TransitionScreenWidget->DeactivateWidget();
+	}
+	else
+	{
+		RemoveTransitionWidgetFromViewport();
+	}
+
+	bCurrentlyShowingTransitionScreen = false;
+}
+
+bool UGLoadingManager::IsTransition() const
+{
+	return bCurrentlyShowingTransitionScreen;
+}
+
 void UGLoadingManager::HandlePreLoadMap(const FWorldContext& WorldContext, const FString& MapName)
 {
 	if (WorldContext.OwningGameInstance == GetGameInstance())
@@ -135,28 +249,28 @@ bool UGLoadingManager::CheckForAnyNeedToShowLoadingScreen()
 
 	auto GameInstance = GetGameInstance();
 
-	if (GLoadingCVars::ForceLoadingScreenVisible)
+	if (GLoadingCVars::bForceLoadingScreenVisible)
 	{
 		DebugReasonForShowingOrHidingLoadingScreen = TEXT("GLoading.AlwaysShow가 참입니다.");
 		return true;
 	}
 
 	auto Context = GameInstance->GetWorldContext();
-	if (Context == nullptr)
+	if (!Context)
 	{
 		DebugReasonForShowingOrHidingLoadingScreen = FString(TEXT("게임 인스턴스의 Context가 null 입니다."));
 		return true;
 	}
 
 	auto World = Context->World();
-	if (World == nullptr)
+	if (!World)
 	{
 		DebugReasonForShowingOrHidingLoadingScreen = FString(TEXT("월드가 없습니다. (FWorldContext의 World()가 null 입니다)"));
 		return true;
 	}
 
 	auto GameState = World->GetGameState();
-	if (GameState == nullptr)
+	if (!GameState)
 	{
 		DebugReasonForShowingOrHidingLoadingScreen = FString(TEXT("GameState가 아직 리플리케이트되지 않았습니다. (null입니다)"));
 		return true;
@@ -175,7 +289,7 @@ bool UGLoadingManager::CheckForAnyNeedToShowLoadingScreen()
 		return true;
 	}
 
-	if (Context->PendingNetGame != nullptr)
+	if (Context->PendingNetGame)
 	{
 		DebugReasonForShowingOrHidingLoadingScreen = FString(TEXT("다른 서버에 연결 중입니다. (PendingNetGame != nullptr)"));
 		return true;
@@ -219,7 +333,7 @@ bool UGLoadingManager::CheckForAnyNeedToShowLoadingScreen()
 
 	for (ULocalPlayer* LocalPlayer : GameInstance->GetLocalPlayers())
 	{
-		if (LocalPlayer != nullptr)
+		if (LocalPlayer)
 		{
 			if (APlayerController* PC = LocalPlayer->PlayerController)
 			{
@@ -267,7 +381,7 @@ bool UGLoadingManager::CheckForAnyNeedToShowLoadingScreen()
 
 void UGLoadingManager::UpdateLoadingScreen()
 {
-	bool bLogLoadingScreenStatus = GLoadingCVars::LogLoadingScreenReasonEveryFrame;
+	bool bLogLoadingScreenStatus = GLoadingCVars::bLogLoadingScreenReasonEveryFrame;
 
 	if (ShouldShowLoadingScreen())
 	{
@@ -331,20 +445,80 @@ void UGLoadingManager::ShowLoadingScreen()
 		TSubclassOf<UUserWidget> LoadingScreenWidgetClass = Settings->LoadingScreenWidget.TryLoadClass<UUserWidget>();
 		if (UUserWidget* UserWidget = UUserWidget::CreateWidgetInstance(*GameInstance, LoadingScreenWidgetClass, NAME_None))
 		{
-			LoadingScreenWidget = UserWidget->TakeWidget();
+			LoadingScreenWidgetPtr = UserWidget->TakeWidget();
+			LoadingScreenWidget = Cast<UGLoadingWidget>(UserWidget);
+			if (LoadingScreenWidget.IsValid())
+			{
+				if (LoadingScreenWidget->IsExistBeginAnimation())
+				{
+					LoadingScreenWidget->BindToBeginAnimationFinished(
+						FOnLoadingWidgetAnimationDelegate::CreateWeakLambda(
+							this,
+							[this, ThisPtr = TWeakObjectPtr<UGLoadingManager>(this)]() {
+								if (!ThisPtr.IsValid())
+								{
+									return;
+								}
+								ChangePerformanceSettings(true);
+							}
+						)
+					);
+				}
+
+				if (LoadingScreenWidget->IsExistEndAnimation())
+				{
+					LoadingScreenWidget->BindToEndAnimationStarted(
+						FOnLoadingWidgetAnimationDelegate::CreateWeakLambda(
+							this,
+							[this, ThisPtr = TWeakObjectPtr<UGLoadingManager>(this)]() {
+								if (!ThisPtr.IsValid())
+								{
+									return;
+								}
+								ChangePerformanceSettings(false);
+							}
+						)
+					);
+
+					LoadingScreenWidget->BindToEndAnimationFinished(
+						FOnLoadingWidgetAnimationDelegate::CreateWeakLambda(
+							this,
+							[this, ThisPtr = TWeakObjectPtr<UGLoadingManager>(this), CreatedWidget = TWeakPtr<SWidget>(UserWidget->TakeWidget()), GameInstance = GetGameInstance()]() {
+								if (!ThisPtr.IsValid())
+								{
+									return;
+								}
+
+								if (CreatedWidget.IsValid() && IsValid(GameInstance))
+								{
+									if (UGameViewportClient* GameViewportClient = GameInstance->GetGameViewportClient())
+									{
+										GameViewportClient->RemoveViewportWidgetContent(CreatedWidget.Pin().ToSharedRef());
+									}
+								}
+							}
+						)
+					);
+				}
+				
+				LoadingScreenWidget->ActivateWidget();
+
+				UGameViewportClient* GameViewportClient = GameInstance->GetGameViewportClient();
+				GameViewportClient->AddViewportWidgetContent(LoadingScreenWidgetPtr.ToSharedRef(), Settings->LoadingScreenZOrder);
+			}
 		}
 		else
 		{
 			UE_LOG(LogLoading, Error, TEXT("로딩 화면 위젯 %s을(를) 로드하지 못하여 자리 표시자로 되돌아갔습니다."), *Settings->LoadingScreenWidget.ToString());
-			LoadingScreenWidget = SNew(SThrobber);
+			LoadingScreenWidgetPtr = SNew(SThrobber);
+
+			UGameViewportClient* GameViewportClient = GameInstance->GetGameViewportClient();
+			GameViewportClient->AddViewportWidgetContent(LoadingScreenWidgetPtr.ToSharedRef(), Settings->LoadingScreenZOrder);
+
+			ChangePerformanceSettings(true);
 		}
 
-		UGameViewportClient* GameViewportClient = GameInstance->GetGameViewportClient();
-		GameViewportClient->AddViewportWidgetContent(LoadingScreenWidget.ToSharedRef(), Settings->LoadingScreenZOrder);
-
-		ChangePerformanceSettings(true);
-
-		if (!GIsEditor || Settings->ForceTickLoadingScreenEvenInEditor)
+		if (!GIsEditor || Settings->bForceTickLoadingScreenEvenInEditor)
 		{
 			// 로딩 화면이 즉시 표시되도록 슬레이트를 체크합니다.
 			FSlateApplication::Get().Tick();
@@ -372,8 +546,15 @@ void UGLoadingManager::HideLoadingScreen()
 		UE_LOG(LogLoading, Log, TEXT("로드 화면 삭제 전 가비지 수집"));
 		GEngine->ForceGarbageCollection(true);
 
-		RemoveWidgetFromViewport();
-		ChangePerformanceSettings(false);
+		if (LoadingScreenWidget.IsValid())
+		{
+			LoadingScreenWidget->DeactivateWidget();
+		}
+		else
+		{
+			RemoveLoadingWidgetFromViewport();
+			ChangePerformanceSettings(false);
+		}
 	}
 
 	CSV_EVENT(Loading, TEXT("Hide"));
@@ -386,16 +567,22 @@ void UGLoadingManager::HideLoadingScreen()
 
 bool UGLoadingManager::ShouldShowLoadingScreen()
 {
-	auto Settings = GetDefault<UGLoadingManagerSettings>();
+	if (!bUseLoadingScreen)
+	{
+		DebugReasonForShowingOrHidingLoadingScreen = TEXT("현재 로딩 스크링을 사용하지 않습니다.");
+		return false;
+	}
 
 #if !UE_BUILD_SHIPPING
 	static bool bCmdLineNoLoadingScreen = FParse::Param(FCommandLine::Get(), TEXT("NoLoadingScreen"));
 	if (bCmdLineNoLoadingScreen)
 	{
-		DebugReasonForShowingOrHidingLoadingScreen = FString(TEXT("명령줄에 'NoLoadingScreen'이 있습니다."));
+		DebugReasonForShowingOrHidingLoadingScreen = TEXT("명령줄에 'NoLoadingScreen'이 있습니다.");
 		return false;
 	}
 #endif
+
+	auto Settings = GetDefault<UGLoadingManagerSettings>();
 
 	const bool bNeedToShowLoadingScreen = CheckForAnyNeedToShowLoadingScreen();
 	bool bWantToForceShowLoadingScreen = false;
@@ -407,7 +594,7 @@ bool UGLoadingManager::ShouldShowLoadingScreen()
 	else
 	{
 		const double CurrentTime = FPlatformTime::Seconds();
-		const bool bCanHoldLoadingScreen = (!GIsEditor || Settings->HoldLoadingScreenAdditionalSecsEvenInEditor);
+		const bool bCanHoldLoadingScreen = (!GIsEditor || Settings->bHoldLoadingScreenAdditionalSecsEvenInEditor);
 		const double HoldLoadingScreenAdditionalSecs = bCanHoldLoadingScreen ? GLoadingCVars::HoldLoadingScreenAdditionalSecs : 0.0;
 
 		if (TimeLoadingScreenLastDismissed < 0.0)
@@ -438,17 +625,34 @@ bool UGLoadingManager::IsShowingInitialLoadingScreen()
 	return false;
 }
 
-void UGLoadingManager::RemoveWidgetFromViewport()
+void UGLoadingManager::RemoveLoadingWidgetFromViewport()
 {
-	if (LoadingScreenWidget.IsValid())
+	if (LoadingScreenWidgetPtr.IsValid())
 	{
 		auto GameInstance = GetGameInstance();
 		if (UGameViewportClient* GameViewportClient = GameInstance->GetGameViewportClient())
 		{
-			GameViewportClient->RemoveViewportWidgetContent(LoadingScreenWidget.ToSharedRef());
+			GameViewportClient->RemoveViewportWidgetContent(LoadingScreenWidgetPtr.ToSharedRef());
 		}
-		LoadingScreenWidget.Reset();
+		LoadingScreenWidgetPtr.Reset();
 	}
+
+	LoadingScreenWidget.Reset();
+}
+
+void UGLoadingManager::RemoveTransitionWidgetFromViewport()
+{
+	if (TransitionScreenWidgetPtr.IsValid())
+	{
+		auto GameInstance = GetGameInstance();
+		if (UGameViewportClient* GameViewportClient = GameInstance->GetGameViewportClient())
+		{
+			GameViewportClient->RemoveViewportWidgetContent(TransitionScreenWidgetPtr.ToSharedRef());
+		}
+		TransitionScreenWidgetPtr.Reset();
+	}
+
+	TransitionScreenWidget.Reset();
 }
 
 void UGLoadingManager::ChangePerformanceSettings(bool bEnabingLoadingScreen)

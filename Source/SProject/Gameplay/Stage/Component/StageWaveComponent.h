@@ -18,6 +18,11 @@ class MY_API UStageWaveComponent : public UGGameStateComponent
 {
 	GENERATED_BODY()
 
+public:
+	// UActorComponent
+	virtual void InitializeComponent() override;
+	// ~UActorComponent
+
 private:
 	int32 WaveGroup = INDEX_NONE;
 
@@ -27,8 +32,6 @@ private:
 	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
 	TArray<FStageWaveGroupInfo> WaveGroupInfo;
 protected:
-	virtual void OnInitialize() override;
-
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnWaveStart();
 
@@ -54,8 +57,11 @@ public:
 	FGErrorInfo NextWave();
 
 	UFUNCTION(BlueprintCallable)
-	TArray<FStageWaveGroupInfo> GetWaveGroupInfo();
+	TArray<FStageWaveGroupInfo> GetWaveGroupInfos();
 
 	UFUNCTION(BlueprintCallable)
 	TArray<FMonsterGroupTableRow> GetCurrentMonsterGroupInfo();
+
+	UFUNCTION(BlueprintCallable)
+	TArray<FMonsterGroupTableRow> GetMonsterGroupInfos(int32 MonsterGroup);
 };

@@ -17,6 +17,7 @@
 enum class EStageTowerType : uint8;
 struct FStageTowerInfo;
 struct FStageTowerReceipt;
+struct FTower;
 class UBoxComponent;
 class AAIController;
 class AStageLevel;
@@ -71,8 +72,12 @@ class MY_API AStageBuildZone : public AGameplayTeamActor, public IGameplayActorT
 public:
 	AStageBuildZone();
 
-	UFUNCTION(BlueprintPure, meta = (DisplayName = "GetTowerInfo", ReturnDisplayName = "Error"))
-	FGErrorInfo K2_GetTowerReceipt(FStageTowerReceipt& Receipt);
+	void Reset();
+
+	void Load(FTower LoadedTowerData);
+
+	UFUNCTION(BlueprintPure, meta = (ReturnDisplayName = "Error"))
+	FGErrorInfo GetTowerReceipt(FStageTowerReceipt& Receipt);
 
 	UFUNCTION(BlueprintCallable)
 	FGErrorInfo RequestBuildTower(const FStageTowerInfo& BuildStageTower);

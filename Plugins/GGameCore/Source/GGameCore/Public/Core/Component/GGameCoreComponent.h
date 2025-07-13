@@ -20,7 +20,8 @@ public:
 	UFUNCTION(BlueprintCallable, meta = (Latent, LatentInfo = "LatentInfo"))
 	void WaitForInitialize(FLatentActionInfo LatentInfo);
 
-protected:
-	virtual void OnInitialize() {}
+private:
+	UPROPERTY(Transient)
+	bool bComponentInit = false;
 
 };

@@ -43,8 +43,8 @@ public:
 
 private:
 	mutable TSharedPtr<int32> LastStageLevel;
-
 	mutable TMap<int32/*Level*/, TSharedPtr<FStage>> Stages;
+
 };
 
 

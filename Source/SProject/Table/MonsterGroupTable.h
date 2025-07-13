@@ -20,13 +20,22 @@ struct SPROJECT_API FMonsterGroupTableRow : public FTableRowBase
 	int32 Group = INDEX_NONE;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 Sort = INDEX_NONE;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 MonsterKind = INDEX_NONE;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 Amount = INDEX_NONE;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 AmountValue = INDEX_NONE;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 Position = INDEX_NONE;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 AmountDelayTime = INDEX_NONE;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 SpawnTime = INDEX_NONE;
 
 };
 

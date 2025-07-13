@@ -44,13 +44,19 @@ struct SPROJECT_API FWaveTableRow : public FTableRowBase
 	int32 Index = INDEX_NONE;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 Wave_Group = INDEX_NONE;
+	int32 StageLevel = INDEX_NONE;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 Type = INDEX_NONE;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 Monster_Group = INDEX_NONE;
+	int32 WaveGroup = INDEX_NONE;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 DelayTime = INDEX_NONE;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 MonsterGroup = INDEX_NONE;
 
 };
 

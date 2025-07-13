@@ -1,6 +1,9 @@
+// Copyright (c) 2025 Team EpicRocket. All rights reserved.
 
 #include "Core/GPlayerController.h"
-
+// include Engine
+#include "Components/GameFrameworkComponentManager.h"
+// include GameCore
 #include "Core/GLocalPlayer.h"
 
 void AGPlayerController::ReceivedPlayer()
@@ -47,6 +50,18 @@ void AGPlayerController::OnUnPossess()
 	{
 		LocalPlayer->OnPlayerPawnSet.Broadcast(LocalPlayer, nullptr);
 	}
+}
+
+void AGPlayerController::BeginPlay()
+{
+	Super::BeginPlay();
+	UGameFrameworkComponentManager::AddGameFrameworkComponentReceiver(this);
+}
+
+void AGPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	UGameFrameworkComponentManager::RemoveGameFrameworkComponentReceiver(this);
+	Super::EndPlay(EndPlayReason);
 }
 
 void AGPlayerController::SetGenericTeamId(const FGenericTeamId& InTeamID)

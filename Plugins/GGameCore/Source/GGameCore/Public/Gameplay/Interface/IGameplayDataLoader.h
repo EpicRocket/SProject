@@ -21,7 +21,7 @@ class GGAMECORE_API IGameplayDataLoader : public IInterface
     GENERATED_BODY()
 
 public:
-    UFUNCTION(BlueprintCallable, Category = "GameFeature", meta = (ReturnDisplayName = "Error", WorldContext = "WorldContextObject"))
-    virtual FGErrorInfo LoadGameData(const UObject* WorldContextObject, FPrimaryAssetId GameDataAssetId, UPARAM(ref) UGameplayDataAsset*& GameDataAsset);
+    UFUNCTION(BlueprintCallable, Category = "GameFeature", meta = (WorldContext = "WorldContextObject"))
+    virtual const UGameplayDataAsset* LoadGameData(const UObject* WorldContextObject, FPrimaryAssetId GameDataAssetId, FGErrorInfo& Error);
 
 };

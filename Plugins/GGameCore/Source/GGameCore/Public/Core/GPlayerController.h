@@ -9,17 +9,26 @@
 
 class APawn;
 
-UCLASS(Blueprintable)
+UCLASS(BlueprintType, Blueprintable, Category = "Core", ClassGroup = "Core")
 class GGAMECORE_API AGPlayerController : public APlayerController, public IGTeamAgent
 {
 	GENERATED_BODY()
 
 public:
+	// APlayerController
 	virtual void ReceivedPlayer() override;
 	virtual void SetPawn(APawn* InPawn) override;
 	virtual void OnPossess(class APawn* InPawn) override;
 	virtual void OnUnPossess() override;
+	// ~APlayerController
 
+protected:
+	// AActor
+	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+	// ~AActor
+
+public:
 	// IGTeamAgent
 	virtual void SetGenericTeamId(const FGenericTeamId& InTeamID) override;
 	virtual FGenericTeamId GetGenericTeamId() const override;

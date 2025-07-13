@@ -13,35 +13,39 @@
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(IGameplayDataLoader)
 
-FGErrorInfo IGameplayDataLoader::LoadGameData(const UObject* WorldContextObject, FPrimaryAssetId GameDataAssetId, UPARAM(ref) UGameplayDataAsset*& GameDataAsset)
+const UGameplayDataAsset* IGameplayDataLoader::LoadGameData(const UObject* WorldContextObject, FPrimaryAssetId GameDataAssetId, FGErrorInfo& Error)
 {
     check(GEngine);
 
     auto World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull);
     if (!World)
     {
-		return GameCore::Throw(GameErr::WORLD_INVALID, TEXT("WorldContextObject isn't valid"));
+        Error = GameCore::Throw(GameErr::WORLD_INVALID, TEXT("WorldContextObject isn't valid"));
+        return nullptr;
     }
 
     TObjectPtr<UAssetManager> AssetManager = GEngine->AssetManager;
     if (!IsValid(AssetManager))
     {
-        return GameCore::Throw(GameErr::OBJECT_INVALID, TEXT("AssetManager isn't found"));
+        Error = GameCore::Throw(GameErr::OBJECT_INVALID, TEXT("AssetManager isn't found"));
+        return nullptr;
     }
 
     auto AssetPath = AssetManager->GetPrimaryAssetPath(GameDataAssetId);
     auto AssetClass = AssetPath.TryLoad();
     if (!IsValid(AssetClass))
     {
-        return GameCore::Throw(GameErr::OBJECT_INVALID, FString::Printf(TEXT("%s load failure"), *GameDataAssetId.ToString()));
+        Error = GameCore::Throw(GameErr::OBJECT_INVALID, FString::Printf(TEXT("%s load failure"), *GameDataAssetId.ToString()));
+        return nullptr;
     }
 
     TSubclassOf<UGameplayDataAsset> GameDataAssetClass = Cast<UClass>(AssetClass);
     if (!IsValid(GameDataAssetClass))
     {
-        return GameCore::Throw(GameErr::OBJECT_INVALID, FString::Printf(TEXT("%s cast failure"), *GameDataAssetId.ToString()));
+        Error = GameCore::Throw(GameErr::OBJECT_INVALID, FString::Printf(TEXT("%s cast failure"), *GameDataAssetId.ToString()));
+        return nullptr;
     }
-    GameDataAsset = const_cast<UGameplayDataAsset*>(GetDefault<UGameplayDataAsset>(GameDataAssetClass));
+    auto GameDataAsset = GetDefault<UGameplayDataAsset>(GameDataAssetClass);
 
     FGameFeatureActivatingContext Context;
     const FWorldContext* ExistingWorldContext = GEngine->GetWorldContextFromWorld(World);
@@ -60,5 +64,6 @@ FGErrorInfo IGameplayDataLoader::LoadGameData(const UObject* WorldContextObject,
         }
     }
 
-    return GameCore::Pass();
+    Error = GameCore::Pass();
+    return GameDataAsset;
 }

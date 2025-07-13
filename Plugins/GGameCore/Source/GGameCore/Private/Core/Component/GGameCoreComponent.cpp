@@ -29,9 +29,8 @@ void UGGameCoreComponent::WaitForInitialize(FLatentActionInfo LatentInfo)
 		return;
 	}
 
-	auto OnComplete = [this]()
+	auto OnComplete = []()
 		{
-			OnInitialize();
 		};
 
 	auto OnError = [](FGErrorInfo Err)

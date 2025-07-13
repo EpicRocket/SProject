@@ -25,13 +25,13 @@ FGErrorInfo UStagePlayerComponent::SetDefaults()
 	auto User = GetGameplayPlayer<AGameplayUserPlayer>();
 	if (!User)
 	{
-		return GameCore::Throw(GameErr::ACTOR_INVALID, TEXT("AGameplayUserPlayer"));
+		return GameCore::Throw(GameErr::ACTOR_INVALID, TEXT("[UStagePlayerComponent::SetDefaults()]AGameplayUserPlayer"));
 	}
 
 	auto StageSubsystem = UStageSubsystem::Get(User->GetOwningLocalPlayer());
 	if (!StageSubsystem)
 	{
-		return GameCore::Throw(GameErr::SUBSYSTEM_INVALID, TEXT("UStageSubsystem"));
+		return GameCore::Throw(GameErr::SUBSYSTEM_INVALID, TEXT("[UStagePlayerComponent::SetDefaults()]UStageSubsystem"));
 	}
 
 	auto LastStage = StageSubsystem->GetLastStage();
@@ -39,7 +39,7 @@ FGErrorInfo UStagePlayerComponent::SetDefaults()
 	auto StageRow = UGTableHelper::GetTableData<FStageTableRow>(LastStage->Level);
 	if (!StageRow)
 	{
-		return GameCore::Throw(GameErr::POINTER_INVALID, FString::Printf(TEXT("FStageTableRow find Level %d"), LastStage->Level));
+		return GameCore::Throw(GameErr::POINTER_INVALID, FString::Printf(TEXT("[UStagePlayerComponent::SetDefaults()]FStageTableRow find Level %d"), LastStage->Level));
 	}
 
 	LastStage->Towers.Empty();
@@ -59,7 +59,7 @@ FGErrorInfo UStagePlayerComponent::NewStart()
 	auto GMessageSubsystem = UGameInstance::GetSubsystem<UGMessageSubsystem>(GetGameInstance<UGameInstance>());
 	if (!GMessageSubsystem)
 	{
-		return GameCore::Throw(GameErr::SUBSYSTEM_INVALID, TEXT("UGMessageSubsystem"));
+		return GameCore::Throw(GameErr::SUBSYSTEM_INVALID, TEXT("[UStagePlayerComponent::NewStart()]UGMessageSubsystem"));
 	}
 
 	FStagePlayerNewStartMessage Message;
@@ -78,7 +78,7 @@ FGErrorInfo UStagePlayerComponent::Restart()
 	auto GMessageSubsystem = UGameInstance::GetSubsystem<UGMessageSubsystem>(GetGameInstance<UGameInstance>());
 	if (!GMessageSubsystem)
 	{
-		return GameCore::Throw(GameErr::SUBSYSTEM_INVALID, TEXT("UGMessageSubsystem"));
+		return GameCore::Throw(GameErr::SUBSYSTEM_INVALID, TEXT("[UStagePlayerComponent::Restart()]UGMessageSubsystem"));
 	}
 
 	FStagePlayerRestartMessage Message;
@@ -92,21 +92,21 @@ void UStagePlayerComponent::SetHp(int32 NewHp)
 	auto User = GetGameplayPlayer<AGameplayUserPlayer>();
 	if (!User)
 	{
-		GameCore::Throw(GameErr::ACTOR_INVALID, TEXT("AGameplayUserPlayer"));
+		GameCore::Throw(GameErr::ACTOR_INVALID, *FString::Printf(TEXT("[UStagePlayerComponent::SetHp(NewHp:%d)]AGameplayUserPlayer"), NewHp));
 		return;
 	}
 
 	auto StageSubsystem = UStageSubsystem::Get(User->GetOwningLocalPlayer());
 	if (!StageSubsystem)
 	{
-		GameCore::Throw(GameErr::SUBSYSTEM_INVALID, TEXT("UStageSubsystem"));
+		GameCore::Throw(GameErr::SUBSYSTEM_INVALID, *FString::Printf(TEXT("[UStagePlayerComponent::SetHp(NewHp:%d)]UStageSubsystem"), NewHp));
 		return;
 	}
 
 	auto GMessageSubsystem = UGameInstance::GetSubsystem<UGMessageSubsystem>(GetGameInstance<UGameInstance>());
 	if (!GMessageSubsystem)
 	{
-		GameCore::Throw(GameErr::SUBSYSTEM_INVALID, TEXT("UGMessageSubsystem"));
+		GameCore::Throw(GameErr::SUBSYSTEM_INVALID, *FString::Printf(TEXT("[UStagePlayerComponent::SetHp(NewHp:%d)]UGMessageSubsystem"), NewHp));
 		return;
 	}
 
@@ -127,14 +127,14 @@ int32 UStagePlayerComponent::GetHp() const
 	auto User = GetGameplayPlayer<AGameplayUserPlayer>();
 	if (!User)
 	{
-		GameCore::Throw(GameErr::ACTOR_INVALID, TEXT("AGameplayUserPlayer"));
+		GameCore::Throw(GameErr::ACTOR_INVALID, TEXT("[UStagePlayerComponent::GetHp()]AGameplayUserPlayer"));
 		return 0;
 	}
 
 	auto StageSubsystem = UStageSubsystem::Get(User->GetOwningLocalPlayer());
 	if (!StageSubsystem)
 	{
-		GameCore::Throw(GameErr::SUBSYSTEM_INVALID, TEXT("UStageSubsystem"));
+		GameCore::Throw(GameErr::SUBSYSTEM_INVALID, TEXT("[UStagePlayerComponent::GetHp()]UStageSubsystem"));
 		return 0;
 	}
 
@@ -146,21 +146,21 @@ void UStagePlayerComponent::SetUsePoint(int64 NewUsePoint)
 	auto User = GetGameplayPlayer<AGameplayUserPlayer>();
 	if (!User)
 	{
-		GameCore::Throw(GameErr::ACTOR_INVALID, TEXT("AGameplayUserPlayer"));
+		GameCore::Throw(GameErr::ACTOR_INVALID, *FString::Printf(TEXT("[UStagePlayerComponent::SetHp(NewHp:%d)]AGameplayUserPlayer"), NewUsePoint));
 		return;
 	}
 
 	auto StageSubsystem = UStageSubsystem::Get(User->GetOwningLocalPlayer());
 	if (!StageSubsystem)
 	{
-		GameCore::Throw(GameErr::SUBSYSTEM_INVALID, TEXT("UStageSubsystem"));
+		GameCore::Throw(GameErr::SUBSYSTEM_INVALID, *FString::Printf(TEXT("[UStagePlayerComponent::SetHp(NewHp:%d)]UStageSubsystem"), NewUsePoint));
 		return;
 	}
 
 	auto GMessageSubsystem = UGameInstance::GetSubsystem<UGMessageSubsystem>(GetGameInstance<UGameInstance>());
 	if (!GMessageSubsystem)
 	{
-		GameCore::Throw(GameErr::SUBSYSTEM_INVALID, TEXT("UGMessageSubsystem"));
+		GameCore::Throw(GameErr::SUBSYSTEM_INVALID, *FString::Printf(TEXT("[UStagePlayerComponent::SetHp(NewHp:%d)]UGMessageSubsystem"), NewUsePoint));
 		return;
 	}
 
@@ -181,14 +181,14 @@ int64 UStagePlayerComponent::GetUsePoint() const
 	auto User = GetGameplayPlayer<AGameplayUserPlayer>();
 	if (!User)
 	{
-		GameCore::Throw(GameErr::ACTOR_INVALID, TEXT("AGameplayUserPlayer"));
+		GameCore::Throw(GameErr::ACTOR_INVALID, TEXT("[UStagePlayerComponent::GetUsePoint()]AGameplayUserPlayer"));
 		return 0;
 	}
 
 	auto StageSubsystem = UStageSubsystem::Get(User->GetOwningLocalPlayer());
 	if (!StageSubsystem)
 	{
-		GameCore::Throw(GameErr::SUBSYSTEM_INVALID, TEXT("UStageSubsystem"));
+		GameCore::Throw(GameErr::SUBSYSTEM_INVALID, TEXT("[UStagePlayerComponent::GetUsePoint()]UStageSubsystem"));
 		return 0;
 	}
 

@@ -7,21 +7,84 @@
 
 #include "StageSupervisor.generated.h"
 
-class AStageLevel;
+struct FStage;
 
-UCLASS(Blueprintable, BlueprintType, ClassGroup = "Stage")
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnUserStatusChanged, int32, OldValue, int32, NewValue);
+
+UCLASS(Abstract, Blueprintable, BlueprintType, Category = "Stage", ClassGroup = "Stage", hidecategories = (Input, Movement, Collision, Rendering, HLOD, WorldPartition, DataLayers, Transformation, Physics))
 class MY_API AStageSupervisor : public AInfo
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
-    // Actor
+	// Actor
 protected:
-    virtual void BeginPlay() override;
-    virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
-    // ~Actor
+	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+	// ~Actor
 
 public:
-    UPROPERTY(BlueprintReadOnly)
-    TWeakObjectPtr<AStageLevel> OwnerLevel;
+	UFUNCTION(BlueprintCallable)
+	void SetHp(int32 NewValue);
+
+	UFUNCTION(BlueprintPure)
+	int32 GetHp() const;
+
+	UFUNCTION(BlueprintCallable)
+	void SetUsePoint(int32 NewValue);
+
+	UFUNCTION(BlueprintPure)
+	int32 GetUsePoint() const;
+
+protected:
+	UFUNCTION(BlueprintCallable)
+	void StartStage();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnNewStage();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnPlayingStage();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnDefeatStage();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnClearStage();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnCompletedStage();
+
+	UFUNCTION(BlueprintCallable)
+	void ResetStageData();
+
+private:
+	UFUNCTION()
+	void OnTableLoaded();
+
+	void OnGameplayDataLoad();
+
+	void OnGameplayDataReload();
+
+public:
+	UPROPERTY(Transient, BlueprintReadOnly)
+	TWeakObjectPtr<class AStageLevel> OwnerLevel;
+
+	UPROPERTY(Transient, BlueprintReadOnly)
+	TWeakObjectPtr<class UStageStateComponent> StageStateComponent;
+
+	UPROPERTY(Transient, BlueprintReadOnly)
+	TWeakObjectPtr<class UStageStorageComponent> StageStorageComponent;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnUserStatusChanged OnHpChanged;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnUserStatusChanged OnUsePointChanged;
+
+private:
+	UPROPERTY(Transient)
+	class UStageTableReceipt* StageTableReceipt = nullptr;
+
+	TWeakPtr<FStage> Stage;
 
 };

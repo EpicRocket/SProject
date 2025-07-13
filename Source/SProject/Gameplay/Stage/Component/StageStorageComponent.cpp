@@ -10,34 +10,59 @@
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(StageStorageComponent)
 
-void UStageStorageComponent::OnInitialize()
+void UStageStorageComponent::InitializeComponent()
 {
-	auto User = GetGameplayPlayer<AGameplayUserPlayer>();
-	if (!User)
-	{
-		GameCore::Throw(GameErr::ACTOR_INVALID, TEXT("AGameplayUserPlayer"));
-		return;
-	}
+	Super::InitializeComponent();
 
-	auto StageSubsystem = UStageSubsystem::Get(User->GetOwningLocalPlayer());
+	auto StageSubsystem = UStageSubsystem::Get(GetOwningLocalPlayer());
 	if (!StageSubsystem)
 	{
-		GameCore::Throw(GameErr::SUBSYSTEM_INVALID, TEXT("StageSubsystem"));
+		GameCore::Throw(GameErr::SUBSYSTEM_INVALID, TEXT("[UStageStorageComponent::InitializeComponent]StageSubsystem"));
 		return;
-
 	}
 
-	auto LastStage = StageSubsystem->GetLastStage();
-	LastStageLevel = LastStage->Level;
-	Stages.Emplace(LastStage->Level, LastStage);
+	// NOTE. 첫 스테이지에 대한 정보 초기화
+	GetStage(*StageSubsystem->GetLastStageLevel());
 }
 
-FStage UStageStorageComponent::GetLastStage() const
+int32 UStageStorageComponent::GetLastStageLevel() const
 {
-	auto Iter = Stages.Find(LastStageLevel);
-	if (Iter)
+	return LastStageLevel;
+}
+
+TSharedPtr<FStage> UStageStorageComponent::GetStage(int32 InStageLevel) const
+{
+	if (Stages.Contains(InStageLevel))
 	{
-		return **Iter;
+		LastStageLevel = InStageLevel;
+		return Stages[InStageLevel];
 	}
-	return FStage{};
+
+	auto StageSubsystem = UStageSubsystem::Get(GetOwningLocalPlayer());
+	if (!StageSubsystem)
+	{
+		GameCore::Throw(GameErr::SUBSYSTEM_INVALID, TEXT("[UStageStorageComponent::InitializeComponent]StageSubsystem"));
+		return TSharedPtr<FStage>{};
+	}
+
+	TSharedPtr<FStage> Temp = MakeShared<FStage>();
+	*Temp = *StageSubsystem->GetStage(InStageLevel);
+	LastStageLevel = InStageLevel;
+	Stages.Add(InStageLevel, Temp);
+
+	return Temp;
+}
+
+void UStageStorageComponent::SetStage(const FStage& InStage)
+{
+	if (!Stages.Contains(InStage.Level))
+	{
+		return;
+	}
+	*Stages[InStage.Level] = InStage;
+}
+
+void UStageStorageComponent::Flush()
+{
+	// TODO: Flush 함수 구현 - 이 기능은 실제 유저의 정보를 저장 해야 합니다.
 }

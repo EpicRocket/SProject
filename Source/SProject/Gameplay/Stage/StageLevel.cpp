@@ -2,6 +2,9 @@
 #include "StageLevel.h"
 // include Engine
 #include "Engine/World.h"
+#include "GameFramework/PlayerController.h"
+// include GGameCore
+#include "Core/GGameCoreHelper.h"
 // include Project
 #include "StageLogging.h"
 #include "Gameplay/Stage/ETC/StageBuildZone.h"
@@ -9,6 +12,8 @@
 #include "Gameplay/Stage/ETC/StageSupervisor.h"
 #include "Gameplay/ETC/GameplayPathActor.h"
 #include "StagePlayerPawn.h"
+#include "Types/StageTypes.h"
+
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(StageLevel)
 
@@ -42,30 +47,25 @@ bool AStageLevel::ShouldShowLoadingScreen(FString& OutReason) const
 	return false;
 }
 
-FGErrorInfo AStageLevel::Load()
+FGErrorInfo AStageLevel::Setup(int32 InStageLevel, TSubclassOf<AStageSupervisor> InSupervisorClass)
 {
+	StageLevel = InStageLevel;
+
 	auto World = GetWorld();
 	if (!World)
 	{
-		return GameCore::Throw(GameErr::WORLD_INVALID, FString::Printf(TEXT("%s:World is null"), *GetName()));
+		return GameCore::Throw(GameErr::WORLD_INVALID, FString::Printf(TEXT("AStageLevel::Setup(InStageLevel: %d, InSupervisorClass: %s):월드를 찾을 수 없습니다."), InStageLevel, InSupervisorClass ? TEXT("Exist") : TEXT("NotExist")));
+	}
+
+	if (!InSupervisorClass)
+	{
+		return GameCore::Throw(GameErr::POINTER_INVALID, FString::Printf(TEXT("AStageLevel::Setup(InStageLevel: %d, InSupervisorClass: %s):SupervisorClass를 찾을 수 없습니다."), InStageLevel, InSupervisorClass ? TEXT("Exist") : TEXT("NotExist")));
 	}
 
 	{
 		FActorSpawnParameters Params;
 		Params.Owner = this;
-		Params.CustomPreSpawnInitalization = [ThisPtr = TWeakObjectPtr<AStageLevel>(this)](auto Actor) -> auto
-			{
-				auto Supervisor = Cast<AStageSupervisor>(Actor);
-				if (!Supervisor)
-				{
-					UE_LOG(LogStage, Warning, TEXT("StageSupervisor 캐스트 실패"));
-					return;
-				}
-
-				Supervisor->OwnerLevel = ThisPtr;
-			};
-
-		Supervisor = World->SpawnActor<AStageSupervisor>(Params);
+		Supervisor = World->SpawnActor<AStageSupervisor>(InSupervisorClass, Params);
 	}
 
 	return GameCore::Pass();
@@ -133,6 +133,17 @@ TArray<AStageBuildZone*> AStageLevel::GetBuildZones() const
 void AStageLevel::SetPlayerPawn(AStagePlayerPawn* InPlayerPawn)
 {
 	PlayerPawn = InPlayerPawn;
+}
+
+APawn* AStageLevel::GetPlayerPawn() const
+{
+	if (!PlayerPawn.IsValid())
+	{
+		GameCore::Throw(GameErr::ACTOR_INVALID, TEXT("[AStageLevel::GetPlayerPawn]PlayerPawn is not valid"));
+		return nullptr;
+	}
+
+	return PlayerPawn.Get();
 }
 
 void AStageLevel::AddPathActor(AGameplayPathActor* PathActor)
