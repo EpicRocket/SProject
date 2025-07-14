@@ -50,6 +50,21 @@ struct MY_API FStageMonsterInfo
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UBehaviorTree> AI;
 
+	bool operator==(const FStageMonsterInfo& Other) const {
+		return Index == Other.Index
+			&& Level == Other.Level
+			&& Grade == Other.Grade;
+	}
+
+	FString ToString() const {
+		return FString::Printf(
+			TEXT("[Name:%s][Index:%d][Level:%d][Grade:%d]")
+			, *Name.ToString()
+			, Index
+			, Level
+			, Grade
+		);
+	}
 };
 
 UCLASS()

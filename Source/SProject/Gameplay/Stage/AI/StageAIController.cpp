@@ -3,8 +3,25 @@
 // include Engine
 #include "BrainComponent.h"
 #include "BehaviorTree/BehaviorTree.h"
+// include GameCore
+#include "Team/Interface/IGTeamAgent.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(StageAIController)
+
+void AStageAIController::SetGenericTeamId(const FGenericTeamId& NewTeamID)
+{
+	Super::SetGenericTeamId(NewTeamID);
+	if (auto TeamAgent = Cast<IGTeamAgent>(GetPawn()))
+	{
+		TeamAgent->SetGenericTeamId(NewTeamID);
+	}
+}
+
+void AStageAIController::Setup(uint8 InTeamID, UBehaviorTree* InAI)
+{
+	SetGenericTeamId(InTeamID);
+	AIBehaviorTree = InAI;
+}
 
 void AStageAIController::StartAI()
 {
@@ -20,4 +37,22 @@ void AStageAIController::StopAI()
 	{
 		BrainComponent->StopLogic("StopAI");
 	}
+}
+
+void AStageAIController::OnPossess(APawn* InPawn)
+{
+	Super::OnPossess(InPawn);
+	if (auto TeamAgent = Cast<IGTeamAgent>(InPawn))
+	{
+		TeamAgent->SetGenericTeamId(GetGenericTeamId());
+	}
+}
+
+void AStageAIController::OnUnPossess()
+{
+	if (auto TeamAgent = Cast<IGTeamAgent>(GetPawn()))
+	{
+		TeamAgent->SetGenericTeamId(FGenericTeamId::NoTeam);
+	}
+	Super::OnUnPossess();
 }

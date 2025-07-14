@@ -12,6 +12,7 @@ struct FStageTowerInfo;
 struct FStageMonsterInfo;
 class AStageTowerUnit;
 class AStageMonsterUnit;
+class AStageUnitCharacter;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnUserStatusChanged, int32, OldValue, int32, NewValue);
 
@@ -30,37 +31,30 @@ public:
 	class UStageSpawnComponent* GetSpawnComponent();
 
 	UFUNCTION(BlueprintCallable, Category = "Spawn")
-	FGErrorInfo SpawnTower(uint8 TeamID, FVector Location, FRotator Rotation, FStageTowerInfo TowerInfo, AStageTowerUnit*& SpawnedUnit);
+	FGErrorInfo RegisterSpawnedUnit(AStageUnitCharacter* Unit);
 
 	UFUNCTION(BlueprintCallable, Category = "Spawn")
-	FGErrorInfo SpawnMonster(uint8 TeamID, FVector Location, FRotator Rotation, FStageMonsterInfo MonsterInfo, AStageMonsterUnit*& SpawnedUnit);
+	FGErrorInfo UnregisterSpawnedUnit(AStageUnitCharacter* Unit);
 
-	/*UFUNCTION(BlueprintCallable, Category = "Spawn", meta = (DeterminesOutputType = "StageUnitClass", DynamicOutputParam = "SpawnedUnit"))
-	FGErrorInfo K2_SpawnUnit(uint8 TeamID, FVector Location, FRotator Rotation, TSubclassOf<AStageUnitCharacter> StageUnitClass, AStageUnitCharacter*& SpawnedUnit);
+	UFUNCTION(BlueprintCallable, Category = "Spawn")
+	FGErrorInfo SpawnTower(uint8 InTeamID, FVector InLocation, FRotator InRotation, FStageTowerInfo InTowerInfo, AStageTowerUnit*& SpawnedTower);
 
-	template<typename T>
-	FGErrorInfo SpawnUnit(uint8 TeamID, FVector Location, FRotator Rotation, UClass* Class, T*& SpawnedUnit)
-	{
-		static_assert(TPointerIsConvertibleFromTo<T, const AStageUnitCharacter>::Value, TEXT("템플릿 'T'는 AStageUnitCharacter를 상속 받아야 합니다."));
-		AStageUnitCharacter* Temp = nullptr;
-		auto Err = K2_SpawnUnit(TeamID, Location, Rotation, TSubclassOf<AStageUnitCharacter>{Class}, Temp);
-		SpawnedUnit = (T*)Temp;
-		return Err;
-	}*/
+	UFUNCTION(BlueprintCallable, Category = "Spawn")
+	FGErrorInfo SpawnMonster(uint8 InTeamID, FVector InLocation, FRotator InRotation, FStageMonsterInfo InMonsterInfo, AStageMonsterUnit*& SpawnedMonster);
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Status")
 	void SetHp(int32 NewValue);
 
-	UFUNCTION(BlueprintPure)
+	UFUNCTION(BlueprintPure, Category = "Status")
 	int32 GetHp() const;
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Status")
 	void SetUsePoint(int32 NewValue);
 
-	UFUNCTION(BlueprintPure)
+	UFUNCTION(BlueprintPure, Category = "Status")
 	int32 GetUsePoint() const;
 
-	UFUNCTION(BlueprintPure)
+	UFUNCTION(BlueprintPure, Category = "Status")
 	FGErrorInfo PayUsePoint(int32 Cost);
 
 protected:
@@ -103,16 +97,23 @@ public:
 	UPROPERTY(Transient, BlueprintReadOnly)
 	TWeakObjectPtr<class UStageStorageComponent> StageStorageComponent;
 
-	UPROPERTY(BlueprintAssignable)
+	UPROPERTY(BlueprintAssignable, Category = "Status")
 	FOnUserStatusChanged OnHpChanged;
 
-	UPROPERTY(BlueprintAssignable)
+	UPROPERTY(BlueprintAssignable, Category = "Status")
 	FOnUserStatusChanged OnUsePointChanged;
+
+protected:
+	UPROPERTY(EditDefaultsOnly, Category = "Spawn")
+	TSubclassOf<class AStageAIController> AIControllerClass;
 
 private:
 	UPROPERTY(Transient)
 	class UStageTableReceipt* StageTableReceipt = nullptr;
 
 	TWeakPtr<FStage> Stage;
+
+	UPROPERTY(Transient)
+	TMap<FString, TWeakObjectPtr<AStageUnitCharacter>> SpawnedUnits;
 
 };

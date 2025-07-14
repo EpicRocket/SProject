@@ -16,7 +16,10 @@
 #include "Gameplay/Stage/Types/StageMonsterTypes.h"
 #include "Gameplay/Stage/Component/StageStateComponent.h"
 #include "Gameplay/Stage/Component/StageStorageComponent.h"
-//#include "Gameplay/Stage/Component/Stage"
+#include "Gameplay/Stage/Component/StageSpawnComponent.h"
+#include "Gameplay/Stage/Unit/StageTowerUnit.h"
+#include "Gameplay/Stage/Unit/StageMonsterUnit.h"
+#include "Gameplay/Stage/AI/StageAIController.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(StageSupervisor)
 
@@ -89,27 +92,123 @@ void AStageSupervisor::BeginPlay()
 	);
 }
 
-FGErrorInfo AStageSupervisor::SpawnTower(uint8 TeamID, FVector Location, FRotator Rotation, FStageTowerInfo TowerInfo, AStageTowerUnit*& SpawnedUnit)
+FGErrorInfo AStageSupervisor::RegisterSpawnedUnit(AStageUnitCharacter* Unit)
 {
-	/*auto SpawnComponent = GetSpawnComponent();
+	if (!IsValid(Unit))
+	{
+		return GameCore::Throw(GameErr::ACTOR_INVALID, TEXT("RegisterSpawnedUnit(Unit):Unit is invalid."));
+	}
+
+	SpawnedUnits.Emplace(Unit->GetActorGuid().ToString(EGuidFormats::Digits), Unit);
+	return GameCore::Pass();
+}
+
+FGErrorInfo AStageSupervisor::UnregisterSpawnedUnit(AStageUnitCharacter* Unit)
+{
+	if (!IsValid(Unit))
+	{
+		return GameCore::Throw(GameErr::ACTOR_INVALID, TEXT("RegisterSpawnedUnit(Unit):Unit is invalid."));
+	}
+
+	SpawnedUnits.Remove(Unit->GetActorGuid().ToString(EGuidFormats::Digits));
+	return GameCore::Pass();
+}
+
+FGErrorInfo AStageSupervisor::SpawnTower(uint8 InTeamID, FVector InLocation, FRotator InRotation, FStageTowerInfo InTowerInfo, AStageTowerUnit*& SpawnedTower)
+{
+	auto SpawnComponent = GetSpawnComponent();
 	if (!IsValid(SpawnComponent))
 	{
+		auto ErrStr = FString::Printf(TEXT("SpawnTower(InTeamID:%d, InLocation:%s, InRotation:%s, InTowerInfo:%s, SpawnedTower):SpawnComponent is invalid.")
+			, InTeamID, *InLocation.ToString(), *InRotation.ToString(), *InTowerInfo.ToString());
+		return GameCore::Throw(GameErr::COMPONENT_INVALID, ErrStr);
+	}
 
-	}*/
+	AStageUnitCharacter* SpawnedUnit = nullptr;
+	if (auto Err = SpawnComponent->BeginSpawn(InTowerInfo.UnitClass, InLocation, InRotation, AIControllerClass, SpawnedUnit); !GameCore::IsOK(Err))
+	{
+		return Err;
+	}
 
+	SpawnedTower = Cast<AStageTowerUnit>(SpawnedUnit);
+	if (!SpawnedTower)
+	{
+		auto ErrStr = FString::Printf(TEXT("SpawnTower(InTeamID:%d, InLocation:%s, InRotation:%s, InTowerInfo:%s, SpawnedTower):SpawnedTower fail cast.")
+			, InTeamID, *InLocation.ToString(), *InRotation.ToString(), *InTowerInfo.ToString());
+		return GameCore::Throw(GameErr::ACTOR_INVALID, ErrStr);
+	}
 
-	return FGErrorInfo();
+	// 타워 정보 설정
+	SpawnedTower->Setup(InTowerInfo);
+
+	// 스폰 성공
+	if (auto Err = SpawnComponent->EndSpawn(SpawnedUnit, InLocation, InRotation); !GameCore::IsOK(Err))
+	{
+		return Err;
+	}
+
+	// AI 설정
+	if (auto AIController = Cast<AStageAIController>(SpawnedUnit->GetController()))
+	{
+		AIController->Setup(InTeamID, InTowerInfo.AI);
+	}
+
+	// 유닛 등록
+	if (auto Err = RegisterSpawnedUnit(SpawnedTower); !GameCore::IsOK(Err))
+	{
+		return Err;
+	}
+
+	return GameCore::Pass();
 }
 
-FGErrorInfo AStageSupervisor::SpawnMonster(uint8 TeamID, FVector Location, FRotator Rotation, FStageMonsterInfo MonsterInfo, AStageMonsterUnit*& SpawnedUnit)
+FGErrorInfo AStageSupervisor::SpawnMonster(uint8 InTeamID, FVector InLocation, FRotator InRotation, FStageMonsterInfo InMonsterInfo, AStageMonsterUnit*& SpawnedMonster)
 {
-	return FGErrorInfo();
-}
+	auto SpawnComponent = GetSpawnComponent();
+	if (!IsValid(SpawnComponent))
+	{
+		auto ErrStr = FString::Printf(TEXT("SpawnTower(InTeamID:%d, InLocation:%s, InRotation:%s, InMonsterInfo:%s, SpawnedTower):SpawnComponent is invalid.")
+			, InTeamID, *InLocation.ToString(), *InRotation.ToString(), *InMonsterInfo.ToString());
+		return GameCore::Throw(GameErr::COMPONENT_INVALID, ErrStr);
+	}
 
-//FGErrorInfo AStageSupervisor::K2_SpawnUnit(uint8 TeamID, FVector Location, FRotator Rotation, TSubclassOf<AStageUnitCharacter> StageUnitClass, AStageUnitCharacter*& SpawnedUnit)
-//{
-//	return FGErrorInfo();
-//}
+	AStageUnitCharacter* SpawnedUnit = nullptr;
+	if (auto Err = SpawnComponent->BeginSpawn(InMonsterInfo.UnitClass, InLocation, InRotation, AIControllerClass, SpawnedUnit); !GameCore::IsOK(Err))
+	{
+		return Err;
+	}
+
+	SpawnedMonster = Cast<AStageMonsterUnit>(SpawnedUnit);
+	if (!SpawnedMonster)
+	{
+		auto ErrStr = FString::Printf(TEXT("SpawnTower(InTeamID:%d, InLocation:%s, InRotation:%s, InMonsterInfo:%s, SpawnedTower):SpawnedTower fail cast.")
+			, InTeamID, *InLocation.ToString(), *InRotation.ToString(), *InMonsterInfo.ToString());
+		return GameCore::Throw(GameErr::ACTOR_INVALID, ErrStr);
+	}
+
+	// 몬스터 정보 설정
+	SpawnedMonster->Setup(InMonsterInfo);
+
+	// 스폰 성공
+	if (auto Err = SpawnComponent->EndSpawn(SpawnedUnit, InLocation, InRotation); !GameCore::IsOK(Err))
+	{
+		return Err;
+	}
+
+	// AI 설정
+	if (auto AIController = Cast<AStageAIController>(SpawnedUnit->GetController()))
+	{
+		AIController->Setup(InTeamID, InMonsterInfo.AI);
+	}
+
+	// 유닛 등록
+	if (auto Err = RegisterSpawnedUnit(SpawnedMonster); !GameCore::IsOK(Err))
+	{
+		return Err;
+	}
+
+	return GameCore::Pass();
+}
 
 void AStageSupervisor::SetHp(int32 NewValue)
 {

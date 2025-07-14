@@ -165,13 +165,6 @@ FGErrorInfo AStageBuildZone::RequestBuildTower(const FStageTowerInfo& BuildTower
 	SpawnLocation.Z = SpawnLocation.Z + SpawnedTower->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
 	SpawnedTower->SetActorLocation(FVector(SpawnLocation.X, SpawnLocation.Y, SpawnLocation.Z));
 
-	if (auto AIController = SpawnedUnit->GetController<AStageAIController>())
-	{
-		AIController->SetGenericTeamId(GetTeamID());
-		//AIController->SourceStage = SourceStage;
-		AIController->AIBehaviorTree = BuildTowerInfo.AI;
-	}
-
 	OnCompleteBuildTower(SpawnedUnit);
 	//Stage::SendUnitEvent(this, Stage::NewUnitEvent<UStageUnitEvent_Spawn>(SpawnedUnit));
 
