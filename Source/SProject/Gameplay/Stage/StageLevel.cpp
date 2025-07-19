@@ -1,3 +1,4 @@
+// Copyright (c) 2025 Team EpicRocket. All rights reserved.
 
 #include "StageLevel.h"
 // include Engine
@@ -6,7 +7,7 @@
 // include GGameCore
 #include "Core/GGameCoreHelper.h"
 // include Project
-#include "StageLogging.h"
+#include "Gameplay/Stage/Stage.h"
 #include "Gameplay/Stage/ETC/StageBuildZone.h"
 #include "Gameplay/Stage/ETC/StageSpawner.h"
 #include "Gameplay/Stage/ETC/StageSupervisor.h"
@@ -17,15 +18,6 @@
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(StageLevel)
 
-void AStageLevel::BeginPlay()
-{
-	Super::BeginPlay();
-
-	OnInitailize();
-
-	// TODO:
-}
-
 void AStageLevel::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	if (IsValid(Supervisor))
@@ -33,11 +25,6 @@ void AStageLevel::EndPlay(const EEndPlayReason::Type EndPlayReason)
 		Supervisor->Destroy();
 		Supervisor = nullptr;
 	}
-
-	PathActors.Empty();
-	BuildZones.Empty();
-	Spawners.Empty();
-	PlayerPawn = nullptr;
 
 	Super::EndPlay(EndPlayReason);
 }
@@ -59,7 +46,7 @@ FGErrorInfo AStageLevel::Setup(int32 InStageLevel, TSubclassOf<AStageSupervisor>
 
 	if (!InSupervisorClass)
 	{
-		return GameCore::Throw(GameErr::POINTER_INVALID, FString::Printf(TEXT("AStageLevel::Setup(InStageLevel: %d, InSupervisorClass: %s):SupervisorClass를 찾을 수 없습니다."), InStageLevel, InSupervisorClass ? TEXT("Exist") : TEXT("NotExist")));
+		return GameCore::Throw(GameErr::POINTER_INVALID, FString::Printf(TEXT("AStageLevel::Setup(InStageLevel: %d, InSupervisorClass: %s):SupervisorClass를 찾을 수 없습니다."), InStageLevel));
 	}
 
 	{
@@ -67,6 +54,8 @@ FGErrorInfo AStageLevel::Setup(int32 InStageLevel, TSubclassOf<AStageSupervisor>
 		Params.Owner = this;
 		Supervisor = World->SpawnActor<AStageSupervisor>(InSupervisorClass, Params);
 	}
+
+	OnInitailize();
 
 	return GameCore::Pass();
 }
@@ -91,11 +80,7 @@ void AStageLevel::AddBuildZone(AStageBuildZone* BuildZone)
 		return;
 	}
 
-	if (BuildZones.Contains(Position))
-	{
-	}
-
-	BuildZonePtr->SourceStage = this;
+	BuildZone->Setup(Supervisor);
 	BuildZones.Emplace(Position, BuildZonePtr);
 }
 

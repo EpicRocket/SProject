@@ -42,7 +42,7 @@ public:
 	FGuid UnitId;
 
 	UPROPERTY(EditInstanceOnly, Category = "Team")
-	uint8 TeamID;
+	uint8 TeamID = 255;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Unit")

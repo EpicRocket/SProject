@@ -8,6 +8,11 @@
 #include "StageSupervisor.generated.h"
 
 struct FStage;
+struct FStageTowerInfo;
+struct FStageMonsterInfo;
+class AStageTowerUnit;
+class AStageMonsterUnit;
+class AStageUnitCharacter;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnUserStatusChanged, int32, OldValue, int32, NewValue);
 
@@ -19,21 +24,38 @@ class MY_API AStageSupervisor : public AInfo
 	// Actor
 protected:
 	virtual void BeginPlay() override;
-	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	// ~Actor
 
 public:
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintImplementableEvent, Category = "Spawn")
+	class UStageSpawnComponent* GetSpawnComponent();
+
+	UFUNCTION(BlueprintCallable, Category = "Spawn")
+	FGErrorInfo RegisterSpawnedUnit(AStageUnitCharacter* Unit);
+
+	UFUNCTION(BlueprintCallable, Category = "Spawn")
+	FGErrorInfo UnregisterSpawnedUnit(AStageUnitCharacter* Unit);
+
+	UFUNCTION(BlueprintCallable, Category = "Spawn")
+	FGErrorInfo SpawnTower(uint8 InTeamID, FVector InLocation, FRotator InRotation, FStageTowerInfo InTowerInfo, AStageTowerUnit*& SpawnedTower);
+
+	UFUNCTION(BlueprintCallable, Category = "Spawn")
+	FGErrorInfo SpawnMonster(uint8 InTeamID, FVector InLocation, FRotator InRotation, FStageMonsterInfo InMonsterInfo, AStageMonsterUnit*& SpawnedMonster);
+
+	UFUNCTION(BlueprintCallable, Category = "Status")
 	void SetHp(int32 NewValue);
 
-	UFUNCTION(BlueprintPure)
+	UFUNCTION(BlueprintPure, Category = "Status")
 	int32 GetHp() const;
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Status")
 	void SetUsePoint(int32 NewValue);
 
-	UFUNCTION(BlueprintPure)
+	UFUNCTION(BlueprintPure, Category = "Status")
 	int32 GetUsePoint() const;
+
+	UFUNCTION(BlueprintPure, Category = "Status")
+	FGErrorInfo PayUsePoint(int32 Cost);
 
 protected:
 	UFUNCTION(BlueprintCallable)
@@ -75,16 +97,23 @@ public:
 	UPROPERTY(Transient, BlueprintReadOnly)
 	TWeakObjectPtr<class UStageStorageComponent> StageStorageComponent;
 
-	UPROPERTY(BlueprintAssignable)
+	UPROPERTY(BlueprintAssignable, Category = "Status")
 	FOnUserStatusChanged OnHpChanged;
 
-	UPROPERTY(BlueprintAssignable)
+	UPROPERTY(BlueprintAssignable, Category = "Status")
 	FOnUserStatusChanged OnUsePointChanged;
+
+protected:
+	UPROPERTY(EditDefaultsOnly, Category = "Spawn")
+	TSubclassOf<class AStageAIController> AIControllerClass;
 
 private:
 	UPROPERTY(Transient)
 	class UStageTableReceipt* StageTableReceipt = nullptr;
 
 	TWeakPtr<FStage> Stage;
+
+	UPROPERTY(Transient)
+	TMap<FString, TWeakObjectPtr<AStageUnitCharacter>> SpawnedUnits;
 
 };

@@ -15,7 +15,7 @@
 #include "Core/MyPlayerController.h"
 #include "Types/StageTypes.h"
 #include "Table/StageTable.h"
-#include "Gameplay/Stage/StageLogging.h"
+#include "Gameplay/Stage/Stage.h"
 #include "Gameplay/Subsystem/GameplayWorldSubsystem.h"
 #include "Gameplay/Team/GameplayTeamSubsystem.h"
 #include "Gameplay/Stage/StageLevel.h"

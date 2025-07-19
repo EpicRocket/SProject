@@ -15,7 +15,7 @@
 #include "Table/MonsterTable.h"
 #include "Table/StageTable.h"
 #include "Table/MonsterGroupTable.h"
-#include "Gameplay/Stage/StageLogging.h"
+#include "Gameplay/Stage/Stage.h"
 #include "Gameplay/Stage/Types/StageTowerTypes.h"
 #include "Gameplay/Stage/Types/StageMonsterTypes.h"
 #include "Gameplay/Stage/Types/StageWaveTypes.h"

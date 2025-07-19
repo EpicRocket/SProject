@@ -1,3 +1,4 @@
+// Copyright (c) 2025 Team EpicRocket. All rights reserved.
 
 #include "StageSpawner.h"
 // include Engine
@@ -7,7 +8,7 @@
 // include Project
 #include "Gameplay/GameplayHelper.h"
 #include "Gameplay/ETC/GameplayPathActor.h"
-#include "Gameplay/Stage/StageLogging.h"
+#include "Gameplay/Stage/Stage.h"
 #include "Gameplay/Stage/StageLevel.h"
 #include "Gameplay/Stage/StageTableRepository.h"
 #include "Gameplay/Stage/Types/StageMonsterTypes.h"
@@ -29,7 +30,7 @@ FGErrorInfo AStageSpawner::SpawnMonster(const FStageMonsterSpawnParams& Params, 
 		return Err;
 	}
 
-	if (auto Err = SpawnComponent->SpawnMonster(GetTeamID(), Params.StageLevel.Get(), GetActorLocation(), GetActorRotation(), Info, nullptr, SpawnedUnit); !GameCore::IsOK(Err))
+	/*if (auto Err = SpawnComponent->SpawnMonster(GetTeamID(), Params.StageLevel.Get(), GetActorLocation(), GetActorRotation(), Info, nullptr, SpawnedUnit); !GameCore::IsOK(Err))
 	{
 		return Err;
 	}
@@ -45,7 +46,7 @@ FGErrorInfo AStageSpawner::SpawnMonster(const FStageMonsterSpawnParams& Params, 
 		}
 		
 		AIController->StartAI();
-	}
+	}*/
 
 	return GameCore::Pass();
 }

@@ -78,5 +78,4 @@ namespace GameCore
 	GGAMECORE_API const FGErrorInfo& Pass();
 
 	GGAMECORE_API FGErrorInfo Throw(FString ErrCode, FString More = TEXT(""));
-
 }
