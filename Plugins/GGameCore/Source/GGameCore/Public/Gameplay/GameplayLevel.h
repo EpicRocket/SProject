@@ -26,8 +26,11 @@ public:
     // ~IGLoadingProcess
 
     UFUNCTION(BlueprintPure, Category = "Gameplay", meta = (DeterminesOutputType = "ActorClass", DynamicOutputParam = "OutActors"))
-    void GetActorsByClass(TSubclassOf<AActor> ActorClass, TArray<AActor *> &OutActors) const;
+    void GetActorsByClass(TSubclassOf<AActor> ActorClass, TArray<AActor*> &OutActors) const;
     
+    UFUNCTION(BlueprintPure, Category = "Gameplay")
+    TArray<AActor*> GetLevelActors() const;
+
     UFUNCTION(BlueprintPure)
     TSoftObjectPtr<UWorld> GetLevelSoftObject() const;
 

@@ -210,6 +210,10 @@ FGErrorInfo AStageSupervisor::SpawnMonster(uint8 InTeamID, FVector InLocation, F
 	return GameCore::Pass();
 }
 
+void AStageSupervisor::RequestStartWave()
+{
+}
+
 void AStageSupervisor::SetHp(int32 NewValue)
 {
 	if (Stage.IsValid())

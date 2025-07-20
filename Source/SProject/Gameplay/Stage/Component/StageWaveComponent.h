@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Component/GGameStateComponent.h"
+#include "Core/Component/GGameCoreComponent.h"
 #include "Gameplay/Stage/Types/StageWaveTypes.h"
 #include "Gameplay/Stage/Types/StageMonsterGroupTypes.h"
 
@@ -13,8 +13,8 @@ struct FStageWaveGroupInfo;
 struct FStageMonsterGroupInfo;
 struct FMonsterGroupTableRow;
 
-UCLASS()
-class MY_API UStageWaveComponent : public UGGameStateComponent
+UCLASS(Abstract, Blueprintable, meta = (BlueprintSpawnableComponent), Category = "Stage", ClassGroup = "Stage")
+class MY_API UStageWaveComponent : public UGGameCoreComponent
 {
 	GENERATED_BODY()
 
@@ -31,6 +31,7 @@ private:
 
 	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
 	TArray<FStageWaveGroupInfo> WaveGroupInfo;
+
 protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnWaveStart();
@@ -40,6 +41,7 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnStageWaveComplete();
+
 public:
 	UPROPERTY(BlueprintReadWrite)
 	bool Paused = true;
@@ -64,4 +66,5 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	TArray<FMonsterGroupTableRow> GetMonsterGroupInfos(int32 MonsterGroup);
+
 };

@@ -42,6 +42,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Spawn")
 	FGErrorInfo SpawnMonster(uint8 InTeamID, FVector InLocation, FRotator InRotation, FStageMonsterInfo InMonsterInfo, AStageMonsterUnit*& SpawnedMonster);
 
+	UFUNCTION(BlueprintCallable, Category = "Gameplay")
+	void RequestStartWave();
+
 	UFUNCTION(BlueprintCallable, Category = "Status")
 	void SetHp(int32 NewValue);
 

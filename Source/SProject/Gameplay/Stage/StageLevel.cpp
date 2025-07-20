@@ -10,6 +10,7 @@
 #include "Gameplay/Stage/Stage.h"
 #include "Gameplay/Stage/ETC/StageBuildZone.h"
 #include "Gameplay/Stage/ETC/StageSpawner.h"
+#include "Gameplay/Stage/ETC/StageStartPoint.h"
 #include "Gameplay/Stage/ETC/StageSupervisor.h"
 #include "Gameplay/ETC/GameplayPathActor.h"
 #include "StagePlayerPawn.h"
@@ -62,26 +63,26 @@ FGErrorInfo AStageLevel::Setup(int32 InStageLevel, TSubclassOf<AStageSupervisor>
 
 void AStageLevel::AddBuildZone(AStageBuildZone* BuildZone)
 {
-	TWeakObjectPtr<AStageBuildZone> BuildZonePtr = BuildZone;
+	TWeakObjectPtr<AStageBuildZone> ObjectPtr = BuildZone;
 
-	if (!BuildZonePtr.IsValid())
+	if (!ObjectPtr.IsValid())
 	{
 		return;
 	}
 
-	if (BuildZonePtr->Tags.IsEmpty())
+	if (ObjectPtr->Tags.IsEmpty())
 	{
 		return;
 	}
 
-	int32 Position = BuildZone->GetPosition();
+	int32 Position = ObjectPtr->GetPosition();
 	if (Position == INDEX_NONE)
 	{
 		return;
 	}
 
-	BuildZone->Setup(Supervisor);
-	BuildZones.Emplace(Position, BuildZonePtr);
+	ObjectPtr->Setup(Supervisor);
+	BuildZones.Emplace(Position, ObjectPtr);
 }
 
 AStageBuildZone* AStageLevel::GetBuildZone(int32 Position) const
@@ -91,24 +92,24 @@ AStageBuildZone* AStageLevel::GetBuildZone(int32 Position) const
 		return nullptr;
 	}
 
-	auto& BuildZone = BuildZones[Position];
-	if (!BuildZone.IsValid())
+	auto& Element = BuildZones[Position];
+	if (!Element.IsValid())
 	{
 		return nullptr;
 	}
 
-	return BuildZone.Get();
+	return Element.Get();
 }
 
 TArray<AStageBuildZone*> AStageLevel::GetBuildZones() const
 {
 	TArray<AStageBuildZone*> Result;
 
-	for (auto& [_, BuildZone] : BuildZones)
+	for (auto& [_, Element] : BuildZones)
 	{
-		if (BuildZone.IsValid())
+		if (Element.IsValid())
 		{
-			Result.Emplace(BuildZone.Get());
+			Result.Emplace(Element.Get());
 		}
 	}
 
@@ -133,19 +134,19 @@ APawn* AStageLevel::GetPlayerPawn() const
 
 void AStageLevel::AddPathActor(AGameplayPathActor* PathActor)
 {
-	TWeakObjectPtr<AGameplayPathActor> PathActorPtr = PathActor;
+	TWeakObjectPtr<AGameplayPathActor> ObjectPtr = PathActor;
 
-	if (!PathActorPtr.IsValid())
+	if (!ObjectPtr.IsValid())
 	{
 		return;
 	}
 
-	if (PathActorPtr->Tags.IsEmpty())
+	if (ObjectPtr->Tags.IsEmpty())
 	{
 		return;
 	}
 
-	int32 Position = PathActor->GetPosition();
+	int32 Position = ObjectPtr->GetPosition();
 	if (Position == INDEX_NONE)
 	{
 		return;
@@ -155,7 +156,7 @@ void AStageLevel::AddPathActor(AGameplayPathActor* PathActor)
 	{
 	}
 
-	PathActors.Emplace(Position, PathActorPtr);
+	PathActors.Emplace(Position, ObjectPtr);
 }
 
 AGameplayPathActor* AStageLevel::GetPathActor(int32 Position) const
@@ -165,24 +166,24 @@ AGameplayPathActor* AStageLevel::GetPathActor(int32 Position) const
 		return nullptr;
 	}
 
-	auto& PathActor = PathActors[Position];
-	if (!PathActor.IsValid())
+	auto& Element = PathActors[Position];
+	if (!Element.IsValid())
 	{
 		return nullptr;
 	}
 
-	return PathActor.Get();
+	return Element.Get();
 }
 
 TArray<AGameplayPathActor*> AStageLevel::GetPathActors() const
 {
 	TArray<AGameplayPathActor*> Result;
 
-	for (auto& [_, PathActor] : PathActors)
+	for (auto& [_, Element] : PathActors)
 	{
-		if (PathActor.IsValid())
+		if (Element.IsValid())
 		{
-			Result.Emplace(PathActor.Get());
+			Result.Emplace(Element.Get());
 		}
 	}
 
@@ -191,24 +192,21 @@ TArray<AGameplayPathActor*> AStageLevel::GetPathActors() const
 
 void AStageLevel::AddSpawner(AStageSpawner* Spawner)
 {
-	TWeakObjectPtr<AStageSpawner> SpawnerPtr = Spawner;
-	if (!SpawnerPtr.IsValid())
+	TWeakObjectPtr<AStageSpawner> ObjectPtr = Spawner;
+	if (!ObjectPtr.IsValid())
 	{
 		return;
 	}
-	if (SpawnerPtr->Tags.IsEmpty())
+	if (ObjectPtr->Tags.IsEmpty())
 	{
 		return;
 	}
-	int32 Position = Spawner->GetPosition();
+	int32 Position = ObjectPtr->GetPosition();
 	if (Position == INDEX_NONE)
 	{
 		return;
 	}
-	if (Spawners.Contains(Position))
-	{
-	}
-	Spawners.Emplace(Position, SpawnerPtr);
+	Spawners.Emplace(Position, ObjectPtr);
 }
 
 AStageSpawner* AStageLevel::GetSpawner(int32 Position) const
@@ -218,62 +216,107 @@ AStageSpawner* AStageLevel::GetSpawner(int32 Position) const
 		return nullptr;
 	}
 
-	auto& Spawner = Spawners[Position];
+	auto& Element = Spawners[Position];
 
-	if (!Spawner.IsValid())
+	if (!Element.IsValid())
 	{
 		return nullptr;
 	}
 
-	return Spawner.Get();
+	return Element.Get();
 }
 
 TArray<AStageSpawner*> AStageLevel::GetSpawners() const
 {
 	TArray<AStageSpawner*> Result;
 
-	for (auto& [_, Spawner] : Spawners)
+	for (auto& [_, Element] : Spawners)
 	{
-		if (Spawner.IsValid())
+		if (Element.IsValid())
 		{
-			Result.Emplace(Spawner.Get());
+			Result.Emplace(Element.Get());
 		}
 	}
 
 	return Result;
 }
 
+void AStageLevel::AddStartPoint(AStageStartPoint* StartPoint)
+{
+	TWeakObjectPtr<AStageStartPoint> ObjectPtr = StartPoint;
+	if (!ObjectPtr.IsValid())
+	{
+		return;
+	}
+	if (ObjectPtr->Tags.IsEmpty())
+	{
+		return;
+	}
+	int32 Position = ObjectPtr->GetPosition();
+	if (Position == INDEX_NONE)
+	{
+		return;
+	}
+
+	ObjectPtr->Setup(Supervisor);
+	StartPoints.Emplace(Position, ObjectPtr);
+}
+
+AStageStartPoint* AStageLevel::GetStartPoint(int32 Position) const
+{
+	if (!StartPoints.Contains(Position))
+	{
+		return nullptr;
+	}
+
+	auto& Element = StartPoints[Position];
+	if (!Element.IsValid())
+	{
+		return nullptr;
+	}
+	return Element.Get();
+}
+
+TArray<AStageStartPoint*> AStageLevel::GetStartPoints() const
+{
+	TArray<AStageStartPoint*> Result;
+
+	for (auto& [_, Element] : StartPoints)
+	{
+		if (Element.IsValid())
+		{
+			Result.Emplace(Element.Get());
+		}
+	}
+	return Result;
+}
+
 void AStageLevel::OnInitailize()
 {
-	TArray<AActor*> FindActors;
-
-	GetActorsByClass(AGameplayPathActor::StaticClass(), FindActors);
-	for (auto Actor : FindActors)
+	for (auto& Actor : GetLevelActors())
 	{
-		AddPathActor(Cast<AGameplayPathActor>(Actor));
-	}
-
-	GetActorsByClass(AStageBuildZone::StaticClass(), FindActors);
-	for (auto Actor : FindActors)
-	{
-		AddBuildZone(Cast<AStageBuildZone>(Actor));
-	}
-
-	GetActorsByClass(AStageSpawner::StaticClass(), FindActors);
-	for (auto Actor : FindActors)
-	{
-		AddSpawner(Cast<AStageSpawner>(Actor));
-	}
-
-	GetActorsByClass(AStagePlayerPawn::StaticClass(), FindActors);
-	for (auto Actor : FindActors)
-	{
-		auto Pawn = Cast<AStagePlayerPawn>(Actor);
-		if (!Pawn)
+		if (Actor->IsA<AGameplayPathActor>())
 		{
-			continue;
+			AddPathActor(Cast<AGameplayPathActor>(Actor));
 		}
-		SetPlayerPawn(Pawn);
-		break;
+		else if (Actor->IsA<AStageBuildZone>())
+		{
+			AddBuildZone(Cast<AStageBuildZone>(Actor));
+		}
+		else if (Actor->IsA<AStageSpawner>())
+		{
+			AddSpawner(Cast<AStageSpawner>(Actor));
+		}
+		else if (Actor->IsA<AStageStartPoint>())
+		{
+
+		}
+		else if (Actor->IsA<AStagePlayerPawn>())
+		{
+			SetPlayerPawn(Cast<AStagePlayerPawn>(Actor));
+		}
 	}
+
+
+	TArray<AActor*> FindActors;
 }

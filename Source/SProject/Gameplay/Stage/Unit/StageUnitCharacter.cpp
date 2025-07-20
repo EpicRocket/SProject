@@ -4,7 +4,7 @@
 // include GameCore
 #include "AbilitySystem/GAbilitySystemComponent.h"
 // include Project
-#include "Gameplay/GameplayUnitAnimState.h"
+#include "Gameplay/Unit/GameplayUnitAnimState.h"
 #include "Gameplay/Stage/Stage.h"
 #include "StageUnitAttributeSet.h"
 

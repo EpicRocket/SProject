@@ -54,6 +54,16 @@ void AGameplayLevel::GetActorsByClass(TSubclassOf<AActor> ActorClass, TArray<AAc
 	}
 }
 
+TArray<AActor*> AGameplayLevel::GetLevelActors() const
+{
+	auto Level = Cast<ULevel>(GetOuter());
+	if (!Level)
+	{
+		return TArray<AActor*>{};
+	}
+	return Level->Actors;
+}
+
 TSoftObjectPtr<UWorld> AGameplayLevel::GetLevelSoftObject() const
 {
 	auto Package = GetPackage();

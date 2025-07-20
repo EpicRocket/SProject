@@ -9,6 +9,7 @@ class AGameplayPathActor;
 class AStageBuildZone;
 class AStagePlayerPawn;
 class AStageSpawner;
+class AStageStartPoint;
 class AStageSupervisor;
 struct FStage;
 
@@ -60,6 +61,15 @@ public:
 	UFUNCTION(BlueprintPure)
 	TArray<AStageSpawner*> GetSpawners() const;
 
+	UFUNCTION(BlueprintCallable)
+	void AddStartPoint(AStageStartPoint* StartPoint);
+
+	UFUNCTION(BlueprintPure)
+	AStageStartPoint* GetStartPoint(int32 Position) const;
+
+	UFUNCTION(BlueprintPure)
+	TArray<AStageStartPoint*> GetStartPoints() const;
+
 protected:
 	virtual void OnInitailize();
 
@@ -72,6 +82,8 @@ public:
 	TMap<int32, TWeakObjectPtr<AStageBuildZone>> BuildZones;
 
 	TMap<int32, TWeakObjectPtr<AStageSpawner>> Spawners;
+
+	TMap<int32, TWeakObjectPtr<AStageStartPoint>> StartPoints;
 
 	UPROPERTY(Transient, BlueprintReadOnly)
 	TWeakObjectPtr<AStagePlayerPawn> PlayerPawn;
