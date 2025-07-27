@@ -21,7 +21,7 @@
 #include "Gameplay/Stage/StageTableRepository.h"
 #include "Gameplay/Stage/StageLevel.h"
 #include "Gameplay/Stage/StageUnitEvent.h"
-#include "Gameplay/Stage/Types/StageTowerTypes.h"
+#include "Gameplay/Stage/Types/GameplayStageTypes.h"
 #include "Gameplay/Stage/Interface/IStageTower.h"
 #include "Gameplay/Stage/Component/StageSpawnComponent.h"
 #include "Gameplay/Stage/Component/StagePlayerComponent.h"

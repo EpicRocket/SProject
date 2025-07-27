@@ -16,5 +16,11 @@ namespace GameErr
 
 		// 모든 웨이브를 클리어 함
 		static const FString ALL_CLEAR_WAVE = TEXT("ALL_CLEAR_WAVE");
+
+		// 마지막 웨이브라서 다음 웨이브를 시작 할 수 없습니다.
+		static const FString LAST_WAVE = TEXT("LAST_WAVE");
+
+		// 다음 웨이브 정보가 없어 시작을 할 수 없습니다.
+		static const FString NO_NEXT_WAVE = TEXT("NO_NEXT_WAVE");
 	}
 }

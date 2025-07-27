@@ -29,7 +29,7 @@ protected:
 	// ~Actor
 
 public:
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "GetStage", ReturnDisplayName = "Error"))
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "GetStage", ReturnDisplayName = "Error"))
 	FGErrorInfo K2_GetStage(UPARAM(DisplayName = "ReturnValue") FStage& CurrentStage) const;
 	TSharedPtr<FStage> GetStage() const;
 

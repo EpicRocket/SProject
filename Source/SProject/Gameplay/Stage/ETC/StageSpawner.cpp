@@ -11,7 +11,7 @@
 #include "Gameplay/Stage/Stage.h"
 #include "Gameplay/Stage/StageLevel.h"
 #include "Gameplay/Stage/StageTableRepository.h"
-#include "Gameplay/Stage/Types/StageMonsterTypes.h"
+#include "Gameplay/Stage/Types/GameplayStageTypes.h"
 #include "Gameplay/Stage/Unit/StageMonsterUnit.h"
 #include "Gameplay/Stage/Component/StageSpawnComponent.h"
 #include "Gameplay/Stage/AI/StageAIController.h"

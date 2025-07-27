@@ -12,8 +12,7 @@
 #include "Gameplay/Stage/Stage.h"
 #include "Gameplay/Stage/StageTableRepository.h"
 #include "Gameplay/Stage/ETC/StageBuildZone.h"
-#include "Gameplay/Stage/Types/StageTowerTypes.h"
-#include "Gameplay/Stage/Types/StageMonsterTypes.h"
+#include "Gameplay/Stage/Types/GameplayStageTypes.h"
 #include "Gameplay/Stage/Component/StageStateComponent.h"
 #include "Gameplay/Stage/Component/StageStorageComponent.h"
 #include "Gameplay/Stage/Component/StageSpawnComponent.h"
@@ -110,7 +109,7 @@ FGErrorInfo AStageSupervisor::K2_GetStage(UPARAM(DisplayName = "ReturnValue") FS
 	if (!StagePtr.IsValid())
 	{
 		CurrentStage = FStage{};
-		return GameCore::Throw(GameErr::POINTER_INVALID, TEXT("GetStage():Stage를 찾을 수 없습니다."));
+		return GameCore::Throw(GameErr::POINTER_INVALID, TEXT("K2_GetStage():Stage를 찾을 수 없습니다."));
 	}
 	CurrentStage = *StagePtr.Pin();
 	return GameCore::Pass();
@@ -235,17 +234,17 @@ FGErrorInfo AStageSupervisor::RequestStartWave()
 {
 	auto WaveComponent = GetWaveComponent();
 
-	if (WaveComponent->IsPlaying())
+	/*if (WaveComponent->IsPlaying())
 	{
 		return GameCore::Throw(GameErr::Stage::WAVE_IS_PLAYING, TEXT("RequestStartWave()"));
-	}
+	}*/
 
-	if (WaveComponent->IsComplete())
+	/*if (WaveComponent->IsComplete())
 	{
 		return GameCore::Throw(GameErr::Stage::ALL_CLEAR_WAVE, TEXT("RequestStartWave()"));
-	}
+	}*/
 
-	return GameCore::Pass();
+	return WaveComponent->Start();
 }
 
 void AStageSupervisor::SetHp(int32 NewValue)
@@ -398,10 +397,7 @@ FGErrorInfo AStageSupervisor::OnTableLoaded()
 		return GameCore::Throw(GameErr::POINTER_INVALID, TEXT("ResetStageData():StageTableReceipt를 찾을 수 없습니다."));
 	}
 
-	for (auto Context : StageTableReceipt->Contexts)
-	{
-		Context->Load();
-	}
+	StageTableReceipt->StageContext->Load();
 
 	StageStateComponent->AddStageLoadFlags(EStageLoadFlags::Repository, GameCore::Pass());
 
@@ -428,7 +424,7 @@ FGErrorInfo AStageSupervisor::OnGameplayDataLoad_Wave()
 		return GameCore::Throw(GameErr::POINTER_INVALID, TEXT("OnGameplayDataLoad_Wave():Stage를 찾을 수 없습니다."));
 	}
 
-	if (auto Err = WaveComponent->Setup(Stage->Level, Stage->Wave); !GameCore::IsOK(Err))
+	if (auto Err = WaveComponent->Setup(GetStage()); !GameCore::IsOK(Err))
 	{
 		return Err;
 	}

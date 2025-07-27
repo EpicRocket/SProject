@@ -14,6 +14,10 @@ class UWorld;
 
 enum class EStageUnitAttribute : uint8;
 
+// Stage forward declare
+class UStageContext;
+class UStageWaveContext;
+
 // Tower forward declare
 enum class EStageTowerType : uint8;
 struct FStageTowerInfo;
@@ -24,18 +28,14 @@ class UStageTowerContext;
 struct FStageMonsterInfo;
 class UStageMonsterContext;
 
-struct FStageMonsterGroupDetail;
-struct FStageMonsterGroupInfo;
-struct FStageWaveGroupInfo;
-
 UCLASS()
 class UStageTableReceipt : public UObject
 {
 	GENERATED_BODY()
 
 public:
-	UPROPERTY()
-	TArray<UGContext*> Contexts;
+	UPROPERTY(BlueprintReadOnly)
+	TObjectPtr<UStageContext> StageContext;
 
 };
 
@@ -54,19 +54,23 @@ private:
 	using TableKey = int32;
 	using KindType = int32;
 	using LevelType = int32;
-	using MonsterGroupType = int32;
 
+	// NOTE. 스테이지
+	TMap<TableKey, TWeakObjectPtr<UStageContext>> StageContexts;
+	TMap<TableKey, TWeakObjectPtr<UStageWaveContext>> StageWaveContexts;
+	TMap<TableKey, TWeakObjectPtr<UStageWaveContext>> RepeatStageWaveContexts;
+	TWeakObjectPtr<UStageContext> FindStageContext(int32 Key);
+
+	// NOTE. 몬스터
+	TMap<TableKey, TWeakObjectPtr<UStageMonsterContext>> MonsterContexts;
+	TWeakObjectPtr<UStageMonsterContext> FindNormalMonsterContext(int32 Key);
+
+	// Note. 타워
 	using TowerKeyType = TTuple<KindType, LevelType>;
 	TMap<TowerKeyType, TWeakObjectPtr<UStageTowerContext>> NormalTowerContexts;
-
-	TMap<TableKey, TWeakObjectPtr<UStageMonsterContext>> MonsterContexts;
-
-	TArray<FStageWaveGroupInfo> StageWaveGroup;
-	TMap<MonsterGroupType, TArray<FMonsterGroupTableRow>> StageMonsterGroup;
-
 	TWeakObjectPtr<UStageTowerContext> FindNormalTowerContext(int32 Kind, int32 Level);
 	TOptional<int32> FindNormalTowerMaxLevel(int32 Kind);
-	TWeakObjectPtr<UStageMonsterContext> FindNormalMonsterContext(int32 Key);
+
 };
 
 UCLASS()
@@ -75,27 +79,28 @@ class MY_API UStageTableHelper : public UBlueprintFunctionLibrary
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintPure, meta = (WorldContext = "WorldContextObject"))
+	UFUNCTION(BlueprintPure)
 	static FGErrorInfo GetBuildStageTower(EStageTowerType TowerType, int32 Kind, int32 Level, FStageTowerInfo& Result);
 
-	UFUNCTION(BlueprintPure, meta = (WorldContext = "WorldContextObject"))
+	UFUNCTION(BlueprintPure)
 	static FGErrorInfo GetNextStageTower(EStageTowerType TowerType, int32 Kind, int32 Level, FStageTowerInfo& Result);
 
-	UFUNCTION(BlueprintPure, meta = (WorldContext = "WorldContextObject"))
+	UFUNCTION(BlueprintPure)
 	static FGErrorInfo GetStageTowerMaxLevel(EStageTowerType TowerType, int32 Kind, int32& Result);
 
-	UFUNCTION(BlueprintPure, meta = (WorldContext = "WorldContextObject"))
+	UFUNCTION(BlueprintPure)
 	static FGErrorInfo GetStageTowerBaseStats(EStageTowerType TowerType, int32 Kind, int32 Level, TMap<EStageUnitAttribute, double>& Result);
 
-	UFUNCTION(BlueprintPure, meta = (WorldContext = "WorldContextObject"))
+	UFUNCTION(BlueprintPure)
 	static FGErrorInfo GetStageMonsterInfo(int32 MonsterKey, FStageMonsterInfo& Result);
 
-	UFUNCTION(BlueprintPure, meta = (WorldContext = "WorldContextObject"))
+	UFUNCTION(BlueprintPure)
 	static FGErrorInfo GetStageMonsterBaseStats(int32 MonsterKey, TMap<EStageUnitAttribute, double>& Result);
 
-	UFUNCTION(BlueprintPure, meta = (WorldContext = "WorldContextObject"))
-	static FGErrorInfo GetWaveGroupInfo(int32 WaveGroup, TArray<FStageWaveGroupInfo>& Result);
+	UFUNCTION(BlueprintPure)
+	static FGErrorInfo GetStageLastWave(int32 StageLevel, int32& Result);
 
-	UFUNCTION(BlueprintPure, meta = (WorldContext = "WorldContextObject"))
-	static FGErrorInfo GetMonsterGroupInfo(int32 MonsterGroup, TArray<FMonsterGroupTableRow>& Result);
+	UFUNCTION(BlueprintPure)
+	static FGErrorInfo GetStageWaveContexts(int32 StageLevel, TArray<UStageWaveContext*>& Result);
+
 };
