@@ -80,7 +80,7 @@ FGErrorInfo AStageBuildZone::GetTowerReceipt(FStageTowerReceipt& Receipt)
 		}
 
 		int32 TowerMaxLevel = 0;
-		auto Err = UStageTableHelper::GetStageTowerMaxLevel(this, TowerInfo->TowerType, TowerInfo->Kind, TowerMaxLevel);
+		auto Err = UStageTableHelper::GetStageTowerMaxLevel(TowerInfo->TowerType, TowerInfo->Kind, TowerMaxLevel);
 		if (!GameCore::IsOK(Err))
 		{
 			return Err;
@@ -92,7 +92,7 @@ FGErrorInfo AStageBuildZone::GetTowerReceipt(FStageTowerReceipt& Receipt)
 		if (!Receipt.bMaxLevel)
 		{
 			FStageTowerInfo NextTower;
-			UStageTableHelper::GetNextStageTower(this, TowerInfo->TowerType, TowerInfo->Kind, TowerInfo->Level, NextTower);
+			UStageTableHelper::GetNextStageTower(TowerInfo->TowerType, TowerInfo->Kind, TowerInfo->Level, NextTower);
 			Receipt.BuildTowers.Emplace(NextTower);
 		}
 	}
@@ -107,7 +107,7 @@ FGErrorInfo AStageBuildZone::GetTowerReceipt(FStageTowerReceipt& Receipt)
 		for (auto& Content : BuildZoneData->BuildContents)
 		{
 			FStageTowerInfo Tower;
-			if (auto Err = UStageTableHelper::GetBuildStageTower(this, Content.TowerType, Content.Kind, Content.Level, Tower); !GameCore::IsOK(Err))
+			if (auto Err = UStageTableHelper::GetBuildStageTower(Content.TowerType, Content.Kind, Content.Level, Tower); !GameCore::IsOK(Err))
 			{
 				continue;
 			}

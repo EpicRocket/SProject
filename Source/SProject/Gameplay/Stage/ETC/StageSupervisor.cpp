@@ -17,11 +17,24 @@
 #include "Gameplay/Stage/Component/StageStateComponent.h"
 #include "Gameplay/Stage/Component/StageStorageComponent.h"
 #include "Gameplay/Stage/Component/StageSpawnComponent.h"
+#include "Gameplay/Stage/Component/StageWaveComponent.h"
 #include "Gameplay/Stage/Unit/StageTowerUnit.h"
 #include "Gameplay/Stage/Unit/StageMonsterUnit.h"
 #include "Gameplay/Stage/AI/StageAIController.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(StageSupervisor)
+
+void AStageSupervisor::PreInitializeComponents()
+{
+	Super::PreInitializeComponents();
+
+	auto SpawnComponent = GetSpawnComponent();
+	check(SpawnComponent);
+
+	auto WaveComponent = GetWaveComponent();
+	check(WaveComponent);
+
+}
 
 void AStageSupervisor::BeginPlay()
 {
@@ -48,13 +61,10 @@ void AStageSupervisor::BeginPlay()
 		return;
 	}
 
-	StageTableReceipt = NewObject<UStageTableReceipt>(this, NAME_None, RF_Public | RF_Transient);
+	int32 StageLevel = OwnerLevel->StageLevel;
 
-	auto StageTableRepo = UStageTableRepository::Get(this);
-	if (!StageTableRepo)
-	{
-		return;
-	}
+	StagePtr = StageStorageComponent->GetStage(StageLevel);
+	StageTableReceipt = NewObject<UStageTableReceipt>(this, NAME_None, RF_Public | RF_Transient);
 
 	// NOTE. 스테이지에서 사용 할 로드 리스트 생성
 	TMap<EStageTowerType, TSet<int32>> LoadTowerList;
@@ -73,7 +83,7 @@ void AStageSupervisor::BeginPlay()
 	}
 
 	// NOTE. 테이블 로드 요청
-	StageTableRepo->Load(StageTableReceipt, OwnerLevel->StageLevel, LoadTowerList).Then(
+	UStageTableRepository::Get().Load(StageTableReceipt, StageLevel, LoadTowerList).Then(
 		[this, ThisPtr = TWeakObjectPtr<AStageSupervisor>(this)](TFuture<FGErrorInfo> Error)
 		{
 			if (!ThisPtr.IsValid())
@@ -87,9 +97,32 @@ void AStageSupervisor::BeginPlay()
 				return;
 			}
 
-			OnTableLoaded();
+			if (auto Err = OnTableLoaded(); !GameCore::IsOK(Err))
+			{
+				return;
+			}
 		}
 	);
+}
+
+FGErrorInfo AStageSupervisor::K2_GetStage(UPARAM(DisplayName = "ReturnValue") FStage& CurrentStage) const
+{
+	if (!StagePtr.IsValid())
+	{
+		CurrentStage = FStage{};
+		return GameCore::Throw(GameErr::POINTER_INVALID, TEXT("GetStage():Stage를 찾을 수 없습니다."));
+	}
+	CurrentStage = *StagePtr.Pin();
+	return GameCore::Pass();
+}
+
+TSharedPtr<FStage> AStageSupervisor::GetStage() const
+{
+	if (!StagePtr.IsValid())
+	{
+		return nullptr;
+	}
+	return StagePtr.Pin();
 }
 
 FGErrorInfo AStageSupervisor::RegisterSpawnedUnit(AStageUnitCharacter* Unit)
@@ -117,12 +150,6 @@ FGErrorInfo AStageSupervisor::UnregisterSpawnedUnit(AStageUnitCharacter* Unit)
 FGErrorInfo AStageSupervisor::SpawnTower(uint8 InTeamID, FVector InLocation, FRotator InRotation, FStageTowerInfo InTowerInfo, AStageTowerUnit*& SpawnedTower)
 {
 	auto SpawnComponent = GetSpawnComponent();
-	if (!IsValid(SpawnComponent))
-	{
-		auto ErrStr = FString::Printf(TEXT("SpawnTower(InTeamID:%d, InLocation:%s, InRotation:%s, InTowerInfo:%s, SpawnedTower):SpawnComponent is invalid.")
-			, InTeamID, *InLocation.ToString(), *InRotation.ToString(), *InTowerInfo.ToString());
-		return GameCore::Throw(GameErr::COMPONENT_INVALID, ErrStr);
-	}
 
 	AStageUnitCharacter* SpawnedUnit = nullptr;
 	if (auto Err = SpawnComponent->BeginSpawn(InTowerInfo.UnitClass, InLocation, InRotation, AIControllerClass, SpawnedUnit); !GameCore::IsOK(Err))
@@ -165,12 +192,6 @@ FGErrorInfo AStageSupervisor::SpawnTower(uint8 InTeamID, FVector InLocation, FRo
 FGErrorInfo AStageSupervisor::SpawnMonster(uint8 InTeamID, FVector InLocation, FRotator InRotation, FStageMonsterInfo InMonsterInfo, AStageMonsterUnit*& SpawnedMonster)
 {
 	auto SpawnComponent = GetSpawnComponent();
-	if (!IsValid(SpawnComponent))
-	{
-		auto ErrStr = FString::Printf(TEXT("SpawnTower(InTeamID:%d, InLocation:%s, InRotation:%s, InMonsterInfo:%s, SpawnedTower):SpawnComponent is invalid.")
-			, InTeamID, *InLocation.ToString(), *InRotation.ToString(), *InMonsterInfo.ToString());
-		return GameCore::Throw(GameErr::COMPONENT_INVALID, ErrStr);
-	}
 
 	AStageUnitCharacter* SpawnedUnit = nullptr;
 	if (auto Err = SpawnComponent->BeginSpawn(InMonsterInfo.UnitClass, InLocation, InRotation, AIControllerClass, SpawnedUnit); !GameCore::IsOK(Err))
@@ -210,48 +231,65 @@ FGErrorInfo AStageSupervisor::SpawnMonster(uint8 InTeamID, FVector InLocation, F
 	return GameCore::Pass();
 }
 
-void AStageSupervisor::RequestStartWave()
+FGErrorInfo AStageSupervisor::RequestStartWave()
 {
+	auto WaveComponent = GetWaveComponent();
+
+	if (WaveComponent->IsPlaying())
+	{
+		return GameCore::Throw(GameErr::Stage::WAVE_IS_PLAYING, TEXT("RequestStartWave()"));
+	}
+
+	if (WaveComponent->IsComplete())
+	{
+		return GameCore::Throw(GameErr::Stage::ALL_CLEAR_WAVE, TEXT("RequestStartWave()"));
+	}
+
+	return GameCore::Pass();
 }
 
 void AStageSupervisor::SetHp(int32 NewValue)
 {
+	auto Stage = GetStage();
 	if (Stage.IsValid())
 	{
 		return;
 	}
-	int32 OldValue = Stage.Pin()->Hp;
-	Stage.Pin()->Hp = NewValue;
+	int32 OldValue = Stage->Hp;
+	Stage->Hp = NewValue;
 	OnHpChanged.Broadcast(OldValue, NewValue);
 }
 
 int32 AStageSupervisor::GetHp() const
 {
+	auto Stage = GetStage();
 	if (!Stage.IsValid())
 	{
 		return 0;
 	}
-	return Stage.Pin()->Hp;
+	return Stage->Hp;
 }
 
 void AStageSupervisor::SetUsePoint(int32 NewValue)
 {
+	auto Stage = GetStage();
 	if (!Stage.IsValid())
 	{
 		return;
 	}
-	int32 OldValue = Stage.Pin()->UsePoint;
-	Stage.Pin()->UsePoint = NewValue;
+	int32 OldValue = Stage->UsePoint;
+	Stage->UsePoint = NewValue;
 	OnUsePointChanged.Broadcast(OldValue, NewValue);
 }
 
 int32 AStageSupervisor::GetUsePoint() const
 {
+	auto Stage = GetStage();
 	if (!Stage.IsValid())
 	{
 		return 0;
 	}
-	return Stage.Pin()->UsePoint;
+	return Stage->UsePoint;
 }
 
 FGErrorInfo AStageSupervisor::PayUsePoint(int32 Cost)
@@ -260,16 +298,15 @@ FGErrorInfo AStageSupervisor::PayUsePoint(int32 Cost)
 	return GameCore::Pass();
 }
 
-void AStageSupervisor::StartStage()
+FGErrorInfo AStageSupervisor::StartStage()
 {
+	auto Stage = GetStage();
 	if (!Stage.IsValid())
 	{
-		// TODO: 에러... 스테이지에 대한 정보를 찾지 못한거라서 로그인 페이지로 돌아가게 하던가 돌아갈 수 있는 스테이지가 있으면 거기로 이동 시켜줘야 할듯함...
-		return;
+		return GameCore::Throw(GameErr::POINTER_INVALID, TEXT("StartStage():Stage를 찾을 수 없습니다."));
 	}
 
-	auto StageRef = Stage.Pin().ToSharedRef();
-	auto Flags = static_cast<EStageFlags>(StageRef->Flags);
+	auto Flags = static_cast<EStageFlags>(Stage->Flags);
 
 	// NOTE. 상태가 없다면 신규 상태로 만든다.
 	if (Flags == EStageFlags::None)
@@ -290,78 +327,75 @@ void AStageSupervisor::StartStage()
 	if (EnumHasAnyFlags(Flags, EStageFlags::New))
 	{
 		Result(EStageFlags::New);
-		StageRef->Flags = static_cast<uint8>(Flags);
+		Stage->Flags = static_cast<uint8>(Flags);
 		OnNewStage();
 	}
 	else if (EnumHasAnyFlags(Flags, EStageFlags::Defeat))
 	{
 		Result(EStageFlags::Defeat);
-		StageRef->Flags = static_cast<uint8>(Flags);
+		Stage->Flags = static_cast<uint8>(Flags);
 		OnDefeatStage();
 	}
 	else if (EnumHasAnyFlags(Flags, EStageFlags::Clear))
 	{
 		Result(EStageFlags::Clear);
-		StageRef->Flags = static_cast<uint8>(Flags);
+		Stage->Flags = static_cast<uint8>(Flags);
 		OnClearStage();
 	}
 	else if (bComplated)
 	{
 		// NOTE. 완료 한 스테이지 이지만 선택 된 경우
-		StageRef->Flags = static_cast<uint8>(EStageFlags::Completed);
+		Stage->Flags = static_cast<uint8>(EStageFlags::Completed);
 		OnCompletedStage();
 	}
 	else
 	{
 		Result(EStageFlags::Playing);
-		StageRef->Flags = static_cast<uint8>(Flags);
+		Stage->Flags = static_cast<uint8>(Flags);
 		OnPlayingStage();
 	}
+
+	return GameCore::Pass();
 }
 
-void AStageSupervisor::ResetStageData()
+FGErrorInfo AStageSupervisor::ResetStageData()
 {
+	auto Stage = GetStage();
 	if (!Stage.IsValid())
 	{
-		return;
+		return GameCore::Throw(GameErr::POINTER_INVALID, TEXT("ResetStageData():Stage를 찾을 수 없습니다."));
 	}
 
-	if (!StageStorageComponent.IsValid())
-	{
-		return;
-	}
-
-	auto StageRef = Stage.Pin().ToSharedRef();
-	auto StageTableRow = UGTableHelper::GetTableData<FStageTableRow>(StageRef->Level);
+	auto StageTableRow = UGTableHelper::GetTableData<FStageTableRow>(Stage->Level);
 	if (!StageTableRow)
 	{
-		return;
+		FString Msg = FString::Printf(TEXT("ResetStageData():StageTableRow를 찾을 수 없습니다. [Key:%d]"), Stage->Level);
+		return GameCore::Throw(GameErr::TABLE_INVALID, Msg);
 	}
 
 	// NOTE. New 플래그 제거
-	auto Flags = static_cast<EStageFlags>(StageRef->Flags);
+	auto Flags = static_cast<EStageFlags>(Stage->Flags);
 	EnumRemoveFlags(Flags, EStageFlags::New);
-	StageRef->Flags = static_cast<uint8>(Flags);
+	Stage->Flags = static_cast<uint8>(Flags);
 
-	StageRef->Wave = 0;
-	StageRef->Towers.Empty();
-	StageRef->Hp = GetDefault<UConstSettings>()->UserHp;
-	StageRef->UsePoint = StageTableRow->UsePoint;
+	Stage->Wave = 0;
+	Stage->Towers.Empty();
+	Stage->Hp = GetDefault<UConstSettings>()->UserHp;
+	Stage->UsePoint = StageTableRow->UsePoint;
 
-	StageStorageComponent->SetStage(*StageRef);
-	OnGameplayDataReload();
-}
-
-void AStageSupervisor::OnTableLoaded()
-{
-	if (!StageStateComponent.IsValid())
+	if (auto Err = OnGameplayDataReload(); !GameCore::IsOK(Err))
 	{
-		return;
+		return Err;
 	}
 
+	return GameCore::Pass();
+}
+
+FGErrorInfo AStageSupervisor::OnTableLoaded()
+{
 	if (!IsValid(StageTableReceipt))
 	{
-		return;
+		return GameCore::Throw(GameErr::POINTER_INVALID, TEXT("ResetStageData():StageTableReceipt를 찾을 수 없습니다."));
 	}
 
 	for (auto Context : StageTableReceipt->Contexts)
@@ -371,30 +405,43 @@ void AStageSupervisor::OnTableLoaded()
 
 	StageStateComponent->AddStageLoadFlags(EStageLoadFlags::Repository, GameCore::Pass());
 
-	OnGameplayDataLoad();
+	return OnGameplayDataLoad();
 }
 
-void AStageSupervisor::OnGameplayDataLoad()
+FGErrorInfo AStageSupervisor::OnGameplayDataLoad()
 {
-	if (!OwnerLevel.IsValid())
-	{
-		return;
-	}
+	OnGameplayDataLoad_Wave();
+	OnGameplayDataLoad_User();
 
-	if (!StageStateComponent.IsValid())
-	{
-		return;
-	}
+	StageStateComponent->AddStageLoadFlags(EStageLoadFlags::GameplayData, GameCore::Pass());
 
-	if (!StageStorageComponent.IsValid())
-	{
-		return;
-	}
+	return GameCore::Pass();
+}
 
-	Stage = StageStorageComponent->GetStage(OwnerLevel->StageLevel);
+FGErrorInfo AStageSupervisor::OnGameplayDataLoad_Wave()
+{
+	auto WaveComponent = GetWaveComponent();
+
+	auto Stage = GetStage();
 	if (!Stage.IsValid())
 	{
-		return;
+		return GameCore::Throw(GameErr::POINTER_INVALID, TEXT("OnGameplayDataLoad_Wave():Stage를 찾을 수 없습니다."));
+	}
+
+	if (auto Err = WaveComponent->Setup(Stage->Level, Stage->Wave); !GameCore::IsOK(Err))
+	{
+		return Err;
+	}
+
+	return GameCore::Pass();
+}
+
+FGErrorInfo AStageSupervisor::OnGameplayDataLoad_User()
+{
+	auto Stage = GetStage();
+	if (!Stage.IsValid())
+	{
+		return GameCore::Throw(GameErr::POINTER_INVALID, TEXT("OnGameplayDataLoad_User():Stage를 찾을 수 없습니다."));
 	}
 
 	for (auto BuildZone : OwnerLevel->GetBuildZones())
@@ -402,7 +449,7 @@ void AStageSupervisor::OnGameplayDataLoad()
 		BuildZone->Reset();
 	}
 
-	for (auto& TowerData : Stage.Pin()->Towers)
+	for (auto& TowerData : Stage->Towers)
 	{
 		auto SelectedBuildZone = OwnerLevel->GetBuildZone(TowerData.Position);
 		if (!IsValid(SelectedBuildZone))
@@ -413,23 +460,15 @@ void AStageSupervisor::OnGameplayDataLoad()
 		SelectedBuildZone->Load(TowerData);
 	}
 
-	StageStateComponent->AddStageLoadFlags(EStageLoadFlags::GameplayData, GameCore::Pass());
+	return GameCore::Pass();
 }
 
-void AStageSupervisor::OnGameplayDataReload()
+FGErrorInfo AStageSupervisor::OnGameplayDataReload()
 {
-	if (!OwnerLevel.IsValid())
-	{
-		return;
-	}
-
-	if (!StageStateComponent.IsValid())
-	{
-		return;
-	}
-
 	for (auto BuildZone : OwnerLevel->GetBuildZones())
 	{
 		BuildZone->Reset();
 	}
+
+	return GameCore::Pass();
 }

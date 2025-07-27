@@ -1,7 +1,10 @@
 // Copyright (c) 2025 Team EpicRocket. All rights reserved.
 
 #include "StageWaveComponent.h"
-
+// include GameCore
+#include "Table/GTableHelper.h"
+// include Project
+#include "Table/StageTable.h"
 #include "Gameplay/GameplayUserPlayer.h"
 #include "User/StageSubsystem.h"
 #include "Gameplay/Stage/StageTableRepository.h"
@@ -14,10 +17,41 @@ void UStageWaveComponent::InitializeComponent()
 	Paused = true;
 }
 
+FGErrorInfo UStageWaveComponent::Setup(int32 InStageLevel, int32 InWave)
+{
+	auto StageRow = UGTableHelper::GetTableData<FStageTableRow>(InStageLevel);
+	if (!StageRow)
+	{
+		auto Msg = FString::Printf(TEXT("Setup(InStageLevel:%d, InWave:%d):Stage row isn't found."), InStageLevel, InWave);
+		return GameCore::Throw(GameErr::TABLE_INVALID, Msg);
+	}
+
+	//int32 WaveGroup = StageRow->WaveGroup;
+
+
+	return GameCore::Pass();
+}
+
+bool UStageWaveComponent::IsPlaying() const
+{
+	// TODO:
+	return false;
+}
+
+bool UStageWaveComponent::IsComplete() const
+{
+	return false;
+}
+
+int32 UStageWaveComponent::GetWave() const
+{
+	return int32();
+}
+
 FGErrorInfo UStageWaveComponent::SetWaveGroup(int32 TargetWaveGroup)
 {
 	WaveGroup = TargetWaveGroup;
-	UStageTableHelper::GetWaveGroupInfo(this, WaveGroup, WaveGroupInfo);
+	UStageTableHelper::GetWaveGroupInfo(WaveGroup, WaveGroupInfo);
 	CurrentWaveIndex = 0;
 	return FGErrorInfo();
 }
@@ -37,7 +71,8 @@ FGErrorInfo UStageWaveComponent::WaveEnd()
 
 FGErrorInfo UStageWaveComponent::NextWave()
 {
-	if (CurrentWaveIndex < WaveGroupInfo.Num()) {
+	if (CurrentWaveIndex < WaveGroupInfo.Num())
+	{
 		return FGErrorInfo();
 	}
 
@@ -46,7 +81,8 @@ FGErrorInfo UStageWaveComponent::NextWave()
 	{
 		CurrentWaveIndex += 1;
 	}
-	else {
+	else
+	{
 		OnStageWaveComplete();
 	}
 
@@ -61,13 +97,13 @@ TArray<FStageWaveGroupInfo> UStageWaveComponent::GetWaveGroupInfos()
 TArray<FMonsterGroupTableRow> UStageWaveComponent::GetCurrentMonsterGroupInfo()
 {
 	TArray<FMonsterGroupTableRow> Info;
-	UStageTableHelper::GetMonsterGroupInfo(this, WaveGroupInfo[CurrentWaveIndex].MonsterGroup, Info);
+	UStageTableHelper::GetMonsterGroupInfo(WaveGroupInfo[CurrentWaveIndex].MonsterGroup, Info);
 	return Info;
 }
 
 TArray<FMonsterGroupTableRow> UStageWaveComponent::GetMonsterGroupInfos(int32 MonsterGroup)
 {
 	TArray<FMonsterGroupTableRow> Info;
-	UStageTableHelper::GetMonsterGroupInfo(this, MonsterGroup, Info);
+	UStageTableHelper::GetMonsterGroupInfo(MonsterGroup, Info);
 	return Info;
 }

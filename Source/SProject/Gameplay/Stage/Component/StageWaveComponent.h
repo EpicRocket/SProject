@@ -23,6 +23,23 @@ public:
 	virtual void InitializeComponent() override;
 	// ~UActorComponent
 
+public:
+	UFUNCTION(BlueprintCallable)
+	FGErrorInfo Setup(int32 InStageLevel, int32 InWave);
+
+	UFUNCTION(BlueprintPure, meta = (ShortToolTip = "웨이브가 진행 중인지 판별합니다."))
+	bool IsPlaying() const;
+
+	UFUNCTION(BlueprintPure, meta = (ShortToolTip = "모든 웨이브를 클리어 했는지 판별합니다."))
+	bool IsComplete() const;
+
+	UFUNCTION(BlueprintPure, meta = (ShortToolTip = "현재 웨이브를 반환합니다."))
+	int32 GetWave() const;
+
+public:
+	UPROPERTY(BlueprintReadOnly)
+	int32 Wave = INDEX_NONE;
+
 private:
 	int32 WaveGroup = INDEX_NONE;
 

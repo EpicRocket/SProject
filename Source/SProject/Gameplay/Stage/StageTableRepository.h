@@ -46,7 +46,7 @@ class MY_API UStageTableRepository : public UGTableRepositorySubsystem
 
 	friend class UStageTableHelper;
 public:
-	static UStageTableRepository* Get(const UObject* WorldContextObject);
+	static UStageTableRepository& Get();
 
 	TFuture<FGErrorInfo> Load(UStageTableReceipt*& Receipt, int32 StageLevel, TMap<EStageTowerType, TSet<int32>> TowerList);
 
@@ -76,26 +76,26 @@ class MY_API UStageTableHelper : public UBlueprintFunctionLibrary
 
 public:
 	UFUNCTION(BlueprintPure, meta = (WorldContext = "WorldContextObject"))
-	static FGErrorInfo GetBuildStageTower(const UObject* WorldContextObject, EStageTowerType TowerType, int32 Kind, int32 Level, FStageTowerInfo& Result);
+	static FGErrorInfo GetBuildStageTower(EStageTowerType TowerType, int32 Kind, int32 Level, FStageTowerInfo& Result);
 
 	UFUNCTION(BlueprintPure, meta = (WorldContext = "WorldContextObject"))
-	static FGErrorInfo GetNextStageTower(const UObject* WorldContextObject, EStageTowerType TowerType, int32 Kind, int32 Level, FStageTowerInfo& Result);
+	static FGErrorInfo GetNextStageTower(EStageTowerType TowerType, int32 Kind, int32 Level, FStageTowerInfo& Result);
 
 	UFUNCTION(BlueprintPure, meta = (WorldContext = "WorldContextObject"))
-	static FGErrorInfo GetStageTowerMaxLevel(const UObject* WorldContextObject, EStageTowerType TowerType, int32 Kind, int32& Result);
+	static FGErrorInfo GetStageTowerMaxLevel(EStageTowerType TowerType, int32 Kind, int32& Result);
 
 	UFUNCTION(BlueprintPure, meta = (WorldContext = "WorldContextObject"))
-	static FGErrorInfo GetStageTowerBaseStats(const UObject* WorldContextObject, EStageTowerType TowerType, int32 Kind, int32 Level, TMap<EStageUnitAttribute, double>& Result);
+	static FGErrorInfo GetStageTowerBaseStats(EStageTowerType TowerType, int32 Kind, int32 Level, TMap<EStageUnitAttribute, double>& Result);
 
 	UFUNCTION(BlueprintPure, meta = (WorldContext = "WorldContextObject"))
-	static FGErrorInfo GetStageMonsterInfo(const UObject* WorldContextObject, int32 MonsterKey, FStageMonsterInfo& Result);
+	static FGErrorInfo GetStageMonsterInfo(int32 MonsterKey, FStageMonsterInfo& Result);
 
 	UFUNCTION(BlueprintPure, meta = (WorldContext = "WorldContextObject"))
-	static FGErrorInfo GetStageMonsterBaseStats(const UObject* WorldContextObject, int32 MonsterKey, TMap<EStageUnitAttribute, double>& Result);
+	static FGErrorInfo GetStageMonsterBaseStats(int32 MonsterKey, TMap<EStageUnitAttribute, double>& Result);
 
 	UFUNCTION(BlueprintPure, meta = (WorldContext = "WorldContextObject"))
-	static FGErrorInfo GetWaveGroupInfo(const UObject* WorldContextObject, int32 WaveGroup, TArray<FStageWaveGroupInfo>& Result);
+	static FGErrorInfo GetWaveGroupInfo(int32 WaveGroup, TArray<FStageWaveGroupInfo>& Result);
 
 	UFUNCTION(BlueprintPure, meta = (WorldContext = "WorldContextObject"))
-	static FGErrorInfo GetMonsterGroupInfo(const UObject* WorldContextObject, int32 MonsterGroup, TArray<FMonsterGroupTableRow>& Result);
+	static FGErrorInfo GetMonsterGroupInfo(int32 MonsterGroup, TArray<FMonsterGroupTableRow>& Result);
 };

@@ -24,6 +24,7 @@ namespace GameErr
 	static const FString VALUE_INVALID = TEXT("VALUE_INVALID");
 	static const FString ENUM_INVALID = TEXT("ENUM_INVALID");
 	static const FString CLASS_INVALID = TEXT("CLASS_INVALID");
+	static const FString TABLE_INVALID = TEXT("TABLE_INVALID");
 }
 
 UCLASS()

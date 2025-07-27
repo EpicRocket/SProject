@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Subsystems/GameInstanceSubsystem.h"
+#include "Subsystems/EngineSubsystem.h"
 #include "Containers/Queue.h"
 
 #include "GTableRepositorySubsystem.generated.h"
@@ -39,12 +39,13 @@ private:
 };
 
 UCLASS(Abstract)
-class GGAMECORE_API UGTableRepositorySubsystem : public UGameInstanceSubsystem
+class GGAMECORE_API UGTableRepositorySubsystem : public UEngineSubsystem
 {
 	GENERATED_BODY()
 
 public:
-	virtual void Deinitialize() override;
+	virtual void OnStart();
+	virtual void OnEnd();
 
 protected:
     void RequestTasks(TArray<FSoftObjectPath> RawAssetList, TUniqueFunction<void()> CompleteCallback);

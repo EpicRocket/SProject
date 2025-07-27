@@ -25,7 +25,7 @@ FGErrorInfo AStageSpawner::SpawnMonster(const FStageMonsterSpawnParams& Params, 
 	}
 
 	FStageMonsterInfo Info;
-	if (auto Err = UStageTableHelper::GetStageMonsterInfo(this, Params.Index, Info); !GameCore::IsOK(Err))
+	if (auto Err = UStageTableHelper::GetStageMonsterInfo(Params.Index, Info); !GameCore::IsOK(Err))
 	{
 		return Err;
 	}

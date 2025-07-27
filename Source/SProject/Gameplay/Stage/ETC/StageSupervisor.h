@@ -22,28 +22,37 @@ class MY_API AStageSupervisor : public AInfo
 	GENERATED_BODY()
 
 	// Actor
+public:
+	virtual void PreInitializeComponents() override;
 protected:
 	virtual void BeginPlay() override;
 	// ~Actor
 
 public:
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "GetStage", ReturnDisplayName = "Error"))
+	FGErrorInfo K2_GetStage(UPARAM(DisplayName = "ReturnValue") FStage& CurrentStage) const;
+	TSharedPtr<FStage> GetStage() const;
+
 	UFUNCTION(BlueprintImplementableEvent, Category = "Spawn")
 	class UStageSpawnComponent* GetSpawnComponent();
 
-	UFUNCTION(BlueprintCallable, Category = "Spawn")
+	UFUNCTION(BlueprintCallable, Category = "Spawn", meta = (ReturnDisplayName = "Error"))
 	FGErrorInfo RegisterSpawnedUnit(AStageUnitCharacter* Unit);
 
-	UFUNCTION(BlueprintCallable, Category = "Spawn")
+	UFUNCTION(BlueprintCallable, Category = "Spawn", meta = (ReturnDisplayName = "Error"))
 	FGErrorInfo UnregisterSpawnedUnit(AStageUnitCharacter* Unit);
 
-	UFUNCTION(BlueprintCallable, Category = "Spawn")
+	UFUNCTION(BlueprintCallable, Category = "Spawn", meta = (ReturnDisplayName = "Error"))
 	FGErrorInfo SpawnTower(uint8 InTeamID, FVector InLocation, FRotator InRotation, FStageTowerInfo InTowerInfo, AStageTowerUnit*& SpawnedTower);
 
-	UFUNCTION(BlueprintCallable, Category = "Spawn")
+	UFUNCTION(BlueprintCallable, Category = "Spawn", meta = (ReturnDisplayName = "Error"))
 	FGErrorInfo SpawnMonster(uint8 InTeamID, FVector InLocation, FRotator InRotation, FStageMonsterInfo InMonsterInfo, AStageMonsterUnit*& SpawnedMonster);
 
-	UFUNCTION(BlueprintCallable, Category = "Gameplay")
-	void RequestStartWave();
+	UFUNCTION(BlueprintImplementableEvent, Category = "Wave")
+	class UStageWaveComponent* GetWaveComponent();
+
+	UFUNCTION(BlueprintCallable, Category = "Wave", meta = (ReturnDisplayName = "Error"))
+	FGErrorInfo RequestStartWave();
 
 	UFUNCTION(BlueprintCallable, Category = "Status")
 	void SetHp(int32 NewValue);
@@ -57,12 +66,12 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Status")
 	int32 GetUsePoint() const;
 
-	UFUNCTION(BlueprintPure, Category = "Status")
+	UFUNCTION(BlueprintPure, Category = "Status", meta = (ReturnDisplayName = "Error"))
 	FGErrorInfo PayUsePoint(int32 Cost);
 
 protected:
-	UFUNCTION(BlueprintCallable)
-	void StartStage();
+	UFUNCTION(BlueprintCallable, meta = (ReturnDisplayName = "Error"))
+	FGErrorInfo StartStage();
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnNewStage();
@@ -79,16 +88,16 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnCompletedStage();
 
-	UFUNCTION(BlueprintCallable)
-	void ResetStageData();
+	UFUNCTION(BlueprintCallable, meta = (ReturnDisplayName = "Error"))
+	FGErrorInfo ResetStageData();
 
 private:
 	UFUNCTION()
-	void OnTableLoaded();
-
-	void OnGameplayDataLoad();
-
-	void OnGameplayDataReload();
+	FGErrorInfo OnTableLoaded();
+	FGErrorInfo OnGameplayDataLoad();
+	FGErrorInfo OnGameplayDataLoad_Wave();
+	FGErrorInfo OnGameplayDataLoad_User();
+	FGErrorInfo OnGameplayDataReload();
 
 public:
 	UPROPERTY(Transient, BlueprintReadOnly)
@@ -114,7 +123,7 @@ private:
 	UPROPERTY(Transient)
 	class UStageTableReceipt* StageTableReceipt = nullptr;
 
-	TWeakPtr<FStage> Stage;
+	TWeakPtr<FStage> StagePtr;
 
 	UPROPERTY(Transient)
 	TMap<FString, TWeakObjectPtr<AStageUnitCharacter>> SpawnedUnits;

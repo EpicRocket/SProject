@@ -22,7 +22,6 @@ void AStageMonsterUnit::OnInitBaseStats()
 
 	TMap<EStageUnitAttribute, double> BaseStats;
 	auto Err = UStageTableHelper::GetStageMonsterBaseStats(
-		this,
 		MonsterInfoContext->MonsterInfo.Index,
 		BaseStats
 	);

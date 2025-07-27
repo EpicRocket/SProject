@@ -29,23 +29,14 @@
 //////////////////////////////////////////////////////////////////////////
 // UStageTableRepository
 //////////////////////////////////////////////////////////////////////////
-UStageTableRepository* UStageTableRepository::Get(const UObject* WorldContextObject)
+UStageTableRepository& UStageTableRepository::Get()
 {
-	UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull);
-	if (!World)
+	if (GEngine == nullptr)
 	{
-		UE_LOGFMT(LogStage, Error, "[UStageTableRepository] World를 찾을 수 없습니다.");
-		return nullptr;
+		UE_LOGFMT(LogStage, Error, "[UStageTableRepository::Get()]GEngine is null");
 	}
-
-	auto Repo = UGameInstance::GetSubsystem<UStageTableRepository>(World->GetGameInstance());
-	if (!Repo)
-	{
-		UE_LOGFMT(LogStage, Error, "[UStageTableRepository] Repository를 찾을 수 없습니다. [참조 오브젝트:{WorldContextObject}]", *WorldContextObject->GetName());
-		return nullptr;
-	}
-
-	return Repo;
+	auto Repo = GEngine->GetEngineSubsystem<UStageTableRepository>();
+	return *Repo;
 }
 
 TFuture<FGErrorInfo> UStageTableRepository::Load(UStageTableReceipt*& Receipt, int32 StageLevel, TMap<EStageTowerType, TSet<int32>> TowerList)
@@ -291,18 +282,12 @@ TWeakObjectPtr<UStageMonsterContext> UStageTableRepository::FindNormalMonsterCon
 //////////////////////////////////////////////////////////////////////////
 // UStageTableHelper
 //////////////////////////////////////////////////////////////////////////
-FGErrorInfo UStageTableHelper::GetBuildStageTower(const UObject* WorldContextObject, EStageTowerType TowerType, int32 Kind, int32 Level, FStageTowerInfo& Result)
+FGErrorInfo UStageTableHelper::GetBuildStageTower(EStageTowerType TowerType, int32 Kind, int32 Level, FStageTowerInfo& Result)
 {
-	auto Repository = UStageTableRepository::Get(WorldContextObject);
-	if (!Repository)
-	{
-		return GameCore::Throw(GameErr::SUBSYSTEM_INVALID);
-	}
-
 	switch (TowerType)
 	{
 	case EStageTowerType::Normal: {
-		auto Context = Repository->FindNormalTowerContext(Kind, Level);
+		auto Context = UStageTableRepository::Get().FindNormalTowerContext(Kind, Level);
 		if (!Context.IsValid())
 		{
 			return GameCore::Throw(GameErr::POINTER_INVALID, FString::Printf(TEXT("데이터를 찾을 수 없습니다: TowerType:%s, Kind:%s, Level:%s"), *UEnum::GetValueAsString(TowerType), Kind, Level));
@@ -320,18 +305,12 @@ FGErrorInfo UStageTableHelper::GetBuildStageTower(const UObject* WorldContextObj
 	return GameCore::Pass();
 }
 
-FGErrorInfo UStageTableHelper::GetNextStageTower(const UObject* WorldContextObject, EStageTowerType TowerType, int32 Kind, int32 Level, FStageTowerInfo& Result)
+FGErrorInfo UStageTableHelper::GetNextStageTower(EStageTowerType TowerType, int32 Kind, int32 Level, FStageTowerInfo& Result)
 {
-	auto Repository = UStageTableRepository::Get(WorldContextObject);
-	if (!Repository)
-	{
-		return GameCore::Throw(GameErr::SUBSYSTEM_INVALID);
-	}
-
 	switch (TowerType)
 	{
 	case EStageTowerType::Normal: {
-		auto MaxLevel = Repository->FindNormalTowerMaxLevel(Kind);
+		auto MaxLevel = UStageTableRepository::Get().FindNormalTowerMaxLevel(Kind);
 		if (!MaxLevel.IsSet())
 		{
 			return GameCore::Throw(GameErr::VALUE_INVALID, FString::Printf(TEXT("MaxLevel를 찾을 수 없습니다: TowerType:%s, Kind:%d"), *UEnum::GetValueAsString(TowerType), Kind));
@@ -342,7 +321,7 @@ FGErrorInfo UStageTableHelper::GetNextStageTower(const UObject* WorldContextObje
 			return GameCore::Throw(GameErr::VALUE_INVALID, FString::Printf(TEXT("Level이 MaxLevel보다 큽니다: TowerType:%s, Level:%d, MaxLevel:%d"), *UEnum::GetValueAsString(TowerType), Level, *MaxLevel));
 		}
 
-		auto Context = Repository->FindNormalTowerContext(Kind, Level + 1);
+		auto Context = UStageTableRepository::Get().FindNormalTowerContext(Kind, Level + 1);
 		if (!Context.IsValid())
 		{
 			return GameCore::Throw(GameErr::POINTER_INVALID, FString::Printf(TEXT("데이터를 찾을 수 없습니다: TowerType:%s, Kind:%d, Level:%d not found"), *UEnum::GetValueAsString(TowerType), Kind, Level + 1));
@@ -360,18 +339,12 @@ FGErrorInfo UStageTableHelper::GetNextStageTower(const UObject* WorldContextObje
 	return GameCore::Pass();
 }
 
-FGErrorInfo UStageTableHelper::GetStageTowerMaxLevel(const UObject* WorldContextObject, EStageTowerType TowerType, int32 Kind, int32& Result)
+FGErrorInfo UStageTableHelper::GetStageTowerMaxLevel(EStageTowerType TowerType, int32 Kind, int32& Result)
 {
-	auto Repository = UStageTableRepository::Get(WorldContextObject);
-	if (!Repository)
-	{
-		return GameCore::Throw(GameErr::SUBSYSTEM_INVALID);
-	}
-
 	switch (TowerType)
 	{
 	case EStageTowerType::Normal: {
-		auto MaxLevel = Repository->FindNormalTowerMaxLevel(Kind);
+		auto MaxLevel = UStageTableRepository::Get().FindNormalTowerMaxLevel(Kind);
 		if (!MaxLevel.IsSet())
 		{
 			return GameCore::Throw(GameErr::VALUE_INVALID, FString::Printf(TEXT("MaxLevel를 찾을 수 없습니다: TowerType:%s, Kind:%d"), *UEnum::GetValueAsString(TowerType), Kind));
@@ -388,18 +361,12 @@ FGErrorInfo UStageTableHelper::GetStageTowerMaxLevel(const UObject* WorldContext
 	return GameCore::Pass();
 }
 
-FGErrorInfo UStageTableHelper::GetStageTowerBaseStats(const UObject* WorldContextObject, EStageTowerType TowerType, int32 Kind, int32 Level, TMap<EStageUnitAttribute, double>& Result)
+FGErrorInfo UStageTableHelper::GetStageTowerBaseStats(EStageTowerType TowerType, int32 Kind, int32 Level, TMap<EStageUnitAttribute, double>& Result)
 {
-	auto Repository = UStageTableRepository::Get(WorldContextObject);
-	if (!Repository)
-	{
-		return GameCore::Throw(GameErr::SUBSYSTEM_INVALID);
-	}
-
 	switch (TowerType)
 	{
 	case EStageTowerType::Normal: {
-		auto Context = Repository->FindNormalTowerContext(Kind, Level);
+		auto Context = UStageTableRepository::Get().FindNormalTowerContext(Kind, Level);
 		if (!Context.IsValid())
 		{
 			return GameCore::Throw(GameErr::POINTER_INVALID, FString::Printf(TEXT("데이터를 찾을 수 없습니다: TowerType:%s, Kind:%d, Level:%d"), *UEnum::GetValueAsString(TowerType), Kind, Level));
@@ -433,15 +400,9 @@ FGErrorInfo UStageTableHelper::GetStageTowerBaseStats(const UObject* WorldContex
 	return GameCore::Pass();
 }
 
-FGErrorInfo UStageTableHelper::GetStageMonsterInfo(const UObject* WorldContextObject, int32 MonsterKey, FStageMonsterInfo& Result)
+FGErrorInfo UStageTableHelper::GetStageMonsterInfo(int32 MonsterKey, FStageMonsterInfo& Result)
 {
-	auto Repository = UStageTableRepository::Get(WorldContextObject);
-	if (!Repository)
-	{
-		return GameCore::Throw(GameErr::SUBSYSTEM_INVALID);
-	}
-
-	auto Context = Repository->FindNormalMonsterContext(MonsterKey);
+	auto Context = UStageTableRepository::Get().FindNormalMonsterContext(MonsterKey);
 	if (!Context.IsValid())
 	{
 		return GameCore::Throw(GameErr::POINTER_INVALID, FString::Printf(TEXT("데이터를 찾을 수 없습니다: MonsterKey:%d"), MonsterKey));
@@ -452,14 +413,8 @@ FGErrorInfo UStageTableHelper::GetStageMonsterInfo(const UObject* WorldContextOb
 	return GameCore::Pass();
 }
 
-FGErrorInfo UStageTableHelper::GetStageMonsterBaseStats(const UObject* WorldContextObject, int32 MonsterKey, TMap<EStageUnitAttribute, double>& Result)
+FGErrorInfo UStageTableHelper::GetStageMonsterBaseStats(int32 MonsterKey, TMap<EStageUnitAttribute, double>& Result)
 {
-	auto Repository = UStageTableRepository::Get(WorldContextObject);
-	if (!Repository)
-	{
-		return GameCore::Throw(GameErr::SUBSYSTEM_INVALID);
-	}
-
 	auto Row = UGTableHelper::GetTableData<FMonsterTableRow>(MonsterKey);
 	if (!Row)
 	{
@@ -480,28 +435,16 @@ FGErrorInfo UStageTableHelper::GetStageMonsterBaseStats(const UObject* WorldCont
 	return GameCore::Pass();
 }
 
-FGErrorInfo UStageTableHelper::GetWaveGroupInfo(const UObject* WorldContextObject, int32 WaveGroup, TArray<FStageWaveGroupInfo>& Result)
+FGErrorInfo UStageTableHelper::GetWaveGroupInfo(int32 WaveGroup, TArray<FStageWaveGroupInfo>& Result)
 {
-	auto Repository = UStageTableRepository::Get(WorldContextObject);
-	if (!Repository)
-	{
-		return GameCore::Throw(GameErr::SUBSYSTEM_INVALID);
-	}
-
-	Result = Repository->StageWaveGroup;
+	Result = UStageTableRepository::Get().StageWaveGroup;
 	return GameCore::Pass();
 }
 
-FGErrorInfo UStageTableHelper::GetMonsterGroupInfo(const UObject* WorldContextObject, int32 MonsterGroup, TArray<FMonsterGroupTableRow>& Result)
+FGErrorInfo UStageTableHelper::GetMonsterGroupInfo(int32 MonsterGroup, TArray<FMonsterGroupTableRow>& Result)
 {
-	auto Repository = UStageTableRepository::Get(WorldContextObject);
-	if (!Repository)
-	{
-		return GameCore::Throw(GameErr::SUBSYSTEM_INVALID);
-	}
-
 	Result.Reset();
-	if (const TArray<FMonsterGroupTableRow>* Found = Repository->StageMonsterGroup.Find(MonsterGroup))
+	if (const TArray<FMonsterGroupTableRow>* Found = UStageTableRepository::Get().StageMonsterGroup.Find(MonsterGroup))
 	{
 		Result.Append(*Found);
 	}

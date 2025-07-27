@@ -26,7 +26,6 @@ void AStageTowerUnit::OnInitBaseStats()
 
 	TMap<EStageUnitAttribute, double> BaseStats;
 	auto Err = UStageTableHelper::GetStageTowerBaseStats(
-		this,
 		TowerInfoContext->TowerInfo.TowerType,
 		TowerInfoContext->TowerInfo.Kind,
 		TowerInfoContext->TowerInfo.Level,

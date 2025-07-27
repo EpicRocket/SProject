@@ -13,7 +13,11 @@
 // UGTableRepositorySubsystem
 ////////////////////////////////////////////////////////////////
 
-void UGTableRepositorySubsystem::Deinitialize()
+void UGTableRepositorySubsystem::OnStart()
+{
+}
+
+void UGTableRepositorySubsystem::OnEnd()
 {
 	for (auto& [Id, Task] : Tasks)
 	{
