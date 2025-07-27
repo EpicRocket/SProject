@@ -34,8 +34,5 @@ struct SPROJECT_API FMonsterGroupTableRow : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 AmountDelayTime = INDEX_NONE;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 SpawnTime = INDEX_NONE;
-
 };
 
