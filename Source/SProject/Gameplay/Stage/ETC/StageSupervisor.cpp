@@ -10,6 +10,7 @@
 #include "Types/StageTypes.h"
 #include "Table/ConstTable.h"
 #include "Table/StageTable.h"
+#include "Gameplay/GameplayHelper.h"
 #include "Gameplay/Stage/StageLevel.h"
 #include "Gameplay/Stage/Stage.h"
 #include "Gameplay/Stage/StageTableRepository.h"
@@ -394,27 +395,41 @@ FGErrorInfo AStageSupervisor::ResetStageData()
 	return GameCore::Pass();
 }
 
-void AStageSupervisor::OnWaveMonsterSpawn(UStageMonsterContext* Context, int32 Position, int32 SpawnCount)
+void AStageSupervisor::OnWaveMonsterSpawn(FStageSpawnParam Param)
 {
-	if (!IsValid(Context))
+	if (!Param.Context.IsValid())
 	{
-		UE_LOGFMT(LogStage, Warning, "OnWaveMonsterSpawn(Context, Position:{0}, SpawnCount:{1}):UStageMonsterContext가 유효하지 않습니다.", Position, SpawnCount);
+		UE_LOGFMT(LogStage, Warning, "OnWaveMonsterSpawn(Param):UStageMonsterContext가 유효하지 않습니다.");
 		return;
 	}
 
-	auto Spawner = OwnerLevel->GetSpawner(Position);
+	bool bFailure = false;
+
+	auto Spawner = OwnerLevel->GetSpawner(Param.Spawner);
 	if (!Spawner)
 	{
-		UE_LOGFMT(LogStage, Warning, "OnWaveMonsterSpawn(Context, Position:{0}, SpawnCount:{1}):Spawner를 찾지 못하였습니다.", Position, SpawnCount);
+		UE_LOGFMT(LogStage, Warning, "OnWaveMonsterSpawn(Param):Spawner를 찾지 못하였습니다.[Spawner:{0}]", Param.Spawner);
+		bFailure = true;
+	}
+
+	auto Path = OwnerLevel->GetPathActor(Param.Path);
+	if (!Spawner)
+	{
+		UE_LOGFMT(LogStage, Warning, "OnWaveMonsterSpawn(Param):Path를 찾지 못하였습니다.[Spawner:{0}]", Param.Path);
+		bFailure = true;
+	}
+
+	if (bFailure)
+	{
 		return;
 	}
 
 	TArray<AStageMonsterUnit*> SpawnedMonsters;
-	SpawnedMonsters.Reserve(SpawnCount);
-	for (int32 Index = 0; Index < SpawnCount; Index++)
+	SpawnedMonsters.Reserve(Param.SpawnCount);
+	for (int32 Index = 0; Index < Param.SpawnCount; Index++)
 	{
 		AStageMonsterUnit* SpawnedMonster;
-		auto Err = SpawnMonster(Spawner->GetTeamID(), Spawner->GetSpawnLocation(), Spawner->GetSpawnRotation(), Context->MonsterInfo, SpawnedMonster);
+		auto Err = SpawnMonster(Spawner->GetTeamID(), Spawner->GetSpawnLocation(), Spawner->GetSpawnRotation(), Param.Context->MonsterInfo, SpawnedMonster);
 		if (!GameCore::IsOK(Err))
 		{
 			continue;
@@ -430,6 +445,7 @@ void AStageSupervisor::OnWaveMonsterSpawn(UStageMonsterContext* Context, int32 P
 		{
 			continue;
 		}
+		UGameplayHelper::SetGameplayTagByInt32(AIController, TEXT("Path"), Param.Path);
 		AIController->StartAI();
 	}
 }

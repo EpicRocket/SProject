@@ -149,7 +149,8 @@ TFuture<FGErrorInfo> UStageTableRepository::Load(UStageTableReceipt*& Receipt, i
 					MonsterGroupInfo.Index = MonsterGroupTableRow->Index;
 					MonsterGroupInfo.Amount = MonsterGroupTableRow->Amount;
 					MonsterGroupInfo.AmountValue = MonsterGroupTableRow->AmountValue;
-					MonsterGroupInfo.Position = MonsterGroupTableRow->Position;
+					MonsterGroupInfo.Spawner = MonsterGroupTableRow->Spawner;
+					MonsterGroupInfo.Path = MonsterGroupTableRow->Path;
 					MonsterGroupInfo.AmountDelayTime = FTimespan::FromMilliseconds(MonsterGroupTableRow->AmountDelayTime);
 
 					{

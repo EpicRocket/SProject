@@ -6,7 +6,7 @@
 
 #include "StageAIController.generated.h"
 
-class AStageLevel;
+class AStageSupervisor;
 class UBehaviorTree;
 
 UCLASS(Abstract, BlueprintType, Blueprintable, ClassGroup = "Stage")
@@ -21,7 +21,7 @@ protected:
 
 public:
 	UFUNCTION(BlueprintCallable)
-	void Setup(uint8 InTeamID, UBehaviorTree* InAI);
+	void Setup(AStageSupervisor* InSupervisor, uint8 InTeamID, UBehaviorTree* InAI);
 
 	UFUNCTION(BlueprintCallable)
 	void StartAI();
@@ -35,7 +35,7 @@ protected:
 
 public:
 	UPROPERTY(BlueprintReadOnly, Category = "Stage")
-	TWeakObjectPtr<AStageLevel> SourceStage;
+	TWeakObjectPtr<AStageSupervisor> Supervisor;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
 	TObjectPtr<UBehaviorTree> AIBehaviorTree;

@@ -10,6 +10,7 @@
 struct FStage;
 struct FStageTowerInfo;
 struct FStageMonsterInfo;
+struct FStageSpawnParam;
 class AStageTowerUnit;
 class AStageMonsterUnit;
 class AStageUnitCharacter;
@@ -94,7 +95,7 @@ protected:
 
 private:
 	UFUNCTION()
-	void OnWaveMonsterSpawn(UStageMonsterContext* Context, int32 Position, int32 SpawnCount);
+	void OnWaveMonsterSpawn(FStageSpawnParam Param);
 
 private:
 	FGErrorInfo OnTableLoaded();

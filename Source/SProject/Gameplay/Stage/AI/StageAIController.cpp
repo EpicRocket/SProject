@@ -5,6 +5,7 @@
 #include "BehaviorTree/BehaviorTree.h"
 // include GameCore
 #include "Team/Interface/IGTeamAgent.h"
+#include "Gameplay/Stage/ETC/StageSupervisor.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(StageAIController)
 
@@ -17,8 +18,9 @@ void AStageAIController::SetGenericTeamId(const FGenericTeamId& NewTeamID)
 	}
 }
 
-void AStageAIController::Setup(uint8 InTeamID, UBehaviorTree* InAI)
+void AStageAIController::Setup(AStageSupervisor* InSupervisor, uint8 InTeamID, UBehaviorTree* InAI)
 {
+	Supervisor = InSupervisor;
 	SetGenericTeamId(InTeamID);
 	AIBehaviorTree = InAI;
 }

@@ -50,7 +50,13 @@ void UStageWaveComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 			}
 			Data.Amount -= SpawnCount;
 
-			OnSpawn(Data.MonsterContext.Get(), Data.Position, SpawnCount);
+			FStageSpawnParam Param;
+			Param.Context = Data.MonsterContext;
+			Param.Spawner = Data.Spawner;
+			Param.Path = Data.Path;
+			Param.SpawnCount = SpawnCount;
+
+			OnSpawn(Param);
 		}
 
 		if (DeleteIds.Num() > 0)
@@ -120,7 +126,8 @@ FGErrorInfo UStageWaveComponent::Start()
 		NewData.Amount = MonsterGroupInfo.Amount;
 		NewData.AmountValue = MonsterGroupInfo.AmountValue;
 		NewData.AmountDelayTime = MonsterGroupInfo.AmountDelayTime.GetTotalSeconds();
-		NewData.Position = MonsterGroupInfo.Position;
+		NewData.Spawner = MonsterGroupInfo.Spawner;
+		NewData.Path = MonsterGroupInfo.Path;
 		NewData.MonsterContext = MonsterGroupInfo.MonsterContext;
 
 		SpawnDatas.Emplace(NewData);
@@ -174,19 +181,13 @@ int32 UStageWaveComponent::GetWave() const
 	return StagePtr.Pin()->Wave;
 }
 
-void UStageWaveComponent::OnSpawn(UStageMonsterContext* Context, int32 Position, int32 SpawnCount)
+void UStageWaveComponent::OnSpawn(FStageSpawnParam Params)
 {
 	if (!RequestStageSpawnEvent.IsBound())
 	{
-		UE_LOGFMT(LogStage, Warning, "UStageWaveComponent::OnSpawn(Context, Position:{0}, SpawnCount:{1}):RequestStageSpawnEvent가 바인딩되어 있지 않습니다.", Position, SpawnCount);
+		UE_LOGFMT(LogStage, Warning, "OnSpawn(Params):RequestStageSpawnEvent가 바인딩되어 있지 않습니다.");
 		return;
 	}
 
-	if (!IsValid(Context))
-	{
-		UE_LOGFMT(LogStage, Warning, "UStageWaveComponent::OnSpawn(Context, Position:{0}, SpawnCount:{1}):UStageMonsterContext가 유효하지 않습니다.", Position, SpawnCount);
-		return;
-	}
-
-	RequestStageSpawnEvent.Execute(Context, Position, SpawnCount);
+	RequestStageSpawnEvent.Execute(Params);
 }

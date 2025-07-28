@@ -28,7 +28,10 @@ struct MY_API FStageSpawnData
 	double AmountDelayTime = 0.0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 Position = INDEX_NONE;
+	int32 Spawner = INDEX_NONE;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 Path = INDEX_NONE;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	double SpawnDelay = 0.0;
@@ -38,7 +41,25 @@ struct MY_API FStageSpawnData
 
 };
 
-DECLARE_DYNAMIC_DELEGATE_ThreeParams(FRequestStageSpawnEvent, UStageMonsterContext*, Context, int32, Position, int32, SpawnCount);
+USTRUCT(BlueprintType)
+struct MY_API FStageSpawnParam
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly)
+	TWeakObjectPtr<UStageMonsterContext> Context = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 Spawner = INDEX_NONE;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 Path = INDEX_NONE;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 SpawnCount = 0;
+};
+
+DECLARE_DYNAMIC_DELEGATE_OneParam(FRequestStageSpawnEvent, FStageSpawnParam, Param);
 
 UCLASS(Abstract, Blueprintable, meta = (BlueprintSpawnableComponent), Category = "Stage", ClassGroup = "Stage")
 class MY_API UStageWaveComponent : public UGGameCoreComponent
@@ -75,7 +96,7 @@ public:
 	int32 GetWave() const;
 
 protected:
-	void OnSpawn(UStageMonsterContext* Context, int32 Position, int32 SpawnCount);
+	void OnSpawn(FStageSpawnParam Param);
 
 public:
 	FRequestStageSpawnEvent RequestStageSpawnEvent;
