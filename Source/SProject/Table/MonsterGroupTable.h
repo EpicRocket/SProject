@@ -32,6 +32,9 @@ struct SPROJECT_API FMonsterGroupTableRow : public FTableRowBase
 	int32 Position = INDEX_NONE;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 Path = INDEX_NONE;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 AmountDelayTime = INDEX_NONE;
 
 };
