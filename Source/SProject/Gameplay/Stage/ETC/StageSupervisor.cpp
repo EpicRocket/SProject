@@ -181,7 +181,7 @@ FGErrorInfo AStageSupervisor::SpawnTower(uint8 InTeamID, FVector InLocation, FRo
 	// AI 설정
 	if (auto AIController = Cast<AStageAIController>(SpawnedUnit->GetController()))
 	{
-		AIController->Setup(InTeamID, InTowerInfo.AI);
+		AIController->Setup(this, InTeamID, InTowerInfo.AI);
 	}
 
 	// 유닛 등록
@@ -223,7 +223,7 @@ FGErrorInfo AStageSupervisor::SpawnMonster(uint8 InTeamID, FVector InLocation, F
 	// AI 설정
 	if (auto AIController = Cast<AStageAIController>(SpawnedUnit->GetController()))
 	{
-		AIController->Setup(InTeamID, InMonsterInfo.AI);
+		AIController->Setup(this, InTeamID, InMonsterInfo.AI);
 	}
 
 	// 유닛 등록
