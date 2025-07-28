@@ -11,6 +11,7 @@ struct FStage;
 struct FStageTowerInfo;
 struct FStageMonsterInfo;
 struct FStageSpawnParam;
+class AStageLevel;
 class AStageTowerUnit;
 class AStageMonsterUnit;
 class AStageUnitCharacter;
@@ -27,10 +28,11 @@ class MY_API AStageSupervisor : public AInfo
 public:
 	virtual void PreInitializeComponents() override;
 protected:
-	virtual void BeginPlay() override;
 	// ~Actor
 
 public:
+	void Setup(AStageLevel* OwnerStage);
+
 	UFUNCTION(BlueprintPure, meta = (DisplayName = "GetStage", ReturnDisplayName = "Error"))
 	FGErrorInfo K2_GetStage(UPARAM(DisplayName = "ReturnValue") FStage& CurrentStage) const;
 	TSharedPtr<FStage> GetStage() const;

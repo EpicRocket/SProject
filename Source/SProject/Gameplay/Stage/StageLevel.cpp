@@ -57,6 +57,7 @@ FGErrorInfo AStageLevel::Setup(int32 InStageLevel, TSubclassOf<AStageSupervisor>
 	}
 
 	OnInitailize();
+	Supervisor->Setup(this);
 
 	return GameCore::Pass();
 }

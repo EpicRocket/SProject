@@ -40,11 +40,9 @@ void AStageSupervisor::PreInitializeComponents()
 	WaveComponent->RequestStageSpawnEvent.BindDynamic(this, &AStageSupervisor::OnWaveMonsterSpawn);
 }
 
-void AStageSupervisor::BeginPlay()
+void AStageSupervisor::Setup(AStageLevel* OwnerStage)
 {
-	Super::BeginPlay();
-
-	OwnerLevel = Cast<AStageLevel>(GetOwner());
+	OwnerLevel = OwnerStage;
 	if (!OwnerLevel.IsValid())
 	{
 		GameCore::Throw(GameErr::WORLD_INVALID, TEXT("BeginPlay() OwnerLevel를 찾을 수 없습니다."));
