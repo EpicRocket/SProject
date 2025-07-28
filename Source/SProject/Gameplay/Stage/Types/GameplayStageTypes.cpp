@@ -24,8 +24,9 @@ void UStageContext::Load()
 	{
 		if (!IsValid(Context))
 		{
-			Context->Load();
+			continue;
 		}
+		Context->Load();
 	}
 }
 

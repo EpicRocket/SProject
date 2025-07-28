@@ -46,21 +46,21 @@ void AStageSupervisor::BeginPlay()
 	OwnerLevel = Cast<AStageLevel>(GetOwner());
 	if (!OwnerLevel.IsValid())
 	{
-		GameCore::Throw(GameErr::WORLD_INVALID, TEXT("AStageSupervisor::BeginPlay() OwnerLevel를 찾을 수 없습니다."));
+		GameCore::Throw(GameErr::WORLD_INVALID, TEXT("BeginPlay() OwnerLevel를 찾을 수 없습니다."));
 		return;
 	}
 
 	StageStateComponent = UGGameCoreHelper::GetGameStateComponent<UStageStateComponent>(this);
 	if (!StageStateComponent.IsValid())
 	{
-		GameCore::Throw(GameErr::COMPONENT_INVALID, TEXT("AStageSupervisor::BeginPlay() StageStateComponent를 찾을 수 없습니다."));
+		GameCore::Throw(GameErr::COMPONENT_INVALID, TEXT("BeginPlay() StageStateComponent를 찾을 수 없습니다."));
 		return;
 	}
 
 	StageStorageComponent = UGGameCoreHelper::GetPlayerControllerComponent<UStageStorageComponent>(StageStateComponent->PrimaryPC.Get());
 	if (!StageStorageComponent.IsValid())
 	{
-		GameCore::Throw(GameErr::COMPONENT_INVALID, TEXT("AStageSupervisor::BeginPlay() StageStorageComponent를 찾을 수 없습니다."));
+		GameCore::Throw(GameErr::COMPONENT_INVALID, TEXT("BeginPlay() StageStorageComponent를 찾을 수 없습니다."));
 		return;
 	}
 
@@ -398,14 +398,14 @@ void AStageSupervisor::OnWaveMonsterSpawn(UStageMonsterContext* Context, int32 P
 {
 	if (!IsValid(Context))
 	{
-		UE_LOGFMT(LogStage, Warning, "AStageSupervisor::OnWaveMonsterSpawn(Context, Position:{0}, SpawnCount:{1}):UStageMonsterContext가 유효하지 않습니다.", Position, SpawnCount);
+		UE_LOGFMT(LogStage, Warning, "OnWaveMonsterSpawn(Context, Position:{0}, SpawnCount:{1}):UStageMonsterContext가 유효하지 않습니다.", Position, SpawnCount);
 		return;
 	}
 
 	auto Spawner = OwnerLevel->GetSpawner(Position);
 	if (!Spawner)
 	{
-		UE_LOGFMT(LogStage, Warning, "AStageSupervisor::OnWaveMonsterSpawn(Context, Position:{0}, SpawnCount:{1}):Spawner를 찾지 못하였습니다.", Position, SpawnCount);
+		UE_LOGFMT(LogStage, Warning, "OnWaveMonsterSpawn(Context, Position:{0}, SpawnCount:{1}):Spawner를 찾지 못하였습니다.", Position, SpawnCount);
 		return;
 	}
 
