@@ -29,7 +29,7 @@ struct SPROJECT_API FMonsterGroupTableRow : public FTableRowBase
 	int32 AmountValue = INDEX_NONE;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 Position = INDEX_NONE;
+	int32 Spawner = INDEX_NONE;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 Path = INDEX_NONE;
