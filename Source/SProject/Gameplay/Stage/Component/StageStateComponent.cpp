@@ -133,7 +133,12 @@ FGErrorInfo UStageStateComponent::SetStageLevel(int32 StageLevel, AGameplayLevel
 	}
 	TargetStage = SelectedStageLevel;
 
+	if (auto Err = SelectedStageLevel->Setup(StageLevel, StageSupervisorClass); !GameCore::IsOK(Err))
+	{
+		return Err;
+	}
+
 	PrimaryPC->Possess(SelectedStageLevel->GetPlayerPawn());
 
-	return SelectedStageLevel->Setup(StageLevel, StageSupervisorClass);
+	return GameCore::Pass();
 }

@@ -309,7 +309,7 @@ void AStageLevel::OnInitailize()
 		}
 		else if (Actor->IsA<AStageStartPoint>())
 		{
-
+			AddStartPoint(Cast<AStageStartPoint>(Actor));
 		}
 		else if (Actor->IsA<AStagePlayerPawn>())
 		{

@@ -19,7 +19,48 @@ void UStageWaveComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	if (IsNextWaveLocked())
+	{
+		NextWaveDelay -= DeltaTime;
+	}
 
+	if (IsPlaying())
+	{
+		TSet<int32> DeleteIds;
+		DeleteIds.Reserve(SpawnDatas.Num());
+		for (auto& Data : SpawnDatas)
+		{
+			if (Data.Amount <= 0)
+			{
+				DeleteIds.Emplace(Data.UniqueId);
+				continue;
+			}
+
+			if (Data.SpawnDelay > 0.0)
+			{
+				Data.SpawnDelay -= DeltaTime;
+				continue;
+			}
+
+			Data.SpawnDelay = Data.AmountDelayTime;
+			int32 SpawnCount = Data.AmountValue;
+			if (SpawnCount > Data.Amount)
+			{
+				SpawnCount = Data.Amount;
+			}
+			Data.Amount -= SpawnCount;
+
+			OnSpawn(Data.MonsterContext.Get(), Data.Position, SpawnCount);
+		}
+
+		if (DeleteIds.Num() > 0)
+		{
+			SpawnDatas.RemoveAll([&DeleteIds](const FStageSpawnData& Item)
+				{
+					return DeleteIds.Contains(Item.UniqueId);
+				});
+		}
+	}
 }
 
 FGErrorInfo UStageWaveComponent::Setup(TSharedPtr<FStage> Stage)
@@ -74,7 +115,15 @@ FGErrorInfo UStageWaveComponent::Start()
 
 	for (auto& MonsterGroupInfo : WaveContext->MonsterGroupInfos)
 	{
+		FStageSpawnData NewData;
+		NewData.UniqueId = ++SequenceId;
+		NewData.Amount = MonsterGroupInfo.Amount;
+		NewData.AmountValue = MonsterGroupInfo.AmountValue;
+		NewData.AmountDelayTime = MonsterGroupInfo.AmountDelayTime.GetTotalSeconds();
+		NewData.Position = MonsterGroupInfo.Position;
+		NewData.MonsterContext = MonsterGroupInfo.MonsterContext;
 
+		SpawnDatas.Emplace(NewData);
 	}
 
 	return GameCore::Pass();
@@ -100,15 +149,19 @@ TSharedPtr<FStage> UStageWaveComponent::GetStage() const
 	return StagePtr.Pin();
 }
 
+bool UStageWaveComponent::IsNextWaveLocked() const
+{
+	return NextWaveDelay > 0.0;
+}
+
 bool UStageWaveComponent::IsPlaying() const
 {
-	// TODO:
-	return false;
+	return SpawnDatas.Num() > 0;
 }
 
 bool UStageWaveComponent::IsComplete() const
 {
-	return false;
+	return NextWave > LastWave;
 }
 
 int32 UStageWaveComponent::GetWave() const
@@ -121,62 +174,19 @@ int32 UStageWaveComponent::GetWave() const
 	return StagePtr.Pin()->Wave;
 }
 
-//FGErrorInfo UStageWaveComponent::SetWaveGroup(int32 TargetWaveGroup)
-//{
-//	WaveGroup = TargetWaveGroup;
-//	UStageTableHelper::GetWaveGroupInfo(WaveGroup, WaveGroupInfo);
-//	CurrentWaveIndex = 0;
-//	return FGErrorInfo();
-//}
-//
-//FGErrorInfo UStageWaveComponent::WaveStart()
-//{
-//	OnWaveStart();
-//	return FGErrorInfo();
-//}
-//
-//FGErrorInfo UStageWaveComponent::WaveEnd()
-//{
-//
-//	OnWaveEnd();
-//	return FGErrorInfo();
-//}
-//
-//FGErrorInfo UStageWaveComponent::NextWave()
-//{
-//	if (CurrentWaveIndex < WaveGroupInfo.Num())
-//	{
-//		return FGErrorInfo();
-//	}
-//
-//	auto CurrentWaveGroup = WaveGroupInfo[CurrentWaveIndex];
-//	if (CurrentWaveGroup.Type != 2 && CurrentWaveIndex < WaveGroupInfo.Num() - 1)
-//	{
-//		CurrentWaveIndex += 1;
-//	}
-//	else
-//	{
-//		OnStageWaveComplete();
-//	}
-//
-//	return FGErrorInfo();
-//}
-//
-//TArray<FStageWaveGroupInfo> UStageWaveComponent::GetWaveGroupInfos()
-//{
-//	return WaveGroupInfo;
-//}
-//
-//TArray<FMonsterGroupTableRow> UStageWaveComponent::GetCurrentMonsterGroupInfo()
-//{
-//	TArray<FMonsterGroupTableRow> Info;
-//	UStageTableHelper::GetMonsterGroupInfo(WaveGroupInfo[CurrentWaveIndex].MonsterGroup, Info);
-//	return Info;
-//}
-//
-//TArray<FMonsterGroupTableRow> UStageWaveComponent::GetMonsterGroupInfos(int32 MonsterGroup)
-//{
-//	TArray<FMonsterGroupTableRow> Info;
-//	UStageTableHelper::GetMonsterGroupInfo(MonsterGroup, Info);
-//	return Info;
-//}
+void UStageWaveComponent::OnSpawn(UStageMonsterContext* Context, int32 Position, int32 SpawnCount)
+{
+	if (!RequestStageSpawnEvent.IsBound())
+	{
+		UE_LOGFMT(LogStage, Warning, "UStageWaveComponent::OnSpawn(Context, Position:{0}, SpawnCount:{1}):RequestStageSpawnEvent가 바인딩되어 있지 않습니다.", Position, SpawnCount);
+		return;
+	}
+
+	if (!IsValid(Context))
+	{
+		UE_LOGFMT(LogStage, Warning, "UStageWaveComponent::OnSpawn(Context, Position:{0}, SpawnCount:{1}):UStageMonsterContext가 유효하지 않습니다.", Position, SpawnCount);
+		return;
+	}
+
+	RequestStageSpawnEvent.Execute(Context, Position, SpawnCount);
+}

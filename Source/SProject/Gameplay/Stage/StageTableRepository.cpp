@@ -69,7 +69,7 @@ TFuture<FGErrorInfo> UStageTableRepository::Load(UStageTableReceipt*& Receipt, i
 			auto NewContext = NewObject<UStageContext>(this, NAME_None, RF_Public | RF_Transient);
 			Receipt->StageContext = NewContext;
 
-			StageContext = NewContext;
+			StageContext = StageContexts[StageLevel] = NewContext;
 		}
 		
 
@@ -114,10 +114,20 @@ TFuture<FGErrorInfo> UStageTableRepository::Load(UStageTableReceipt*& Receipt, i
 					StageContext->WaveContexts.Emplace(NewContext);
 
 					WaveContext = NewContext;
+					switch (static_cast<EStageWaveType>(WaveTableRow->Type))
+					{
+					case EStageWaveType::Default:
+						StageWaveContexts[WaveTableRow->Index] = NewContext;
+						break;
+
+					case EStageWaveType::Repeat:
+						RepeatStageWaveContexts[WaveTableRow->Index] = NewContext;
+						break;
+					}
 				}
 
 				WaveContext->WaveInfo.Index = WaveTableRow->Index;
-				WaveContext->WaveInfo.DelayTime = FTimespan(0, 0, WaveTableRow->DelayTime);
+				WaveContext->WaveInfo.DelayTime = FTimespan::FromMilliseconds(WaveTableRow->DelayTime);
 				WaveContext->WaveInfo.MonsterGroup = WaveTableRow->MonsterGroup;
 
 				int32 MonsterGroup = WaveTableRow->MonsterGroup;
@@ -140,7 +150,7 @@ TFuture<FGErrorInfo> UStageTableRepository::Load(UStageTableReceipt*& Receipt, i
 					MonsterGroupInfo.Amount = MonsterGroupTableRow->Amount;
 					MonsterGroupInfo.AmountValue = MonsterGroupTableRow->AmountValue;
 					MonsterGroupInfo.Position = MonsterGroupTableRow->Position;
-					MonsterGroupInfo.AmountDelayTime = FTimespan(0, 0, MonsterGroupTableRow->AmountDelayTime);
+					MonsterGroupInfo.AmountDelayTime = FTimespan::FromMilliseconds(MonsterGroupTableRow->AmountDelayTime);
 
 					{
 						TWeakObjectPtr<UStageMonsterContext> Context = MonsterContexts.FindOrAdd(MonsterTableRow->Index);
@@ -151,7 +161,7 @@ TFuture<FGErrorInfo> UStageTableRepository::Load(UStageTableReceipt*& Receipt, i
 						else
 						{
 							MonsterGroupInfo.MonsterContext = NewObject<UStageMonsterContext>(this, NAME_None, RF_Public | RF_Transient);
-							Context = MonsterGroupInfo.MonsterContext;
+							Context = MonsterContexts[MonsterTableRow->Index] = MonsterGroupInfo.MonsterContext;
 
 							Context->MonsterInfo.Index = MonsterTableRow->Index;
 							Context->MonsterInfo.Level = MonsterTableRow->Level;
@@ -197,7 +207,7 @@ TFuture<FGErrorInfo> UStageTableRepository::Load(UStageTableReceipt*& Receipt, i
 							auto NewContext = NewObject<UStageTowerContext>(this, NAME_None, RF_Public | RF_Transient);
 							StageContext->TowerContexts.Emplace(NewContext);
 
-							Context = NewContext;
+							Context = NormalTowerContexts[MakeTuple(TowerTableRow->Kind, TowerTableRow->Level)] = NewContext;
 
 							Context->TowerInfo.TowerType = Type;
 							Context->TowerInfo.Index = TowerTableRow->Index;

@@ -2,23 +2,25 @@
 
 #include "StageSpawner.h"
 // include Engine
-#include "Engine/World.h"
-#include "GameFramework/GameStateBase.h"
-#include "Kismet/GameplayStatics.h"
+
 // include Project
-#include "Gameplay/GameplayHelper.h"
-#include "Gameplay/ETC/GameplayPathActor.h"
-#include "Gameplay/Stage/Stage.h"
-#include "Gameplay/Stage/StageLevel.h"
-#include "Gameplay/Stage/StageTableRepository.h"
-#include "Gameplay/Stage/Types/GameplayStageTypes.h"
-#include "Gameplay/Stage/Unit/StageMonsterUnit.h"
-#include "Gameplay/Stage/Component/StageSpawnComponent.h"
-#include "Gameplay/Stage/AI/StageAIController.h"
+
+
+FVector AStageSpawner::GetSpawnLocation() const
+{
+	// TODO: 스폰 위치 랜덤성
+	return GetActorLocation();
+}
+
+FRotator AStageSpawner::GetSpawnRotation() const
+{
+	// TODO: 스폰 각도
+	return GetActorRotation();
+}
 
 FGErrorInfo AStageSpawner::SpawnMonster(const FStageMonsterSpawnParams& Params, AStageMonsterUnit*& SpawnedUnit)
 {
-	UStageSpawnComponent* SpawnComponent = nullptr;
+	/*UStageSpawnComponent* SpawnComponent = nullptr;
 	if (auto Err = GetSpawnComponent(SpawnComponent); !GameCore::IsOK(Err))
 	{
 		return Err;
@@ -28,7 +30,7 @@ FGErrorInfo AStageSpawner::SpawnMonster(const FStageMonsterSpawnParams& Params, 
 	if (auto Err = UStageTableHelper::GetStageMonsterInfo(Params.Index, Info); !GameCore::IsOK(Err))
 	{
 		return Err;
-	}
+	}*/
 
 	/*if (auto Err = SpawnComponent->SpawnMonster(GetTeamID(), Params.StageLevel.Get(), GetActorLocation(), GetActorRotation(), Info, nullptr, SpawnedUnit); !GameCore::IsOK(Err))
 	{
@@ -53,7 +55,7 @@ FGErrorInfo AStageSpawner::SpawnMonster(const FStageMonsterSpawnParams& Params, 
 
 FGErrorInfo AStageSpawner::GetSpawnComponent(UStageSpawnComponent*& SpawnComponent) const
 {
-	auto World = GetWorld();
+	/*auto World = GetWorld();
 	if (!World)
 	{
 		return GameCore::Throw(GameErr::WORLD_INVALID);
@@ -69,7 +71,7 @@ FGErrorInfo AStageSpawner::GetSpawnComponent(UStageSpawnComponent*& SpawnCompone
 	if (!SpawnComponent)
 	{
 		return GameCore::Throw(GameErr::COMPONENT_INVALID, TEXT("UStageSpawnComponent"));
-	}
+	}*/
 
 	return GameCore::Pass();
 }

@@ -109,7 +109,7 @@ public:
 	FTimespan AmountDelayTime = INDEX_NONE;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UStageMonsterContext* MonsterContext;
+	UStageMonsterContext* MonsterContext = nullptr;
 
 };
 

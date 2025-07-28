@@ -22,5 +22,8 @@ namespace GameErr
 
 		// 다음 웨이브 정보가 없어 시작을 할 수 없습니다.
 		static const FString NO_NEXT_WAVE = TEXT("NO_NEXT_WAVE");
+
+		// 아직 다음 웨이브를 시작 할 수 없습니다.
+		static const FString CANNOT_START_NEXT_WAVE = TEXT("CANNOT_START_NEXT_WAVE");
 	}
 }

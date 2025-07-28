@@ -1,6 +1,8 @@
 // Copyright (c) 2025 Team EpicRocket. All rights reserved.
 
 #include "StageSupervisor.h"
+// include Engine
+#include "Engine/World.h"
 // include GGameCore
 #include "Core/GGameCoreHelper.h"
 #include "Table/GTableHelper.h"
@@ -12,6 +14,7 @@
 #include "Gameplay/Stage/Stage.h"
 #include "Gameplay/Stage/StageTableRepository.h"
 #include "Gameplay/Stage/ETC/StageBuildZone.h"
+#include "Gameplay/Stage/ETC/StageSpawner.h"
 #include "Gameplay/Stage/Types/GameplayStageTypes.h"
 #include "Gameplay/Stage/Component/StageStateComponent.h"
 #include "Gameplay/Stage/Component/StageStorageComponent.h"
@@ -33,6 +36,7 @@ void AStageSupervisor::PreInitializeComponents()
 	auto WaveComponent = GetWaveComponent();
 	check(WaveComponent);
 
+	WaveComponent->RequestStageSpawnEvent.BindDynamic(this, &AStageSupervisor::OnWaveMonsterSpawn);
 }
 
 void AStageSupervisor::BeginPlay()
@@ -234,15 +238,15 @@ FGErrorInfo AStageSupervisor::RequestStartWave()
 {
 	auto WaveComponent = GetWaveComponent();
 
-	/*if (WaveComponent->IsPlaying())
+	if (WaveComponent->IsNextWaveLocked())
 	{
-		return GameCore::Throw(GameErr::Stage::WAVE_IS_PLAYING, TEXT("RequestStartWave()"));
-	}*/
+		return GameCore::Throw(GameErr::Stage::CANNOT_START_NEXT_WAVE);
+	}
 
-	/*if (WaveComponent->IsComplete())
+	if (WaveComponent->IsComplete())
 	{
-		return GameCore::Throw(GameErr::Stage::ALL_CLEAR_WAVE, TEXT("RequestStartWave()"));
-	}*/
+		return GameCore::Throw(GameErr::Stage::LAST_WAVE);
+	}
 
 	return WaveComponent->Start();
 }
@@ -388,6 +392,46 @@ FGErrorInfo AStageSupervisor::ResetStageData()
 	}
 
 	return GameCore::Pass();
+}
+
+void AStageSupervisor::OnWaveMonsterSpawn(UStageMonsterContext* Context, int32 Position, int32 SpawnCount)
+{
+	if (!IsValid(Context))
+	{
+		UE_LOGFMT(LogStage, Warning, "AStageSupervisor::OnWaveMonsterSpawn(Context, Position:{0}, SpawnCount:{1}):UStageMonsterContext가 유효하지 않습니다.", Position, SpawnCount);
+		return;
+	}
+
+	auto Spawner = OwnerLevel->GetSpawner(Position);
+	if (!Spawner)
+	{
+		UE_LOGFMT(LogStage, Warning, "AStageSupervisor::OnWaveMonsterSpawn(Context, Position:{0}, SpawnCount:{1}):Spawner를 찾지 못하였습니다.", Position, SpawnCount);
+		return;
+	}
+
+	TArray<AStageMonsterUnit*> SpawnedMonsters;
+	SpawnedMonsters.Reserve(SpawnCount);
+	for (int32 Index = 0; Index < SpawnCount; Index++)
+	{
+		AStageMonsterUnit* SpawnedMonster;
+		auto Err = SpawnMonster(Spawner->GetTeamID(), Spawner->GetSpawnLocation(), Spawner->GetSpawnRotation(), Context->MonsterInfo, SpawnedMonster);
+		if (!GameCore::IsOK(Err))
+		{
+			continue;
+		}
+
+		SpawnedMonsters.Emplace(SpawnedMonster);
+	}
+
+	for (auto Monster : SpawnedMonsters)
+	{
+		auto AIController = Cast<AStageAIController>(Monster->GetController());
+		if (!IsValid(AIController))
+		{
+			continue;
+		}
+		AIController->StartAI();
+	}
 }
 
 FGErrorInfo AStageSupervisor::OnTableLoaded()

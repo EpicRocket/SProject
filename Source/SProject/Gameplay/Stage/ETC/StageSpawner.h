@@ -36,6 +36,12 @@ class MY_API AStageSpawner : public AGameplayTeamActor, public IGameplayActorTag
 
 public:
 	UFUNCTION(BlueprintCallable)
+	FVector GetSpawnLocation() const;
+
+	UFUNCTION(BlueprintCallable)
+	FRotator GetSpawnRotation() const;
+
+	UFUNCTION(BlueprintCallable)
 	FGErrorInfo SpawnMonster(const FStageMonsterSpawnParams& Params, AStageMonsterUnit*& SpawnedUnit);
 	
 protected:

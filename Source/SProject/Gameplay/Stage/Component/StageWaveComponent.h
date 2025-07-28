@@ -7,7 +7,38 @@
 #include "StageWaveComponent.generated.h"
 
 class AStageLevel;
+class UStageMonsterContext;
 struct FStage;
+
+USTRUCT(BlueprintType)
+struct MY_API FStageSpawnData
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 UniqueId = INDEX_NONE;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 Amount = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 AmountValue = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	double AmountDelayTime = 0.0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 Position = INDEX_NONE;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	double SpawnDelay = 0.0;
+
+	UPROPERTY(BlueprintReadOnly)
+	TWeakObjectPtr<UStageMonsterContext> MonsterContext;
+
+};
+
+DECLARE_DYNAMIC_DELEGATE_ThreeParams(FRequestStageSpawnEvent, UStageMonsterContext*, Context, int32, Position, int32, SpawnCount);
 
 UCLASS(Abstract, Blueprintable, meta = (BlueprintSpawnableComponent), Category = "Stage", ClassGroup = "Stage")
 class MY_API UStageWaveComponent : public UGGameCoreComponent
@@ -19,7 +50,7 @@ public:
 
 	// UActorComponent
 public:
-	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	// ~UActorComponent
 
 public:
@@ -31,6 +62,9 @@ public:
 	FGErrorInfo K2_GetStage(UPARAM(DisplayName = "ReturnValue") FStage& CurrentStage) const;
 	TSharedPtr<FStage> GetStage() const;
 
+	UFUNCTION(BlueprintPure, meta = (ShortToolTip = "다음 웨이브 시작이 잠겼는지 판별합니다."))
+	bool IsNextWaveLocked() const;
+
 	UFUNCTION(BlueprintPure, meta = (ShortToolTip = "웨이브가 진행 중인지 판별합니다."))
 	bool IsPlaying() const;
 
@@ -40,7 +74,12 @@ public:
 	UFUNCTION(BlueprintPure, meta = (ShortToolTip = "현재 웨이브를 반환합니다."))
 	int32 GetWave() const;
 
+protected:
+	void OnSpawn(UStageMonsterContext* Context, int32 Position, int32 SpawnCount);
+
 public:
+	FRequestStageSpawnEvent RequestStageSpawnEvent;
+
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
 	int32 LastWave = INDEX_NONE;
 
@@ -51,52 +90,12 @@ public:
 	double NextWaveDelay = 0.0;
 
 private:
+	UPROPERTY(Transient)
+	int32 SequenceId = 0;
+
 	TWeakPtr<FStage> StagePtr;
 
-
-//
-//private:
-//	int32 WaveGroup = INDEX_NONE;
-//
-//	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-//	int32 CurrentWaveIndex = INDEX_NONE;
-//
-//	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
-//	TArray<FStageWaveGroupInfo> WaveGroupInfo;
-//
-//protected:
-//	UFUNCTION(BlueprintImplementableEvent)
-//	void OnWaveStart();
-//
-//	UFUNCTION(BlueprintImplementableEvent)
-//	void OnWaveEnd();
-//
-//	UFUNCTION(BlueprintImplementableEvent)
-//	void OnStageWaveComplete();
-//
-//public:
-//	UPROPERTY(BlueprintReadWrite)
-//	bool Paused = true;
-//
-//	UFUNCTION(BlueprintCallable)
-//	FGErrorInfo SetWaveGroup(int32 WaveGroup);
-//
-//	UFUNCTION(BlueprintCallable)
-//	FGErrorInfo WaveStart();
-//
-//	UFUNCTION(BlueprintCallable)
-//	FGErrorInfo WaveEnd();
-//
-//	UFUNCTION(BlueprintCallable)
-//	FGErrorInfo NextWave();
-//
-//	UFUNCTION(BlueprintCallable)
-//	TArray<FStageWaveGroupInfo> GetWaveGroupInfos();
-//
-//	UFUNCTION(BlueprintCallable)
-//	TArray<FMonsterGroupTableRow> GetCurrentMonsterGroupInfo();
-//
-//	UFUNCTION(BlueprintCallable)
-//	TArray<FMonsterGroupTableRow> GetMonsterGroupInfos(int32 MonsterGroup);
+	UPROPERTY(Transient)
+	TArray<FStageSpawnData> SpawnDatas;
 
 };

@@ -13,6 +13,7 @@ struct FStageMonsterInfo;
 class AStageTowerUnit;
 class AStageMonsterUnit;
 class AStageUnitCharacter;
+class UStageMonsterContext;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnUserStatusChanged, int32, OldValue, int32, NewValue);
 
@@ -93,6 +94,9 @@ protected:
 
 private:
 	UFUNCTION()
+	void OnWaveMonsterSpawn(UStageMonsterContext* Context, int32 Position, int32 SpawnCount);
+
+private:
 	FGErrorInfo OnTableLoaded();
 	FGErrorInfo OnGameplayDataLoad();
 	FGErrorInfo OnGameplayDataLoad_Wave();
