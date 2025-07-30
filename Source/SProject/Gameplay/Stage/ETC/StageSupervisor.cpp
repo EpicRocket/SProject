@@ -37,7 +37,7 @@ void AStageSupervisor::PreInitializeComponents()
 	auto WaveComponent = GetWaveComponent();
 	check(WaveComponent);
 
-	WaveComponent->RequestStageSpawnEvent.BindDynamic(this, &AStageSupervisor::OnWaveMonsterSpawn);
+	WaveComponent->RequestSpawnEvent.BindDynamic(this, &AStageSupervisor::OnWaveMonsterSpawn);
 }
 
 void AStageSupervisor::Setup(AStageLevel* OwnerStage)

@@ -9,6 +9,8 @@
 
 class UGPhaseGameplayAbility;
 
+DECLARE_LOG_CATEGORY_EXTERN(LogPhase, Log, All);
+
 DECLARE_DYNAMIC_DELEGATE_OneParam(FGPhaseDynamicDelegate, const UGPhaseGameplayAbility*, Phase);
 DECLARE_DELEGATE_OneParam(FGPhaseDelegate, const UGPhaseGameplayAbility* Phase);
 

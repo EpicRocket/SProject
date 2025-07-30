@@ -19,6 +19,9 @@ struct MY_API FStageSpawnData
 	int32 UniqueId = INDEX_NONE;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 Wave = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 Amount = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -60,6 +63,7 @@ struct MY_API FStageSpawnParam
 };
 
 DECLARE_DYNAMIC_DELEGATE_OneParam(FRequestStageSpawnEvent, FStageSpawnParam, Param);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FStageWaveEvent, int32, Wave);
 
 UCLASS(Abstract, Blueprintable, meta = (BlueprintSpawnableComponent), Category = "Stage", ClassGroup = "Stage")
 class MY_API UStageWaveComponent : public UGGameCoreComponent
@@ -99,7 +103,14 @@ protected:
 	void OnSpawn(FStageSpawnParam Param);
 
 public:
-	FRequestStageSpawnEvent RequestStageSpawnEvent;
+	UPROPERTY(EditAnywhere, Category = "Events", meta = (IsBindableEvent = true))
+	FRequestStageSpawnEvent RequestSpawnEvent;
+
+	UPROPERTY(EditAnywhere, BlueprintAssignable, Category = "Events")
+	FStageWaveEvent WaveStartEvent;
+
+	UPROPERTY(EditAnywhere, BlueprintAssignable, Category = "Events")
+	FStageWaveEvent WaveEndedEvent;
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
 	int32 LastWave = INDEX_NONE;
@@ -115,6 +126,9 @@ private:
 	int32 SequenceId = 0;
 
 	TWeakPtr<FStage> StagePtr;
+
+	UPROPERTY(Transient)
+	TSet<int32> PlayedWaves;
 
 	UPROPERTY(Transient)
 	TArray<FStageSpawnData> SpawnDatas;

@@ -3,7 +3,7 @@
 
 #include "AbilitySystemComponent.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
-#include "AbilitySystem/Attribute/GAttributeSet.h"
+#include "AbilitySystem/GAttributeSet.h"
 #include "Misc/EnumRange.h"
 
 #include "StageUnitAttributeSet.generated.h"

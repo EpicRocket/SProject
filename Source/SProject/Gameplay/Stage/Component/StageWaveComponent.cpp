@@ -26,6 +26,7 @@ void UStageWaveComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 
 	if (IsPlaying())
 	{
+		TSet<int32> Waves = PlayedWaves;
 		TSet<int32> DeleteIds;
 		DeleteIds.Reserve(SpawnDatas.Num());
 		for (auto& Data : SpawnDatas)
@@ -34,6 +35,11 @@ void UStageWaveComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 			{
 				DeleteIds.Emplace(Data.UniqueId);
 				continue;
+			}
+
+			if (Waves.Contains(Data.Wave))
+			{
+				Waves.Remove(Data.Wave);
 			}
 
 			if (Data.SpawnDelay > 0.0)
@@ -61,10 +67,21 @@ void UStageWaveComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 
 		if (DeleteIds.Num() > 0)
 		{
-			SpawnDatas.RemoveAll([&DeleteIds](const FStageSpawnData& Item)
+			int32 RemoveCount = SpawnDatas.RemoveAll([&DeleteIds](const FStageSpawnData& Item)
 				{
 					return DeleteIds.Contains(Item.UniqueId);
 				});
+		}
+
+		for (auto& Wave : Waves)
+		{
+			PlayedWaves.Remove(Wave);
+		}
+
+		// NOTE. 끝난 웨이브에 대한 순서 보장을 해주기 위해 나뉘어서 처리
+		for (auto& Wave : Waves)
+		{
+			WaveEndedEvent.Broadcast(Wave);
 		}
 	}
 }
@@ -82,7 +99,8 @@ FGErrorInfo UStageWaveComponent::Setup(TSharedPtr<FStage> Stage)
 	}
 
 	StagePtr = Stage;
-	NextWave = Stage->Wave;
+	Stage->Wave = FMath::Max<int32>(Stage->Wave, INDEX_NONE);
+	NextWave = Stage->Wave + 1;
 
 	return GameCore::Pass();
 }
@@ -106,15 +124,15 @@ FGErrorInfo UStageWaveComponent::Start()
 		return Err;
 	}
 
-	if ((NextWave + 1) >= WaveContexts.Num())
+	if (NextWave >= WaveContexts.Num())
 	{
 		auto Msg = FString::Printf(TEXT("[NextWave:%d][WaveContextCount:%d]"), (NextWave + 1), WaveContexts.Num());
 		return GameCore::Throw(GameErr::Stage::NO_NEXT_WAVE, Msg);
 	}
 
-	NextWave++;
+	int32 StartWave = NextWave++;
 
-	auto WaveContext = WaveContexts[NextWave];
+	auto WaveContext = WaveContexts[StartWave];
 
 	// NOTE. 다음 웨이브 딜레이 시간 증가
 	NextWaveDelay += WaveContext->WaveInfo.DelayTime.GetTotalSeconds();
@@ -123,6 +141,7 @@ FGErrorInfo UStageWaveComponent::Start()
 	{
 		FStageSpawnData NewData;
 		NewData.UniqueId = ++SequenceId;
+		NewData.Wave = StartWave;
 		NewData.Amount = MonsterGroupInfo.Amount;
 		NewData.AmountValue = MonsterGroupInfo.AmountValue;
 		NewData.AmountDelayTime = MonsterGroupInfo.AmountDelayTime.GetTotalSeconds();
@@ -132,6 +151,10 @@ FGErrorInfo UStageWaveComponent::Start()
 
 		SpawnDatas.Emplace(NewData);
 	}
+
+	PlayedWaves.Emplace(StartWave);
+
+	WaveStartEvent.Broadcast(StartWave);
 
 	return GameCore::Pass();
 }
@@ -163,7 +186,7 @@ bool UStageWaveComponent::IsNextWaveLocked() const
 
 bool UStageWaveComponent::IsPlaying() const
 {
-	return SpawnDatas.Num() > 0;
+	return PlayedWaves.Num() > 0;
 }
 
 bool UStageWaveComponent::IsComplete() const
@@ -183,11 +206,11 @@ int32 UStageWaveComponent::GetWave() const
 
 void UStageWaveComponent::OnSpawn(FStageSpawnParam Params)
 {
-	if (!RequestStageSpawnEvent.IsBound())
+	if (!RequestSpawnEvent.IsBound())
 	{
 		UE_LOGFMT(LogStage, Warning, "OnSpawn(Params):RequestStageSpawnEvent가 바인딩되어 있지 않습니다.");
 		return;
 	}
 
-	RequestStageSpawnEvent.Execute(Params);
+	RequestSpawnEvent.Execute(Params);
 }

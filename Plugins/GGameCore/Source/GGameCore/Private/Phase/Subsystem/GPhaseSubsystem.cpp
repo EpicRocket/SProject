@@ -2,11 +2,13 @@
 #include "Phase/Subsystem/GPhaseSubsystem.h"
 // include Engine
 #include "GameFramework/GameStateBase.h"
+#include "AbilitySystemComponent.h"
 // include Project
 #include "Phase/GPhaseGameplayAbility.h"
-#include "AbilitySystem/GAbilitySystemComponent.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(GPhaseSubsystem)
+
+DEFINE_LOG_CATEGORY(LogPhase)
 
 bool UGPhaseSubsystem::DoesSupportWorldType(const EWorldType::Type WorldType) const
 {
@@ -27,7 +29,7 @@ void UGPhaseSubsystem::StartPhase(TSubclassOf<UGPhaseGameplayAbility> PhaseAbili
 		return;
 	}
 
-	auto AbilitySystem = GameState->FindComponentByClass<UGAbilitySystemComponent>();
+	auto AbilitySystem = GameState->FindComponentByClass<UAbilitySystemComponent>();
 	if (!IsValid(AbilitySystem))
 	{
 		return;
@@ -146,7 +148,7 @@ void UGPhaseSubsystem::OnBeginPhase(const UGPhaseGameplayAbility* PhaseAbility, 
 		return;
 	}
 
-	auto AbilitySystem = GameState->FindComponentByClass<UGAbilitySystemComponent>();
+	auto AbilitySystem = GameState->FindComponentByClass<UAbilitySystemComponent>();
 	if (!IsValid(AbilitySystem))
 	{
 		return;
@@ -169,10 +171,30 @@ void UGPhaseSubsystem::OnBeginPhase(const UGPhaseGameplayAbility* PhaseAbility, 
 		if (!IncomingPhaseTag.MatchesTag(ActivePhaseTag))
 		{
 			FGameplayAbilitySpecHandle HandleToEnd = ActivePhase->Handle;
-			AbilitySystem->CancelAbilitiesByFunc(
-				[HandleToEnd](auto Ability, auto Handle) -> bool { return Handle == HandleToEnd; },
-				true
-			);
+			for (auto& Ability : AbilitySystem->GetActivatableAbilities())
+			{
+				if (!Ability.IsActive())
+				{
+					continue;
+				}
+
+				for (auto Instance : Ability.GetAbilityInstances())
+				{
+					if (Ability.Handle != HandleToEnd)
+					{
+						continue;
+					}
+
+					if (Instance->CanBeCanceled())
+					{
+						Instance->CancelAbility(Ability.Handle, AbilitySystem->AbilityActorInfo.Get(), Instance->GetCurrentActivationInfo(), true);
+					}
+					else
+					{
+						UE_LOG(LogPhase, Error, TEXT("%s 어빌리티를 취소 할 수 없습니다."), *Instance->GetName());
+					}
+				}
+			}
 		}
 	}
 

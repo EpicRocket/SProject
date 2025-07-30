@@ -1,12 +1,13 @@
+// Copyright (c) 2025 Team EpicRocket. All rights reserved.
 
 #pragma once
 
-#include "AbilitySystem/Ability/GGameplayAbility.h"
+#include "Abilities/GameplayAbility.h"
 
 #include "GPhaseGameplayAbility.generated.h"
 
 UCLASS(Abstract, HideCategories = "Input")
-class GGAMECORE_API UGPhaseGameplayAbility : public UGGameplayAbility
+class GGAMECORE_API UGPhaseGameplayAbility : public UGameplayAbility
 {
 	GENERATED_BODY()
 
