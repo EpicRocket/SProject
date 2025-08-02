@@ -1,0 +1,3 @@
+[submodule "Plugins/GGameCore"]
+	path = Plugins/GGameCore
+	url = https://github.com/EpicRocket/GGameCore.git
